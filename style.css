@@ -97,7 +97,7 @@ right:50px;
 	color:green;
 }
 #timebar_bar{
-	background-color:#0288d1;
+	background-color:white;
 	width:10%;
 }
 
@@ -133,8 +133,7 @@ text-align:center;
 }
 
 er{
-	color:#4d4d4d;
-	  margin: 0 2px 0 2px;
+	color:#333333;	
 }
 
 
