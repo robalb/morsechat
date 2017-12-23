@@ -1,14 +1,14 @@
 body{
-	background-color:#424242;
-	color:#fafafa;
-	font-family: 'Roboto', monospace;
-	margin:0;
-	overflow:hidden;
-	height: 100%;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
+  background-color:#424242;
+  color:#fafafa;
+  font-family: 'Roboto', monospace;
+  margin:0;
+  overflow:hidden;
+  height: 100%;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 html {
-    height: 100%;
+  height: 100%;
 }
 
 #nav{
@@ -22,26 +22,26 @@ html {
   text-align:center;
 }
 #nav button{
-cursor: pointer;
-border: 0;
-display: block;
-height: 50px;
-overflow: hidden;
-top: 0px;
-width: 50px;
-position: fixed;
-color:#efebe9;
-background-color:#212121;
+  cursor: pointer;
+  border: 0;
+  display: block;
+  height: 50px;
+  overflow: hidden;
+  top: 0px;
+  width: 50px;
+  position: fixed;
+  color:#efebe9;
+  background-color:#212121;
   outline-style:none;
 }
 .hamburger{
-left:0;
+  left:0;
 }
 .settingsbt{
-right:0;
+  right:0;
 }
 .showmorsebt{
-right:50px;
+  right:50px;
 }
 #nav  a{
   text-decoration: none;
@@ -56,86 +56,81 @@ right:50px;
 
 
 #container{
-  	height:100%; 
-	background-color:#616161;
-
-	text-align:left;
-	padding:1px;
-	overflow-y:hidden;
-	overflow-x:hidden;
-    max-width:600px;
-    margin: 0 auto;
-	margin-top:50px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-   -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-    -moz-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  height:100%; 
+  background-color:#616161;
+  text-align:left;
+  padding:1px;
+  overflow-y:hidden;
+  overflow-x:hidden;
+  max-width:600px;
+  margin: 0 auto;
+  margin-top:50px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  -moz-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
 
 #chat{
-	height:calc(100% - 153px);
+  height:calc(100% - 153px);
   list-style: none;
   overflow-y: auto;
   overflow-x: hidden;
-  	background-color:#595959;
-	margin:4px;
-	padding-left:4px;
-    box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
-	-webkit-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
-	-moz-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
-	
-
+  background-color:#595959;
+  margin:4px;
+  padding-left:4px;
+  box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
+  -webkit-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
+  -moz-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
 }
 #chat p{
-		    white-space: pre-wrap;      /* CSS3 */   
-   white-space: -moz-pre-wrap; /* Firefox */    
-   white-space: -pre-wrap;     /* Opera <7 */   
-   white-space: -o-pre-wrap;   /* Opera 7 */    
-   word-wrap: break-word;      /* IE */
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap; 
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
 }
 #chat a{
-	color:#40c4ff;
-	text-decoration:none;
+  color:#40c4ff;
+  text-decoration:none;
 }
 
 #dispbar{
-	  font-family: 'Roboto',Sans serif;
+  font-family: 'Roboto',Sans serif;
   font-size: 18px;
-    height: 45px;
+  height: 45px;
   /*line-height: 45px;*/
   margin: 0 .5em 0 .5em;
-
 }
 
 #timebar{
-	width:100%;
-	height:2px;
-	color:green;
+  width:100%;
+  height:2px;
+  color:green;
 }
 #timebar_bar{
-	background-color:white;
-	width:10%;
+  background-color:white;
+  width:10%;
 }
 
 
 #key{
-	margin-left:20px;
-	margin-right:20px;
-	background-color:#212121;
-	color:#e6e6e6;
-	font-family: 'Roboto', monospace;
-	font-size: 21px;
-position:fixed;
-bottom:0px;
-left:0px;
-height:50px;
-width:calc(100% - 40px);
-text-align:center;
+  margin-left:20px;
+  margin-right:20px;
+  background-color:#212121;
+  color:#e6e6e6;
+  font-family: 'Roboto', monospace;
+  font-size: 21px;
+  position:fixed;
+  bottom:0px;
+  left:0px;
+  height:50px;
+  width:calc(100% - 40px);
+  text-align:center;
   box-shadow: 0 -2px 5px rgba(0,0,0,.26);
-  
 }
 #key::after{
-	content: '<>';
-	  font-size: 21px;
+  content: '<>';
+  font-size: 21px;
   height: 50px;
   line-height: 50px;
 }
@@ -148,25 +143,24 @@ text-align:center;
 }
 
 er{
-	color:#333333;	
+  color:#333333;	
 }
 
 
 .morseListContainer{
-	display:none;
-	background-color:white;
-	position:fixed;
-	right:0;
-	top:50px;
-	width:180px;
-	height:calc(100% - 50px);
-	overflow-y:auto;
-	font-size:0;
-	background-color:#efebe9;
-		overflow:hidden;
-	transition-duration: 0.5s;
-	animation:animateshow 0.4s
-
+  display:none;
+  background-color:white;
+  position:fixed;
+  right:0;
+  top:50px;
+  width:180px;
+  height:calc(100% - 50px);
+  overflow-y:auto;
+  font-size:0;
+  background-color:#efebe9;
+  overflow:hidden;
+  transition-duration: 0.5s;
+  animation:animateshow 0.4s
 }
 @keyframes animateshow{from{height:0%;opacity:0} to{height:100%;opacity:1}}
 @media (min-width:960px){
@@ -175,33 +169,31 @@ er{
 	}
 }
 .morseListContainer button{
-	cursor: pointer;
-border: 0;
-height: 40px;
-overflow: hidden;
-background-color:#efebe9;
-color:#212121;
+  cursor: pointer;
+  border: 0;
+  height: 40px;
+  overflow: hidden;
+  background-color:#efebe9;
+  color:#212121;
   outline-style:none;
 }
 
 #morseList{
-	width:100%;
-	height:calc(100% - 40px);
-	background-color:#e0e0e0;
-	color:#000;
-	font-size:16px;
-	font-family:monospace;
-	overflow-Y:auto;
-	padding-left:10px;
-	padding-top:5px;
-	column-count:2;
-	 column-rule: 1px solid #bdbdbd;
-	 	transition-duration: ;
+  width:100%;
+  height:calc(100% - 40px);
+  background-color:#e0e0e0;
+  color:#000;
+  font-size:16px;
+  font-family:monospace;
+  overflow-Y:auto;
+  padding-left:10px;
+  padding-top:5px;
+  column-count:2;
+  column-rule: 1px solid #bdbdbd;
 }
 #morseList p{
-	 break-inside: avoid-column;
-	 -webkit-column-break-inside: avoid;
-
+  break-inside: avoid-column;
+  -webkit-column-break-inside: avoid;
 }
 
 
