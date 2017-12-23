@@ -59,6 +59,7 @@ var keyId;
 var letterDisplayId;
 var phraseDisplayId;
 var barId;
+var chatId;
 var morseListSideBarId;
 
 //customizable morse parameters
@@ -104,6 +105,7 @@ window.addEventListener('load', function(){
 	barId = document.getElementById('timebar_bar');
 	letterDisplayId = document.getElementById('letterDisp');
 	phraseDisplayId = document.getElementById('phraseDisp');
+	chatId = document.getElementById('chat');
 	morseListSideBarId = document.getElementById("morseListSideBar");
 
 	//check if touch screen is enabled
@@ -288,6 +290,12 @@ function sendMSgCountDown(){
 			barId.style.height = "0px";
 			barId.style.width = "0px";
 			//TODO >> clear current phrase message, send this one etch
+
+			//probably to remove when websocket is implemented
+			chatId.insertAdjacentHTML("beforeend","<p><a href=''>robalb</a>: "+phrase+"</p>");
+			phrase="";
+			phraseDisplayId.innerHTML = "";
+			
 		}
 	}
 }

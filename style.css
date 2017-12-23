@@ -82,8 +82,21 @@ right:50px;
     box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
 	-webkit-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
 	-moz-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
+	
 
 }
+#chat p{
+		    white-space: pre-wrap;      /* CSS3 */   
+   white-space: -moz-pre-wrap; /* Firefox */    
+   white-space: -pre-wrap;     /* Opera <7 */   
+   white-space: -o-pre-wrap;   /* Opera 7 */    
+   word-wrap: break-word;      /* IE */
+}
+#chat a{
+	color:#40c4ff;
+	text-decoration:none;
+}
+
 #dispbar{
 	  font-family: 'Roboto',Sans serif;
   font-size: 18px;
@@ -152,10 +165,10 @@ er{
 	background-color:#efebe9;
 		overflow:hidden;
 	transition-duration: 0.5s;
-	animation:animateleft 0.4s
+	animation:animateshow 0.4s
 
 }
-@keyframes animateleft{from{height:0%;opacity:0} to{height:100%;opacity:1}}
+@keyframes animateshow{from{height:0%;opacity:0} to{height:100%;opacity:1}}
 @media (min-width:960px){
 	.morseListContainer{
 	  display:block;
@@ -183,6 +196,7 @@ color:#212121;
 	padding-top:5px;
 	column-count:2;
 	 column-rule: 1px solid #bdbdbd;
+	 	transition-duration: ;
 }
 #morseList p{
 	 break-inside: avoid-column;
