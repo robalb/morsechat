@@ -247,6 +247,21 @@ er{
   background-color:#212121;
     animation:animateshow 0.4s
 }
+.settingsHeader{
+	text-align:center;
+}
+.settingsHeader button{
+	  cursor: pointer;
+  border: 0;
+  height: 40px;
+  overflow: hidden;
+  color:#efebe9;
+  background-color:#212121;
+  outline-style:none;
+}
+}
+.settingsHeader h2{
+}
 
 
 
