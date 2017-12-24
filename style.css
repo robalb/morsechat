@@ -203,17 +203,18 @@ er{
   position:fixed;
   top:0;
   left:0;
-  overflow:hidden;
   display:none;
   background-color: #212121;
   box-shadow: 0 4px 10px rgba(0,0,0,.6);
 
 }
-.links{
+.links,.menuHeader{
   margin-left:10px;
 }
-.menuHeader{
-	margin-left:10px;
+.menuHeader a{
+  cursor:pointer;
+  color:#f2f2f2;
+  text-decoration:none;
 }
 .links p{
   height:5opx;
@@ -233,6 +234,18 @@ er{
   color:#efebe9;
   background-color:#212121;
   outline-style:none;
+}
+
+
+.settingsContainer{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display:none;
+  background-color:#212121;
+    animation:animateshow 0.4s
 }
 
 

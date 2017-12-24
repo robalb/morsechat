@@ -60,7 +60,6 @@ var letterDisplayId;
 var phraseDisplayId;
 var barId;
 var chatId;
-var morseListSideBarId;
 
 //customizable morse parameters
 var dotSpeed = 80;
@@ -106,7 +105,6 @@ window.addEventListener('load', function(){
 	letterDisplayId = document.getElementById('letterDisp');
 	phraseDisplayId = document.getElementById('phraseDisp');
 	chatId = document.getElementById('chat');
-	morseListSideBarId = document.getElementById("morseListSideBar");
 
 	//check if touch screen is enabled
 	var isTouchDevice = 'ontouchstart' in document.documentElement; 
@@ -304,22 +302,23 @@ function sendMSgCountDown(){
 
 //UI
 
-
-
 function openMlSidebar(){
-    morseListSideBarId.style.display = "block";
+    document.getElementById("morseListSideBar").style.display = "block";
 }
 function closeMlSidebar(){
-    morseListSideBarId.style.display = "none";
+    document.getElementById("morseListSideBar").style.display = "none";
 }
 function stretchMlSidebar(){
-	morseListSideBarId.style.width = "100%";
+	document.getElementById("morseListSideBar").style.width = "100%";
 	document.getElementById("morseList").style.columnCount = 4;
 }
 function unstretchMlSidebar(){
-	morseListSideBarId.style.width = "180px";
+	document.getElementById("morseListSideBar").style.width = "180px";
 	document.getElementById("morseList").style.columnCount = 2;
 }
 function openMenu(){
 	document.getElementById("menu").style.display = "block";
+}
+function openSettings(){
+	document.getElementById("settings").style.display = "block";	
 }
