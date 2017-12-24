@@ -19,8 +19,9 @@
 </head>
 <body>
 
+
     <div id="nav">
-		<button class="hamburger" ><i class="material-icons">menu</i></button>
+		<button class="hamburger" onclick="openMenu()" ><i class="material-icons">menu</i></button>
 		<a href="#">channel 1 <i class="material-icons">arrow_drop_down</i></a>
 		<button class="settingsbt"><i class="material-icons">settings</i></button>
 		<button class="showmorsebt" onclick="openMlSidebar()"><i class="material-icons">library_books</i></button>
@@ -62,6 +63,21 @@
 	</div>
 </div>
 
+<div class="menuContainer" id="menu">
+<div class="menuHeader">
+<button onclick="this.parentNode.parentNode.style.display='none'"><i class="material-icons">close</i></button>
+<p>username</p>
+<a>logout</a> <a>profile</a>
+</div>
+<hr>
+<div class="links">
+<p><a>homepage</a></p>
+<p><a>chat rooms</a></p>
+<p><a>practice</a></p>
+<p><a>about</a></p>
+<p><a>bug</a></p>
+</div>
+</div>
 
 
  

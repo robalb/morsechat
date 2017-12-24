@@ -197,7 +197,43 @@ er{
 }
 
 
+.menuContainer{
+  height:100%;
+  width:180px;
+  position:fixed;
+  top:0;
+  left:0;
+  overflow:hidden;
+  display:none;
+  background-color: #212121;
+  box-shadow: 0 4px 10px rgba(0,0,0,.6);
 
+}
+.links{
+  margin-left:10px;
+}
+.menuHeader{
+	margin-left:10px;
+}
+.links p{
+  height:5opx;
+  line-height:50px;
+  cursor:pointer;
+  color:#f2f2f2;
+}
+.links p:hover{
+  transition-duration: 0.5s;
+  color:#bfbfbf;
+}
+.menuContainer button{
+  cursor: pointer;
+  border: 0;
+  height: 40px;
+  overflow: hidden;
+  color:#efebe9;
+  background-color:#212121;
+  outline-style:none;
+}
 
 
 

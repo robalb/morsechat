@@ -45,8 +45,8 @@ V0.2 19/12/17
 		"100001":"-",
 		"011110":"\'",
 		"001100":"?",
-		"-.-.--":"!",
-		".--.-.":"@",
+		"101011":"!",
+		"011010":"@",
 		"00000000":"<<"
 	}
 
@@ -319,4 +319,7 @@ function stretchMlSidebar(){
 function unstretchMlSidebar(){
 	morseListSideBarId.style.width = "180px";
 	document.getElementById("morseList").style.columnCount = 2;
+}
+function openMenu(){
+	document.getElementById("menu").style.display = "block";
 }
