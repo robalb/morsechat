@@ -229,7 +229,7 @@ er{
 .menuContainer button{
   cursor: pointer;
   border: 0;
-  height: 40px;
+  height: 50px;
   overflow: hidden;
   color:#efebe9;
   background-color:#212121;
@@ -242,25 +242,47 @@ er{
   top:0;
   left:0;
   width:100%;
-  height:100%;
+  height:calc(100% + 60px);
   display:none;
   background-color:#212121;
-    animation:animateshow 0.4s
+  animation:animateshow 0.4s
 }
-.settingsHeader{
-	text-align:center;
+#container2{
+  background-color:#212121;
+  height:100%; 
+  text-align:left;
+  padding:1px;
+  max-width:600px;
+  margin: 0 auto;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  -moz-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
-.settingsHeader button{
-	  cursor: pointer;
+@media (min-width:1300px){
+.settingsContainer{
+	  width:calc(50% - 350px);
+}
+}
+
+.stbt{
+  cursor: pointer;
   border: 0;
-  height: 40px;
+  height: 50px;
+  width: 50px;
   overflow: hidden;
   color:#efebe9;
   background-color:#212121;
   outline-style:none;
+  float:left;
 }
-}
-.settingsHeader h2{
+
+.stt{
+  font-family: 'Roboto', monospace;
+  height:50px;
+  margin:0;
+  line-height:50px;
+  text-align:center;
+  margin-right:50px;
 }
 
 
