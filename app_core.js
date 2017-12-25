@@ -60,14 +60,17 @@ var letterDisplayId;
 var phraseDisplayId;
 var barId;
 var chatId;
-
+//list of the default morse elements multipliers
+var defaultMultipliers=[80,3,1,3,7,2000];
+//second list of multipliers: the first is not changed, its values are used to restore the default settings
+var newMultipliers=[80,3,1,3,7,2000];
 //customizable morse parameters
-var dotSpeed = 80;
-var dashLength = dotSpeed*3;
-var elementsPause = dotSpeed;
-var charactersPause = dotSpeed*3;
-var wordsPause = dotSpeed*7;
-var phraseInactivityTime = 2000;
+var dotSpeed = defaultMultipliers[0];
+var dashLength = dotSpeed*defaultMultipliers[1];
+var elementsPause = dotSpeed*defaultMultipliers[2];
+var charactersPause = dotSpeed*defaultMultipliers[3];
+var wordsPause = dotSpeed*defaultMultipliers[4];
+var phraseInactivityTime = defaultMultipliers[5];
 
 //time counter variable used to recognize dot, dashes and spaces
 var startHold = 0;
@@ -322,3 +325,53 @@ function openMenu(){
 function openSettings(){
 	document.getElementById("settings").style.display = "block";	
 }
+
+//settings
+
+function updateMultiplier(element,newVal){
+	if(element==0){
+		document.getElementById("dotSpeedDisp").text=newVal;
+	}
+	//validate input
+	if(newVal>0&&((newVal<=100)||(element==5&&newVal<=4000)) ){
+		//add the new input to the second multipliers list
+		newMultipliers[element]=newVal;
+		console.log("applying multipliers");
+		//apply the second multiplier list to the morse elements length
+		applyMultipliers(newMultipliers);
+	}
+}
+function restoreDefaultMultipliers(){
+	console.log("applying default multipliers");
+	document.getElementById("dotSpeedDisp").text=defaultMultipliers[0];
+	var x=document.getElementsByClassName("tElement");
+	for(var i=0;i<x.length;i++){
+		x[i].value = defaultMultipliers[i+1];
+	}
+	applyMultipliers(defaultMultipliers);
+}
+
+function applyMultipliers(applyList){
+	dotSpeed = applyList[0];
+	dashLength = dotSpeed*applyList[1];
+	elementsPause = dotSpeed*applyList[2];
+	charactersPause = dotSpeed*applyList[3];
+	wordsPause = dotSpeed*applyList[4];
+	phraseInactivityTime = applyList[5];
+}
+function dumpSettings(){
+	var stringD="";
+	newMultipliers.forEach(function(s){stringD+="x"+s});
+	alert("save this string and paste it in the section above to restore the current configuration\n"+stringD);
+}
+function importSettings(){
+	var rString = document.getElementById("stringInput").value;
+	var sr = rString.split("x");
+	console.log(sr.length);
+	if(sr.length == 7){
+		//TODO
+	}
+}
+
+
+

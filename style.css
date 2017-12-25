@@ -251,7 +251,7 @@ er{
   background-color:#212121;
   height:100%; 
   text-align:left;
-  padding:1px;
+  padding:2px;
   max-width:600px;
   margin: 0 auto;
   overflow-y:scroll;
@@ -297,6 +297,11 @@ td, th {
 	height:2px;
 	padding-left:2px;
 	padding-right:2px;
+}
+td input{
+	width:100%;
+	/*replace calc(100% - 4px) - 4px is the padding of the box. it is calculated in the width if this property is used*/
+	box-sizing:border-box;
 }
 
 
