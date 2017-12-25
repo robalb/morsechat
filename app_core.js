@@ -303,7 +303,7 @@ function sendMSgCountDown(){
 
 
 
-//UI
+//UI functions
 
 function openMlSidebar(){
     document.getElementById("morseListSideBar").style.display = "block";
@@ -326,14 +326,14 @@ function openSettings(){
 	document.getElementById("settings").style.display = "block";	
 }
 
-//settings
+//SETTINGS functions
 
 function updateMultiplier(element,newVal){
 	if(element==0){
 		document.getElementById("dotSpeedDisp").text=newVal;
 	}
 	//validate input
-	if(newVal>0&&((newVal<=100)||(element==5&&newVal<=4000)) ){
+	if(newVal>0&&((newVal<=500)||(element==5&&newVal<=4000)) ){
 		//add the new input to the second multipliers list
 		newMultipliers[element]=newVal;
 		console.log("applying multipliers");
@@ -344,6 +344,7 @@ function updateMultiplier(element,newVal){
 function restoreDefaultMultipliers(){
 	console.log("applying default multipliers");
 	applyMultipliers(defaultMultipliers);
+	newMultipliers = defaultMultipliers.slice(0);
 }
 
 function applyMultipliers(applyList){
@@ -353,7 +354,7 @@ function applyMultipliers(applyList){
 	charactersPause = dotSpeed*applyList[3];
 	wordsPause = dotSpeed*applyList[4];
 	phraseInactivityTime = applyList[5];
-	
+	//update graphic part
 	document.getElementById("dotSpeedDisp").text=applyList[0];
 	document.getElementById("speedRange").value=applyList[0];
 	var x=document.getElementsByClassName("tElement");
@@ -364,7 +365,7 @@ function applyMultipliers(applyList){
 function dumpSettings(){
 	var stringD="";
 	newMultipliers.forEach(function(s){stringD+="x"+s});
-	alert("save this string and paste it in the section above to restore the current configuration\n"+stringD);
+	alert("this is your configuration code. Copy it and keep it in a warm and dry place\n"+stringD);
 }
 function importSettings(){
 	var rString = document.getElementById("stringInput").value;
@@ -373,7 +374,7 @@ function importSettings(){
 	if(sr.length == 7){
 		for(var i=1;i<7;i++){
 			console.log(sr[i]);
-			if(parseInt(sr[i])>0&&parseInt(sr[i])<3000){
+			if(parseInt(sr[i])>0&&parseInt(sr[i])<=4000){
 				newMultipliers[i-1]=parseInt(sr[i]);
 			}else{
 				console.log("invalid value");
@@ -382,7 +383,7 @@ function importSettings(){
 		}
 		applyMultipliers(newMultipliers);
 	}else{
-		console.log("invalid string");
+		alert("invalid string");
 	}
 }
 

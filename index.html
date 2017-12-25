@@ -89,6 +89,7 @@
 <p>The basic element of Morse code is the dot and all other elements can be defined in terms of multiples of the dot length.</p>
 <p>The character speed(WPM) is related to dot length in seconds by the following formula:</p>
 <p><b>Speed (WPM) = 2.4 * (Dots per second)</b>
+	<p>more info: <a href="http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm">nu-ware</a></p>
 </p>Here are the ratios for the other code elements:</p>
 <p><i>note: For learning the code this ratio can be increased so that overall text speed is lower than in standard Morse code.</i></p>
 
@@ -100,39 +101,35 @@
 	   </tr>	   
 	   <tr>
 	    <td>dash length</td>
-	    <td><input class="tElement" type="number" onInput="updateMultiplier(1,this.value)" value="3"></input></td>
+	    <td><input class="tElement" min="1" max="500" type="number" onInput="updateMultiplier(1,this.value)" value="3"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between elements</td>
-	    <td><input class="tElement" type="number" onInput="updateMultiplier(2,this.value)" value="1"></input></td>
+	    <td><input class="tElement" min="1" max="500" type="number" onInput="updateMultiplier(2,this.value)" value="1"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between characters</td>
-	    <td><input class="tElement" type="number" onInput="updateMultiplier(3,this.value)" value="3"></input></td>
+	    <td><input class="tElement" min="1" max="500" type="number" onInput="updateMultiplier(3,this.value)" value="3"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between words</td>
-	    <td><input class="tElement" type="number" onInput="updateMultiplier(4,this.value)" value="7"></input></td>
+	    <td><input class="tElement" min="1" max="500" type="number" onInput="updateMultiplier(4,this.value)" value="7"></input></td>
 	   </tr>
 	   <tr>
 	    <td>pause before sending</td>
-	    <td><input class="tElement" type="number" onInput="updateMultiplier(5,this.value)" value="2000"></input></td>
+	    <td><input class="tElement" min="1" max="4000" type="number" onInput="updateMultiplier(5,this.value)" value="2000"></input></td>
 	   </tr>
 	  </tbody>
 	</table>
 		<h4>dot speed</h4>
-	<p>this is the duration of a dot, expressed in milliseconds. this value is multiplied with the elements in the table above</p>
-	<p><input type="range" id="speedRange" min="10" value="80" onInput="updateMultiplier(0,this.value)" max="500"> <a id="dotSpeedDisp">80</a> ms</p>
-	<p>source used: <a href="http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm">nu-ware</a></p>
+	<p>this value is multiplied with the elements in the table above</p>
+	<p id="rangeCont"><input type="range" id="speedRange" min="10" value="80" onInput="updateMultiplier(0,this.value)" max="500"> <a id="dotSpeedDisp">80</a> ms</p>
+		<button class="button button-positive" onclick="restoreDefaultMultipliers()">restore default settings</button><br><br>
+	<button class="button" onclick="dumpSettings()">export configuration</button>
+	<button class="button" onclick="importSettings()">import configuration code</button><br>
+	<input type="text" id="stringInput" placeholder="paste here your code"><br>
 	<h3>sound settings</h3>
-	<p>disable button sound</p>
-	<p>disable received sound</p>
-	<p>use apis acceleration</p>
-	<h3>general settings</h3>
-	<button onclick="restoreDefaultMultipliers()">restore default settings</button><br>
-	<button onclick="dumpSettings()">export string for this configuration</button>
-	<button onclick="importSettings()">import a configuration from string</button>
-	<input type="text" id="stringInput" placeholder="paste here your string">
+	<p>coming soon</p>
 	<br><br>
 	<br><br>
 	<br><br>
