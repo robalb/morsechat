@@ -64,13 +64,14 @@ var chatId;
 var defaultMultipliers=[80,3,1,3,7,2000];
 //second list of multipliers: the first is not changed, its values are used to restore the default settings
 var newMultipliers=[80,3,1,3,7,2000];
-//customizable morse parameters
-var dotSpeed = defaultMultipliers[0];
-var dashLength = dotSpeed*defaultMultipliers[1];
-var elementsPause = dotSpeed*defaultMultipliers[2];
-var charactersPause = dotSpeed*defaultMultipliers[3];
-var wordsPause = dotSpeed*defaultMultipliers[4];
-var phraseInactivityTime = defaultMultipliers[5];
+//customizable morse parameters. their values are set on page load, or from the page settings;
+//all these values are: dotSpeed*multiplier multipliers and dotSpeed are stored in the multipliers arrays above
+var dotSpeed;
+var dashLength;
+var elementsPause;
+var charactersPause;
+var wordsPause;
+var phraseInactivityTime;
 
 //time counter variable used to recognize dot, dashes and spaces
 var startHold = 0;
@@ -108,6 +109,11 @@ window.addEventListener('load', function(){
 	letterDisplayId = document.getElementById('letterDisp');
 	phraseDisplayId = document.getElementById('phraseDisp');
 	chatId = document.getElementById('chat');
+	
+	//set the morse parameters length
+	//this code fix the mozilla bug that remeber input values on refresh
+	//it can also be used to set custom parameters from php on load
+	applyMultipliers(defaultMultipliers);
 
 	//check if touch screen is enabled
 	var isTouchDevice = 'ontouchstart' in document.documentElement; 
@@ -348,6 +354,7 @@ function restoreDefaultMultipliers(){
 }
 
 function applyMultipliers(applyList){
+	//update variables
 	dotSpeed = applyList[0];
 	dashLength = dotSpeed*applyList[1];
 	elementsPause = dotSpeed*applyList[2];

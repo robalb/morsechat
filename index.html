@@ -101,23 +101,23 @@
 	   </tr>	   
 	   <tr>
 	    <td>dash length</td>
-	    <td><input class="tElement" min="1" max="500" type="number" onInput="updateMultiplier(1,this.value)" value="3"></input></td>
+	    <td><input class="tElement" autocomplete="off" min="1" max="500" type="number" onInput="updateMultiplier(1,this.value)" value="3"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between elements</td>
-	    <td><input class="tElement" min="1" max="500" type="number" onInput="updateMultiplier(2,this.value)" value="1"></input></td>
+	    <td><input class="tElement" autocomplete="off" min="1" max="500" type="number" onInput="updateMultiplier(2,this.value)" value="1"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between characters</td>
-	    <td><input class="tElement" min="1" max="500" type="number" onInput="updateMultiplier(3,this.value)" value="3"></input></td>
+	    <td><input class="tElement" autocomplete="off" min="1" max="500" type="number" onInput="updateMultiplier(3,this.value)" value="3"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between words</td>
-	    <td><input class="tElement" min="1" max="500" type="number" onInput="updateMultiplier(4,this.value)" value="7"></input></td>
+	    <td><input class="tElement" autocomplete="off" min="1" max="500" type="number" onInput="updateMultiplier(4,this.value)" value="7"></input></td>
 	   </tr>
 	   <tr>
 	    <td>pause before sending</td>
-	    <td><input class="tElement" min="1" max="4000" type="number" onInput="updateMultiplier(5,this.value)" value="2000"></input></td>
+	    <td><input class="tElement" autocomplete="off" min="1" max="4000" type="number" onInput="updateMultiplier(5,this.value)" value="2000"></input></td>
 	   </tr>
 	  </tbody>
 	</table>
@@ -127,7 +127,7 @@
 		<button class="button button-positive" onclick="restoreDefaultMultipliers()">restore default settings</button><br><br>
 	<button class="button" onclick="dumpSettings()">export configuration</button>
 	<button class="button" onclick="importSettings()">import configuration code</button><br>
-	<input type="text" id="stringInput" placeholder="paste here your code"><br>
+	<input type="text" autocomplete="off" id="stringInput" placeholder="paste here your code"><br>
 	<h3>sound settings</h3>
 	<p>coming soon</p>
 	<br><br>
