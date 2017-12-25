@@ -254,6 +254,7 @@ er{
   padding:1px;
   max-width:600px;
   margin: 0 auto;
+  overflow-y:scroll;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   -moz-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
@@ -283,6 +284,19 @@ er{
   line-height:50px;
   text-align:center;
   margin-right:50px;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+	height:2px;
+	padding-left:2px;
+	padding-right:2px;
 }
 
 
