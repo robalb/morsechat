@@ -343,11 +343,6 @@ function updateMultiplier(element,newVal){
 }
 function restoreDefaultMultipliers(){
 	console.log("applying default multipliers");
-	document.getElementById("dotSpeedDisp").text=defaultMultipliers[0];
-	var x=document.getElementsByClassName("tElement");
-	for(var i=0;i<x.length;i++){
-		x[i].value = defaultMultipliers[i+1];
-	}
 	applyMultipliers(defaultMultipliers);
 }
 
@@ -358,6 +353,13 @@ function applyMultipliers(applyList){
 	charactersPause = dotSpeed*applyList[3];
 	wordsPause = dotSpeed*applyList[4];
 	phraseInactivityTime = applyList[5];
+	
+	document.getElementById("dotSpeedDisp").text=applyList[0];
+	document.getElementById("speedRange").value=applyList[0];
+	var x=document.getElementsByClassName("tElement");
+	for(var i=0;i<x.length;i++){
+		x[i].value = applyList[i+1];
+	}
 }
 function dumpSettings(){
 	var stringD="";
@@ -367,9 +369,20 @@ function dumpSettings(){
 function importSettings(){
 	var rString = document.getElementById("stringInput").value;
 	var sr = rString.split("x");
-	console.log(sr.length);
+	//validate input string
 	if(sr.length == 7){
-		//TODO
+		for(var i=1;i<7;i++){
+			console.log(sr[i]);
+			if(parseInt(sr[i])>0&&parseInt(sr[i])<3000){
+				newMultipliers[i-1]=parseInt(sr[i]);
+			}else{
+				console.log("invalid value");
+				newMultipliers[i-1] = defaultMultipliers[i-1];
+			}
+		}
+		applyMultipliers(newMultipliers);
+	}else{
+		console.log("invalid string");
 	}
 }
 
