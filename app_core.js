@@ -100,6 +100,10 @@ var countDownCtrl;
 //audio variables
 var context,g,o;
 
+//sound settings variables
+var keySound = true;
+var receivedMorseSound = true;
+
 
 
 window.addEventListener('load', function(){
@@ -207,13 +211,15 @@ function down(){
 	//add graphic effect to the key when pressed
 	keyId.style.backgroundColor = "#404040";
 	
-	//TODO >> fix this audio related crap
-	o = context.createOscillator()
-	o.frequency.value = 1175
-	g = context.createGain()
-	o.connect(g)
-	g.connect(context.destination) 
-	o.start(0)
+	//play audio if enabled
+	if(keySound){
+		o = context.createOscillator()
+		o.frequency.value = 1175
+		g = context.createGain()
+		o.connect(g)
+		g.connect(context.destination) 
+		o.start(0)
+	}
 
 }
 
@@ -239,9 +245,11 @@ function up(){if(holdedTooLong){holdedTooLong=false}else{
 	//to the phrase buffer. this timer is stopped if down() is called before its sleep time has passed
 	spaceTimer=setTimeout(pushword,charactersPause);
 	
-	//TODO >> fix this audio part CLICK, and mobile latency
-	o.stop(context.currentTime);
-	//g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.01)//not working
+	//stop audio if enabled
+	if(keySound){
+		o.stop(context.currentTime);
+		//g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.01)//not working
+	}
 	
 }}
 
@@ -400,6 +408,24 @@ function importSettings(){
 	}else{
 		popup("import error","<p>invalid code!</p>");
 	}
+}
+function toggleKeySound(){
+	if(keySound){
+		keySound = false;
+		document.getElementById("ksbutton").innerText = "enable key sound";
+	}else{
+		keySound = true;
+		document.getElementById("ksbutton").innerText = "disable key sound";
+	}
+}
+function toggleReceivedSound(){
+	if(receivedMorseSound){
+		receivedMorseSound = false;
+		document.getElementById("rmbutton").innerText = "unmute received morse";
+	}else{
+		receivedMorseSound = true;
+		document.getElementById("rmbutton").innerText = "mute received morse";
+	}	
 }
 
 
