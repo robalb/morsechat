@@ -331,6 +331,11 @@ function openMenu(){
 function openSettings(){
 	document.getElementById("settings").style.display = "block";	
 }
+function popup(title,msgBody){
+	document.getElementById("popup").style.display = "table";
+	document.getElementById("popupTitle").innerText = title;
+	document.getElementById("popupContent").innerHTML = msgBody;
+}
 
 //SETTINGS functions
 
@@ -372,7 +377,7 @@ function applyMultipliers(applyList){
 function dumpSettings(){
 	var stringD="";
 	newMultipliers.forEach(function(s){stringD+="x"+s});
-	alert("this is your configuration code. Copy it and keep it in a warm and dry place\n"+stringD);
+	popup("export code","<p>this is your configuration code. Copy it and keep it in a warm and dry place</p><p><b>"+stringD+"</i></p><br>");
 }
 function importSettings(){
 	var rString = document.getElementById("stringInput").value;
@@ -390,7 +395,7 @@ function importSettings(){
 		}
 		applyMultipliers(newMultipliers);
 	}else{
-		alert("invalid string");
+		popup("import error","<p>invalid code!</p>");
 	}
 }
 
