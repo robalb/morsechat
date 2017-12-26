@@ -60,6 +60,7 @@ var letterDisplayId;
 var phraseDisplayId;
 var barId;
 var chatId;
+
 //list of the default morse elements multipliers
 var defaultMultipliers=[80,3,1,3,7,2000];
 //second list of multipliers: the first is not changed, its values are used to restore the default settings
@@ -114,6 +115,10 @@ window.addEventListener('load', function(){
 	//this code fix the mozilla bug that remeber input values on refresh
 	//it can also be used to set custom parameters from php on load
 	applyMultipliers(defaultMultipliers);
+	
+	//initialize sound
+	context = new AudioContext()
+
 
 	//check if touch screen is enabled
 	var isTouchDevice = 'ontouchstart' in document.documentElement; 
@@ -203,13 +208,11 @@ function down(){
 	keyId.style.backgroundColor = "#404040";
 	
 	//TODO >> fix this audio related crap
-	context = new AudioContext()
 	o = context.createOscillator()
 	o.frequency.value = 1175
 	g = context.createGain()
-	g.gain.value= 0.3;
 	o.connect(g)
-	g.connect(context.destination)
+	g.connect(context.destination) 
 	o.start(0)
 
 }
