@@ -46,7 +46,7 @@ html {
 #nav  a{
   text-decoration: none;
   color: #efebe9;
-  font-family: 'Roboto',Sans serif;
+  font-family: 'Roboto',monospace,Sans serif;
   font-size: 21px;
   height: 50px;
   line-height: 50px;
@@ -95,7 +95,7 @@ html {
 }
 
 #dispbar{
-  font-family: 'Roboto',Sans serif;
+  font-family: 'Roboto',monospace,Sans serif;
   font-size: 18px;
   height: 45px;
   /*line-height: 45px;*/
@@ -278,7 +278,7 @@ er{
 }
 
 .stt{
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto',monospace, sans-serif;
   height:50px;
   margin:0;
   line-height:50px;
@@ -351,7 +351,7 @@ td input{
 	background-color:#eeeeee;
 }
 #stringInput{
-	  font-family: 'Roboto',arial;
+	  font-family: 'Roboto',monospace,arial;
 		border-radius:2px;
 		background-color:#fafafa;
 		height:40px;
