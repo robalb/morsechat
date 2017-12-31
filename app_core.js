@@ -285,7 +285,7 @@ function pushword(pushSpace){
 	//store raw letter in phrase buffer
 	phrase+="2"+letter;
 	//add translated letter to the phrase screen
-	var rt=morseTree[letter]?morseTree[letter]:"<er>[]</er>";
+	var rt=morseTree[letter]?morseTree[letter]:"<span>|</span>";
 	phraseDisplayId.insertAdjacentHTML("beforeend",rt);
 	console.log("decoded "+letter+" into "+rt);
 	//reset the letter buffer and clear the letter screen
