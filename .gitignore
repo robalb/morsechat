@@ -1,4 +1,5 @@
 
 *.woff2
 *.jpg
-min-style.css
+app_core_min.js
+style_min.css
