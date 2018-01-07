@@ -76,8 +76,8 @@ var chatId;
 var defaultMultipliers=[80,3,1,3,7,2000];
 //second list of multipliers: the first is not changed, its values are used to restore the default settings
 var newMultipliers=[80,3,1,3,7,2000];
-//customizable morse parameters. their values are set on page load, or from the page settings;
-//all these values are: dotSpeed*multiplier multipliers and dotSpeed are stored in the multipliers arrays above
+//customizable morse parameters. their values are set on page load, or from the page settings
+//and are set from the arrays above
 var dotSpeed;
 var dashLength;
 var elementsPause;
@@ -101,8 +101,8 @@ var fired = false;
 var dashTimer;
 var holdedTooLong=false;
 
-//timer var that call the function pushword(). this function decode the morse stored in var letter
-//into a string and add it to the phrase buffer if no key has been pressed/released for too much millis
+//timer var that call the function pushword().if no key has been pressed/released for too much millis
+//this function decode the morse stored in var letter into a string and add it to the phrase buffer 
 var spaceTimer;
 
 //variable to control the send msg recursive graphic accelerated function
@@ -128,8 +128,7 @@ window.addEventListener('load', function(){
 	chatId = document.getElementById('chat');
 	
 	//set the morse parameters length
-	//this code fix the mozilla bug that remeber input values on refresh
-	//it can also be used to set custom parameters from php on load
+	//this code fix the mozilla bug that remeber input values on page refresh
 	applyMultipliers(defaultMultipliers);
 	
 	//initialize sound
@@ -206,8 +205,7 @@ $('body').keyup(function(e){
 
 //called when a key, or a button, or a touch key is pressed
 function down(){
-	//clear the interval that would otherwise call the function pushword() that decodes
-	//morse in string and add it to the phrase buffer if inactive for too much millis
+	//clear the interval that would otherwise call the function pushword() if inactive for too much millis
 	clearTimeout(spaceTimer);
 	//stop the countdown recursive function timer that send the message buffer tho the server
 	//when the user has been inactive too long
@@ -409,8 +407,8 @@ function importSettings(){
 	if(sr.length == 7){
 		for(var i=1;i<7;i++){
 			console.log(sr[i]);
-			if(parseInt(sr[i])>0&&parseInt(sr[i])<=4000){
-				newMultipliers[i-1]=parseInt(sr[i]);
+			if(parseFloat(sr[i])>0&&parseFloat(sr[i])<=4000){
+				newMultipliers[i-1]=parseFloat(sr[i]);
 			}else{
 				console.log("invalid value");
 				newMultipliers[i-1] = defaultMultipliers[i-1];
