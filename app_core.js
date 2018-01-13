@@ -59,6 +59,7 @@ morse code online chat, by robalb
 		"11111":"0"
 	}
 
+var debugging=false;
 	
 //default: spacebar
 var keyLetter = 32;
@@ -70,12 +71,12 @@ var phraseDisplayId;
 var barId;
 var chatId;
 
-//list of the default morse elements multipliers
+//list of the default morse elements multipliers. this array is used to restore default settings
 var defaultMultipliers=[80,3,1,3,7,2000];
-//second list of multipliers: the first is not changed, its values are used to restore the default settings
+//second list of multipliers: this array can be used to store custom values and apply them
 var newMultipliers=[80,3,1,3,7,2000];
 //customizable morse parameters. their values are set on page load, or from the page settings
-//and are set from the arrays above
+//by applying the arrays above
 var dotSpeed;
 var dashLength;
 var elementsPause;
@@ -88,22 +89,23 @@ var startHold = 0;
 var stopHold = 0;
 var holdTime = 0;
 
-//current letter and current phrase buffers
+//current letter and current phrase typed
 var letter="";
 var phrase="";
 
 //var to prevent keydown triggering multiple times when a key is hold for too long
 var fired = false;
 
-//vars to prevent parsing infinite-lenghth dashes as correct
+//timer that calls up() if the key has been down for too long
 var dashTimer;
-var holdedTooLong=false;
+//state of the key
+var isDown=false;
 
-//timer var that call the function pushword().if no key has been pressed/released for too much millis
-//this function decode the morse stored in var letter into a string and add it to the phrase buffer 
+//timer that calls the function pushword() after a given time of inactivity.
+//this function decode the morse stored in var letter into a string and push it to var phrase
 var spaceTimer;
 
-//variable to control the send msg recursive graphic accelerated function
+//variable to control(start/stop) the sendMsg recursive function
 var countDownCtrl;
 
 //audio variables
@@ -113,12 +115,13 @@ var context,g,o;
 var keySound = true;
 var receivedMorseSound = true;
 
-var avoidKarma = true;
+//important.
+var oX1101o = true;
 
 
 window.addEventListener('load', function(){
 
-	//initialize all the dom elements
+	//get the main dom elements
 	keyId = document.getElementById('key');
 	barId = document.getElementById('timebar_bar');
 	letterDisplayId = document.getElementById('letterDisp');
@@ -134,31 +137,17 @@ window.addEventListener('load', function(){
 
 
 	//check if touch screen is enabled
-	var isTouchDevice = 'ontouchstart' in document.documentElement; 
+	//var isTouchDevice = 'ontouchstart' in document.documentElement; 
 
 	//touch
-	keyId.addEventListener('touchstart', function(e){
-	if (isTouchDevice){
-	down();
-	}
-    }, false);
-	keyId.addEventListener('touchend', function(e){
-	if (isTouchDevice){
-	up();
-	}
-    }, false);
+	keyId.addEventListener('touchstart',down, false);
+	
+	keyId.addEventListener('touchend',up, false);
 	//mouse
-	keyId.addEventListener('mousedown', function(e){
-	if (!isTouchDevice){
-	down();
-	}
-    }, false);
-	keyId.addEventListener('mouseup', function(e){
-	if (!isTouchDevice){
-	up();
-	}
-    }, false);
-	//key
+	//keyId.addEventListener('mousedown',down, false);
+	
+	//keyId.addEventListener('mouseup',up, false);
+	//keyboard
 	document.addEventListener('keydown', function(e){
 		if( !fired && (e.keyCode == 32 || e.which == 32 || e.key == " " || e.code == "Space")){
 			fired = true;
@@ -171,52 +160,29 @@ window.addEventListener('load', function(){
 			up();
 		}
 	}, false);
-/*
-//UNCOMMENT AND REIMPORT JQUERY IN CASE OF INCOMPATIBILITY ISSUES
 
-$("#key").mousedown(function(){
-	if (!isTouchDevice){
-	down();
-	}
-});
-$("#key").mouseup(function(){
-	if (!isTouchDevice){
-	up();
-	}
-});
-
-$('body').keydown(function(e){
-	if(e.keyCode == keyLetter && !fired){
-		fired=true;
-		down();
-	}
-});
-$('body').keyup(function(e){
-	if(e.keyCode == keyLetter){
-		fired=false;
-		up();
-	}
-});
-*/
 }, false);
 
 
 //called when a key, or a button, or a touch key is pressed
 function down(){
-	//clear the interval that would otherwise call the function pushword() if inactive for too much millis
+	if(!isDown){isDown=true;
+		
+	//stop the timer that would otherwise call the function pushword() if inactive for too much
 	clearTimeout(spaceTimer);
-	//stop the countdown recursive function timer that send the message buffer tho the server
-	//when the user has been inactive too long
+	//stop the countdown recursive function timer that send the typed phrase to the server
+	//if inactive for too much
 	countDownCtrl=0;
 	//memorize the current timestamp. used to recognize dot/dash length
 	startHold = Date.now();
 	//infinite-length dash prevention timer
 	dashTimer=setTimeout(function(){
 		up();
-		holdedTooLong = true;
+		isDown = false;
 		console.log("holded dash for too long. released it")
 	},dashLength*3);
-	//add graphic effect to the key when pressed
+	
+	//add graphic effect to the key
 	keyId.style.backgroundColor = "#404040";
 	
 	//play audio if enabled
@@ -227,30 +193,31 @@ function down(){
 		o.connect(g)
 		g.connect(context.destination) 
 		o.start(0)
-	}
-
-}
+		}
+		
+}}
 
 //called when a key, or a button, or a touch key is released
 //except for when one of these inputs has been down for too much, and up() has already
-//been called by the automatic dashTimer that prevents this
-function up(){if(holdedTooLong){holdedTooLong=false}else{
+//been called by dashTimer
+function up(){
+	if(isDown){isDown=false;
+	
 	clearTimeout(dashTimer);
 	
-	//remove graphic effect from the key when released
+	//remove graphic effect from the key
 	keyId.style.backgroundColor = "#212121";
-	//memorize the current timestamp, and calculate the hold length by subtracting
-	//it with the one memorized on keydown
+	//calculate the hold time
 	stopHold = Date.now();
 	holdTime = stopHold - startHold;
-	//determine from holdTime if it is dash/dot and add it to the letter buffer
+	//determine from holdTime if it is dash or dot and add it to the letter buffer
 	letter+=""+(holdTime>dashLength?"1":"0");
 	console.log("letter is now "+letter)
-	//also add the letter to the chat
+	//also add the dot/dash to the chat
 	//TODO >> possible createDocumentFragment() optimization
 	letterDisplayId.insertAdjacentText("beforeend",(holdTime>dashLength?"_":"."));
-	//start the timer for pushword(), that parse the morse in the var letter buffer into a string and add it 
-	//to the phrase buffer. this timer is stopped if down() is called before its sleep time has passed
+	//start the timer for the function that decode into a letter the morse in the var letter, and add it
+	//to the var phrase. this timer is stopped if down() is called before its sleep time has passed
 	spaceTimer=setTimeout(pushword,charactersPause);
 	
 	//stop audio if enabled
@@ -396,7 +363,7 @@ function applyMultipliers(applyList){
 function dumpSettings(){
 	var stringD="";
 	newMultipliers.forEach(function(s){stringD+="x"+s});
-	popup("export code","<p>this is your configuration code. Copy it and keep it in a warm and dry place</p><p><b>"+stringD+"</i></p><br>");
+	popup("export code","<p>this is your configuration code. Keep it somewhere safe.</p><p><b>"+stringD+"</i></p><br>");
 }
 function importSettings(){
 	var rString = document.getElementById("stringInput").value;
@@ -414,7 +381,7 @@ function importSettings(){
 		}
 		applyMultipliers(newMultipliers);
 	}else{
-		popup("import error","<p>invalid code!</p>");
+		popup("import error","<p>Invalid code!</p>");
 	}
 }
 function toggleKeySound(){
