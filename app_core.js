@@ -140,13 +140,19 @@ window.addEventListener('load', function(){
 	//var isTouchDevice = 'ontouchstart' in document.documentElement; 
 
 	//touch
-	keyId.addEventListener('touchstart',down, false);
+	keyId.addEventListener('touchstart',function(e){
+		e.preventDefault();
+		down();
+	}, false);
 	
-	keyId.addEventListener('touchend',up, false);
+	keyId.addEventListener('touchend',function(e){
+		e.preventDefault();
+		up();
+	}, false);
 	//mouse
-	//keyId.addEventListener('mousedown',down, false);
+	keyId.addEventListener('mousedown',down, false);
 	
-	//keyId.addEventListener('mouseup',up, false);
+	keyId.addEventListener('mouseup',up, false);
 	//keyboard
 	document.addEventListener('keydown', function(e){
 		if( !fired && (e.keyCode == 32 || e.which == 32 || e.key == " " || e.code == "Space")){
