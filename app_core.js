@@ -141,11 +141,13 @@ window.addEventListener('load', function(){
 
 	//touch
 	keyId.addEventListener('touchstart',function(e){
+		e.stopPropagation();
 		e.preventDefault();
 		down();
 	}, false);
 	
 	keyId.addEventListener('touchend',function(e){
+		e.stopPropagation();
 		e.preventDefault();
 		up();
 	}, false);
