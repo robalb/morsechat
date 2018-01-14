@@ -80,6 +80,7 @@ html {
   background-color:#595959;
   background-color:#424242;
   margin:4px;
+  margin-bottom:0;
   padding-left:4px;
   box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
   -webkit-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
@@ -111,24 +112,22 @@ html {
   color:green;
 }
 #timebar_bar{
-  background-color:white;
+  background-color:#808080;
   width:10%;
 }
 
-
+.keyContainer{
+  text-align:center;
+}
 #key{
-  margin-left:20px;
-  margin-right:20px;
+  margin-top:0;
   background-color:#212121;
   color:#e6e6e6;
   font-family: 'Roboto', monospace;
   font-size: 21px;
-  position:fixed;
-  bottom:0px;
-  left:0px;
+  border:0;
   height:50px;
   width:calc(100% - 40px);
-  text-align:center;
   box-shadow: 0 -2px 5px rgba(0,0,0,.26);
 }
 #key::after{
@@ -141,7 +140,6 @@ html {
 @media only screen and (min-width: 500px) {
     #key {
       width:450px;
-      left: calc(50% - 250px);
     }
 }
 
@@ -324,6 +322,7 @@ td:nth-child(2){
 td input{
 	width:100%;
 	height:100%;
+	border-radius:0px;
 	/*replace calc(100% - 4px) - 4px is the padding of the box. it is calculated in the width if this property is used*/
 	box-sizing:border-box;
 	background-color:#fafafa;

@@ -109,7 +109,9 @@ var spaceTimer;
 var countDownCtrl;
 
 //audio variables
-var context,g,o;
+var audioSupport=true;
+var g;
+var o;
 
 //sound settings variables
 var keySound = true;
@@ -132,13 +134,21 @@ window.addEventListener('load', function(){
 	//this code fix the mozilla bug that remeber input values on page refresh
 	applyMultipliers(defaultMultipliers);
 	
-	//initialize sound
-	context = new AudioContext()
-
-
-	//check if touch screen is enabled
-	//var isTouchDevice = 'ontouchstart' in document.documentElement; 
-
+	//create audio context
+	 if (typeof AudioContext !== "undefined") {
+        context = new AudioContext();
+    } else if (typeof webkitAudioContext !== "undefined") {
+       context = new webkitAudioContext();
+    } else if (typeof window.webkitAudioContext !== "undefined") {
+       context = new window.webkitAudioContext();
+    } else if (typeof window.AudioContext !== "undefined") {
+       context = new window.AudioContext();
+    } else if (typeof mozAudioContext !== "undefined") {
+       context = new mozAudioContext();
+    } else{
+		audioSupport = false;
+	}
+	
 	//touch
 	keyId.addEventListener('touchstart',function(e){
 		e.stopPropagation();
@@ -194,7 +204,7 @@ function down(){
 	keyId.style.backgroundColor = "#404040";
 	
 	//play audio if enabled
-	if(keySound){
+	if(audioSupport && keySound){
 		o = context.createOscillator()
 		o.frequency.value = 1175
 		g = context.createGain()
@@ -229,7 +239,7 @@ function up(){
 	spaceTimer=setTimeout(pushword,charactersPause);
 	
 	//stop audio if enabled
-	if(keySound){
+	if(audioSupport && keySound){
 		o.stop(context.currentTime);
 		//g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.01)//not working
 	}
