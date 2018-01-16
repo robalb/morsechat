@@ -1,14 +1,4 @@
-	
-/*	
-morse code online chat, by robalb
-               __          ____
-   _________  / /_  ____ _/ / /_ 
-  / ___/ __ \/ __ \/ __ `/ / __ \
- / /  / /_/ / /_/ / /_/ / / /_/ /
-/_/   \____/_.___/\__,_/_/_.___/
 
-
-*/
 
 	var morseTree = {
 		"01":"a",
@@ -46,7 +36,7 @@ morse code online chat, by robalb
 		"001100":"?",
 		"101011":"!",
 		"011010":"@",
-		"00000000":"<<",
+		//"00000000":"<<",
 		"01111":"1",
 		"00111":"2",
 		"00011":"3",
@@ -176,6 +166,29 @@ window.addEventListener('load', function(){
 			up();
 		}
 	}, false);
+	
+	
+	//pusher api
+	pusher = new Pusher('APP_KEY', {//app_key
+	authEndpoint: '/app/auth.php',
+	cluster: 'eu',
+    encrypted: true
+	});
+	
+	channel = pusher.subscribe('my-channel');
+	
+	channel.bind('pusher:subscription_succeeded', function() {
+		chatId.insertAdjacentHTML("beforeend","<p>connected to channel 1</p>");
+	});
+	channel.bind('pusher:subscription_error', function(status) {
+		chatId.insertAdjacentHTML("beforeend","<p>connecteion error. status: "+status+"</p>");
+	});
+
+    channel.bind('my-event', function(data) {
+		chatId.insertAdjacentHTML("beforeend","<p><a href=''>"+"unknown"+"</a>: "+webDecode(data.message)+"</p>");
+		chatId.scrollTop = chatId.scrollHeight;
+    });
+
 
 }, false);
 
@@ -230,7 +243,6 @@ function up(){
 	letter+=""+(holdTime>dashLength?"1":"0");
 	log("letter is now "+letter)
 	//also add the dot/dash to the chat
-	//TODO >> possible createDocumentFragment() optimization
 	letterDisplayId.insertAdjacentText("beforeend",(holdTime>dashLength?"_":"."));
 	//start the timer for the function that decode into a letter the morse in the var letter, and add it
 	//to the var phrase. this timer is stopped if down() is called before its sleep time has passed
@@ -247,7 +259,7 @@ function up(){
 function pushword(pushSpace){
 	if(pushSpace){
 		//add space to the phrasebuffer
-		phrase+="3";
+		phrase+="J";
 		//add space to the phrase screen
 		phraseDisplayId.insertAdjacentHTML("beforeend"," ");
 		log("added space");
@@ -261,8 +273,9 @@ function pushword(pushSpace){
 		log("started a "+phraseInactivityTime+"ms countdown")
 		
 	}else{
-	//store raw letter in phrase buffer
-	phrase+="2"+letter;
+	//store letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
+	//uppercase letters by function webEncode. non existing letters are stored as upercase K
+	phrase+= ""+(morseTree[letter]?webEncodeLetter(morseTree[letter]):"K");
 	//add translated letter to the phrase screen
 	var rt=morseTree[letter]?morseTree[letter]:"<span>|</span>";
 	phraseDisplayId.insertAdjacentHTML("beforeend",rt);
@@ -299,9 +312,25 @@ function sendMSgCountDown(){
 			barId.style.height = "0px";
 			barId.style.width = "0px";
 			//TODO >> clear current phrase message, send this one etch
+			//TODO >> possible createDocumentFragment() optimization
+			
+			//chatId.insertAdjacentHTML("beforeend","<p>sending..</p>");
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', 'app/send.php?msg='+phrase );
+			xhr.onload = function() {
+				if (xhr.status === 200) {
+					
+				}
+				else {
+					chatId.insertAdjacentHTML("beforeend","<p>error" +  xhr.status + " " + xhr.statusText + "</p>");
+				}
+			};
+			xhr.send();
 
+			
 			//probably to remove when websocket is implemented
-			chatId.insertAdjacentHTML("beforeend","<p><a href=''>robalb</a>: "+phrase+"</p>");
+			//chatId.insertAdjacentHTML("beforeend","<p><a href=''>robalb</a>: "+phrase+"</p>");
+			
 			phrase="";
 			phraseDisplayId.innerHTML = "";
 			
@@ -309,6 +338,46 @@ function sendMSgCountDown(){
 	}
 }
 
+
+
+var specialChars = {
+		"A":".",
+		"B":",",
+		"C":":",
+		"D":"-",
+		"E":"\'",
+		"F":"/",
+		"G":"?",
+		"H":"!",
+		"I":"@",
+		
+		"J":" ",
+		"K":"|"
+
+}
+
+
+function webEncodeLetter(letter){
+	var ret = letter;
+	for (var key in specialChars) {
+		if (specialChars.hasOwnProperty(key)){
+			if(specialChars[key] == letter){
+				ret = key;
+			}
+		}
+	}
+	return ret;
+}
+
+
+function webDecode(string){
+	var dString = string;
+	for (var key in specialChars) {
+		dString = dString.replace(key,specialChars[key]);
+		dString = dString.replace(new RegExp(key, 'g'),specialChars[key]);
+	}
+	return dString.toLowerCase();
+}
 
 function log(msg){
 	if(debugging){
