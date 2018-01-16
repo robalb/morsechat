@@ -1,5 +1,6 @@
 
 *.woff2
 *.jpg
-app_core_min.js
-style_min.css
+css/style_min.css
+js/min.js
+js/pusher_min.js

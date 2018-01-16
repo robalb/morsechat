@@ -9,18 +9,21 @@
 <meta name="description" content="an online morse radio" />
 <meta name="msapplication-TileColor" content="#212121" />
 <meta name="theme-color" content="#212121" />
-<link rel="stylesheet" href="style.css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
  <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
 <!-- LOCAL icons -->
-<link href="icons.css" rel="stylesheet" />
-<script src="app_core.js"></script>
+<link href="css/icons.css" rel="stylesheet" />
+<link href="css/style.css" rel="stylesheet" />
+
+<script src="js/main.js"></script>
+<script src="js/gui.js"></script>
+<script src="js/pusher_min.js"></script>
 </head>
 <body>
 
     <div id="nav">
 		<button class="hamburger" onclick="openMenu()" ><i class="material-icons">menu</i></button>
-		<a href="#">ch 1 <i class="material-icons">arrow_drop_down</i></a>
+		<a onclick="ch()">ch 1 <i class="material-icons">arrow_drop_down</i></a>
 		<button class="settingsbt" onclick="openSettings()"><i class="material-icons">settings</i></button>
 		<button class="showmorsebt" onclick="openMlSidebar()"><i class="material-icons">library_books</i></button>
     </div>

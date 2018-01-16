@@ -59,10 +59,7 @@ morse code online chat, by robalb
 		"11111":"0"
 	}
 
-var debugging=false;
-	
-//default: spacebar
-var keyLetter = 32;
+var debugging=true;
 
 //all the element ids used in this script
 var keyId;
@@ -122,6 +119,9 @@ var oX1101o = true;
 
 
 window.addEventListener('load', function(){
+	
+	//enable-disable debugging
+	Pusher.logToConsole = debugging;
 
 	//get the main dom elements
 	keyId = document.getElementById('key');
@@ -135,16 +135,16 @@ window.addEventListener('load', function(){
 	applyMultipliers(defaultMultipliers);
 	
 	//create audio context
-	 if (typeof AudioContext !== "undefined") {
-        context = new AudioContext();
+	if (typeof AudioContext !== "undefined") {
+		context = new AudioContext();
     } else if (typeof webkitAudioContext !== "undefined") {
-       context = new webkitAudioContext();
+		context = new webkitAudioContext();
     } else if (typeof window.webkitAudioContext !== "undefined") {
-       context = new window.webkitAudioContext();
+		context = new window.webkitAudioContext();
     } else if (typeof window.AudioContext !== "undefined") {
-       context = new window.AudioContext();
+		context = new window.AudioContext();
     } else if (typeof mozAudioContext !== "undefined") {
-       context = new mozAudioContext();
+		context = new mozAudioContext();
     } else{
 		audioSupport = false;
 	}
@@ -155,15 +155,13 @@ window.addEventListener('load', function(){
 		e.preventDefault();
 		down();
 	}, false);
-	
 	keyId.addEventListener('touchend',function(e){
 		e.stopPropagation();
 		e.preventDefault();
 		up();
 	}, false);
 	//mouse
-	keyId.addEventListener('mousedown',down, false);
-	
+	keyId.addEventListener('mousedown',down, false);	
 	keyId.addEventListener('mouseup',up, false);
 	//keyboard
 	document.addEventListener('keydown', function(e){
@@ -197,7 +195,7 @@ function down(){
 	dashTimer=setTimeout(function(){
 		up();
 		isDown = false;
-		console.log("holded dash for too long. released it")
+		log("holded dash for too long. released it")
 	},dashLength*3);
 	
 	//add graphic effect to the key
@@ -230,7 +228,7 @@ function up(){
 	holdTime = stopHold - startHold;
 	//determine from holdTime if it is dash or dot and add it to the letter buffer
 	letter+=""+(holdTime>dashLength?"1":"0");
-	console.log("letter is now "+letter)
+	log("letter is now "+letter)
 	//also add the dot/dash to the chat
 	//TODO >> possible createDocumentFragment() optimization
 	letterDisplayId.insertAdjacentText("beforeend",(holdTime>dashLength?"_":"."));
@@ -252,7 +250,7 @@ function pushword(pushSpace){
 		phrase+="3";
 		//add space to the phrase screen
 		phraseDisplayId.insertAdjacentHTML("beforeend"," ");
-		console.log("added space");
+		log("added space");
 		//start the sendmessage countdown function, with graphic acceleration.
 		// when it reaches 100%, the current phrase stored in the phrase buffer is sent to the server
 		//to stop it, set countDownCtrl to 0; to start set countDownCtrl to the current timestamp
@@ -260,7 +258,7 @@ function pushword(pushSpace){
 		//this make visible the progress bar
 		barId.style.height = "2px";
 		sendMSgCountDown();
-		console.log("started a "+phraseInactivityTime+"ms countdown")
+		log("started a "+phraseInactivityTime+"ms countdown")
 		
 	}else{
 	//store raw letter in phrase buffer
@@ -268,12 +266,12 @@ function pushword(pushSpace){
 	//add translated letter to the phrase screen
 	var rt=morseTree[letter]?morseTree[letter]:"<span>|</span>";
 	phraseDisplayId.insertAdjacentHTML("beforeend",rt);
-	console.log("decoded "+letter+" into "+rt);
+	log("decoded "+letter+" into "+rt);
 	//reset the letter buffer and clear the letter screen
 	letter="";
 	letterDisplayId.innerText = "";
-	console.log("letter added to phrase")
-	console.log("phrase is now "+phrase)
+	log("letter added to phrase")
+	log("phrase is now "+phrase)
 	//start timer to push space
 	spaceTimer=setTimeout(pushword,wordsPause,true);
 	}
@@ -283,7 +281,7 @@ function pushword(pushSpace){
 
 function sendMSgCountDown(){
 	if(countDownCtrl==0){
-		console.log("send countdown interrupted. progress bar removed")
+		log("send countdown interrupted. progress bar removed")
 		//reset and makes invisible the progress bar
 		barId.style.height = "0px";
 		barId.style.width = "0px";
@@ -296,7 +294,7 @@ function sendMSgCountDown(){
 			//graphic acceleration stuff
 			window.requestAnimationFrame(sendMSgCountDown);
 		}else{
-			console.log("made it to "+phraseInactivityTime+"! sending the message")
+			log("made it to "+phraseInactivityTime+"! sending the message")
 			//reset and makes invisible the progress bar
 			barId.style.height = "0px";
 			barId.style.width = "0px";
@@ -312,114 +310,8 @@ function sendMSgCountDown(){
 }
 
 
-
-//UI functions
-
-function openMlSidebar(){
-    document.getElementById("morseListSideBar").style.display = "block";
-}
-function closeMlSidebar(){
-    document.getElementById("morseListSideBar").style.display = "none";
-}
-function stretchMlSidebar(){
-	document.getElementById("morseListSideBar").style.width = "100%";
-	document.getElementById("morseList").style.columnCount = 4;
-}
-function unstretchMlSidebar(){
-	document.getElementById("morseListSideBar").style.width = "180px";
-	document.getElementById("morseList").style.columnCount = 2;
-}
-function openMenu(){
-	document.getElementById("menu").style.display = "block";
-}
-function openSettings(){
-	document.getElementById("settings").style.display = "block";	
-}
-function popup(title,msgBody){
-	document.getElementById("popup").style.display = "table";
-	document.getElementById("popupTitle").innerText = title;
-	document.getElementById("popupContent").innerHTML = msgBody;
-}
-
-//SETTINGS functions
-
-function updateMultiplier(element,newVal){
-	if(element==0){
-		document.getElementById("dotSpeedDisp").text=newVal;
-	}
-	//validate input
-	if(newVal>0&&((newVal<=500)||(element==5&&newVal<=4000)) ){
-		//add the new input to the second multipliers list
-		newMultipliers[element]=newVal;
-		console.log("applying multipliers");
-		//apply the second multiplier list to the morse elements length
-		applyMultipliers(newMultipliers);
+function log(msg){
+	if(debugging){
+		console.log(msg);
 	}
 }
-function restoreDefaultMultipliers(){
-	console.log("applying default multipliers");
-	applyMultipliers(defaultMultipliers);
-	newMultipliers = defaultMultipliers.slice(0);
-}
-
-function applyMultipliers(applyList){
-	//update variables
-	dotSpeed = applyList[0];
-	dashLength = dotSpeed*applyList[1];
-	elementsPause = dotSpeed*applyList[2];
-	charactersPause = dotSpeed*applyList[3];
-	wordsPause = dotSpeed*applyList[4];
-	phraseInactivityTime = applyList[5];
-	//update graphic part
-	document.getElementById("dotSpeedDisp").text=applyList[0];
-	document.getElementById("speedRange").value=applyList[0];
-	var x=document.getElementsByClassName("tElement");
-	for(var i=0;i<x.length;i++){
-		x[i].value = applyList[i+1];
-	}
-}
-function dumpSettings(){
-	var stringD="";
-	newMultipliers.forEach(function(s){stringD+="x"+s});
-	popup("export code","<p>this is your configuration code. Keep it somewhere safe.</p><p><b>"+stringD+"</i></p><br>");
-}
-function importSettings(){
-	var rString = document.getElementById("stringInput").value;
-	var sr = rString.split("x");
-	//validate input string
-	if(sr.length == 7){
-		for(var i=1;i<7;i++){
-			console.log(sr[i]);
-			if(parseFloat(sr[i])>0&&parseFloat(sr[i])<=4000){
-				newMultipliers[i-1]=parseFloat(sr[i]);
-			}else{
-				console.log("invalid value");
-				newMultipliers[i-1] = defaultMultipliers[i-1];
-			}
-		}
-		applyMultipliers(newMultipliers);
-	}else{
-		popup("import error","<p>Invalid code!</p>");
-	}
-}
-function toggleKeySound(){
-	if(keySound){
-		keySound = false;
-		document.getElementById("ksbutton").innerText = "enable key sound";
-	}else{
-		keySound = true;
-		document.getElementById("ksbutton").innerText = "disable key sound";
-	}
-}
-function toggleReceivedSound(){
-	if(receivedMorseSound){
-		receivedMorseSound = false;
-		document.getElementById("rmbutton").innerText = "unmute received morse";
-	}else{
-		receivedMorseSound = true;
-		document.getElementById("rmbutton").innerText = "mute received morse";
-	}	
-}
-
-
-

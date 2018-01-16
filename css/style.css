@@ -53,6 +53,7 @@ html {
   line-height: 50px;
   margin: 0 .5em 0 .5em;
   width: .5em;
+  cursor:pointer;
 }
 
 
