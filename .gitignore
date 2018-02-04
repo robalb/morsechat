@@ -1,6 +1,4 @@
 
 *.woff2
-*.jpg
 css/style_min.css
 js/min.js
-js/pusher_min.js
