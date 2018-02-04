@@ -35,14 +35,16 @@
 		</div>
 		<p id="dispbar"><a id="phraseDisp"> </a> <a id="letterDisp"></a></p>
 		<div id="chat">
+		
 			<div id="chatPopup">
-				
 			</div>
+			
 			<p>connecting...</p>
 		</div>
 		<div class="keyContainer">
 		   <button id="key" style="cursor:pointer" onClick="" ></button>
 		</div>
+		<i onclick="scrollDown()" id="radiobt" class="material-icons">arrow_drop_down</i>
 	</div>
  
 
@@ -61,30 +63,30 @@
 		<p>Q --.-</p><p>R .-.</p><p>S ...</p><p>T -</p>
 		<p>U ..-</p><p>V ...-</p><p>W .--</p><p>X -..-</p>
 		<p>Y -.--</p><p>Z --..</p><p>. .-.-.-</p><p>, --..--</p>
-		<p>? ..--..</p><p>! -.-.--</p><p>' .----.</p><p>- -....-</p>
-		<p>/ -..-.</p><p>: ---...</p><p>@ .--.-.</p><p>1 .----</p><p>2 ..---</p>
+		<p>? ..--..</p><p>' .----.</p><p>! -.-.--</p><p>/ -..-.</p>
+		<p>: ---...</p><p>; -.-.-.</p><p>= -...-</p><p>+ .-.-.</p>
+		<p>- -....-</p><p>@ .--.-.</p><p>1 .----</p><p>2 ..---</p>
 		<p>3 ...--</p><p>4 ....-</p><p>5 .....</p><p>6 -....</p>
 		<p>7 --...</p><p>8 ---..</p><p>9 ----.</p><p>0 -----</p>
-		<p>don't send:<br> ........</p>
+		<p><a onclick="popup('........','when typed, this character remove the current message and don\'t broadcast it')" >error:</a><br> ........</p>
 		<p><a target="_blank" href="https://en.wikipedia.org/wiki/Morse_code">wiki</a></p>
-		<p><a target="_blank" href="https://en.wikipedia.org/wiki/Morse_code_mnemonics">mnemonics</a></p>
-		<p><a target="_blank" href="visual1.jpg">mnemonics</a></p>
+		<p><a target="_blank" href="https://en.wikipedia.org/wiki/Morse_code_mnemonics">wiki mnemonics</a></p>
+		<p><a onclick="popup('morse visual chart','<img src=\'visual2.png\' alt=\'mnemonic img\' style=\'width:100%;height:auto\' >') " >mnemonic</a></p>
 	</div>
 </div>
 
 <div class="menuContainer" id="menu">
 	<div class="menuHeader">
 		<button onclick="this.parentNode.parentNode.style.display='none'"><i class="material-icons">close</i></button>
-		<p>username</p>
-		<a href="">logout</a> <a href="">profile</a>
+		<p id="sidebar_username_disp">[connecting..]</p>
+		<a onclick="changeUsername()">change username</a>
 	</div>
   <hr>
 	<div class="links">
-		<p><a>homepage</a></p>
-		<p><a>chat rooms</a></p>
-		<p><a>practice</a></p>
-		<p><a>about</a></p>
-		<p><a>bug</a></p>
+		<p><a href=" ">homepage</a></p>
+		<p><a href="javascript:alert('coming soon')">practice</a></p>
+		<p><a href="about.php">about</a></p>
+		<p><a href="bug.php">bug</a></p>
 	</div>
 </div>
 

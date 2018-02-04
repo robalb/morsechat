@@ -29,12 +29,15 @@
 		"1100":"z",
 		"010101":".",
 		"110011":",",
-		"111000":":",
-		"100001":"-",
-		"011110":"\'",
-		"10010":"/",
 		"001100":"?",
+		"011110":"\'",
 		"101011":"!",
+		"10010":"/",
+		"111000":":",
+		"101010":";",
+		"10001":"=",
+		"100001":"-",
+		"01010":"+",
 		"011010":"@",
 		//"00000000":"<<",
 		"01111":"1",
@@ -104,8 +107,15 @@ var o;
 var keySound = true;
 var receivedMorseSound = true;
 
+//pusher session variables
+var isAuth = false;
+
 //important.
 var oX1101o = true;
+
+//chat scroll
+var viewTagDisplaied = false;
+var viewedMessages = false;
 
 
 window.addEventListener('load', function(){
@@ -139,6 +149,16 @@ window.addEventListener('load', function(){
 		audioSupport = false;
 	}
 	
+	//remove the scroll-down radio button if user scroll down to the bottom of the chat.
+	 chatId.addEventListener('scroll',function(e){
+		if(viewTagDisplaied){
+			if(!(chatId.scrollTop < (chatId.scrollHeight - chatId.offsetHeight))){
+				document.getElementById("radiobt").style.display = "none";
+				viewedMessages = true;				
+			}
+		}
+	}, false);
+	
 	//touch
 	keyId.addEventListener('touchstart',function(e){
 		e.stopPropagation();
@@ -156,12 +176,16 @@ window.addEventListener('load', function(){
 	//keyboard
 	document.addEventListener('keydown', function(e){
 		if( !fired && (e.keyCode == 32 || e.which == 32 || e.key == " " || e.code == "Space")){
+			//prevent spacebar from scrollin the chat
+			 e.preventDefault();
 			fired = true;
 			down();
 		}
 	}, false);
 	document.addEventListener('keyup', function(e){
 		if(e.keyCode == 32 || e.which == 32 || e.key == " " || e.code == "Space"){
+			//prevent spacebar from scrollin the chat
+			 e.preventDefault();
 			fired = false;
 			up();
 		}
@@ -169,25 +193,58 @@ window.addEventListener('load', function(){
 	
 	
 	//pusher api
-	pusher = new Pusher('APP_KEY', {//app_key
-	authEndpoint: '/app/auth.php',
+	pusher = new Pusher('511e9c494b3e75f3122d', {//app_key
+	authEndpoint: '../app/auth.php',
 	cluster: 'eu',
     encrypted: true
 	});
 	
-	channel = pusher.subscribe('my-channel');
+	channel = pusher.subscribe('presence-ch1');
 	
 	channel.bind('pusher:subscription_succeeded', function() {
-		chatId.insertAdjacentHTML("beforeend","<p>connected to channel 1</p>");
+		isAuth = true;
+		var onlineMorsers = channel.members.count;
+		insertMsg("<p>connected to channel 1<br>"+onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</p>");
+		document.getElementById("sidebar_username_disp").innerText = channel.members.me.info.username;
+		log(channel.members)
 	});
 	channel.bind('pusher:subscription_error', function(status) {
-		chatId.insertAdjacentHTML("beforeend","<p>connecteion error. status: "+status+"</p>");
+		insertMsg("<p>connecteion error. status: "+status+"</p>");
 	});
 
-    channel.bind('my-event', function(data) {
-		chatId.insertAdjacentHTML("beforeend","<p><a href=''>"+"unknown"+"</a>: "+webDecode(data.message)+"</p>");
-		chatId.scrollTop = chatId.scrollHeight;
+    channel.bind('morsebroadcast', function(data) {
+		var msgsender = channel.members.get(data.sender);
+		insertMsg(
+			"<p><a onclick='displaySenderInfo("+data.sender+")'>"+
+			(data.sender == channel.members.me.id?"you":msgsender.info.username)+
+			"</a>: "+
+			webDecode(data.message)+
+			"</p>"
+			);
     });
+	
+	channel.bind('pusher:member_added', function(member){
+		var onlineMorsers = channel.members.count;
+		insertMsg(
+		"<p><a onclick='displaySenderInfo("+member.id+")'>"+member.info.username+"</a>"+
+		" joined the chat.<br>"+
+		onlineMorsers+" morsers online</p>"
+		);
+		log("new member")
+		log(member)
+	});
+	
+	channel.bind('pusher:member_removed', function(member) {
+		var onlineMorsers = channel.members.count;
+		insertMsg(
+		"<p><a onclick='displaySenderInfo("+member.id+")' >"+member.info.username+"</a>"+
+		" left the chat. <br>"+
+		onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</p>"
+		);
+		log("removed member")
+		log(member)
+	});
+
 
 
 }, false);
@@ -274,8 +331,8 @@ function pushword(pushSpace){
 		
 	}else{
 	//store letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
-	//uppercase letters by function webEncode. non existing letters are stored as upercase K
-	phrase+= ""+(morseTree[letter]?webEncodeLetter(morseTree[letter]):"K");
+	//uppercase letters by function webEncode. non existing letters [[are stored as upercase K]] are not stored
+	phrase+= ""+(morseTree[letter]?webEncodeLetter(morseTree[letter]):"");
 	//add translated letter to the phrase screen
 	var rt=morseTree[letter]?morseTree[letter]:"<span>|</span>";
 	phraseDisplayId.insertAdjacentHTML("beforeend",rt);
@@ -315,41 +372,89 @@ function sendMSgCountDown(){
 			//TODO >> possible createDocumentFragment() optimization
 			
 			//chatId.insertAdjacentHTML("beforeend","<p>sending..</p>");
-			var xhr = new XMLHttpRequest();
-			xhr.open('GET', 'app/send.php?msg='+phrase );
-			xhr.onload = function() {
-				if (xhr.status === 200) {
-					
-				}
-				else {
-					chatId.insertAdjacentHTML("beforeend","<p>error" +  xhr.status + " " + xhr.statusText + "</p>");
-				}
-			};
+			if(isAuth){
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', '../app/send.php?msg='+phrase );
+				xhr.onload = function() {
+					if (xhr.status === 200) {
+						log(xhr.statusText)
+					}
+					else {
+						insertMsg("<p>error" +  xhr.status + " " + xhr.statusText + "</p>");
+					}
+				};
 			xhr.send();
-
-			
-			//probably to remove when websocket is implemented
-			//chatId.insertAdjacentHTML("beforeend","<p><a href=''>robalb</a>: "+phrase+"</p>");
-			
+			}else{
+				insertMsg("<p>failed to broadcast the message. <br> you are not connected to a channell</p>");
+			}		
 			phrase="";
-			phraseDisplayId.innerHTML = "";
-			
+			phraseDisplayId.innerHTML = "";			
 		}
 	}
 }
 
+function insertMsg(msgBody){
+	//check if user is at the bottom of the chat. if its not (probably reading an old msg) the function
+	//don't scroll down automatically and display the #radiobt instead
+	var chatHeight = Math.max(
+	chatId.scrollHeight,chatId.offsetHeight
+	)
+	var dontScrollDown = (chatId.scrollTop < (chatId.scrollHeight - chatId.offsetHeight));
+	// var dontScrollDown = (chatId.scrollTop < chatHeight-30);
+	// console.log(chatId.scrollTop )
+	// console.log(chatHeight)
+
+	if(dontScrollDown){
+		//display scroll down radio bt
+		document.getElementById("radiobt").style.display = "block";
+
+		//remove old existing tag if messages have already been read
+		if(viewTagDisplaied && viewedMessages){
+			viewedMessages = false;
+			viewTagDisplaied = false;
+			var unreadMsgId = document.getElementById("unread-msg");
+			unreadMsgId.outerHTML = "";
+			delete unreadMsgId;
+		}					
+		//add unread messages tag if it doesn't exist
+		if(!viewTagDisplaied){
+			viewTagDisplaied = true;
+			chatId.insertAdjacentHTML("beforeend","<p style='color:grey' id='unread-msg'>unread messages</p>");
+		}
+		chatId.insertAdjacentHTML("beforeend",msgBody);
+	}else{
+		chatId.insertAdjacentHTML("beforeend",msgBody);
+		chatId.scrollTop = chatId.scrollHeight;
+	}
+	
+	//play sound
+	//TODO >> replace this beep with real morse sound of the message and play it while displaying the text
+		if(audioSupport && keySound){
+		var o = context.createOscillator()
+		o.frequency.value = 440
+		var g = context.createGain()
+		o.connect(g)
+		g.connect(context.destination) 
+		o.start(0)
+		setTimeout(function(){o.stop()}, 100);
+		}
+
+}
 
 
 var specialChars = {
 		"A":".",
 		"B":",",
-		"C":":",
-		"D":"-",
-		"E":"\'",
+		"C":"?",
+		"D":"\'",
+		"E":"!",
 		"F":"/",
-		"G":"?",
-		"H":"!",
-		"I":"@",
+		"G":":",
+		"H":";",
+		"I":"=",
+		"L":"-",
+		"M":"+",
+		"N":"@",
 		
 		"J":" ",
 		"K":"|"

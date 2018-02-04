@@ -27,6 +27,49 @@ function popup(title,msgBody){
 	document.getElementById("popupContent").innerHTML = msgBody;
 }
 
+function displaySenderInfo(senderId){
+	var user = channel.members.get(senderId);
+	if(user){
+		popup("user info",
+			"<p>username: "+user.info.username+
+			"<br>id: "+senderId+
+			"<br>continent: "+user.info.continent+
+			"<br>country: "+user.info.countryName+
+			"</p>"
+		);
+	}else{
+		popup("user info","<p>this user doesn't exist anymore</p>");
+	}
+}
+
+function changeUsername(){
+	if(isAuth){
+		pusher.unsubscribe('presence-ch1');
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', '../morsecode/app/sessionremove.php');
+		xhr.onload = function() {
+			if (xhr.status === 200) {
+				log(xhr.statusText)
+				location.reload()
+			}
+			else {
+				insertMsg("<p>failed to change your username. error: <br>" +  xhr.status + " " + xhr.statusText + "</p>");
+			}
+		};
+		xhr.send();
+	}else{
+		insertMsg("<p>you are not connected to a channel</p>");
+	}
+}
+
+function scrollDown(){
+	document.getElementById("radiobt").style.display = "none";
+	chatId.scrollTop = chatId.scrollHeight;
+	if(viewTagDisplaied){
+		viewedMessages = true;
+	}
+}
+
 //SETTINGS functions
 
 function updateMultiplier(element,newVal){

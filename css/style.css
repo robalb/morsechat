@@ -95,8 +95,29 @@ html {
   word-wrap: break-word;
 }
 #chat a{
-  color:#66ccff;
+  color:#80d4ff;
+  cursor:pointer;
   text-decoration:none;
+}
+#chat a:active{
+	color:#99ddff;
+}
+#radiobt{
+	background-color:rgba(224, 224, 224,0.2);
+	color:rgb(224, 224, 224);
+	  font-size: 35px;
+      line-height: 1;
+	  height:35px;
+	width:35px;
+	position:relative;
+	bottom:100px;/* key.height + radiobt.height + margin(15px) */
+	left:calc(100% - 50px); /*  radiobt-width + margin(15px) */
+	border-radius:50px;
+	cursor:pointer;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  -moz-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  display:none;
 }
 
 #dispbar{
@@ -197,6 +218,11 @@ html {
   break-inside: avoid-column;
   -webkit-column-break-inside: avoid;
 }
+#morseList a{
+  color:#0066ff;
+  text-decoration:underline;
+  cursor:pointer;
+}
 
 
 .menuContainer{
@@ -218,7 +244,9 @@ html {
   color:#f2f2f2;
   text-decoration:none;
 }
-.links p{
+
+.links a{
+	text-decoration:none;
   height:5opx;
   line-height:50px;
   cursor:pointer;

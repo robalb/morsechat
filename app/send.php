@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 require_once('pusher/Pusher.php');
 require_once('pusher/PusherException.php');
 require_once('pusher/PusherInstance.php');
@@ -11,7 +11,7 @@ require_once('pusher/PusherInstance.php');
     'cluster' => 'eu',
     'encrypted' => true
   );
-  //$pusher = new Pusher\Pusher("APP_KEY", "APP_SECRET", "APP_ID",$options);
+
   $pusher = new Pusher\Pusher(
     'APP_KEY',
     'APP_SECRET',
@@ -19,21 +19,19 @@ require_once('pusher/PusherInstance.php');
     $options
   );
   
-
-if(isset($_GET["msg"])){
-	if(strlen($_GET["msg"]) > 0 && strlen($_GET["msg"]) < 400){
+if(isset($_SESSION["user_id"])){
+	if(isset($_GET["msg"]) && strlen($_GET["msg"]) > 0 && strlen($_GET["msg"]) < 400){
 		$msg = htmlspecialchars($_GET["msg"]);
-		//TODO: allow only uppercase and lowercase alhabet and numbers. remove everything else
+		//TODO: allow only uppercase and lowercase english alhabet letters and numbers. remove everything else
 		$data['message'] = $msg;
-		$pusher->trigger('my-channel', 'my-event', $data);
-		
-		
+		$data['sender'] = $_SESSION["user_id"];
+		$pusher->trigger('presence-ch1', 'morsebroadcast', $data);	
 	}else{
 		echo "invalid string";
 	}
-	  
-	  
-  }
+}else{
+	echo "invalid sesion";
+}
  
   
   
