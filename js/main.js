@@ -396,13 +396,7 @@ function sendMSgCountDown(){
 function insertMsg(msgBody){
 	//check if user is at the bottom of the chat. if its not (probably reading an old msg) the function
 	//don't scroll down automatically and display the #radiobt instead
-	var chatHeight = Math.max(
-	chatId.scrollHeight,chatId.offsetHeight
-	)
 	var dontScrollDown = (chatId.scrollTop < (chatId.scrollHeight - chatId.offsetHeight));
-	// var dontScrollDown = (chatId.scrollTop < chatHeight-30);
-	// console.log(chatId.scrollTop )
-	// console.log(chatHeight)
 
 	if(dontScrollDown){
 		//display scroll down radio bt
