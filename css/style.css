@@ -246,7 +246,7 @@ html {
 }
 
 .links a{
-	text-decoration:none;
+  text-decoration:none;
   height:5opx;
   line-height:50px;
   cursor:pointer;
@@ -256,6 +256,12 @@ html {
   transition-duration: 0.5s;
   color:#bfbfbf;
 }
+.links .icon-32{
+  margin-right:5px;
+  vertical-align:middle
+	
+}
+
 .menuContainer button{
   cursor: pointer;
   border: 0;
