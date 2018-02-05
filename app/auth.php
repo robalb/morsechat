@@ -8,15 +8,15 @@ $config = include('config.php');
 
 
   $options = array(
-    'cluster' => $config['cluster'],
+	'cluster' => $config['cluster'],
 	'encrypted' => true
   );
 
   $pusher = new Pusher\Pusher(
 	$config['APP_KEY'],
-    $config['APP_SECRET'],
-    $config['APP_ID'],
-    $options
+	$config['APP_SECRET'],
+	$config['APP_ID'],
+	$options
   );
   
 if(isset($_POST["channel_name"]) && isset($_POST["socket_id"])){
@@ -33,16 +33,15 @@ if(isset($_POST["channel_name"]) && isset($_POST["socket_id"])){
 	}
 	// [2 digit countrycode] . [last 3 digits of unix timestamp id] . [last ip digit]
 	$username = $ip_data["geoplugin_countryCode"].substr($_SESSION["user_id"], -3).substr($_SERVER['REMOTE_ADDR'], -1);
+
+	$presence_data = array(
+		"id" => $_SESSION["user_id"],
+		"username" => $username,
+		"continent" => $ip_data["geoplugin_continentCode"],
+		"countryCode" => $ip_data["geoplugin_countryCode"],
+		"countryName" => $ip_data["geoplugin_countryName"]
+	);
 	
- $presence_data = array(
- "id" => $_SESSION["user_id"],
- "username" => $username,
- "continent" => $ip_data["geoplugin_continentCode"],
- "countryCode" => $ip_data["geoplugin_countryCode"],
- "countryName" => $ip_data["geoplugin_countryName"]
- );
-
-
 	echo $pusher->presence_auth($_POST["channel_name"], $_POST["socket_id"], $_SESSION["user_id"],$presence_data);
 
 }else{

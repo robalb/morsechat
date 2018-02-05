@@ -8,15 +8,15 @@ $config = include('config.php');
 
 
   $options = array(
-    'cluster' => $config['APP_CLUSTER'],
+	'cluster' => $config['APP_CLUSTER'],
 	'encrypted' => true
   );
 
   $pusher = new Pusher\Pusher(
 	$config['APP_KEY'],
-    $config['APP_SECRET'],
-    $config['APP_ID'],
-    $options
+	$config['APP_SECRET'],
+	$config['APP_ID'],
+	$options
   );
   
 if(isset($_SESSION["user_id"])){
