@@ -1,19 +1,21 @@
 <?php
 session_start();
-
 require_once('pusher/Pusher.php');
 require_once('pusher/PusherException.php');
 require_once('pusher/PusherInstance.php');
 
+$config = include('config.php');
+
 
   $options = array(
-    'cluster' => 'eu',
-    'encrypted' => true
+    'cluster' => $config['cluster'],
+	'encrypted' => true
   );
+
   $pusher = new Pusher\Pusher(
-   'APP_KEY',
-    'APP_SECRET',
-    'APP_ID',
+	$config['APP_KEY'],
+    $config['APP_SECRET'],
+    $config['APP_ID'],
     $options
   );
   
