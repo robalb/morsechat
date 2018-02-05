@@ -43,23 +43,7 @@ function displaySenderInfo(senderId){
 }
 
 function changeUsername(){
-	if(isAuth){
-		pusher.unsubscribe('presence-ch1');
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', '../morsecode/app/sessionremove.php');
-		xhr.onload = function() {
-			if (xhr.status === 200) {
-				log(xhr.statusText)
-				location.reload()
-			}
-			else {
-				insertMsg("<p>failed to change your username. error: <br>" +  xhr.status + " " + xhr.statusText + "</p>");
-			}
-		};
-		xhr.send();
-	}else{
-		insertMsg("<p>you are not connected to a channel</p>");
-	}
+	//function removed because useless
 }
 
 function scrollDown(){
