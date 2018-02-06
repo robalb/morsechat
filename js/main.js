@@ -53,7 +53,7 @@ var morseTree = {
 	"100001":"-",
 	"01010":"+",
 	"011010":"@",
-	//"00000000":"<<",
+	"000000":"cancel",
 	"01111":"1",
 	"00111":"2",
 	"00011":"3",
@@ -341,21 +341,35 @@ function pushword(pushSpace){
 		sendMSgCountDown();
 		log("started a "+phraseInactivityTime+"ms countdown")
 		
+	}else if(letter == "000000"){
+		letter="";
+		letterDisplayId.innerText = "";
+		//remove last letter from phrase
+		phrase = webDecode(phrase).substring(0, phrase.length -1);
+		//update phrase display
+		phraseDisplayId.innerText = phrase;
+		log("undo")
+		log("phrase is now "+phrase)
+		if(phrase.length > 0){
+			spaceTimer=setTimeout(pushword,wordsPause,true);
+		}else{
+			insertMsg("<p>message removed</p>");			
+		}
 	}else{
-	//store letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
-	//uppercase letters by function webEncode. non existing letters [[are stored as upercase K]] are not stored
-	phrase+= ""+(morseTree[letter]?webEncodeLetter(morseTree[letter]):"");
-	//add translated letter to the phrase screen
-	var rt=morseTree[letter]?morseTree[letter]:"<span>|</span>";
-	phraseDisplayId.insertAdjacentHTML("beforeend",rt);
-	log("decoded "+letter+" into "+rt);
-	//reset the letter buffer and clear the letter screen
-	letter="";
-	letterDisplayId.innerText = "";
-	log("letter added to phrase")
-	log("phrase is now "+phrase)
-	//start timer to push space
-	spaceTimer=setTimeout(pushword,wordsPause,true);
+		//store letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
+		//uppercase letters by function webEncode. non existing letters [[are stored as upercase K]] are not stored
+		phrase+= ""+(morseTree[letter]?webEncodeLetter(morseTree[letter]):"");
+		//add translated letter to the phrase screen
+		var rt=morseTree[letter]?morseTree[letter]:"<span>|</span>";
+		phraseDisplayId.insertAdjacentHTML("beforeend",rt);
+		log("decoded "+letter+" into "+rt);
+		//reset the letter buffer and clear the letter screen
+		letter="";
+		letterDisplayId.innerText = "";
+		log("letter added to phrase")
+		log("phrase is now "+phrase)
+		//start timer to push space
+		spaceTimer=setTimeout(pushword,wordsPause,true);
 	}
 }
 
