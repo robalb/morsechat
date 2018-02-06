@@ -70,7 +70,7 @@
 		<p>- -....-</p><p>@ .--.-.</p><p>1 .----</p><p>2 ..---</p>
 		<p>3 ...--</p><p>4 ....-</p><p>5 .....</p><p>6 -....</p>
 		<p>7 --...</p><p>8 ---..</p><p>9 ----.</p><p>0 -----</p>
-		<p><a onclick="popup('........','when typed, this character remove the current message and don\'t broadcast it')" >error:</a><br> ........</p>
+		<p><a onclick="popup('........','removes the last typed letter')" >error:</a><br> ........</p>
 		<p><a target="_blank" href="https://en.wikipedia.org/wiki/Morse_code">wiki</a></p>
 		<p><a target="_blank" href="https://en.wikipedia.org/wiki/Morse_code_mnemonics">wiki mnemonics</a></p>
 		<p><a onclick="popup('morse visual chart','<img src=\'visual2.png\' alt=\'mnemonic img\' style=\'width:100%;height:auto\' >') " >mnemonic</a></p>
@@ -100,20 +100,28 @@
 	<h2 class="stt">settings</h2>
 
 	<h3>timings</h3>
-<p>The basic element of Morse code is the dot and all other elements can be defined in terms of multiples of the dot length. 
-<a href="http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm">more info</a>
-</p>
+<p>The basic element of Morse code is the dot, all the other elements can be defined in terms of multiples of the dot length.
+<a href="http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm">more info</a> </p>
+		<h4>dot speed</h4>
+	<p id="rangeCont"><input type="range" id="speedRange" min="10" value="80" onInput="updateMultiplier(0,this.value)" max="500">
+	<br><br>
+	<a id="dotSpeedDisp">80</a> ms ( <a id="dotWpmDisp">15</a> wpm )
+	<br>
+	</p>
+	
+
+
 <!-- <p>The character speed(WPM) is related to dot length in seconds by the following formula:</p>
 <p><b>Speed (WPM) = 2.4 * (Dots per second)</b> -->
 
 <!-- </p>Here are the ratios for the other code elements:</p> -->
-<p><i>For learning the code this ratio can be increased so that overall text speed is lower than in standard Morse code.</i></p>
+<p>this is the table of the other elements. you can edit their values and try the changes in real time</p>
 
 	<table>
 	  <tbody>
 	   <tr>
 	    <th>code element</th>
-	    <th>dot length multiplier</th>
+	    <th>dot speed multiplier</th>
 	   </tr>	   
 	   <tr>
 	    <td>dash length</td>
@@ -137,9 +145,8 @@
 	   </tr>
 	  </tbody>
 	</table>
-		<h4>dot speed</h4>
-	<p>this value is multiplied with the elements in the table above</p>
-	<p id="rangeCont"><input type="range" id="speedRange" min="10" value="80" onInput="updateMultiplier(0,this.value)" max="500"> <a id="dotSpeedDisp">80</a> ms</p>
+		<p>the values in this table are multiplied with the dot speed</p>
+
 		<button class="button button-positive" onclick="restoreDefaultMultipliers()">restore default settings</button><br><br>
 	<button class="button" onclick="dumpSettings()">export configuration</button>
 	<button class="button" onclick="importSettings()">import configuration code</button><br>
