@@ -74,9 +74,9 @@ var barId;
 var chatId;
 
 //list of the default morse elements multipliers. this array is used to restore default settings
-var defaultMultipliers=[80,3,1,3,7,2000];
+var defaultMultipliers=[80,3,1,3,5,2000];
 //second list of multipliers: this array can be used to store custom values and apply them
-var newMultipliers=[80,3,1,3,7,2000];
+var newMultipliers=[80,3,1,3,5,2000];
 //customizable morse parameters. their values are set on page load, or from the page settings
 //by applying the arrays above
 var dotSpeed;

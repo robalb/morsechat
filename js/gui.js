@@ -85,6 +85,7 @@ function applyMultipliers(applyList){
 	phraseInactivityTime = applyList[5];
 	//update graphic part
 	document.getElementById("dotSpeedDisp").text=applyList[0];
+	document.getElementById("dotWpmDisp").text= Math.floor(1200/applyList[0]);
 	document.getElementById("speedRange").value=applyList[0];
 	var x=document.getElementsByClassName("tElement");
 	for(var i=0;i<x.length;i++){

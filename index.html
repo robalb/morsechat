@@ -106,16 +106,11 @@
 	<p id="rangeCont"><input type="range" id="speedRange" min="10" value="80" onInput="updateMultiplier(0,this.value)" max="500">
 	<br><br>
 	<a id="dotSpeedDisp">80</a> ms ( <a id="dotWpmDisp">15</a> wpm )
-	<br>
 	</p>
+	<br>
 	
-
-
-<!-- <p>The character speed(WPM) is related to dot length in seconds by the following formula:</p>
-<p><b>Speed (WPM) = 2.4 * (Dots per second)</b> -->
-
-<!-- </p>Here are the ratios for the other code elements:</p> -->
-<p>this is the table of the other elements. you can edit their values and try the changes in real time</p>
+<p>this is the table of the other elements. increasing the value of <i>pause between words</i> and <i>pause before sending</i>
+can be useful to learn the code</p>
 
 	<table>
 	  <tbody>
@@ -137,7 +132,7 @@
 	   </tr>	   
 	   <tr>
 	    <td>pause between words</td>
-	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="updateMultiplier(4,this.value)" value="7"></input></td>
+	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="updateMultiplier(4,this.value)" value="5"></input></td>
 	   </tr>
 	   <tr>
 	    <td>pause before sending</td>
