@@ -6,7 +6,7 @@ this project is based on the [pusher](https://www.pusher.com) library.
 
 ## installing
 
-you need php 5.4 or superior, with cUrl and json modules.
+you need php v5.4 or above, with cUrl and json modules.
 
 Insert your pusher api credentials in app/config.php. You can get them by registering a free account on pusher.com
 
