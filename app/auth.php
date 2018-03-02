@@ -8,7 +8,7 @@ $config = include('config.php');
 
 
   $options = array(
-	'cluster' => $config['cluster'],
+	'cluster' => $config['APP_CLUSTER'],
 	'encrypted' => true
   );
 

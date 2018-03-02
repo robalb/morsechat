@@ -5,9 +5,6 @@
 var PUSHER_KEY = '511e9c494b3e75f3122d';
 var PUSHER_CLUSTER = 'eu';
 
-//WEB APP PATH
-var APP_PATH = 'http://www.halb.it/morsecode';
-
 //enable console logs
 var debugging=true;
 
@@ -206,7 +203,7 @@ window.addEventListener('load', function(){
 	
 	//pusher api
 	pusher = new Pusher(PUSHER_KEY, {
-	authEndpoint: APP_PATH+'/app/auth.php',
+	authEndpoint: 'app/auth.php',
 	cluster: PUSHER_CLUSTER,
     encrypted: true
 	});
@@ -400,7 +397,7 @@ function sendMSgCountDown(){
 			//chatId.insertAdjacentHTML("beforeend","<p>sending..</p>");
 			if(isAuth){
 				var xhr = new XMLHttpRequest();
-				xhr.open('GET', APP_PATH+'/app/send.php?msg='+phrase );
+				xhr.open('GET', 'app/send.php?msg='+phrase );
 				xhr.onload = function() {
 					if (xhr.status === 200) {
 						log(xhr.statusText)
@@ -419,9 +416,9 @@ function sendMSgCountDown(){
 	}
 }
 
-function insertMsg(msgBody){
+function insertMsg(msgBody,systemMessage){
 	//check if user is at the bottom of the chat. if its not (probably reading an old msg) the function
-	//don't scroll down automatically and display the #radiobt instead
+	//don't scroll down automatically and displays the #radiobt instead
 	var dontScrollDown = (chatId.scrollTop < (chatId.scrollHeight - chatId.offsetHeight));
 
 	if(dontScrollDown){
