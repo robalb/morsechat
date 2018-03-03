@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>home</title>
+<title>morse chat</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
  <meta name="application-name" content="online morse radio"/>
@@ -15,7 +15,21 @@
 
 <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
  <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+<script>
+var config = <?php
+//############################################################
+//transfer php data to js
+$config = include('app/config.php');
+//careful here!
+$out = array(
+	'PUSHER_KEY' => $config['APP_KEY'],
+	'PUSHER_CLUSTER' => $config['APP_CLUSTER']
+);
+echo json_encode($out, JSON_HEX_TAG);
+//############################################################
+?>
 
+</script>
 <script src="js/main.js"></script>
 <script src="js/gui.js"></script>
 <script src="js/pusher_min.js"></script>

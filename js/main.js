@@ -2,8 +2,7 @@
 /* ------------- CONFIG --------------*/
 
 //PUSHER APP DATA
-var PUSHER_KEY = '511e9c494b3e75f3122d';
-var PUSHER_CLUSTER = 'eu';
+
 
 //enable console logs
 var debugging=true;
@@ -202,18 +201,24 @@ window.addEventListener('load', function(){
 	
 	
 	//pusher api
-	pusher = new Pusher(PUSHER_KEY, {
+	pusher = new Pusher(config.PUSHER_KEY, {
 	authEndpoint: 'app/auth.php',
-	cluster: PUSHER_CLUSTER,
+	cluster: config.PUSHER_CLUSTER,
     encrypted: true
 	});
-	
+	//TODO: gui for changing channel
 	channel = pusher.subscribe('presence-ch1');
 	
 	channel.bind('pusher:subscription_succeeded', function() {
 		isAuth = true;
 		var onlineMorsers = channel.members.count;
-		insertMsg("<p>connected to channel 1<br>"+onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</p>");
+		var channelNumber = channel.name.substr(11);
+		insertMsg(
+			"<p>connected to channel "+channelNumber+"<br>"+
+			"username: <a onclick='displaySenderInfo("+channel.members.me.id+")'>"+channel.members.me.info.username+"</a><br>"+
+			//"username: "+channel.members.me.info.username+"<br>"+
+			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</p>"
+			);
 		document.getElementById("sidebar_username_disp").innerText = channel.members.me.info.username;
 		log(channel.members)
 	});

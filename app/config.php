@@ -11,6 +11,10 @@ return array(
 	//open the file makepassword.php?password=yourpassword to get a valid bcript hash
 	'ADMIN_USERNAME' => 'your_username_here',
 	'ADMIN_PASSWORD' => 'your_bcript_password_hash_here',
+	
+	//GENERAL SETTINGS
+	//the number of aviable channels
+	'MAX_CHANNELS' => 7
 );
 
 ?>

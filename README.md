@@ -1,13 +1,14 @@
-# morsechat
-
-a morse code only web chatroom.
-
 [![Website](https://img.shields.io/website-up-down-green-red/http/halb.it.svg?label=morse%20chat)](http://halb.it/morsecode)
+![Online](https://img.shields.io/badge/dynamic/json.svg?label=online%20users&uri=http%3A%2F%2Fwww.halb.it%2Fmorsecode%2Fapp%2Fgetonline.php&query=%24..online_users)
+![Channels](https://img.shields.io/badge/dynamic/json.svg?label=active%20channels&uri=http%3A%2F%2Fwww.halb.it%2Fmorsecode%2Fapp%2Fgetonline.php&query=%24..channels)
+
 ![GitHub last commit](https://img.shields.io/github/last-commit/robalb/morsechat.svg)
 ![license](https://img.shields.io/github/license/robalb/morsechat.svg)
 ![GitHub language count](https://img.shields.io/github/languages/count/robalb/morsechat.svg)
 ![badges](https://img.shields.io/badge/cool%20badges-5-brightgreen.svg)
+# morsechat
 
+a morse code web chatroom.
 
 this project is based on the [pusher](https://www.pusher.com) library.
 

@@ -1,4 +1,10 @@
 <?php
+/*
+this script receives an ajax call from the connected users when they send a message.
+received data: msg (get)
+if the session is valid, the message is broadcasted.
+
+*/
 session_start();
 require_once('pusher/Pusher.php');
 require_once('pusher/PusherException.php');
@@ -19,13 +25,14 @@ $config = include('config.php');
 	$options
   );
   
-if(isset($_SESSION["user_id"])){
-	if(isset($_GET["msg"]) && strlen($_GET["msg"]) > 0 && strlen($_GET["msg"]) < 400){
+if(isset($_SESSION["user_id"]) && isset($_SESSION["channel"]) ){
+	//validate msg
+	if(isset($_GET["msg"]) && strlen($_GET["msg"]) > 0 && strlen($_GET["msg"]) < 400 && ctype_alnum($_GET["msg"]) ){
 		$msg = htmlspecialchars($_GET["msg"]);
-		//TODO: allow only uppercase and lowercase english alhabet letters and numbers. remove everything else
 		$data['message'] = $msg;
 		$data['sender'] = $_SESSION["user_id"];
-		$pusher->trigger('presence-ch1', 'morsebroadcast', $data);
+		$data['time'] = time();
+		$pusher->trigger($_SESSION["channel"], 'morsebroadcast', $data);
 		echo "sent!";
 	}else{
 		echo "invalid string";
