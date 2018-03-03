@@ -1,9 +1,6 @@
 
 /* ------------- CONFIG --------------*/
 
-//PUSHER APP DATA
-
-
 //enable console logs
 var debugging=true;
 
@@ -125,6 +122,12 @@ var oX1101o = true;
 var viewTagDisplaied = false;
 var viewedMessages = false;
 
+//variables to avoid spam caused by users joining and quitting
+//type: normal 0, user joined 1, user quitted 2, system msg 3
+var lastMessageType;
+//the id of the last person that joined/left the chat
+var lastPersonId;
+
 
 window.addEventListener('load', function(){
 	
@@ -213,23 +216,23 @@ window.addEventListener('load', function(){
 		isAuth = true;
 		var onlineMorsers = channel.members.count;
 		var channelNumber = channel.name.substr(11);
-		insertMsg(
-			"<p>connected to channel "+channelNumber+"<br>"+
+		document.getElementById("connecting-msg").innerHTML =
+			"connected to channel "+channelNumber+"<br>"+
 			"username: <a onclick='displaySenderInfo("+channel.members.me.id+")'>"+channel.members.me.info.username+"</a><br>"+
-			//"username: "+channel.members.me.info.username+"<br>"+
-			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</p>"
-			);
+			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online";
+			
 		document.getElementById("sidebar_username_disp").innerText = channel.members.me.info.username;
 		log(channel.members)
 	});
 	channel.bind('pusher:subscription_error', function(status) {
-		insertMsg("<p>connecteion error. status: "+status+"</p>");
+		document.getElementById("connecting-msg").innerHTML = "<p>connection error. status: "+status+"</p>";
 	});
 
     channel.bind('morsebroadcast', function(data) {
+		lastMessageType = 0;//normal message
 		var msgsender = channel.members.get(data.sender);
 		insertMsg(
-			"<p><a onclick='displaySenderInfo("+data.sender+")'>"+
+			"<p class='msg-normal'><a onclick='displaySenderInfo("+data.sender+")'>"+
 			(data.sender == channel.members.me.id?"you":msgsender.info.username)+
 			"</a>: "+
 			webDecode(data.message)+
@@ -239,24 +242,48 @@ window.addEventListener('load', function(){
 	
 	channel.bind('pusher:member_added', function(member){
 		var onlineMorsers = channel.members.count;
-		insertMsg(
-		"<p><a onclick='displaySenderInfo("+member.id+")'>"+member.info.username+"</a>"+
-		" joined the chat.<br>"+
-		onlineMorsers+" morsers online</p>"
-		);
-		log("new member")
-		log(member)
+		//if the user joining previously leaved the same room and the message telling it is the last received
+		if(lastMessageType != 0 && lastPersonId == member.id){
+			log("still him")
+			document.querySelectorAll(".msg-normal:last-child .editable")[0].innerHTML = 
+				"<span class='editable'> reconnected. <br>"+
+				onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>";
+		}else{
+			//normal case
+			lastMessageType = 1;//member added message
+			lastPersonId = member.id;
+			insertMsg(
+			"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")'>"+member.info.username+"</a>"+
+			"<span class='editable'> joined the chat.<br>"+
+			onlineMorsers+" morsers online</span></p>"
+			);
+			log("new member")
+			log(member)			
+		}
+
 	});
 	
 	channel.bind('pusher:member_removed', function(member) {
 		var onlineMorsers = channel.members.count;
-		insertMsg(
-		"<p><a onclick='displaySenderInfo("+member.id+")' >"+member.info.username+"</a>"+
-		" left the chat. <br>"+
-		onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</p>"
-		);
-		log("removed member")
-		log(member)
+		//if the message telling the user joined is the last received
+		if(lastMessageType != 0 && lastPersonId == member.id){
+			log("still him")
+			document.querySelectorAll(".msg-normal:last-child .editable")[0].innerHTML = 
+				"<span class='editable'> joined and left the chat <br>"+
+				onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>";
+		}else{
+			//normal case
+			lastMessageType = 2;//member added message
+			lastPersonId = member.id;
+			insertMsg(
+			"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")' >"+member.info.username+"</a>"+
+			"<span class='editable'> left the chat. <br>"+
+			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>"
+			);
+			log("removed member")
+			log(member)			
+		}
+
 	});
 
 

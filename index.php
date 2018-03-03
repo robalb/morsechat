@@ -55,7 +55,7 @@ echo json_encode($out, JSON_HEX_TAG);
 			<div id="chatPopup">
 			</div>
 			
-			<p>connecting...</p>
+			<p id="connecting-msg">connecting...</p>
 		</div>
 		<div class="keyContainer">
 		   <button id="key" style="cursor:pointer" onClick="" ></button>
