@@ -2,6 +2,13 @@
 
 a morse code only web chatroom.
 
+[![Website](https://img.shields.io/website-up-down-green-red/http/halb.it.svg?label=morse%20chat)](http://halb.it/morsecode)
+![GitHub last commit](https://img.shields.io/github/last-commit/robalb/morsechat.svg)
+![license](https://img.shields.io/github/license/robalb/morsechat.svg)
+![GitHub language count](https://img.shields.io/github/languages/count/robalb/morsechat.svg)
+![badges](https://img.shields.io/badge/cool%20badges-5-brightgreen.svg)
+
+
 this project is based on the [pusher](https://www.pusher.com) library.
 
 ## installing
