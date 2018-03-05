@@ -117,7 +117,7 @@ echo json_encode($out, JSON_HEX_TAG);
 <p>The basic element of Morse code is the dot, all the other elements can be defined in terms of multiples of the dot length.
 <!-- <a href="http://www.nu-ware.com/NuCode%20Help/index.html?morse_code_structure_and_timing_.htm">more info</a>--> </p>
 		<h4>dot speed</h4>
-	<p id="rangeCont"><input type="range" id="speedRange" min="10" value="80" onInput="updateMultiplier(0,this.value)" max="500">
+	<p id="rangeCont"><input type="range" id="speedRange" min="10" value="80" onInput="settings.updateMultiplier(0,this.value)" max="500">
 	<br><br>
 	<a id="dotSpeedDisp">80</a> ms ( <a id="dotWpmDisp">15</a> wpm )
 	</p>
@@ -134,35 +134,35 @@ can be useful while learning the code</p>
 	   </tr>	   
 	   <tr>
 	    <td>dash length</td>
-	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="updateMultiplier(1,this.value)" value="3"></input></td>
+	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="settings.updateMultiplier(1,this.value)" value="3"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between elements</td>
-	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="updateMultiplier(2,this.value)" value="1"></input></td>
+	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="settings.updateMultiplier(2,this.value)" value="1"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between characters</td>
-	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="updateMultiplier(3,this.value)" value="3"></input></td>
+	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="settings.updateMultiplier(3,this.value)" value="3"></input></td>
 	   </tr>	   
 	   <tr>
 	    <td>pause between words</td>
-	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="updateMultiplier(4,this.value)" value="5"></input></td>
+	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="settings.updateMultiplier(4,this.value)" value="5"></input></td>
 	   </tr>
 	   <tr>
 	    <td>pause before sending</td>
-	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="4000" type="number" onInput="updateMultiplier(5,this.value)" value="2000"></input></td>
+	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="4000" type="number" onInput="settings.updateMultiplier(5,this.value)" value="2000"></input></td>
 	   </tr>
 	  </tbody>
 	</table>
 		<p>the values in this table are multiplied with the dot speed</p>
 
-		<button class="button button-positive" onclick="restoreDefaultMultipliers()">restore default settings</button><br><br>
-	<button class="button" onclick="dumpSettings()">export configuration</button>
-	<button class="button" onclick="importSettings()">import configuration code</button><br>
+		<button class="button button-positive" onclick="settings.restoreDefaultMultipliers()">restore default settings</button><br><br>
+	<button class="button" onclick="settings.dumpAsString()">export configuration</button>
+	<button class="button" onclick="settings.importFromString()">import configuration code</button><br>
 	<input type="text" autocomplete="off" id="stringInput" placeholder="paste here your code"><br>
 	<h3>sound settings</h3>
-	<button class="button" id="ksbutton" onclick="toggleKeySound()">disable key sound</button>
-	<button class="button" id="rmbutton" onclick="toggleReceivedSound()">mute received morse</button><br>
+	<button class="button" id="ksbutton" onclick="settings.toggleKeySound()">disable key sound</button>
+	<button class="button" id="rmbutton" onclick="settings.toggleReceivedSound()">mute received morse</button><br>
 	<br><br>
 	<br><br>
 	<br><br>

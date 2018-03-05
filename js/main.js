@@ -59,26 +59,6 @@ var morseTree = {
 	"11111":"0"
 }
 
-//all the element ids used in this script
-var keyId;
-var letterDisplayId;
-var phraseDisplayId;
-var barId;
-var chatId;
-
-//list of the default morse elements multipliers. this array is used to restore default settings
-var defaultMultipliers=[80,3,1,3,5,2000];
-//second list of multipliers: this array can be used to store custom values and apply them
-var newMultipliers=[80,3,1,3,5,2000];
-//customizable morse parameters. their values are set on page load, or from the page settings
-//by applying the arrays above
-var dotSpeed;
-var dashLength;
-var elementsPause;
-var charactersPause;
-var wordsPause;
-var phraseInactivityTime;
-
 //time counter variable used to recognize dot, dashes and spaces
 var startHold = 0;
 var stopHold = 0;
@@ -88,8 +68,6 @@ var holdTime = 0;
 var letter="";
 var phrase="";
 
-//var to prevent keydown triggering multiple times when a key is hold for too long
-var fired = false;
 
 //timer that calls up() if the key has been down for too long
 var dashTimer;
@@ -108,10 +86,6 @@ var audioSupport=true;
 var g;
 var o;
 
-//sound settings variables
-var keySound = true;
-var receivedMorseSound = true;
-
 //pusher session variables
 var isAuth = false;
 
@@ -119,14 +93,11 @@ var isAuth = false;
 var oX1101o = true;
 
 //chat scroll
+//TODO: move to chat obj
 var viewTagDisplaied = false;
 var viewedMessages = false;
 
-//variables to avoid spam caused by users joining and quitting
-//type: normal 0, user joined 1, user quitted 2, system msg 3
-var lastMessageType;
-//the id of the last person that joined/left the chat
-var lastPersonId;
+
 
 
 window.addEventListener('load', function(){
@@ -134,7 +105,7 @@ window.addEventListener('load', function(){
 	//enable-disable debugging
 	Pusher.logToConsole = debugging;
 
-	//get the main dom elements
+	//get the main dom elements used in this script
 	keyId = document.getElementById('key');
 	barId = document.getElementById('timebar_bar');
 	letterDisplayId = document.getElementById('letterDisp');
@@ -142,8 +113,8 @@ window.addEventListener('load', function(){
 	chatId = document.getElementById('chat');
 	
 	//set the morse parameters length
-	//this code fix the mozilla bug that remeber input values on page refresh
-	applyMultipliers(defaultMultipliers);
+	//this code also fix the mozilla bug that remeber input values on page refresh
+	settings.applyMultipliers(settings.defaultMultipliers);
 	
 	//create audio context
 	if (typeof AudioContext !== "undefined") {
@@ -185,6 +156,8 @@ window.addEventListener('load', function(){
 	keyId.addEventListener('mousedown',down, false);	
 	keyId.addEventListener('mouseup',up, false);
 	//keyboard
+	//var to prevent keydown triggering multiple times when a key is hold for too long
+	var fired = false;
 	document.addEventListener('keydown', function(e){
 		if( !fired && (e.keyCode == 32 || e.which == 32 || e.key == " " || e.code == "Space")){
 			//prevent spacebar from scrollin the chat
@@ -210,7 +183,13 @@ window.addEventListener('load', function(){
     encrypted: true
 	});
 	//TODO: gui for changing channel
-	channel = pusher.subscribe('presence-ch1');
+	channel = pusher.subscribe('presence-ch1')
+	;
+	//variables to avoid spam caused by users joining and quitting
+	//type: normal 0, user joined 1, user quitted 2, system msg 3
+	var lastMessageType;
+	//the id of the last person that joined/left the chat
+	var lastPersonId;
 	
 	channel.bind('pusher:subscription_succeeded', function() {
 		isAuth = true;
@@ -307,13 +286,13 @@ function down(){
 		up();
 		isDown = false;
 		log("holded dash for too long. released it")
-	},dashLength*3);
+	},settings.dashLength*3);
 	
 	//add graphic effect to the key
 	keyId.style.backgroundColor = "#404040";
 	
 	//play audio if enabled
-	if(audioSupport && keySound){
+	if(audioSupport && settings.keySound){
 		o = context.createOscillator()
 		o.frequency.value = 1175
 		g = context.createGain()
@@ -338,16 +317,16 @@ function up(){
 	stopHold = Date.now();
 	holdTime = stopHold - startHold;
 	//determine from holdTime if it is dash or dot and add it to the letter buffer
-	letter+=""+(holdTime>dashLength?"1":"0");
+	letter+=""+(holdTime>settings.dashLength?"1":"0");
 	log("letter is now "+letter)
 	//also add the dot/dash to the chat
-	letterDisplayId.insertAdjacentText("beforeend",(holdTime>dashLength?"_":"."));
+	letterDisplayId.insertAdjacentText("beforeend",(holdTime>settings.dashLength?"_":"."));
 	//start the timer for the function that decode into a letter the morse in the var letter, and add it
 	//to the var phrase. this timer is stopped if down() is called before its sleep time has passed
-	spaceTimer=setTimeout(pushword,charactersPause);
+	spaceTimer=setTimeout(pushword,settings.charactersPause);
 	
 	//stop audio if enabled
-	if(audioSupport && keySound){
+	if(audioSupport && settings.keySound){
 		o.stop(context.currentTime);
 		//g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.01)//not working
 	}
@@ -368,7 +347,7 @@ function pushword(pushSpace){
 		//this make visible the progress bar
 		barId.style.height = "2px";
 		sendMSgCountDown();
-		log("started a "+phraseInactivityTime+"ms countdown")
+		log("started a "+settings.phraseInactivityTime+"ms countdown")
 		
 	}else if(letter == "000000"){
 		letter="";
@@ -380,7 +359,7 @@ function pushword(pushSpace){
 		log("undo")
 		log("phrase is now "+phrase)
 		if(phrase.length > 0){
-			spaceTimer=setTimeout(pushword,wordsPause,true);
+			spaceTimer=setTimeout(pushword,settings.wordsPause,true);
 		}else{
 			insertMsg("<p>message removed</p>");			
 		}
@@ -398,7 +377,7 @@ function pushword(pushSpace){
 		log("letter added to phrase")
 		log("phrase is now "+phrase)
 		//start timer to push space
-		spaceTimer=setTimeout(pushword,wordsPause,true);
+		spaceTimer=setTimeout(pushword,settings.wordsPause,true);
 	}
 }
 
@@ -413,13 +392,13 @@ function sendMSgCountDown(){
 	}else{
 		//get the milliseconds passed since the function started
 		var progress = Date.now() - countDownCtrl;
-		if(progress<phraseInactivityTime){
+		if(progress<settings.phraseInactivityTime){
 			//set the bar width according to the loadin percentage
-			barId.style.width = (progress*100/phraseInactivityTime) + "%";
+			barId.style.width = (progress*100/settings.phraseInactivityTime) + "%";
 			//graphic acceleration stuff
 			window.requestAnimationFrame(sendMSgCountDown);
 		}else{
-			log("made it to "+phraseInactivityTime+"! sending the message")
+			log("made it to "+settings.phraseInactivityTime+"! sending the message")
 			//reset and makes invisible the progress bar
 			barId.style.height = "0px";
 			barId.style.width = "0px";
@@ -447,7 +426,7 @@ function sendMSgCountDown(){
 		}
 	}
 }
-
+//TODO: move as property of msg obj
 function insertMsg(msgBody,systemMessage){
 	//check if user is at the bottom of the chat. if its not (probably reading an old msg) the function
 	//don't scroll down automatically and displays the #radiobt instead
@@ -478,7 +457,7 @@ function insertMsg(msgBody,systemMessage){
 	
 	//play sound
 	//TODO >> replace this beep with real morse sound of the message and play it while displaying the text
-		if(audioSupport && keySound){
+		if(audioSupport && settings.keySound){
 		var o = context.createOscillator()
 		o.frequency.value = 440
 		var g = context.createGain()
@@ -490,7 +469,7 @@ function insertMsg(msgBody,systemMessage){
 
 }
 
-
+//TODO: CLEAN THIS SHIT
 var specialChars = {
 		"A":".",
 		"B":",",
