@@ -7,7 +7,7 @@
 
 # morsechat
 
-a morse code web chatroom, perfect for practicing and learning it.
+a morse code web chatroom, perfect for practicing and learning morse code.
 
 this project is based on the [pusher](https://www.pusher.com) library.
 
