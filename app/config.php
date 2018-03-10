@@ -13,8 +13,10 @@ return array(
 	'ADMIN_PASSWORD' => 'your_bcript_password_hash_here',
 	
 	//GENERAL SETTINGS
-	//the number of aviable channels
-	'MAX_CHANNELS' => 7
+	//the max number of aviable channels
+	'MAX_CHANNELS' => 7,
+	//the minimum number of seconds before an user can send another message
+	'MSG_COOLDOWN' => 5
 );
 
 ?>

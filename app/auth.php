@@ -81,12 +81,12 @@ if(isset($_POST["channel_name"]) && isset($_POST["socket_id"])){
 	
 	}else{
 		//channel name was not valid
-		header('', true, 403);
+		header("HTTP/1.0 403 invalid channel name");
 		echo "invalid channel name";
 	}	
 }else{
 	//post parameters missing
-	header('', true, 403);
+	header("HTTP/1.0 403 invalid parameters");
 	echo "invalid parameters";
 }
 ?>

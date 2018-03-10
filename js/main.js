@@ -307,7 +307,6 @@ var morseKey = {
 	//except for when one of these inputs has been down for too much, and up() has already
 	//been called by dashTimer
 	up: function(){
-		console.log("uppp")
 		if(this.isDown){this.isDown = false;
 		
 		clearTimeout(this.dashTimer);
@@ -436,7 +435,7 @@ sender = {
 					log(xhr.statusText)
 				}
 				else{
-					insertMsg("<p>error" +  xhr.status + " " + xhr.statusText + "</p>");
+					insertMsg("<p>error " +  xhr.status + " " + xhr.statusText + "</p>");
 				}
 			};
 			xhr.send();
@@ -520,11 +519,8 @@ function escapeRegExp(text) {
 function webEncode(string){
 	var dString = string;
 	for (var key in specialChars) {
-		if (specialChars.hasOwnProperty(key)){
 			var rg = new RegExp(escapeRegExp(specialChars[key]), 'g')
 				dString = dString.replace(rg,key);
-		}
-
 	}
 	log("converted phrase to "+dString)
 	return dString;
@@ -533,7 +529,6 @@ function webEncode(string){
 function webDecode(string){
 	var dString = string;
 	for (var key in specialChars) {
-		//dString = dString.replace(key,specialChars[key]);
 		dString = dString.replace(new RegExp(key, 'g'),specialChars[key]);
 	}
 	return dString.toLowerCase();

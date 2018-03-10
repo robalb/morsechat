@@ -24,21 +24,31 @@ $config = include('config.php');
 	$config['APP_ID'],
 	$options
   );
-  
+//validate session
 if(isset($_SESSION["user_id"]) && isset($_SESSION["channel"]) ){
-	//validate msg
-	if(isset($_GET["msg"]) && strlen($_GET["msg"]) > 0 && strlen($_GET["msg"]) < 400 && ctype_alnum($_GET["msg"]) ){
-		$msg = htmlspecialchars($_GET["msg"]);
-		$data['message'] = $msg;
-		$data['sender'] = $_SESSION["user_id"];
-		$data['time'] = time();
-		$pusher->trigger($_SESSION["channel"], 'morsebroadcast', $data);
-		echo "sent!";
+	//validate anti-spam cooldown
+	if(!isset($_SESSION["last_msg"]) || (time() - $_SESSION["last_msg"] > $config['MSG_COOLDOWN']) ){
+		//validate msg
+		if(isset($_GET["msg"]) && strlen($_GET["msg"]) > 0 && strlen($_GET["msg"]) < 400 && preg_match('/^[a-zA-Z0-9]+$/', $_GET["msg"]) ){
+			$msg = $_GET["msg"];
+			$data['message'] = $msg;
+			$data['sender'] = $_SESSION["user_id"];
+			$data['time'] = time();
+			$pusher->trigger($_SESSION["channel"], 'morsebroadcast', $data);
+			$_SESSION["last_msg"] = time();
+			echo "sent!";
+		}else{
+			header("HTTP/1.0 400 invalid string");
+			echo "invalid string";
+		}
 	}else{
-		echo "invalid string";
+		$seconds = $config['MSG_COOLDOWN'] - (time() - $_SESSION["last_msg"]);
+		header("HTTP/1.0 403 wait ".$seconds." seconds");
+		echo "wait ".$seconds." seconds";
 	}
 }else{
-	echo "invalid sesion";
+	header("HTTP/1.0 400 invalid session");
+	echo "invalid session";
 }
  
   
