@@ -23,7 +23,8 @@ $config = include('app/config.php');
 //careful here!
 $out = array(
 	'PUSHER_KEY' => $config['APP_KEY'],
-	'PUSHER_CLUSTER' => $config['APP_CLUSTER']
+	'PUSHER_CLUSTER' => $config['APP_CLUSTER'],
+	'MAX_CHANNELS' => $config['MAX_CHANNELS']
 );
 echo json_encode($out, JSON_HEX_TAG);
 //############################################################

@@ -1,8 +1,9 @@
-
+	
+	
 /* ------------- CONFIG --------------*/
 
 //enable console logs
-var debugging=true;
+var debugging = true;
 
 /* ----------------------------------*/
 
@@ -59,28 +60,6 @@ var morseTree = {
 	"11111":"0"
 }
 
-//time counter variable used to recognize dot, dashes and spaces
-var startHold = 0;
-var stopHold = 0;
-var holdTime = 0;
-
-//current letter and current phrase typed
-var letter="";
-var phrase="";
-
-
-//timer that calls up() if the key has been down for too long
-var dashTimer;
-//state of the key
-var isDown=false;
-
-//timer that calls the function pushword() after a given time of inactivity.
-//this function decode the morse stored in var letter into a string and push it to var phrase
-var spaceTimer;
-
-//variable to control(start/stop) the sendMsg recursive function
-var countDownCtrl;
-
 //audio variables
 var audioSupport=true;
 var g;
@@ -98,8 +77,6 @@ var viewTagDisplaied = false;
 var viewedMessages = false;
 
 
-
-
 window.addEventListener('load', function(){
 	
 	//enable-disable debugging
@@ -113,7 +90,6 @@ window.addEventListener('load', function(){
 	chatId = document.getElementById('chat');
 	
 	//set the morse parameters length
-	//this code also fix the mozilla bug that remeber input values on page refresh
 	settings.applyMultipliers(settings.defaultMultipliers);
 	
 	//create audio context
@@ -145,16 +121,16 @@ window.addEventListener('load', function(){
 	keyId.addEventListener('touchstart',function(e){
 		e.stopPropagation();
 		e.preventDefault();
-		down();
+		morseKey.down();
 	}, false);
 	keyId.addEventListener('touchend',function(e){
 		e.stopPropagation();
 		e.preventDefault();
-		up();
+		morseKey.up();
 	}, false);
 	//mouse
-	keyId.addEventListener('mousedown',down, false);	
-	keyId.addEventListener('mouseup',up, false);
+	keyId.addEventListener('mousedown',function(){morseKey.down()}, false);	
+	keyId.addEventListener('mouseup',function(){morseKey.up()}, false);
 	//keyboard
 	//var to prevent keydown triggering multiple times when a key is hold for too long
 	var fired = false;
@@ -163,7 +139,7 @@ window.addEventListener('load', function(){
 			//prevent spacebar from scrollin the chat
 			 e.preventDefault();
 			fired = true;
-			down();
+			morseKey.down();
 		}
 	}, false);
 	document.addEventListener('keyup', function(e){
@@ -171,7 +147,7 @@ window.addEventListener('load', function(){
 			//prevent spacebar from scrollin the chat
 			 e.preventDefault();
 			fired = false;
-			up();
+			morseKey.up();
 		}
 	}, false);
 	
@@ -260,7 +236,7 @@ window.addEventListener('load', function(){
 			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>"
 			);
 			log("removed member")
-			log(member)			
+			log(member)
 		}
 
 	});
@@ -270,162 +246,211 @@ window.addEventListener('load', function(){
 }, false);
 
 
-//called when a key, or a button, or a touch key is pressed
-function down(){
-	if(!isDown){isDown=true;
+
+var morseKey = {
+	//identifier id for timer that calls up() if the key has been down for too long
+	//dashTimer,
+
+	//identifier id for timer that calls the function pushword() after a given time of inactivity.
+	//this function decode the morse stored in var letter into a string and push it to var phrase
+	//spaceTimer,
+	
+	//state of the key
+	isDown: false,
+
+	//timestamp of the moment the key is pushed down
+	startHold: 0,
+
+	//current letter and current phrase buffers
+	letter: "",
+	phrase: "",
+	
+	//called when a key, or a button, or a touch key is pressed
+	down: function(){
+		if(!this.isDown){this.isDown = true;
+			
+		//stop the timer that would otherwise call the method pushword() if inactive for too much
+		clearTimeout(this.spaceTimer);
+		//stop the countdown recursive function timer that send the typed phrase to the server
+		//if inactive for too much
+		//TODO: create metod with fancy name that does this
+		sender.stopCountDown();
+		//memorize the current timestamp. used to recognize dot/dash length
+		this.startHold = Date.now();
+		//infinite-length dash prevention timer
+		var _this = this;//js classic
+		this.dashTimer = setTimeout(function(){
+			//_this.isDown = false;
+			_this.up();
+			console.log(morseKey)
+			log("holded dash for too long. released it")
+		},settings.dashLength*3,);
 		
-	//stop the timer that would otherwise call the function pushword() if inactive for too much
-	clearTimeout(spaceTimer);
-	//stop the countdown recursive function timer that send the typed phrase to the server
-	//if inactive for too much
-	countDownCtrl=0;
-	//memorize the current timestamp. used to recognize dot/dash length
-	startHold = Date.now();
-	//infinite-length dash prevention timer
-	dashTimer=setTimeout(function(){
-		up();
-		isDown = false;
-		log("holded dash for too long. released it")
-	},settings.dashLength*3);
+		//add graphic effect to the key
+		keyId.style.backgroundColor = "#404040";
+		
+		//play audio if enabled
+		if(audioSupport && settings.keySound){
+			o = context.createOscillator()
+			o.frequency.value = 1175
+			g = context.createGain()
+			o.connect(g)
+			g.connect(context.destination) 
+			o.start(0)
+			}
+			
+	}},
 	
-	//add graphic effect to the key
-	keyId.style.backgroundColor = "#404040";
 	
-	//play audio if enabled
-	if(audioSupport && settings.keySound){
-		o = context.createOscillator()
-		o.frequency.value = 1175
-		g = context.createGain()
-		o.connect(g)
-		g.connect(context.destination) 
-		o.start(0)
+	
+	//called when a key, or a button, or a touch key is released
+	//except for when one of these inputs has been down for too much, and up() has already
+	//been called by dashTimer
+	up: function(){
+		console.log("uppp")
+		if(this.isDown){this.isDown = false;
+		
+		clearTimeout(this.dashTimer);
+		
+		//remove graphic effect from the key
+		keyId.style.backgroundColor = "#212121";
+		//calculates the hold time (stop time - start time)
+		var holdTime = Date.now() - this.startHold;
+		//determines from holdTime wether to add dot or dash to the letter buffer
+		this.letter += ""+(holdTime>settings.dashLength?"1":"0");
+		log("letter is now "+this.letter)
+		//also add the dot/dash to the chat
+		letterDisplayId.insertAdjacentText("beforeend",(holdTime>settings.dashLength?"_":"."));
+		//start the timer for the function that decode into a letter the morse in the var letter, and add it
+		//to the phrase buffer. this timer is stopped if down() is called before its sleep time has passed
+		var _this = this;
+		this.spaceTimer = setTimeout(function(){_this.pushWord()},settings.charactersPause);
+		
+		//stop audio if enabled
+		if(audioSupport && settings.keySound){
+			o.stop(context.currentTime);
+			//g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.01)//not working
 		}
+	
+	}},
+	
+	
+	pushWord: function(){
+		//if the letter is [backspace] 
+		if(this.letter == "000000"){
+			//removes the last letter from the phrase buffer
+			this.phrase = this.phrase.slice(0,-1);
+			//updates the phrase display
+			phraseDisplayId.innerText = this.phrase;
+			log("undo")
+			log("phrase is now "+this.phrase)
+			if(this.phrase.length > 0){
+				var _this = this;
+				this.spaceTimer = setTimeout(function(){_this.pushSpace()},settings.wordsPause);
+			}else{
+				insertMsg("<p>message removed</p>");			
+			}
+		}else{
+			//store letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
+			//uppercase letters by function webEncode. non existing letters [[are stored as upercase K]] are not stored
+			this.phrase += ""+(morseTree[this.letter]?morseTree[this.letter]:"");
+			//add translated letter to the phrase screen
+			var rt = morseTree[this.letter]?morseTree[this.letter]:"<span>|</span>";
+			phraseDisplayId.insertAdjacentHTML("beforeend",rt);
+			log("decoded "+this.letter+" into "+rt);
+			//reset the letter buffer and clear the letter screen
+			this.letter = "";
+			letterDisplayId.innerText = "";
+			log("letter added to phrase")
+			log("phrase is now "+this.phrase)
+			//start timer to push space
+			var _this = this;
+			this.spaceTimer=setTimeout(function(){console.log(_this);_this.pushSpace()},settings.wordsPause);
+		}
+		//reset the letter buffer and clear the letter screen
+		this.letter = "";
+		letterDisplayId.innerText = "";
 		
-}}
-
-//called when a key, or a button, or a touch key is released
-//except for when one of these inputs has been down for too much, and up() has already
-//been called by dashTimer
-function up(){
-	if(isDown){isDown=false;
-	
-	clearTimeout(dashTimer);
-	
-	//remove graphic effect from the key
-	keyId.style.backgroundColor = "#212121";
-	//calculate the hold time
-	stopHold = Date.now();
-	holdTime = stopHold - startHold;
-	//determine from holdTime if it is dash or dot and add it to the letter buffer
-	letter+=""+(holdTime>settings.dashLength?"1":"0");
-	log("letter is now "+letter)
-	//also add the dot/dash to the chat
-	letterDisplayId.insertAdjacentText("beforeend",(holdTime>settings.dashLength?"_":"."));
-	//start the timer for the function that decode into a letter the morse in the var letter, and add it
-	//to the var phrase. this timer is stopped if down() is called before its sleep time has passed
-	spaceTimer=setTimeout(pushword,settings.charactersPause);
-	
-	//stop audio if enabled
-	if(audioSupport && settings.keySound){
-		o.stop(context.currentTime);
-		//g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.01)//not working
-	}
-	
-}}
-
-function pushword(pushSpace){
-	if(pushSpace){
+	},
+	pushSpace: function(){
 		//add space to the phrasebuffer
-		phrase+="J";
+		this.phrase+=" ";
 		//add space to the phrase screen
 		phraseDisplayId.insertAdjacentHTML("beforeend"," ");
 		log("added space");
 		//start the sendmessage countdown function, with graphic acceleration.
 		// when it reaches 100%, the current phrase stored in the phrase buffer is sent to the server
 		//to stop it, set countDownCtrl to 0; to start set countDownCtrl to the current timestamp
-		countDownCtrl = Date.now();
+		sender.startCountDown(this.phrase);
 		//this make visible the progress bar
 		barId.style.height = "2px";
-		sendMSgCountDown();
-		log("started a "+settings.phraseInactivityTime+"ms countdown")
-		
-	}else if(letter == "000000"){
-		letter="";
-		letterDisplayId.innerText = "";
-		//remove last letter from phrase
-		phrase = webDecode(phrase).substring(0, phrase.length -1);
-		//update phrase display
-		phraseDisplayId.innerText = phrase;
-		log("undo")
-		log("phrase is now "+phrase)
-		if(phrase.length > 0){
-			spaceTimer=setTimeout(pushword,settings.wordsPause,true);
-		}else{
-			insertMsg("<p>message removed</p>");			
-		}
-	}else{
-		//store letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
-		//uppercase letters by function webEncode. non existing letters [[are stored as upercase K]] are not stored
-		phrase+= ""+(morseTree[letter]?webEncodeLetter(morseTree[letter]):"");
-		//add translated letter to the phrase screen
-		var rt=morseTree[letter]?morseTree[letter]:"<span>|</span>";
-		phraseDisplayId.insertAdjacentHTML("beforeend",rt);
-		log("decoded "+letter+" into "+rt);
-		//reset the letter buffer and clear the letter screen
-		letter="";
-		letterDisplayId.innerText = "";
-		log("letter added to phrase")
-		log("phrase is now "+phrase)
-		//start timer to push space
-		spaceTimer=setTimeout(pushword,settings.wordsPause,true);
-	}
+		log("started a "+settings.phraseInactivityTime+"ms countdown")				
+	},
 }
 
 
 
-function sendMSgCountDown(){
-	if(countDownCtrl==0){
-		log("send countdown interrupted. progress bar removed")
-		//reset and makes invisible the progress bar
-		barId.style.height = "0px";
-		barId.style.width = "0px";
-	}else{
-		//get the milliseconds passed since the function started
-		var progress = Date.now() - countDownCtrl;
-		if(progress<settings.phraseInactivityTime){
-			//set the bar width according to the loadin percentage
-			barId.style.width = (progress*100/settings.phraseInactivityTime) + "%";
-			//graphic acceleration stuff
-			window.requestAnimationFrame(sendMSgCountDown);
-		}else{
-			log("made it to "+settings.phraseInactivityTime+"! sending the message")
+sender = {
+	
+	countDownCtrl: 0,
+	msg:"",
+	
+	startCountDown: function(msg){
+		this.msg = msg;
+		this.countDownCtrl = Date.now();
+		this.update();
+	},
+	stopCountDown: function(){
+		this.countDownCtrl = 0;
+	},
+	update: function(){
+		if(this.countDownCtrl==0){
+			log("send countdown interrupted. progress bar removed")
 			//reset and makes invisible the progress bar
 			barId.style.height = "0px";
 			barId.style.width = "0px";
-			//TODO >> clear current phrase message, send this one etch
-			//TODO >> possible createDocumentFragment() optimization
-			
-			//chatId.insertAdjacentHTML("beforeend","<p>sending..</p>");
-			if(isAuth){
-				var xhr = new XMLHttpRequest();
-				xhr.open('GET', 'app/send.php?msg='+phrase );
-				xhr.onload = function() {
-					if (xhr.status === 200) {
-						log(xhr.statusText)
-					}
-					else {
-						insertMsg("<p>error" +  xhr.status + " " + xhr.statusText + "</p>");
-					}
-				};
-			xhr.send();
+		}else{
+			//get the milliseconds passed since the function started
+			var progress = Date.now() - this.countDownCtrl;
+			if(progress<settings.phraseInactivityTime){
+				//set the bar width according to the loading percentage
+				barId.style.width = (progress*100/settings.phraseInactivityTime) + "%";
+				//graphic acceleration stuff
+				window.requestAnimationFrame(function(){sender.update()});
 			}else{
-				insertMsg("<p>failed to broadcast the message. <br> you are not connected to a channell</p>");
-			}		
-			phrase="";
-			phraseDisplayId.innerHTML = "";			
+				this.send();
+			}
 		}
+	},
+	send: function(){
+		log("made it to "+settings.phraseInactivityTime+"! sending the message")
+		//reset and makes invisible the progress bar
+		barId.style.height = "0px";
+		barId.style.width = "0px";
+		if(isAuth){
+			var encodedMsg = webEncode(this.msg);
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', 'app/send.php?msg='+encodedMsg);
+			xhr.onload = function(){
+				if (xhr.status === 200) {
+					log(xhr.statusText)
+				}
+				else{
+					insertMsg("<p>error" +  xhr.status + " " + xhr.statusText + "</p>");
+				}
+			};
+			xhr.send();
+		}else{
+			insertMsg("<p>failed to broadcast the message. <br> you are not connected to a channell</p>");
+		}		
+		morseKey.phrase="";
+		phraseDisplayId.innerHTML = "";		
 	}
 }
+
+
+
+
 //TODO: move as property of msg obj
 function insertMsg(msgBody,systemMessage){
 	//check if user is at the bottom of the chat. if its not (probably reading an old msg) the function
@@ -489,24 +514,26 @@ var specialChars = {
 
 }
 
-
-function webEncodeLetter(letter){
-	var ret = letter;
+function escapeRegExp(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+function webEncode(string){
+	var dString = string;
 	for (var key in specialChars) {
 		if (specialChars.hasOwnProperty(key)){
-			if(specialChars[key] == letter){
-				ret = key;
-			}
+			var rg = new RegExp(escapeRegExp(specialChars[key]), 'g')
+				dString = dString.replace(rg,key);
 		}
-	}
-	return ret;
-}
 
+	}
+	log("converted phrase to "+dString)
+	return dString;
+}
 
 function webDecode(string){
 	var dString = string;
 	for (var key in specialChars) {
-		dString = dString.replace(key,specialChars[key]);
+		//dString = dString.replace(key,specialChars[key]);
 		dString = dString.replace(new RegExp(key, 'g'),specialChars[key]);
 	}
 	return dString.toLowerCase();
