@@ -5,19 +5,30 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/robalb/morsechat.svg)
 ![license](https://img.shields.io/github/license/robalb/morsechat.svg)
 
-# morsechat
+# Morsechat
 
-a morse code web chatroom, perfect for practicing and learning morse code.
+A morse code web chatroom, perfect for practicing and learning morse code.
 
-this project is based on the [pusher](https://www.pusher.com) library.
+This project is based on the [pusher](https://www.pusher.com) library.
 
-## getting started
+## Requirements
 
-you need php version 5.4 or above, with cUrl and json modules.
+* PHP 5.4 or higher, with cUrl and json modules
+* [pusher](https://www.pusher.com) api keys
 
-Insert your pusher api credentials in app/config.php. You can get them by registering a free account on pusher.com
+## Configuration
 
-You can also configure optional admin credentials for the chatroom by inserting your username and a bcrypt hash of your password
-in app/config.php. Use the file makepassword.php with get parameter ?password=yourpassword  to generate a valid hash
+Insert your pusher api credentials in `app/config.php`  You can get them by registering a free account on pusher.com
+
+Other optional configurations:
+
+* the maximum number of channels available (default 7)
+* the minimum number of seconds before an user can send another message (default 5s)
+* chat admin username and password
+
+note: the admin password must be a bcrypt hash. You can get a valid bcrypt hash of your password by using the file `app/makepassword.php` with get parameter `'\?password=yourpassword`
+
+
+For example: opening `makepassword.php?password=hunter2` will return the bcrypt hash for the password hunter2
 
 
