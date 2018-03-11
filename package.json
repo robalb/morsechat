@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "pusher-js": "^4.1.0"
+    "pusher-js": "^4.1.0",
+    "pusher-php-server": "^3.0.0"
   }
 }
