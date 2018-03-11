@@ -1,4 +1,9 @@
+/*
+sender:
 
+by calling the startcountdown method, a progress bar is created and rendered on the page.
+if not stopped, when it reaches the end the typed message is sent to the server via an ajax call.
+*/
 sender = {
 	
 	countDownCtrl: 0,

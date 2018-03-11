@@ -3,7 +3,7 @@
 this script returns the number of online morsers and active channels in json format.
 example {"channels":2,"online_users":2}
 
-shield.io badge associated with this:
+shield.io badges associated with this:
 
 - online users
 https://img.shields.io/badge/dynamic/json.svg?label=online%20users&uri=http%3A%2F%2Fwww.halb.it%2Fmorsecode%2Fapp%2Fgetonline.php&query=%24..online_users

@@ -1,4 +1,13 @@
+/*
+morsekey:
+this morsekey object can be pushed down or pushed up  by using the methods down() and up().
+up and down are translated into dot and dashes
+dot and dashes are translated into a letter
+the letter is added to the phrase buffer
 
+if up or down are not called, the morsekey starts the sender object, that 
+broadcasts the phrase typed after a delay
+*/
 var morseKey = {
 	//identifier id for timer that calls up() if the key has been down for too long
 	//dashTimer,
@@ -100,7 +109,7 @@ var morseKey = {
 				insertMsg("<p>message removed</p>");			
 			}
 		}else{
-			//store letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
+			//store the letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
 			//uppercase letters by function webEncode. non existing letters [[are stored as upercase K]] are not stored
 			this.phrase += ""+(morseTree[this.letter]?morseTree[this.letter]:"");
 			//add translated letter to the phrase screen
