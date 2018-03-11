@@ -1,1 +1,5 @@
-
+{
+  "dependencies": {
+    "pusher-js": "^4.1.0"
+  }
+}
