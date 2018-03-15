@@ -47,7 +47,7 @@ var morseTree = {
 	"100001":"-",
 	"01010":"+",
 	"011010":"@",
-	"000000":"cancel",
+	//"000000":"cancel",
 	"01111":"1",
 	"00111":"2",
 	"00011":"3",
@@ -57,7 +57,8 @@ var morseTree = {
 	"11000":"7",
 	"11100":"8",
 	"11110":"9",
-	"11111":"0"
+	"11111":"0",
+	"00000010":" "
 }
 
 //global audio variables
@@ -336,6 +337,14 @@ function webDecode(string){
 		dString = dString.replace(new RegExp(key, 'g'),specialChars[key]);
 	}
 	return dString.toLowerCase();
+}
+
+
+function translateLetterToMorse(value){
+	for(var key in morseTree){
+		if(morseTree[key] == value) return key.split("");
+	}
+  return null;
 }
 
 function log(msg){

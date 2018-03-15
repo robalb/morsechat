@@ -56,7 +56,7 @@ var chat = {
 		//adds the blank message to the dom
 		//i'm using " " instead of ' ' because reasons.
 		var html = "<p class='msg-normal'><a onclick='displaySenderInfo("+senderObj+")'>"+
-			nameToDisplay+"</a>: <span class='msg-phrase' ></span><span class='msg-letter' ></span></p>";	
+			nameToDisplay+"</a>: <span class='msg-phrase' ></span> <span class='msg-letter' ></span></p>";	
 		this.insertMsg(html);
 		//get position in the dom
 		var domPos = document.getElementsByClassName("msg-phrase").length -1;
@@ -69,15 +69,16 @@ var chat = {
 		this.updatingMorsers = true;
 		this.updateMorsers();
 		}
+		log("spawned morser")
 		
 	},
 	
 	updateMorsers: function(){
 		var arrLength = this.activeMorsers.length;
-		console.log("array length "+arrLength)
+		//console.log("array length "+arrLength)
 		if( arrLength > 0){
 			for(var i = 0; i < arrLength; i++){
-				console.log("iterating pos"+ i)
+				//console.log("iterating pos"+ i)
 				var hasFinished = this.activeMorsers[i].update();
 				//remove the object from the array if it has finished its job
 				if(hasFinished){
@@ -85,11 +86,11 @@ var chat = {
 					this.activeMorsers.splice(i,1);
 					//since we removed an element, we have to update the length variable for the loop
 					arrLength--;
-					console.log("killed");
+					console.log("morser terminated");
 				}
-				console.log("updating");
+				//console.log("updating");
 			}
-			this.updaterTimer = setTimeout( ()=>{this.updateMorsers()},1000);//sostituire con settings.morserDotSpeed
+			this.updaterTimer = setTimeout( ()=>{this.updateMorsers()},100);//sostituire con settings.morserDotSpeed
 		}else{
 			this.updatingMorsers = false;
 		}
@@ -101,26 +102,45 @@ var chat = {
 
 
 function Morser(domPosition,encodedMsg){
-	this.domPos = domPosition;
+	this.msgP = document.getElementsByClassName("msg-phrase")[domPosition];
+	this.msgL = document.getElementsByClassName("msg-letter")[domPosition];
 	this.encodedMsg = encodedMsg;
 	this.phrase = webDecode(this.encodedMsg).split("");
-	this.letter = [];
-	
+	this.currentLetter = this.phrase.shift();
+	this.currentLetterMorse = translateLetterToMorse(this.currentLetter);
+	this.steps = 0;
+
 	this.finishedMorsing = false;
 	//document.getElementsByClassName("msg-phrase")[this.domPos].innerText = webDecode(this.encodedMsg);
 	
 	this.update = function(){
-		if(this.phrase.length > 0){
-			var msg = document.getElementsByClassName("msg-phrase")[this.domPos];
-			
-			msg.insertAdjacentHTML("beforeend",this.phrase.shift() );
-			
+		if(this.steps > 0){
+			this.steps--;
 		}else{
-			this.finishedMorsing = true;
+		//------------------------------------------			
+			if(this.phrase.length > 0){
+				if(this.currentLetterMorse.length > 0){
+					var dt = this.currentLetterMorse.shift();
+					this.steps = dt==0?1:3;//dot-dash
+					this.msgL.insertAdjacentHTML("beforeend",dt==0?".":"_");
+				}else{
+					this.msgL.innerText = "";
+					this.msgP.insertAdjacentHTML("beforeend",this.currentLetter);	
+					this.currentLetter = this.phrase.shift();
+					if(this.currentLetter == " "){
+						this.steps = 5;//pause between words
+					}else{
+						this.steps = 3;//pause between characters
+						this.currentLetterMorse = translateLetterToMorse(this.currentLetter);						
+					}
+				}		
+			}else{
+				this.finishedMorsing = true;
+			}			
+		//------------------------------------------	
 		}
 		return this.finishedMorsing;
 	}
-	
 }
 
 
