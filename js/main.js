@@ -60,21 +60,15 @@ var morseTree = {
 	"11111":"0"
 }
 
-//audio variables
+//global audio variables
 var audioSupport=true;
-var g;
-var o;
+var context;
 
 //pusher session variables
 var isAuth = false;
 
 //important.
 var oX1101o = true;
-
-//chat scroll
-//TODO: move to chat obj
-var viewTagDisplaied = false;
-var viewedMessages = false;
 
 
 window.addEventListener('load', function(){
@@ -88,6 +82,7 @@ window.addEventListener('load', function(){
 	letterDisplayId = document.getElementById('letterDisp');
 	phraseDisplayId = document.getElementById('phraseDisp');
 	chatId = document.getElementById('chat');
+	fragment = document.createDocumentFragment();
 	
 	//set the morse parameters length
 	settings.applyMultipliers(settings.defaultMultipliers);
@@ -186,13 +181,15 @@ window.addEventListener('load', function(){
     channel.bind('morsebroadcast', function(data) {
 		lastMessageType = 0;//normal message
 		var msgsender = channel.members.get(data.sender);
-		insertMsg(
+		var nameToDisplay = data.sender == channel.members.me.id?"you":msgsender.info.username;
+		/*chat.insertMsg(
 			"<p class='msg-normal'><a onclick='displaySenderInfo("+data.sender+")'>"+
 			(data.sender == channel.members.me.id?"you":msgsender.info.username)+
 			"</a>: "+
 			webDecode(data.message)+
 			"</p>"
-			);
+			);*/
+			chat.insertMorsingMsg(data.sender,nameToDisplay,data.message);
     });
 	
 	channel.bind('pusher:member_added', function(member){
@@ -207,7 +204,7 @@ window.addEventListener('load', function(){
 			//normal case
 			lastMessageType = 1;//member added message
 			lastPersonId = member.id;
-			insertMsg(
+			chat.insertMsg(
 			"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")'>"+member.info.username+"</a>"+
 			"<span class='editable'> joined the chat.<br>"+
 			onlineMorsers+" morsers online</span></p>"
@@ -246,12 +243,15 @@ window.addEventListener('load', function(){
 }, false);
 
 
-
-
+/*
+//chat scroll
+//TODO: move to chat obj
+var viewTagDisplaied = false;
+var viewedMessages = false;
 
 
 //TODO: move as property of msg obj
-function insertMsg(msgBody,systemMessage){
+function insertMsg(msgBody,morseIt){
 	//check if user is at the bottom of the chat. if its not (probably reading an old msg) the function
 	//don't scroll down automatically and displays the #radiobt instead
 	var dontScrollDown = (chatId.scrollTop < (chatId.scrollHeight - chatId.offsetHeight));
@@ -288,10 +288,14 @@ function insertMsg(msgBody,systemMessage){
 		o.connect(g)
 		g.connect(context.destination) 
 		o.start(0)
-		setTimeout(function(){o.stop()}, 100);
+		g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.1)
+		o.stop(context.currentTime+0.2)
 		}
 
 }
+
+
+*/
 
 //TODO: CLEAN THIS SHIT
 var specialChars = {

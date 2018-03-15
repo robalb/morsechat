@@ -37,6 +37,7 @@ echo json_encode($out, JSON_HEX_TAG);
 <script src="js/settings.js"></script>
 <script src="js/morsekey.js"></script>
 <script src="js/sender.js"></script>
+<script src="js/chat.js"></script>
 <script src="js/pusher_min.js"></script>
 
 <!-- min.js contains all the classses above in a minified version -->

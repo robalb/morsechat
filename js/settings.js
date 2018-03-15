@@ -16,6 +16,10 @@ var settings = {
 	wordsPause,
 	phraseInactivityTime,
 	*/
+	
+	//morse reader speed
+	morserDotSpeed:80,
+	
 	updateMultiplier: function(elementToUpdate,newVal){
 		//update graphic part of html slider
 		if(elementToUpdate == 0){

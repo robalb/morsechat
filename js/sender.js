@@ -3,6 +3,7 @@ sender:
 
 by calling the startcountdown method, a progress bar is created and rendered on the page.
 if not stopped, when it reaches the end the typed message is sent to the server via an ajax call.
+
 */
 sender = {
 	
@@ -50,12 +51,12 @@ sender = {
 					log(xhr.statusText)
 				}
 				else{
-					insertMsg("<p>error " +  xhr.status + " " + xhr.statusText + "</p>");
+					chat.insertMsg("<p>error " +  xhr.status + " " + xhr.statusText + "</p>");
 				}
 			};
 			xhr.send();
 		}else{
-			insertMsg("<p>failed to broadcast the message. <br> you are not connected to a channell</p>");
+			chat.insertMsg("<p>failed to broadcast the message. <br> you are not connected to a channell</p>");
 		}		
 		morseKey.phrase="";
 		phraseDisplayId.innerHTML = "";		

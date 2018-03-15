@@ -50,12 +50,12 @@ var morseKey = {
 		
 		//play audio if enabled
 		if(audioSupport && settings.keySound){
-			o = context.createOscillator()
-			o.frequency.value = 1175
-			g = context.createGain()
-			o.connect(g)
-			g.connect(context.destination) 
-			o.start(0)
+			this.o = context.createOscillator()
+			this.o.frequency.value = 1175
+			this.g = context.createGain()
+			this.o.connect(this.g)
+			this.g.connect(context.destination) 
+			this.o.start(0)
 			}
 			
 	}},
@@ -86,7 +86,7 @@ var morseKey = {
 		
 		//stop audio if enabled
 		if(audioSupport && settings.keySound){
-			o.stop(context.currentTime);
+			this.o.stop(context.currentTime);
 			//g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.01)//not working
 		}
 	
@@ -106,7 +106,7 @@ var morseKey = {
 				var _this = this;
 				this.spaceTimer = setTimeout(function(){_this.pushSpace()},settings.wordsPause);
 			}else{
-				insertMsg("<p>message removed</p>");			
+				chat.insertMsg("<p>message removed</p>");			
 			}
 		}else{
 			//store the letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
