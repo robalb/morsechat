@@ -228,7 +228,7 @@ window.addEventListener('load', function(){
 			//normal case
 			lastMessageType = 2;//member added message
 			lastPersonId = member.id;
-			insertMsg(
+			chat.insertMsg(
 			"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")' >"+member.info.username+"</a>"+
 			"<span class='editable'> left the chat. <br>"+
 			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>"

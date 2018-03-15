@@ -33,8 +33,6 @@ var chat = {
 			chatId.scrollTop = chatId.scrollHeight;
 		}
 		
-		//play sound
-		//TODO >> replace this beep with real morse sound of the message and play it while displaying the text
 			if(audioSupport && settings.keySound){
 			var o = context.createOscillator()
 			o.frequency.value = 440
@@ -90,7 +88,7 @@ var chat = {
 				}
 				//console.log("updating");
 			}
-			this.updaterTimer = setTimeout( ()=>{this.updateMorsers()},100);//sostituire con settings.morserDotSpeed
+			this.updaterTimer = setTimeout( ()=>{this.updateMorsers()},settings.morserDotSpeed);
 		}else{
 			this.updatingMorsers = false;
 		}
@@ -108,7 +106,7 @@ function Morser(domPosition,encodedMsg){
 	this.phrase = webDecode(this.encodedMsg).split("");
 	this.currentLetter = this.phrase.shift();
 	this.currentLetterMorse = translateLetterToMorse(this.currentLetter);
-	this.steps = 0;
+	this.steps = 2;//initial delay
 
 	this.finishedMorsing = false;
 	//document.getElementsByClassName("msg-phrase")[this.domPos].innerText = webDecode(this.encodedMsg);
@@ -123,12 +121,24 @@ function Morser(domPosition,encodedMsg){
 					var dt = this.currentLetterMorse.shift();
 					this.steps = dt==0?1:3;//dot-dash
 					this.msgL.insertAdjacentHTML("beforeend",dt==0?".":"_");
+					if(audioSupport && settings.receivedMorseSound){
+						var o = context.createOscillator()
+						o.frequency.value = 1175
+						var g = context.createGain()
+						o.connect(g)
+						g.connect(context.destination) 
+						o.start(0)
+						//TODO: calculate properly, relative to settings.morserDotSpeed
+						var beepLength = (dt==0?0:0.3)
+						g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.1 + beepLength)
+						o.stop(context.currentTime+0.2+beepLength)
+					}					
 				}else{
 					this.msgL.innerText = "";
 					this.msgP.insertAdjacentHTML("beforeend",this.currentLetter);	
 					this.currentLetter = this.phrase.shift();
 					if(this.currentLetter == " "){
-						this.steps = 5;//pause between words
+						this.steps = 4;//pause between words
 					}else{
 						this.steps = 3;//pause between characters
 						this.currentLetterMorse = translateLetterToMorse(this.currentLetter);						
@@ -139,6 +149,7 @@ function Morser(domPosition,encodedMsg){
 			}			
 		//------------------------------------------	
 		}
+	
 		return this.finishedMorsing;
 	}
 }
