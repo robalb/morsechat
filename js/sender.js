@@ -51,12 +51,12 @@ sender = {
 					log(xhr.statusText)
 				}
 				else{
-					chat.insertMsg("<p>error " +  xhr.status + " " + xhr.statusText + "</p>");
+					chat.insertMsg("<p>error " +  xhr.status + " " + xhr.statusText + "</p>",true);
 				}
 			};
 			xhr.send();
 		}else{
-			chat.insertMsg("<p>failed to broadcast the message. <br> you are not connected to a channell</p>");
+			chat.insertMsg("<p>failed to broadcast the message. <br> you are not connected to a channell</p>",true);
 		}		
 		morseKey.phrase="";
 		phraseDisplayId.innerHTML = "";		

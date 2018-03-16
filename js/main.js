@@ -105,10 +105,10 @@ window.addEventListener('load', function(){
 	
 	//remove the scroll-down radio button if user scroll down to the bottom of the chat.
 	 chatId.addEventListener('scroll',function(e){
-		if(viewTagDisplaied){
+		if(chat.viewTagDisplaied){
 			if(!(chatId.scrollTop < (chatId.scrollHeight - chatId.offsetHeight))){
 				document.getElementById("radiobt").style.display = "none";
-				viewedMessages = true;				
+				chat.viewedMessages = true;				
 			}
 		}
 	}, false);
@@ -208,7 +208,8 @@ window.addEventListener('load', function(){
 			chat.insertMsg(
 			"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")'>"+member.info.username+"</a>"+
 			"<span class='editable'> joined the chat.<br>"+
-			onlineMorsers+" morsers online</span></p>"
+			onlineMorsers+" morsers online</span></p>",
+			true//beep
 			);
 			log("new member")
 			log(member)			
@@ -231,7 +232,7 @@ window.addEventListener('load', function(){
 			chat.insertMsg(
 			"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")' >"+member.info.username+"</a>"+
 			"<span class='editable'> left the chat. <br>"+
-			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>"
+			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>",true
 			);
 			log("removed member")
 			log(member)

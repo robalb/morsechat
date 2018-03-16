@@ -106,7 +106,7 @@ var morseKey = {
 				var _this = this;
 				this.spaceTimer = setTimeout(function(){_this.pushSpace()},settings.wordsPause);
 			}else{
-				chat.insertMsg("<p>message removed</p>");			
+				chat.insertMsg("<p>message removed</p>",false);			
 			}
 		}else{
 			//store the letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other

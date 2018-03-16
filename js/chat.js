@@ -5,7 +5,7 @@ var chat = {
 	
 	
 	//this method adds a msg to the chat in the proper way, controlling scroll, new messages notification and scroll down radio bt
-	insertMsg: function(msgBody){
+	insertMsg: function(msgBody,beep){
 		//check if user is at the bottom of the chat. if its not (probably reading an old msg) the function
 		//don't scroll down automatically and displays the #radiobt instead
 		var dontScrollDown = (chatId.scrollTop < (chatId.scrollHeight - chatId.offsetHeight));
@@ -33,7 +33,7 @@ var chat = {
 			chatId.scrollTop = chatId.scrollHeight;
 		}
 		
-			if(audioSupport && settings.keySound){
+			if(beep === true && audioSupport && settings.keySound){
 			var o = context.createOscillator()
 			o.frequency.value = 440
 			var g = context.createGain()
@@ -50,18 +50,22 @@ var chat = {
 	activeMorsers: [],
 	updatingMorsers: false,
 	
+	frequencies: [1046,987,880,784,698],
+	lastFrequencyUsed: 0,
+	
 	insertMorsingMsg: function(senderObj,nameToDisplay,encodedMsg){
 		//adds the blank message to the dom
 		//i'm using " " instead of ' ' because reasons.
 		var html = "<p class='msg-normal'><a onclick='displaySenderInfo("+senderObj+")'>"+
 			nameToDisplay+"</a>: <span class='msg-phrase' ></span> <span class='msg-letter' ></span></p>";	
-		this.insertMsg(html);
+		this.insertMsg(html,false);
 		//get position in the dom
 		var domPos = document.getElementsByClassName("msg-phrase").length -1;
-		
 		var arrayPos = this.activeMorsers.length;
+		var noteFreq = this.frequencies[this.lastFrequencyUsed];
+		this.lastFrequencyUsed = this.lastFrequencyUsed<this.frequencies.length-1?this.lastFrequencyUsed+1:0;
 		//instantiate object
-		this.activeMorsers[arrayPos] = new Morser(domPos,encodedMsg);
+		this.activeMorsers[arrayPos] = new Morser(domPos,encodedMsg,noteFreq);
 		//start recursive updating
 		if(this.updatingMorsers == false){
 		this.updatingMorsers = true;
@@ -99,9 +103,10 @@ var chat = {
 
 
 
-function Morser(domPosition,encodedMsg){
+function Morser(domPosition,encodedMsg,noteFreq){
 	this.msgP = document.getElementsByClassName("msg-phrase")[domPosition];
 	this.msgL = document.getElementsByClassName("msg-letter")[domPosition];
+	this.noteFreq = noteFreq;
 	this.encodedMsg = encodedMsg;
 	this.phrase = webDecode(this.encodedMsg).split("");
 	this.currentLetter = this.phrase.shift();
@@ -123,7 +128,7 @@ function Morser(domPosition,encodedMsg){
 					this.msgL.insertAdjacentHTML("beforeend",dt==0?".":"_");
 					if(audioSupport && settings.receivedMorseSound){
 						var o = context.createOscillator()
-						o.frequency.value = 1175
+						o.frequency.value = this.noteFreq;
 						var g = context.createGain()
 						o.connect(g)
 						g.connect(context.destination) 
