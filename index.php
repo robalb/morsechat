@@ -172,6 +172,13 @@ can be useful while learning the code</p>
 	<h3>sound settings</h3>
 	<button class="button" id="ksbutton" onclick="settings.toggleKeySound()">disable key sound</button>
 	<button class="button" id="rmbutton" onclick="settings.toggleReceivedSound()">mute received morse</button><br>
+	
+		<h4>received morse speed</h4>
+	<p id="rangeCont"><input type="range" id="speedRange" min="60" value="80" onInput="settings.updateMorserSpeed(this.value)" max="500">
+	<br><br>
+	<a id="morserSpeedDisp">80</a> ms ( <a id="morserWpmDisp">15</a> wpm )
+	</p>
+	
 	<br><br>
 	<br><br>
 	<br><br>

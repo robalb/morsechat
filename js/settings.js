@@ -20,6 +20,12 @@ var settings = {
 	//morse reader speed
 	morserDotSpeed:80,//100 is also good
 	
+	updateMorserSpeed: function(speed){
+		this.morserDotSpeed = speed;
+		document.getElementById("morserSpeedDisp").text = speed;
+		document.getElementById("morserWpmDisp").text = Math.floor(1200/speed);		
+	},
+	
 	updateMultiplier: function(elementToUpdate,newVal){
 		//update graphic part of html slider
 		if(elementToUpdate == 0){
