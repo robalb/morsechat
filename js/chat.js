@@ -128,10 +128,11 @@ function Morser(domPosition,encodedMsg){
 						o.connect(g)
 						g.connect(context.destination) 
 						o.start(0)
-						//TODO: calculate properly, relative to settings.morserDotSpeed
-						var beepLength = (dt==0?0:0.3)
-						g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.1 + beepLength)
-						o.stop(context.currentTime+0.2+beepLength)
+						//TODO: calculate properly. i've got this by trial and error
+						//put limit to dot length(a dot is alwais a dot, even with super slow morse)
+						var beepLength = settings.morserDotSpeed/(100*(dt==0?6:2.8))
+						//g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.1 + beepLength)
+						o.stop(context.currentTime+beepLength)
 					}					
 				}else{
 					this.msgL.innerText = "";

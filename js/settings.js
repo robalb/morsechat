@@ -18,7 +18,7 @@ var settings = {
 	*/
 	
 	//morse reader speed
-	morserDotSpeed:100,
+	morserDotSpeed:80,//100 is also good
 	
 	updateMultiplier: function(elementToUpdate,newVal){
 		//update graphic part of html slider
