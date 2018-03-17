@@ -68,10 +68,10 @@ var chat = {
 		this.activeMorsers[arrayPos] = new Morser(domPos,encodedMsg,noteFreq);
 		//start recursive updating
 		if(this.updatingMorsers == false){
-		this.updatingMorsers = true;
-		this.updateMorsers();
+			this.updatingMorsers = true;
+			this.updateMorsers();
 		}
-		console.log("spawned morser")
+		console.log("spawned morser");
 		
 	},
 	
@@ -92,7 +92,8 @@ var chat = {
 				}
 				//console.log("updating");
 			}
-			this.updaterTimer = setTimeout( ()=>{this.updateMorsers()},settings.morserDotSpeed);
+			var _this = this;//top 5 reasons to hate internet explorer
+			this.updaterTimer = setTimeout( function(){_this.updateMorsers()},settings.morserDotSpeed);
 		}else{
 			this.updatingMorsers = false;
 		}

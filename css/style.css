@@ -70,7 +70,7 @@ html,body{
   -moz-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
 
-#chat{
+#chatContainer{
   height:calc(100% - 153px);
   list-style: none;
   overflow-y: auto;
@@ -84,19 +84,19 @@ html,body{
   -webkit-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
   -moz-box-shadow:inset 0 -5px 20px rgba(0,0,0,0.19),inset 0 6px 6px rgba(0,0,0,0.23);
 }
-#chat p{
+#chatContainer p{
   white-space: pre-wrap;
   white-space: -moz-pre-wrap; 
   white-space: -pre-wrap;
   white-space: -o-pre-wrap;
   word-wrap: break-word;
 }
-#chat a{
+#chatContainer a{
   color:#80d4ff;
   cursor:pointer;
   text-decoration:none;
 }
-#chat a:active{
+#chatContainer a:active{
 	color:#99ddff;
 }
 #radiobt{

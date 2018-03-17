@@ -60,7 +60,7 @@ echo json_encode($out, JSON_HEX_TAG);
 			<div id="timebar_bar"></div>
 		</div>
 		<p id="dispbar"><a id="phraseDisp"> </a> <a id="letterDisp"></a></p>
-		<div id="chat">
+		<div id="chatContainer">
 		
 			<div id="chatPopup">
 			</div>

@@ -1,36 +1,25 @@
 	
 	
-/* ------------- CONFIG --------------*/
-
-//enable console logs
-var debugging = true;
-
-/* ----------------------------------*/
-
 
 //global audio variables
 var audioSupport=true;
 var context;
-
-//pusher session variables
+//user is authenticated
 var isAuth = false;
-
 //important.
 var oX1101o = true;
-
 
 window.addEventListener('load', function(){
 	
 	//enable-disable debugging
-	Pusher.logToConsole = debugging;
+	Pusher.logToConsole = true;
 
 	//get the main dom elements used in this script
 	keyId = document.getElementById('key');
 	barId = document.getElementById('timebar_bar');
 	letterDisplayId = document.getElementById('letterDisp');
 	phraseDisplayId = document.getElementById('phraseDisp');
-	chatId = document.getElementById('chat');
-	fragment = document.createDocumentFragment();
+	chatId = document.getElementById('chatContainer');
 	
 	//set the morse parameters length
 	settings.applyMultipliers(settings.defaultMultipliers);
@@ -180,6 +169,21 @@ window.addEventListener('load', function(){
 
 	});
 
+	/**
+	 * Provides requestAnimationFrame in a cross browser way.
+	 * @author paulirish / http://paulirish.com/
+	 */
+	if ( !window.requestAnimationFrame ) {
+		window.requestAnimationFrame = ( function() {
+			return window.webkitRequestAnimationFrame ||
+			window.mozRequestAnimationFrame ||
+			window.oRequestAnimationFrame ||
+			window.msRequestAnimationFrame ||
+			function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ element ) {
+				window.setTimeout( callback, 1000 / 60 );
+			};
+		} )();
+	}
 
 
 }, false);
