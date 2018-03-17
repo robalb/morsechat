@@ -42,7 +42,7 @@ var morseKey = {
 			//_this.isDown = false;
 			_this.up();
 			console.log(morseKey)
-			log("holded dash for too long. released it")
+			console.log("holded dash for too long. released it")
 		},settings.dashLength*3);
 		
 		//add graphic effect to the key
@@ -76,7 +76,7 @@ var morseKey = {
 		var holdTime = Date.now() - this.startHold;
 		//determines from holdTime wether to add dot or dash to the letter buffer
 		this.letter += ""+(holdTime>settings.dashLength?"1":"0");
-		log("letter is now "+this.letter)
+		console.log("letter is now "+this.letter)
 		//also add the dot/dash to the chat
 		letterDisplayId.insertAdjacentText("beforeend",(holdTime>settings.dashLength?"_":"."));
 		//start the timer for the function that decode into a letter the morse in the var letter, and add it
@@ -100,8 +100,8 @@ var morseKey = {
 			this.phrase = this.phrase.slice(0,-1);
 			//updates the phrase display
 			phraseDisplayId.innerText = this.phrase;
-			log("undo")
-			log("phrase is now "+this.phrase)
+			console.log("undo")
+			console.log("phrase is now "+this.phrase)
 			if(this.phrase.length > 0){
 				var _this = this;
 				this.spaceTimer = setTimeout(function(){_this.pushSpace()},settings.wordsPause);
@@ -111,16 +111,16 @@ var morseKey = {
 		}else{
 			//store the letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
 			//uppercase letters by function webEncode. non existing letters [[are stored as upercase K]] are not stored
-			this.phrase += ""+(morseTree[this.letter]?morseTree[this.letter]:"");
+			this.phrase += ""+(morse.tree[this.letter]?morse.tree[this.letter]:"");
 			//add translated letter to the phrase screen
-			var rt = morseTree[this.letter]?morseTree[this.letter]:"<span>|</span>";
+			var rt = morse.tree[this.letter]?morse.tree[this.letter]:"<span>|</span>";
 			phraseDisplayId.insertAdjacentHTML("beforeend",rt);
-			log("decoded "+this.letter+" into "+rt);
+			console.log("decoded "+this.letter+" into "+rt);
 			//reset the letter buffer and clear the letter screen
 			this.letter = "";
 			letterDisplayId.innerText = "";
-			log("letter added to phrase")
-			log("phrase is now "+this.phrase)
+			console.log("letter added to phrase")
+			console.log("phrase is now "+this.phrase)
 			//start timer to push space
 			var _this = this;
 			this.spaceTimer=setTimeout(function(){console.log(_this);_this.pushSpace()},settings.wordsPause);
@@ -135,14 +135,14 @@ var morseKey = {
 		this.phrase+=" ";
 		//add space to the phrase screen
 		phraseDisplayId.insertAdjacentHTML("beforeend"," ");
-		log("added space");
+		console.log("added space");
 		//start the sendmessage countdown function, with graphic acceleration.
 		// when it reaches 100%, the current phrase stored in the phrase buffer is sent to the server
 		//to stop it, set countDownCtrl to 0; to start set countDownCtrl to the current timestamp
 		sender.startCountDown(this.phrase);
 		//this make visible the progress bar
 		barId.style.height = "2px";
-		log("started a "+settings.phraseInactivityTime+"ms countdown")				
+		console.log("started a "+settings.phraseInactivityTime+"ms countdown")				
 	}
 }
 

@@ -34,6 +34,7 @@ echo json_encode($out, JSON_HEX_TAG);
 
 
 <script src="js/main.js"></script>
+<script src="js/morse.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/morsekey.js"></script>
 <script src="js/sender.js"></script>

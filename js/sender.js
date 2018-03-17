@@ -20,7 +20,7 @@ sender = {
 	},
 	update: function(){
 		if(this.countDownCtrl==0){
-			log("send countdown interrupted. progress bar removed")
+			console.log("send countdown interrupted. progress bar removed")
 			//reset and makes invisible the progress bar
 			barId.style.height = "0px";
 			barId.style.width = "0px";
@@ -38,17 +38,17 @@ sender = {
 		}
 	},
 	send: function(){
-		log("made it to "+settings.phraseInactivityTime+"! sending the message")
+		console.log("made it to "+settings.phraseInactivityTime+"! sending the message")
 		//reset and makes invisible the progress bar
 		barId.style.height = "0px";
 		barId.style.width = "0px";
 		if(isAuth){
-			var encodedMsg = webEncode(this.msg);
+			var encodedMsg = morse.webEncode(this.msg);
 			var xhr = new XMLHttpRequest();
 			xhr.open('GET', 'app/send.php?msg='+encodedMsg);
 			xhr.onload = function(){
 				if (xhr.status === 200) {
-					log(xhr.statusText)
+					console.log(xhr.statusText)
 				}
 				else{
 					chat.insertMsg("<p>error " +  xhr.status + " " + xhr.statusText + "</p>",true);

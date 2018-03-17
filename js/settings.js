@@ -35,13 +35,13 @@ var settings = {
 		if(newVal>0&&((newVal<=500)||(elementToUpdate==5&&newVal<=4000)) ){
 			//add the new input to the second multipliers list
 			this.newMultipliers[elementToUpdate]=newVal;
-			log("applying multipliers");
+			console.log("applying multipliers");
 			//apply the second multiplier list to the morse elements length
 			this.applyMultipliers(this.newMultipliers);
 		}
 	},
 	restoreDefaultMultipliers: function(){
-		log("applying default multipliers");
+		console.log("applying default multipliers");
 		this.applyMultipliers(this.defaultMultipliers);
 		this.newMultipliers = this.defaultMultipliers.slice(0);
 	},
@@ -84,11 +84,11 @@ var settings = {
 		//validate input string
 		if(sr.length == 7){
 			for(var i=1;i<7;i++){
-				log(sr[i]);
+				console.log(sr[i]);
 				if(parseFloat(sr[i])>0&&parseFloat(sr[i])<=4000){
 					this.newMultipliers[i-1]=parseFloat(sr[i]);
 				}else{
-					log("invalid value");
+					console.log("invalid value");
 					this.newMultipliers[i-1] = this.defaultMultipliers[i-1];
 				}
 			}

@@ -71,7 +71,7 @@ var chat = {
 		this.updatingMorsers = true;
 		this.updateMorsers();
 		}
-		log("spawned morser")
+		console.log("spawned morser")
 		
 	},
 	
@@ -108,13 +108,13 @@ function Morser(domPosition,encodedMsg,noteFreq){
 	this.msgL = document.getElementsByClassName("msg-letter")[domPosition];
 	this.noteFreq = noteFreq;
 	this.encodedMsg = encodedMsg;
-	this.phrase = webDecode(this.encodedMsg).split("");
+	this.phrase = morse.webDecode(this.encodedMsg).split("");
 	this.currentLetter = this.phrase.shift();
-	this.currentLetterMorse = translateLetterToMorse(this.currentLetter);
+	this.currentLetterMorse = morse.translateLetterToMorse(this.currentLetter);
 	this.steps = 2;//initial delay
 
 	this.finishedMorsing = false;
-	//document.getElementsByClassName("msg-phrase")[this.domPos].innerText = webDecode(this.encodedMsg);
+	//document.getElementsByClassName("msg-phrase")[this.domPos].innerText = morse.webDecode(this.encodedMsg);
 	
 	this.update = function(){
 		if(this.steps > 0){
@@ -147,9 +147,9 @@ function Morser(domPosition,encodedMsg,noteFreq){
 						this.steps = 4;//pause between words
 					}else{
 						this.steps = 3;//pause between characters
-						this.currentLetterMorse = translateLetterToMorse(this.currentLetter);						
+						this.currentLetterMorse = morse.translateLetterToMorse(this.currentLetter);						
 					}
-				}		
+				}	
 			}else{
 				this.finishedMorsing = true;
 			}			

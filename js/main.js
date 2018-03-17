@@ -8,59 +8,6 @@ var debugging = true;
 /* ----------------------------------*/
 
 
-var morseTree = {
-	"01":"a",
-	"1000":"b",
-	"1010":"c",
-	"100":"d",
-	"0":"e",
-	"0010":"f",
-	"110":"g",
-	"0000":"h",
-	"00":"i",
-	"0111":"j",
-	"101":"k",
-	"0100":"l",
-	"11":"m",
-	"10":"n",
-	"111":"o",
-	"0110":"p",
-	"1101":"q",
-	"010":"r",
-	"000":"s",
-	"1":"t",
-	"001":"u",
-	"0001":"v",
-	"011":"w",
-	"1001":"x",
-	"1011":"y",
-	"1100":"z",
-	"010101":".",
-	"110011":",",
-	"001100":"?",
-	"011110":"\'",
-	"101011":"!",
-	"10010":"/",
-	"111000":":",
-	"101010":";",
-	"10001":"=",
-	"100001":"-",
-	"01010":"+",
-	"011010":"@",
-	//"000000":"cancel",
-	"01111":"1",
-	"00111":"2",
-	"00011":"3",
-	"00001":"4",
-	"00000":"5",
-	"10000":"6",
-	"11000":"7",
-	"11100":"8",
-	"11110":"9",
-	"11111":"0",
-	"00000010":" "
-}
-
 //global audio variables
 var audioSupport=true;
 var context;
@@ -173,7 +120,7 @@ window.addEventListener('load', function(){
 			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online";
 			
 		document.getElementById("sidebar_username_disp").innerText = channel.members.me.info.username;
-		log(channel.members)
+		console.log(channel.members)
 	});
 	channel.bind('pusher:subscription_error', function(status) {
 		document.getElementById("connecting-msg").innerHTML = "<p>connection error. status: "+status+"</p>";
@@ -183,13 +130,6 @@ window.addEventListener('load', function(){
 		lastMessageType = 0;//normal message
 		var msgsender = channel.members.get(data.sender);
 		var nameToDisplay = data.sender == channel.members.me.id?"you":msgsender.info.username;
-		/*chat.insertMsg(
-			"<p class='msg-normal'><a onclick='displaySenderInfo("+data.sender+")'>"+
-			(data.sender == channel.members.me.id?"you":msgsender.info.username)+
-			"</a>: "+
-			webDecode(data.message)+
-			"</p>"
-			);*/
 			chat.insertMorsingMsg(data.sender,nameToDisplay,data.message);
     });
 	
@@ -197,7 +137,7 @@ window.addEventListener('load', function(){
 		var onlineMorsers = channel.members.count;
 		//if the user joining previously leaved the same room and the message telling it is the last received
 		if(lastMessageType != 0 && lastPersonId == member.id){
-			log("still him")
+		console.log("still him")
 			document.querySelectorAll(".msg-normal:last-child .editable")[0].innerHTML = 
 				"<span class='editable'> reconnected. <br>"+
 				onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>";
@@ -211,8 +151,8 @@ window.addEventListener('load', function(){
 			onlineMorsers+" morsers online</span></p>",
 			true//beep
 			);
-			log("new member")
-			log(member)			
+		console.log("new member")
+		console.log(member)			
 		}
 
 	});
@@ -221,7 +161,7 @@ window.addEventListener('load', function(){
 		var onlineMorsers = channel.members.count;
 		//if the message telling the user joined is the last received
 		if(lastMessageType != 0 && lastPersonId == member.id){
-			log("still him")
+		console.log("still him")
 			document.querySelectorAll(".msg-normal:last-child .editable")[0].innerHTML = 
 				"<span class='editable'> joined and left the chat <br>"+
 				onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>";
@@ -234,8 +174,8 @@ window.addEventListener('load', function(){
 			"<span class='editable'> left the chat. <br>"+
 			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>",true
 			);
-			log("removed member")
-			log(member)
+		console.log("removed member")
+		console.log(member)
 		}
 
 	});
@@ -243,118 +183,6 @@ window.addEventListener('load', function(){
 
 
 }, false);
-
-
-/*
-//chat scroll
-//TODO: move to chat obj
-var viewTagDisplaied = false;
-var viewedMessages = false;
-
-
-//TODO: move as property of msg obj
-function insertMsg(msgBody,morseIt){
-	//check if user is at the bottom of the chat. if its not (probably reading an old msg) the function
-	//don't scroll down automatically and displays the #radiobt instead
-	var dontScrollDown = (chatId.scrollTop < (chatId.scrollHeight - chatId.offsetHeight));
-
-	if(dontScrollDown){
-		//display scroll down radio bt
-		document.getElementById("radiobt").style.display = "block";
-
-		//remove old existing tag if messages have already been read
-		if(viewTagDisplaied && viewedMessages){
-			viewedMessages = false;
-			viewTagDisplaied = false;
-			var unreadMsgId = document.getElementById("unread-msg");
-			unreadMsgId.outerHTML = "";
-			delete unreadMsgId;
-		}					
-		//add unread messages tag if it doesn't exist
-		if(!viewTagDisplaied){
-			viewTagDisplaied = true;
-			chatId.insertAdjacentHTML("beforeend","<p style='color:grey' id='unread-msg'>unread messages</p>");
-		}
-		chatId.insertAdjacentHTML("beforeend",msgBody);
-	}else{
-		chatId.insertAdjacentHTML("beforeend",msgBody);
-		chatId.scrollTop = chatId.scrollHeight;
-	}
-	
-	//play sound
-	//TODO >> replace this beep with real morse sound of the message and play it while displaying the text
-		if(audioSupport && settings.keySound){
-		var o = context.createOscillator()
-		o.frequency.value = 440
-		var g = context.createGain()
-		o.connect(g)
-		g.connect(context.destination) 
-		o.start(0)
-		g.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.1)
-		o.stop(context.currentTime+0.2)
-		}
-
-}
-
-
-*/
-
-//TODO: CLEAN THIS SHIT
-var specialChars = {
-		"A":".",
-		"B":",",
-		"C":"?",
-		"D":"\'",
-		"E":"!",
-		"F":"/",
-		"G":":",
-		"H":";",
-		"I":"=",
-		"L":"-",
-		"M":"+",
-		"N":"@",
-		
-		"J":" ",
-		"K":"|"
-
-}
-
-function escapeRegExp(text){
-  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-}
-function webEncode(string){
-	var dString = string;
-	for (var key in specialChars) {
-			var rg = new RegExp(escapeRegExp(specialChars[key]), 'g')
-				dString = dString.replace(rg,key);
-	}
-	log("converted phrase to "+dString)
-	return dString;
-}
-
-function webDecode(string){
-	var dString = string;
-	for (var key in specialChars) {
-		dString = dString.replace(new RegExp(key, 'g'),specialChars[key]);
-	}
-	return dString.toLowerCase();
-}
-
-
-function translateLetterToMorse(value){
-	for(var key in morseTree){
-		if(morseTree[key] == value) return key.split("");
-	}
-  return null;
-}
-
-function log(msg){
-	if(debugging){
-		console.log(msg);
-	}
-}
-
-
 
 
 
@@ -387,7 +215,7 @@ function popup(title,msgBody){
 	document.getElementById("popupTitle").innerText = title;
 	document.getElementById("popupContent").innerHTML = msgBody;
 }
-
+//when the blue name on the left of a msg is clicked
 function displaySenderInfo(senderId){
 	var user = channel.members.get(senderId);
 	if(user){
@@ -403,7 +231,7 @@ function displaySenderInfo(senderId){
 	}
 }
 
-//when scrolldown the radio bt is clicked
+//when the scrolldown radio bt is clicked
 function scrollDown(){
 	document.getElementById("radiobt").style.display = "none";
 	chatId.scrollTop = chatId.scrollHeight;
