@@ -113,7 +113,15 @@ window.addEventListener('load', function(){
     encrypted: true
 	});
 	//default channel
-	chConnect(1);
+	
+	//get the ch url parameter
+	var name = 'ch';
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    var chToConnect = results === null ? 1 : decodeURIComponent(results[1].replace(/\+/g, ' '));
+	
+	chConnect(chToConnect);
 	
 	/**
 	 * Provides requestAnimationFrame in a cross browser way.
@@ -151,6 +159,9 @@ function chConnect(ch){
 		if(newChannel == connectedChannel){
 			chat.insertMsg("already connected to this channel",false)
 		}else{
+			var stateObj = { foo: "" };
+			history.replaceState(stateObj, 'morse chat', '?ch='+ch);
+			document.getElementById('ch-display').innerText = ch;
 			chatId.innerHTML = '<p id="connecting-msg">connecting...</p>';
 			isAuth = false;
 			pusher.unsubscribe(connectedChannel);

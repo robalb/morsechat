@@ -50,7 +50,7 @@ echo json_encode($out, JSON_HEX_TAG);
 
     <div id="nav">
 		<button class="hamburger" onclick="openMenu()" ><i class="material-icons">menu</i></button>
-		<a id="ch-open" >ch 1 <i class="material-icons">arrow_drop_down</i></a>
+		<a id="ch-open" >ch <span id="ch-display" >1</span> <i class="material-icons">arrow_drop_down</i></a>
 		<button class="settingsbt" onclick="openSettings()"><i class="material-icons">settings</i></button>
 		<button class="showmorsebt" onclick="openMlSidebar()"><i class="material-icons">library_books</i></button>
     </div>
