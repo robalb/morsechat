@@ -139,10 +139,7 @@ var morseKey = {
 		//start the sendmessage countdown function, with graphic acceleration.
 		// when it reaches 100%, the current phrase stored in the phrase buffer is sent to the server
 		//to stop it, set countDownCtrl to 0; to start set countDownCtrl to the current timestamp
-		sender.startCountDown(this.phrase);
-		//this make visible the progress bar
-		barId.style.height = "2px";
-		console.log("started a "+settings.phraseInactivityTime+"ms countdown")				
+		sender.startCountDown(this.phrase);	
 	}
 }
 

@@ -14,6 +14,9 @@ sender = {
 		this.msg = msg;
 		this.countDownCtrl = Date.now();
 		this.update();
+		//this make visible the progress bar
+		barId.style.height = "2px";
+		console.log("started a "+settings.phraseInactivityTime+"ms countdown")			
 	},
 	stopCountDown: function(){
 		this.countDownCtrl = 0;
