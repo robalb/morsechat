@@ -66,7 +66,7 @@ if(isset($_POST["channel_name"]) && isset($_POST["socket_id"])){
 	//validate channel name (string and numeric parts)
 	$ch_string_is_valid = ($ch_string == "presence-ch");
 	$ch_number_is_valid = filter_var($ch_number, FILTER_VALIDATE_INT);
-	if($ch_string_is_valid && $ch_number_is_valid && $ch_number > 0 && $ch_number < $config['MAX_CHANNELS']){
+	if($ch_string_is_valid && $ch_number_is_valid && $ch_number > 0 && $ch_number <= $config['MAX_CHANNELS']){
 		//channel is valid, save it in a session variable
 		$_SESSION["channel"] = $_POST["channel_name"];
 		//authenticate the user
