@@ -32,7 +32,7 @@ echo json_encode($out, JSON_HEX_TAG);
 
 </script>
 
-
+<!-- -->
 <script src="js/main.js"></script>
 <script src="js/morse.js"></script>
 <script src="js/settings.js"></script>
@@ -41,10 +41,10 @@ echo json_encode($out, JSON_HEX_TAG);
 <script src="js/chat.js"></script>
 <script src="js/pusher_min.js"></script>
 
-<!-- min.js contains all the classses above in a minified version -->
-<!--<script src="js/min.js" defer ></script>-->
-<!--<script src="js/pusher_min.js" defer ></script>-->
-
+<!-- min.js contains all the scripts above in a minified version 
+<script src="js/min.js" defer ></script>
+<script src="js/pusher_min.js" defer ></script>
+-->
 </head>
 <body>
 
