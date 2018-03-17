@@ -4,8 +4,9 @@
 //global audio variables
 var audioSupport=true;
 var context;
-//user is authenticated
+//user authentication variables
 var isAuth = false;
+var connectedChannel = '';
 //important.
 var oX1101o = true;
 
@@ -20,6 +21,7 @@ window.addEventListener('load', function(){
 	letterDisplayId = document.getElementById('letterDisp');
 	phraseDisplayId = document.getElementById('phraseDisp');
 	chatId = document.getElementById('chatContainer');
+	chMenuId = document.getElementById('ch-menu');
 	
 	//set the morse parameters length
 	settings.applyMultipliers(settings.defaultMultipliers);
@@ -39,6 +41,7 @@ window.addEventListener('load', function(){
 		audioSupport = false;
 	}
 	
+	
 	//remove the scroll-down radio button if user scroll down to the bottom of the chat.
 	 chatId.addEventListener('scroll',function(e){
 		if(chat.viewTagDisplaied){
@@ -48,6 +51,25 @@ window.addEventListener('load', function(){
 			}
 		}
 	}, false);
+	
+	//generate the switch-channel dropdown menu
+	var outHtml = "";
+	for(var i=1,max=config.MAX_CHANNELS+1;i<max;i++){
+		outHtml += '<a onclick="chConnect('+i+')" >channel '+i+'</a>';
+	}
+	chMenuId.innerHTML = outHtml;
+	//when the switch-channel menu in the center of the nav bar is clicked
+	document.getElementById('ch-open').addEventListener('click', function(e){
+		chMenuId.style.display = 'block';
+		e.stopPropagation();
+	});
+	//close the switch-channel dropdown menu if the user clicks somewhere else
+	window.addEventListener('click', function(e){
+		//TODO: optimize to avoid updating the style if already invisible
+		if (!chMenuId.contains(e.target)){
+			chMenuId.style.display ='none';
+		}
+	});
 	
 	//touch
 	keyId.addEventListener('touchstart',function(e){
@@ -90,91 +112,15 @@ window.addEventListener('load', function(){
 	cluster: config.PUSHER_CLUSTER,
     encrypted: true
 	});
-	//TODO: gui for changing channel
-	channel = pusher.subscribe('presence-ch1')
-	;
-	//variables to avoid spam caused by users joining and quitting
-	//type: normal 0, user joined 1, user quitted 2, system msg 3
-	var lastMessageType;
-	//the id of the last person that joined/left the chat
-	var lastPersonId;
+	//default channel
+	chConnect(1);
 	
-	channel.bind('pusher:subscription_succeeded', function() {
-		isAuth = true;
-		var onlineMorsers = channel.members.count;
-		var channelNumber = channel.name.substr(11);
-		document.getElementById("connecting-msg").innerHTML =
-			"connected to channel "+channelNumber+"<br>"+
-			"username: <a onclick='displaySenderInfo("+channel.members.me.id+")'>"+channel.members.me.info.username+"</a><br>"+
-			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online";
-			
-		document.getElementById("sidebar_username_disp").innerText = channel.members.me.info.username;
-		console.log(channel.members)
-	});
-	channel.bind('pusher:subscription_error', function(status) {
-		document.getElementById("connecting-msg").innerHTML = "<p>connection error. status: "+status+"</p>";
-	});
-
-    channel.bind('morsebroadcast', function(data) {
-		lastMessageType = 0;//normal message
-		var msgsender = channel.members.get(data.sender);
-		var nameToDisplay = data.sender == channel.members.me.id?"you":msgsender.info.username;
-			chat.insertMorsingMsg(data.sender,nameToDisplay,data.message);
-    });
-	
-	channel.bind('pusher:member_added', function(member){
-		var onlineMorsers = channel.members.count;
-		//if the user joining previously leaved the same room and the message telling it is the last received
-		if(lastMessageType != 0 && lastPersonId == member.id){
-		console.log("still him")
-			document.querySelectorAll(".msg-normal:last-child .editable")[0].innerHTML = 
-				"<span class='editable'> reconnected. <br>"+
-				onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>";
-		}else{
-			//normal case
-			lastMessageType = 1;//member added message
-			lastPersonId = member.id;
-			chat.insertMsg(
-			"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")'>"+member.info.username+"</a>"+
-			"<span class='editable'> joined the chat.<br>"+
-			onlineMorsers+" morsers online</span></p>",
-			true//beep
-			);
-		console.log("new member")
-		console.log(member)			
-		}
-
-	});
-	
-	channel.bind('pusher:member_removed', function(member) {
-		var onlineMorsers = channel.members.count;
-		//if the message telling the user joined is the last received
-		if(lastMessageType != 0 && lastPersonId == member.id){
-		console.log("still him")
-			document.querySelectorAll(".msg-normal:last-child .editable")[0].innerHTML = 
-				"<span class='editable'> joined and left the chat <br>"+
-				onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>";
-		}else{
-			//normal case
-			lastMessageType = 2;//member added message
-			lastPersonId = member.id;
-			chat.insertMsg(
-			"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")' >"+member.info.username+"</a>"+
-			"<span class='editable'> left the chat. <br>"+
-			onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>",true
-			);
-		console.log("removed member")
-		console.log(member)
-		}
-
-	});
-
 	/**
 	 * Provides requestAnimationFrame in a cross browser way.
-	 * @author paulirish / http://paulirish.com/
+	 * author paulirish / http://paulirish.com/
 	 */
-	if ( !window.requestAnimationFrame ) {
-		window.requestAnimationFrame = ( function() {
+	if(!window.requestAnimationFrame){
+		window.requestAnimationFrame = ( function(){
 			return window.webkitRequestAnimationFrame ||
 			window.mozRequestAnimationFrame ||
 			window.oRequestAnimationFrame ||
@@ -182,12 +128,105 @@ window.addEventListener('load', function(){
 			function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ element ) {
 				window.setTimeout( callback, 1000 / 60 );
 			};
-		} )();
+		})();
 	}
 
 
 }, false);
 
+
+//####################################
+//estabilish the connection to a channel
+//####################################
+//TODO: move to object channels
+	//variables to avoid spam caused by users joining and quitting
+	//type: normal 0, user joined 1, user quitted 2, system msg 3
+	var lastMessageType;
+	//the id of the last person that joined/left the chat
+	var lastPersonId;
+function chConnect(ch){
+	document.getElementById('ch-menu').style.display ='none';
+	var newChannel = 'presence-ch'+ch;
+
+		if(newChannel == connectedChannel){
+			chat.insertMsg("already connected to this channel",false)
+		}else{
+			chatId.innerHTML = '<p id="connecting-msg">connecting...</p>';
+			isAuth = false;
+			pusher.unsubscribe(connectedChannel);
+			channel = pusher.subscribe(newChannel);
+			connectedChannel = newChannel;
+			//pusher stuff
+			//----------------------------------------------
+			channel.bind('pusher:subscription_succeeded', function() {
+				isAuth = true;
+				var onlineMorsers = channel.members.count;
+				var channelNumber = channel.name.substr(11);
+				document.getElementById("connecting-msg").innerHTML =
+					"connected to channel "+channelNumber+"<br>"+
+					"username: <a onclick='displaySenderInfo("+channel.members.me.id+")'>"+channel.members.me.info.username+"</a><br>"+
+					onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online";	
+				document.getElementById("sidebar_username_disp").innerText = channel.members.me.info.username;
+				console.log(channel.members)
+			});
+			channel.bind('pusher:subscription_error', function(status) {
+				document.getElementById("connecting-msg").innerHTML = "<p>connection error. status: "+status+"</p>";
+			});
+			channel.bind('morsebroadcast', function(data) {
+				lastMessageType = 0;//normal message
+				var msgsender = channel.members.get(data.sender);
+				var nameToDisplay = data.sender == channel.members.me.id?"you":msgsender.info.username;
+					chat.insertMorsingMsg(data.sender,nameToDisplay,data.message);
+			});
+			channel.bind('pusher:member_added', function(member){
+				var onlineMorsers = channel.members.count;
+				//if the user joining previously leaved the same room and the message telling it is the last received
+				if(lastMessageType != 0 && lastPersonId == member.id){
+				console.log("still him")
+					document.querySelectorAll(".msg-normal:last-child .editable")[0].innerHTML = 
+						"<span class='editable'> reconnected. <br>"+
+						onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>";
+				}else{
+					//normal case
+					lastMessageType = 1;//member added message
+					lastPersonId = member.id;
+					chat.insertMsg(
+					"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")'>"+member.info.username+"</a>"+
+					"<span class='editable'> joined the chat.<br>"+
+					onlineMorsers+" morsers online</span></p>",
+					true//beep
+					);
+				console.log("new member")
+				console.log(member)			
+				}
+
+			});
+			channel.bind('pusher:member_removed', function(member) {
+				var onlineMorsers = channel.members.count;
+				//if the message telling the user joined is the last received
+				if(lastMessageType != 0 && lastPersonId == member.id){
+				console.log("still him")
+					document.querySelectorAll(".msg-normal:last-child .editable")[0].innerHTML = 
+						"<span class='editable'> joined and left the chat <br>"+
+						onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>";
+				}else{
+					//normal case
+					lastMessageType = 2;//member added message
+					lastPersonId = member.id;
+					chat.insertMsg(
+					"<p class='msg-normal' ><a onclick='displaySenderInfo("+member.id+")' >"+member.info.username+"</a>"+
+					"<span class='editable'> left the chat. <br>"+
+					onlineMorsers+" morser"+(onlineMorsers>1?"s":"")+" online</span></p>",true
+					);
+				console.log("removed member")
+				console.log(member)
+				}
+
+			});
+			//----------------------------------------------			
+		}
+	console.log(ch);
+}
 
 
 //####################################
@@ -242,8 +281,4 @@ function scrollDown(){
 	if(viewTagDisplaied){
 		viewedMessages = true;
 	}
-}
-//when the channel menu in the center of the nav bar is clicked
-function ch(){
-	alert("there is only one channel at the moment");
 }

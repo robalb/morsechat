@@ -50,10 +50,15 @@ echo json_encode($out, JSON_HEX_TAG);
 
     <div id="nav">
 		<button class="hamburger" onclick="openMenu()" ><i class="material-icons">menu</i></button>
-		<a onclick="ch()">ch 1 <i class="material-icons">arrow_drop_down</i></a>
+		<a id="ch-open" >ch 1 <i class="material-icons">arrow_drop_down</i></a>
 		<button class="settingsbt" onclick="openSettings()"><i class="material-icons">settings</i></button>
 		<button class="showmorsebt" onclick="openMlSidebar()"><i class="material-icons">library_books</i></button>
     </div>
+	
+	<div id="ch-menu" class="dropdown-content">
+		<!-- a tags here are generated b js -->
+	</div>
+
 
 	<div id="container">
 		<div id="timebar">
@@ -65,7 +70,7 @@ echo json_encode($out, JSON_HEX_TAG);
 			<div id="chatPopup">
 			</div>
 			
-			<p id="connecting-msg">connecting...</p>
+			<p>loading...</p>
 		</div>
 		<div class="keyContainer">
 		   <button id="key" style="cursor:pointer" onClick="" ></button>
