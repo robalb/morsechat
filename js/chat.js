@@ -145,7 +145,7 @@ function Morser(domPosition,encodedMsg,noteFreq){
 					this.msgP.insertAdjacentHTML("beforeend",this.currentLetter);	
 					this.currentLetter = this.phrase.shift();
 					if(this.currentLetter == " "){
-						this.steps = 4;//pause between words
+						this.steps = 7;//pause between words
 					}else{
 						this.steps = 3;//pause between characters
 						this.currentLetterMorse = morse.translateLetterToMorse(this.currentLetter);						

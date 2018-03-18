@@ -138,7 +138,7 @@ echo json_encode($out, JSON_HEX_TAG);
 	</p>
 	<br>
 	
-<p>This is the table of the other elements. increasing the value of <i>[pause between words]</i> and <i>[pause before sending]</i>
+<p>This is the table of the other elements. Increasing the value of <i>[pause between words]</i> and <i>[pause before sending]</i>
 can be useful while learning the code</p>
 
 	<table>
@@ -161,7 +161,7 @@ can be useful while learning the code</p>
 	   </tr>	   
 	   <tr>
 	    <td>pause between words</td>
-	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="settings.updateMultiplier(4,this.value)" value="5"></input></td>
+	    <td><input class="tElement" step="0.1" autocomplete="off" min="0.1" max="500" type="number" onInput="settings.updateMultiplier(4,this.value)" value="7"></input></td>
 	   </tr>
 	   <tr>
 	    <td>pause before sending</td>
@@ -169,7 +169,7 @@ can be useful while learning the code</p>
 	   </tr>
 	  </tbody>
 	</table>
-		<p>the values in this table are multiplied with the dot speed</p>
+		<p>The values in this table are multiplied with the dot speed</p>
 
 		<button class="button button-positive" onclick="settings.restoreDefaultMultipliers()">restore default settings</button><br><br>
 	<button class="button" onclick="settings.dumpAsString()">export configuration</button>

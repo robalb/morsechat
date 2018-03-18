@@ -4,9 +4,9 @@ var settings = {
 	//#############################
 	
 	//list of the default morse elements multipliers. this array is used to restore default settings
-	defaultMultipliers: [80,3,1,3,5,2000],
+	defaultMultipliers: [80,3,1,3,7,2000],
 	//second list of multipliers: this array can be used to store custom values and apply them
-	newMultipliers: [80,3,1,3,5,2000],
+	newMultipliers: [80,3,1,3,7,2000],
 	//customizable morse parameters. their values are set on page load, or from the page settings
 	//by calling the applyMutlipliers() method
 	/*

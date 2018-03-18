@@ -49,7 +49,7 @@ var morse = {
 		"11100":"8",
 		"11110":"9",
 		"11111":"0",
-		"00000010":" "
+		"10101":" "//TODO: fix this: remove J from beginning of received msgs
 	},
 	specialChars: {
 		"A":".",
