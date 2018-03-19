@@ -117,7 +117,7 @@ echo json_encode($out, JSON_HEX_TAG);
 		<p><a href="http://halb.it">homepage</a></p>
 		<p><a href="javascript:alert('coming soon')">practice</a></p>
 		<p><a href="about.php">about</a></p>
-		<p><a href="bug.php">bug</a></p>
+		<p><a href="about.php#bugs">bugs</a></p>
 		<p><a href="https://github.com/robalb/morsechat"><img class="icon-32" src="css/GitHub-Mark-Light-32px.png"></a></p>
 	</div>
 </div>

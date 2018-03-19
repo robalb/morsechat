@@ -7,6 +7,9 @@ html,body{
   overflow:hidden;
   height: 100%;
   -webkit-tap-highlight-color: rgba(0,0,0,0);
+  /* https://s3-us-west-2.amazonaws.com/s.cdpn.io/154/footer_lodyas.png */
+     background: #333333 url("bg.png");
+
 }
 
 #nav{
