@@ -44,15 +44,15 @@ if(isset($_POST["channel_name"]) && isset($_POST["socket_id"])){
 		$_SESSION["geoplugin_countryCode"] = "XX";
 		$_SESSION["geoplugin_countryName"] = "unknown";
 		try{
-			//$received_json = file_get_contents('http://getcitydetails.geobytes.com/GetCityDetails?fqcn='.$_SERVER['REMOTE_ADDR']);
-			$received_json = file_get_contents('http://www.geoplugin.net/php.gp?ip='.$_SERVER['REMOTE_ADDR']);
-			$received_data = json_decode($received_json);
+			$received_json = file_get_contents('http://getcitydetails.geobytes.com/GetCityDetails?fqcn='.$_SERVER['REMOTE_ADDR']);
+			//$received_json = file_get_contents('http://www.geoplugin.net/php.gp?ip='.$_SERVER['REMOTE_ADDR']);
+			$received_data = json_decode($received_json, true);
 			//if received data is valid and not empty
-			if(isset($received_data["geoplugin_countryCode"]) && strlen($received_data["geoplugin_countryCode"]) > 0 ){
+			if(isset($received_data["geobytescountry"]) && strlen($received_data["geobytescountry"]) > 0 ){
 				//uupdate location variables
-				$_SESSION["geoplugin_continentCode"] = htmlSpecialChars($received_data["geoplugin_continentCode"]);
-				$_SESSION["geoplugin_countryCode"] = htmlSpecialChars($received_data["geoplugin_countryCode"]);
-				$_SESSION["geoplugin_countryName"] = htmlSpecialChars($received_data["geoplugin_countryName"]);
+				$_SESSION["geoplugin_continentCode"] = htmlSpecialChars($received_data["geobytesmapreference"]);
+				$_SESSION["geoplugin_countryCode"] = htmlSpecialChars($received_data["geobytesinternet"]);
+				$_SESSION["geoplugin_countryName"] = htmlSpecialChars($received_data["geobytescountry"]);
 			}
 		} catch (Exception $e){}
 		

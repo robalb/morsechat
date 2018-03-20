@@ -29,8 +29,10 @@ if(isset($_SESSION["user_id"]) && isset($_SESSION["channel"]) ){
 	//validate anti-spam cooldown
 	if(!isset($_SESSION["last_msg"]) || (time() - $_SESSION["last_msg"] > $config['MSG_COOLDOWN']) ){
 		//validate msg
+		//TODO: remove spaces (J) at the beginnig of the msg
 		if(isset($_GET["msg"]) && strlen($_GET["msg"]) > 0 && strlen($_GET["msg"]) < 400 && preg_match('/^[a-zA-Z0-9]+$/', $_GET["msg"]) ){
-			$msg = $_GET["msg"];
+			//removes double spaces
+			$msg = str_replace("JJ","J",$_GET["msg"]);
 			$data['message'] = $msg;
 			$data['sender'] = $_SESSION["user_id"];
 			$data['time'] = time();
