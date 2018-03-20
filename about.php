@@ -125,13 +125,17 @@ li:before {
 		<h1>morsechat</h1>
 		<p>Morsechat is an open source morse chat for learning morse code, inspired by 
 		<a href="https://twitter.com/bkanber">&nbsp;@bkanber&nbsp;</a> 's web app <a href="morsecode.me">&nbsp;morsecode.me&nbsp;</a></p>
-		<p>This chat is not in real time, the messages you type are sent only after a short period of inactivity, when
+		<p>Press the button at the bottom of the page or use the spacebar to transmit. Customizable keys will be added soon.</p>
+		<p>This chat is not in real time, the messages you type are only sent after a short period of inactivity, when
 		the progress bar at the top of the page reaches the end.</p>
+		<p>Neither this website nor the external service used to create real-time connection stores the messages sent.</p>
 		
+		<!--
 		<h2>what's new</h2>
 		<h3>V 1.0 <span style="color:#cccccc">[19/ 3/ 2018]</span></h3>
-		<p>This is the first version of the chat. Too lazy to write the changelog now
+		<p>This is the first version of the chat. Everything is new
 		</p>
+		-->
 		
 		<h2 id="bugs">bugs</h2>
 		<p>You can report bugs or give your suggestions on <a href="https://github.com/robalb/morsechat/issues">&nbsp;github&nbsp;</a>
@@ -142,6 +146,7 @@ li:before {
 			<li>queque all the messages received from a user if one of its messages is still playing</li>
 			<li>online users list, with 'user is typing' status</li>
 			<li>more options for the received morse player</li>
+			<li>customizable morse key</li>
 			<li>auto refresh if a new update is detected</li>
 			<li>better anti-spam algorithms</li>
 			<li>accounts with stats and skill level. Private rooms and rooms restricted to skilled morsers only</h1>

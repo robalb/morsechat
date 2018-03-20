@@ -44,7 +44,9 @@ if(isset($_POST["channel_name"]) && isset($_POST["socket_id"])){
 		$_SESSION["geoplugin_countryCode"] = "XX";
 		$_SESSION["geoplugin_countryName"] = "unknown";
 		try{
-			$received_data = unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip='.$_SERVER['REMOTE_ADDR']));
+			//$received_json = file_get_contents('http://getcitydetails.geobytes.com/GetCityDetails?fqcn='.$_SERVER['REMOTE_ADDR']);
+			$received_json = file_get_contents('http://www.geoplugin.net/php.gp?ip='.$_SERVER['REMOTE_ADDR']);
+			$received_data = json_decode($received_json);
 			//if received data is valid and not empty
 			if(isset($received_data["geoplugin_countryCode"]) && strlen($received_data["geoplugin_countryCode"]) > 0 ){
 				//uupdate location variables
