@@ -5,6 +5,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/robalb/morsechat.svg)
 ![license](https://img.shields.io/github/license/robalb/morsechat.svg)
 
+<img src="https://i.imgur.com/A8fVeyP.png" height="24">
 # Morsechat
 
 A morse code web chatroom, perfect for practicing and learning morse code.
