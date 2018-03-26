@@ -170,6 +170,7 @@ function chConnect(ch){
 			//pusher stuff
 			//----------------------------------------------
 			channel.bind('pusher:subscription_succeeded', function() {
+				updateUserList()
 				isAuth = true;
 				var onlineMorsers = channel.members.count;
 				var channelNumber = channel.name.substr(11);
@@ -190,6 +191,7 @@ function chConnect(ch){
 					chat.insertMorsingMsg(data.sender,nameToDisplay,data.message);
 			});
 			channel.bind('pusher:member_added', function(member){
+				updateUserList()
 				var onlineMorsers = channel.members.count;
 				//if the user joining previously leaved the same room and the message telling it is the last received
 				if(lastMessageType != 0 && lastPersonId == member.id){
@@ -213,6 +215,7 @@ function chConnect(ch){
 
 			});
 			channel.bind('pusher:member_removed', function(member) {
+				updateUserList()
 				var onlineMorsers = channel.members.count;
 				//if the message telling the user joined is the last received
 				if(lastMessageType != 0 && lastPersonId == member.id){
@@ -243,6 +246,28 @@ function chConnect(ch){
 //####################################
 //procedural UI and general functions
 //####################################
+
+var showingUserList = false;
+function toggleUsersList(){
+	if(showingUserList){
+		document.getElementById("users-list").style.display = "none";
+		showingUserList = false;
+	}else{
+		updateUserList()
+		showingUserList = true;
+		document.getElementById("users-list").style.display = "block";
+	}
+}
+function updateUserList(){
+	var html = "";
+	for(var k in channel.members.members){
+		var member = channel.members.members[k]
+		if(member.id !== channel.members.me.id){	
+			html += "<a onclick='displaySenderInfo("+member.id+")'>"+member.username+"</a>";
+		}
+	}
+	document.getElementById("sidebar_online_disp").innerHTML = html;
+}
 
 function openMlSidebar(){
     document.getElementById("morseListSideBar").style.display = "block";

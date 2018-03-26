@@ -38,6 +38,9 @@ html,body{
 .hamburger{
   left:0;
 }
+.users{
+	left:50px;
+}
 .settingsbt{
   right:0;
 }
@@ -82,6 +85,58 @@ html,body{
 .dropdown-content a:hover {
 	text-decoration: underline;
 }
+
+#users-list{
+	border-top:1px solid #1a1a1a;
+  position:absolute;
+  top:50px;
+  left:50px; 
+    width:150px;
+	max-height:80%;
+
+padding-top:0;
+    display: none;
+    position: absolute;
+    background-color: #212121;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+  transition-duration: 0.5s;
+  animation:animateshow2 0.6s
+}
+@keyframes animateshow2{from{max-height:0%;;opacity:0} to{max-height:80%;opacity:1}}
+#users-list a{
+    padding: 5px 10px;
+    display: block;
+  color:#d9d9d9;
+  cursor:pointer;
+  text-decoration:none;
+}
+.users-list-topbar{
+height:40px;
+margin:0;
+}
+.users-list-bt{
+  border: 0px;
+  width: 40px;
+  height: 40px;
+  color:#cccccc;
+  background-color: #212121;
+  outline-style:none;
+  cursor: pointer;
+}
+.users-list-topbar p{
+  color:#cccccc;
+  text-align:center;
+  font-family: 'Roboto',monospace,Sans serif;
+  font-size: 21px; 
+  height:40px;
+  line-height:40px;
+  position:relative;
+  /*i have no idea of what i'm doing. please help */
+  top:-62px;
+  pointer-events:none;  
+}
+
+
 
 #container{
   height:100%; 
@@ -262,8 +317,14 @@ html,body{
   box-shadow: 0 4px 10px rgba(0,0,0,.6);
 
 }
-.links,.menuHeader{
-  margin-left:10px;
+.links{
+  margin-left:15px;	
+}
+.menuHeader button{
+  margin-left:5px;
+}
+.menuHeader{
+	border-bottom: 1px solid #cccccc;
 }
 .menuHeader a{
   cursor:pointer;

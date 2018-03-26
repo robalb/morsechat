@@ -145,10 +145,9 @@ li:before {
 		<ul>
 			<li>queque all the messages received from a user if one of its messages is still playing</li>
 			<li>online users list, with 'user is typing' status</li>
-			<li>more options for the received morse player</li>
-			<li>customizable morse key</li>
-			<li>auto refresh if a new update is detected</li>
-			<li>better anti-spam algorithms</li>
+			<li>more options for the received morse player (mute annoying messages, mute your own messages when received)</li>
+			<li>customizable morse key (iambic, custom keys)</li>
+			<li>better anti-spam algorithms, limit on users per room</li>
 			<li>accounts with stats and skill level. Private rooms and rooms restricted to skilled morsers only</h1>
 			
 		</ul>
