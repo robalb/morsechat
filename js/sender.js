@@ -41,6 +41,9 @@ sender = {
 		}
 	},
 	send: function(){
+		//msg sent. the user is not keying anymore
+		morseKey.keying = false;
+		
 		console.log("made it to "+settings.phraseInactivityTime+"! sending the message")
 		//reset and makes invisible the progress bar
 		barId.style.height = "0px";
@@ -63,6 +66,21 @@ sender = {
 		}		
 		morseKey.phrase="";
 		phraseDisplayId.innerHTML = "";		
+	},
+	
+	updateKeyingStatus: function(started){//true->started; false->stopped
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', 'app/status.php?status='+started);
+		xhr.onload = function(){
+			if (xhr.status === 200) {
+				chat.insertMsg("<p>ok" +  xhr.status + " " + xhr.statusText + "</p>",true);
+			}
+			else{
+				chat.insertMsg("<p>error " +  xhr.status + " " + xhr.statusText + "</p>",true);
+			}
+		};
+		xhr.send();
 	}
+
 }
 

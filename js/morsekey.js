@@ -26,6 +26,9 @@ var morseKey = {
 	letter: "",
 	phrase: "",
 	
+	//if the user is morsing. used for the 'user is typing' message
+	keying: false,
+	
 	//called when a key, or a button, or a touch key is pressed
 	down: function(){
 		if(!this.isDown){this.isDown = true;
@@ -106,9 +109,21 @@ var morseKey = {
 				var _this = this;
 				this.spaceTimer = setTimeout(function(){_this.pushSpace()},settings.wordsPause);
 			}else{
+				if(this.keying){
+					sender.updateKeyingStatus(false);//true->started keying, false->stopped keying
+					this.keying = false;
+					console.log("stopped keying");					
+				}
 				chat.insertMsg("<p>message removed</p>",false);			
 			}
 		}else{
+			//if it's the third word of the phrase, broadcast that the user has started typing.
+			//(wait to the 3rd letter instead of doing it immediately to save broadband)
+			if(!this.keying && this.phrase.length == 3){
+				sender.updateKeyingStatus(true);//true->started keying, false->stopped keying
+				this.keying = true;
+				console.log("started keying")
+			}
 			//store the letter in phrase buffer. spaces are stored as uppercase J and special chars are encoded in other
 			//uppercase letters by function webEncode. non existing letters [[are stored as upercase K]] are not stored
 			this.phrase += ""+(morse.tree[this.letter]?morse.tree[this.letter]:"");

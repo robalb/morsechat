@@ -237,6 +237,14 @@ function chConnect(ch){
 				}
 
 			});
+			channel.bind('startedkeying', function(data) {
+				console.log("STARTED")
+				console.log(data)
+			});
+			channel.bind('stoppedkeying', function(data) {
+				console.log("STOPPED")
+				console.log(data)
+			});			
 			//----------------------------------------------			
 		}
 	console.log(ch);
@@ -263,7 +271,7 @@ function updateUserList(){
 	for(var k in channel.members.members){
 		var member = channel.members.members[k]
 		if(member.id !== channel.members.me.id){	
-			html += "<a onclick='displaySenderInfo("+member.id+")'>"+member.username+"</a>";
+			html += "<a onclick='displaySenderInfo("+member.id+")'>"+member.username+"<span class=\"spinner\"><div class=\"bounce1\"></div><div></div></span></a>";
 		}
 	}
 	document.getElementById("sidebar_online_disp").innerHTML = html;

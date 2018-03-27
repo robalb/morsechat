@@ -64,52 +64,51 @@ html,body{
   position:absolute;
   top:50px;
   left:50%; 
-    width:200px;
-	max-height:80%;
-	overflow-y:auto;
-    margin-left:-100px;
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  width:200px;
+  max-height:80%;
+  overflow-y:auto;
+  margin-left:-100px;
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
+
 
 .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-	cursor:pointer;
-
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  cursor:pointer;
 }
 .dropdown-content a:hover {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 #users-list{
-	border-top:1px solid #1a1a1a;
+  border-top:1px solid #1a1a1a;
   position:absolute;
   top:50px;
   left:50px; 
-    width:150px;
-	max-height:80%;
-
-padding-top:0;
-    display: none;
-    position: absolute;
-    background-color: #212121;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+  width:150px;
+  max-height:80%;
+  padding-top:0;
+  display: none;
+  position: absolute;
+  background-color: #212121;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
   transition-duration: 0.5s;
   animation:animateshow2 0.6s
 }
-@keyframes animateshow2{from{max-height:0%;;opacity:0} to{max-height:80%;opacity:1}}
-#users-list a{
-    padding: 5px 10px;
-    display: block;
-  color:#d9d9d9;
-  cursor:pointer;
-  text-decoration:none;
+@media (min-width:1000px){
+	#users-list{
+	  display:block;
+	}
 }
+
+
+@keyframes animateshow2{from{max-height:0%;;opacity:0} to{max-height:80%;opacity:1}}
 .users-list-topbar{
 height:40px;
 margin:0;
@@ -118,23 +117,69 @@ margin:0;
   border: 0px;
   width: 40px;
   height: 40px;
-  color:#cccccc;
+  color:#efebe9;
   background-color: #212121;
   outline-style:none;
   cursor: pointer;
 }
 .users-list-topbar p{
-  color:#cccccc;
+  color:#efebe9;
   text-align:center;
   font-family: 'Roboto',monospace,Sans serif;
   font-size: 21px; 
   height:40px;
   line-height:40px;
-  position:relative;
   /*i have no idea of what i'm doing. please help */
+  position:relative;
   top:-62px;
   pointer-events:none;  
 }
+#users-list a{
+    padding: 5px 10px;
+    display: block;
+  color:#d9d9d9;
+  cursor:pointer;
+  text-decoration:none;
+}
+
+.spinner {
+  margin-left: 4px;
+  text-align: center;
+  padding:0;
+}
+
+.spinner > div {
+	margin:0;
+	padding:0;
+  width: 13px;
+  height: 13px;
+  background-color: #595959;
+  border-radius: 0%;
+  display: inline-block;
+  -webkit-animation: sk-bouncedelay 1.2s infinite ease-in-out both;
+  animation: sk-bouncedelay 1.2s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+  -webkit-animation-delay: -0.2s;
+}
+
+
+@-webkit-keyframes sk-bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0.2) }
+  40% { -webkit-transform: scale(0.4) }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    -webkit-transform: scale(0.2);
+    transform: scale(0.2);
+  } 40% { 
+    -webkit-transform: scale(0.4);
+    transform: scale(0.4);
+  }
+}
+
 
 
 

@@ -38,7 +38,8 @@ if(isset($_POST["channel_name"]) && isset($_POST["socket_id"])){
 			$userId .= mt_rand(0,9);
 		}
 		$_SESSION["user_id"] = $userId;
-	
+		//the user is keying
+		$_SESSION["keying"] = false;
 		//generate user location variables
 		$_SESSION["geoplugin_continentCode"] = "unknown";
 		$_SESSION["geoplugin_countryCode"] = "XX";

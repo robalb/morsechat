@@ -39,6 +39,7 @@ if(isset($_SESSION["user_id"]) && isset($_SESSION["channel"]) ){
 			$pusher->trigger($_SESSION["channel"], 'morsebroadcast', $data);
 			$_SESSION["last_msg"] = time();
 			echo "sent!";
+			$_SESSION["keying"] = false;
 		}else{
 			header("HTTP/1.0 400 invalid string");
 			echo "invalid string";
