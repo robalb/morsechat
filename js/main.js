@@ -170,7 +170,7 @@ function chConnect(ch){
 			//pusher stuff
 			//----------------------------------------------
 			channel.bind('pusher:subscription_succeeded', function() {
-				updateUserList()
+				onlineUsersList.update()
 				isAuth = true;
 				var onlineMorsers = channel.members.count;
 				var channelNumber = channel.name.substr(11);
@@ -189,9 +189,10 @@ function chConnect(ch){
 				var msgsender = channel.members.get(data.sender);
 				var nameToDisplay = data.sender == channel.members.me.id?"you":msgsender.info.username;
 					chat.insertMorsingMsg(data.sender,nameToDisplay,data.message);
+					onlineUsersList.removeMorser(data.sender);
 			});
 			channel.bind('pusher:member_added', function(member){
-				updateUserList()
+				onlineUsersList.update()
 				var onlineMorsers = channel.members.count;
 				//if the user joining previously leaved the same room and the message telling it is the last received
 				if(lastMessageType != 0 && lastPersonId == member.id){
@@ -215,7 +216,7 @@ function chConnect(ch){
 
 			});
 			channel.bind('pusher:member_removed', function(member) {
-				updateUserList()
+				onlineUsersList.update()
 				var onlineMorsers = channel.members.count;
 				//if the message telling the user joined is the last received
 				if(lastMessageType != 0 && lastPersonId == member.id){
@@ -238,12 +239,12 @@ function chConnect(ch){
 
 			});
 			channel.bind('startedkeying', function(data) {
-				console.log("STARTED")
-				console.log(data)
+				console.log("someone started morsing")
+				onlineUsersList.addMorser(data.sender);
 			});
 			channel.bind('stoppedkeying', function(data) {
-				console.log("STOPPED")
-				console.log(data)
+				console.log("someone stopped morsing")
+				onlineUsersList.removeMorser(data.sender);
 			});			
 			//----------------------------------------------			
 		}
@@ -251,31 +252,70 @@ function chConnect(ch){
 }
 
 
+
+/*
+object to manage the online users list
+-open/close/toggle
+and show the ones that are morsing
+*/
+var onlineUsersList = {
+	
+	showingUserList: false,
+	
+	toggle: function(){
+		if(!this.showingUserList){
+			document.getElementById("users-list").style.display = "block";
+			this.showingUserList = true;
+		}else{
+			this.close();
+		}
+	},
+	close: function(){
+		this.update()
+		this.showingUserList = false;
+		document.getElementById("users-list").style.display = "none";		
+	},
+	
+	//list of the id of all the users typing
+	morsingUsers: [],
+	
+	addMorser: function(id){
+		//add user to the morsing list and update the display div
+		if(this.morsingUsers.indexOf(id) < 0){
+			this.morsingUsers.push(id)
+		}
+		this.update();		
+	},
+	removeMorser: function(id){
+		//remove user from the morsing list and update the display div
+		var index = this.morsingUsers.indexOf(id)
+		if(index > -1){
+			this.morsingUsers.splice(index, 1);
+		}
+		this.update();		
+	},		
+	update: function(){
+		var html = "";
+		for(var k in channel.members.members){
+			var member = channel.members.members[k]
+			if(member.id !== channel.members.me.id){
+				html += "<a onclick='displaySenderInfo("+member.id+")'>"+member.username;
+				//if this user is in the morsing list
+				if(this.morsingUsers.indexOf(member.id) > -1){
+					html += "<span class=\"spinner\"><div class=\"bounce1\"></div><div></div></span>";
+				}
+				html += "</a>";
+			}
+		}
+		document.getElementById("sidebar_online_disp").innerHTML = html;
+	}
+	
+}
+
 //####################################
 //procedural UI and general functions
 //####################################
 
-var showingUserList = false;
-function toggleUsersList(){
-	if(showingUserList){
-		document.getElementById("users-list").style.display = "none";
-		showingUserList = false;
-	}else{
-		updateUserList()
-		showingUserList = true;
-		document.getElementById("users-list").style.display = "block";
-	}
-}
-function updateUserList(){
-	var html = "";
-	for(var k in channel.members.members){
-		var member = channel.members.members[k]
-		if(member.id !== channel.members.me.id){	
-			html += "<a onclick='displaySenderInfo("+member.id+")'>"+member.username+"<span class=\"spinner\"><div class=\"bounce1\"></div><div></div></span></a>";
-		}
-	}
-	document.getElementById("sidebar_online_disp").innerHTML = html;
-}
 
 function openMlSidebar(){
     document.getElementById("morseListSideBar").style.display = "block";
@@ -302,6 +342,7 @@ function popup(title,msgBody){
 	document.getElementById("popupTitle").innerText = title;
 	document.getElementById("popupContent").innerHTML = msgBody;
 }
+
 //when the blue name on the left of a msg is clicked
 function displaySenderInfo(senderId){
 	var user = channel.members.get(senderId);
@@ -317,7 +358,6 @@ function displaySenderInfo(senderId){
 		popup("user info","<p>this user doesn't exist anymore</p>");
 	}
 }
-
 //when the scrolldown radio bt is clicked
 function scrollDown(){
 	document.getElementById("radiobt").style.display = "none";

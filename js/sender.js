@@ -72,12 +72,7 @@ sender = {
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', 'app/status.php?status='+started);
 		xhr.onload = function(){
-			if (xhr.status === 200) {
-				chat.insertMsg("<p>ok" +  xhr.status + " " + xhr.statusText + "</p>",true);
-			}
-			else{
-				chat.insertMsg("<p>error " +  xhr.status + " " + xhr.statusText + "</p>",true);
-			}
+			console.log("update status xhr: " +  xhr.status + " " + xhr.statusText);
 		};
 		xhr.send();
 	}

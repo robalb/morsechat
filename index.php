@@ -50,7 +50,7 @@ echo json_encode($out, JSON_HEX_TAG);
 
     <div id="nav">
 		<button class="hamburger" onclick="openMenu()" ><i class="material-icons">menu</i></button>
-		<button class="users" onclick="toggleUsersList()" ><i class="material-icons">people</i></button>
+		<button class="users" onclick="onlineUsersList.toggle()" ><i class="material-icons">people</i></button>
 		<a id="ch-open" >ch <span id="ch-display" >1</span> <i class="material-icons">arrow_drop_down</i></a>
 		<button class="settingsbt" onclick="openSettings()"><i class="material-icons">settings</i></button>
 		<button class="showmorsebt" onclick="openMlSidebar()"><i class="material-icons">library_books</i></button>
@@ -58,7 +58,7 @@ echo json_encode($out, JSON_HEX_TAG);
 	
 	<div id="users-list">
 	<div class="users-list-topbar">
-		<button class="users-list-bt" onclick="toggleUsersList()" ><i class="material-icons">close</i></button>
+		<button class="users-list-bt" onclick="onlineUsersList.close()" ><i class="material-icons">close</i></button>
 		<p>online</p>
 	</div>
 		<a onclick="displaySenderInfo(channel.members.me.id)" ><span id="sidebar_username_disp">[connecting..]</span> - you</a>
