@@ -33,6 +33,8 @@ if(isset($_SESSION["user_id"]) && isset($_SESSION["channel"]) ){
 		if(isset($_GET["msg"]) && strlen($_GET["msg"]) > 0 && strlen($_GET["msg"]) < 400 && preg_match('/^[a-zA-Z0-9]+$/', $_GET["msg"]) ){
 			//removes double spaces
 			$msg = str_replace("JJ","J",$_GET["msg"]);
+			//removes initial spaces
+			$msg = ltrim($msg);
 			$data['message'] = $msg;
 			$data['sender'] = $_SESSION["user_id"];
 			$data['time'] = time();
