@@ -36,6 +36,7 @@ echo json_encode($out, JSON_HEX_TAG);
 <script src="js/main.js"></script>
 <script src="js/morse.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/iambicKeyer.js"></script>
 <script src="js/morsekey.js"></script>
 <script src="js/sender.js"></script>
 <script src="js/chat.js"></script>
@@ -180,21 +181,29 @@ can be useful while learning the code</p>
 	   </tr>
 	  </tbody>
 	</table>
-		<p>The values in this table are multiplied with the dot speed</p>
+	<h4>key mode</h4>
+	<p>in iambic mode press z/x or right click/left click on the key to simulate the paddles</p>
+	<button class="button" id="msbutton" onclick="settings.changeKeyMode()">iambic A</button>
+	<button class="button" id="psbutton" onclick="settings.changeIambicPaddle()">right paddle is dot</button><br><br>
 
-		<button class="button button-positive" onclick="settings.restoreDefaultMultipliers()">restore default settings</button><br><br>
-	<button class="button" onclick="settings.dumpAsString()">export configuration</button>
-	<button class="button" onclick="settings.importFromString()">import configuration code</button><br>
-	<input type="text" autocomplete="off" id="stringInput" placeholder="paste here your code"><br>
-	<h3>sound settings</h3>
-	<button class="button" id="ksbutton" onclick="settings.toggleKeySound()">disable key sound</button>
-	<button class="button" id="rmbutton" onclick="settings.toggleReceivedSound()">mute received morse</button><br>
-	
-		<h4>received morse speed</h4>
+	<h4>received morse speed</h4>
 	<p id="rangeCont"><input type="range" id="speedRange" min="50" max="200" value="80" onInput="settings.updateMorserSpeed(this.value)" >
 	<br><br>
 	<a id="morserSpeedDisp">80</a> ms ( <a id="morserWpmDisp">15</a> wpm )
-	</p>
+	</p><br>
+
+
+	<h3>sound settings</h3>
+	<button class="button" id="ksbutton" onclick="settings.toggleKeySound()">disable key sound</button>
+	<button class="button" id="rmbutton" onclick="settings.toggleReceivedSound()">mute received morse</button>
+	<!-- <button class="button" id="rmbutton" onclick="settings.toggleReceivedSelfSound()">mute morse received from self</button>-->
+	<br>	
+	<h3>general settings</h3>
+	<button class="button button-positive" onclick="settings.restoreDefaultMultipliers()">restore default settings</button><br><br>
+	<button class="button" onclick="settings.dumpAsString()">export configuration</button>
+	<button class="button" onclick="settings.importFromString()">import configuration code</button><br>
+	<input type="text" autocomplete="off" id="stringInput" placeholder="paste here your code">
+
 	
 	<br><br>
 	<br><br>

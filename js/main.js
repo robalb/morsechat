@@ -71,6 +71,12 @@ window.addEventListener('load', function(){
 		}
 	});
 	
+	//prevent right click on key to open the browser right click options
+	keyId.addEventListener('contextmenu',function(e){
+		e.preventDefault();
+	});
+	
+	
 	//touch
 	keyId.addEventListener('touchstart',function(e){
 		e.stopPropagation();
@@ -83,12 +89,24 @@ window.addEventListener('load', function(){
 		morseKey.up();
 	}, false);
 	//mouse
-	keyId.addEventListener('mousedown',function(){
-		morseKey.down()
-		}, false);	
-	keyId.addEventListener('mouseup',function(){
-		morseKey.up()
-		}, false);
+	keyId.addEventListener('mousedown',function(e){
+		//straight mode
+		if(settings.keyMode == 0){
+			morseKey.down();
+		}//iambic mode
+		else{
+			iambicKeyer.down(e.which);
+		}
+	}, false);	
+	keyId.addEventListener('mouseup',function(e){
+		//straight mode
+		if(settings.keyMode == 0){
+			morseKey.up();
+		}//iambic mode
+		else{
+			iambicKeyer.up(e.which);
+		}
+	}, false);
 	//keyboard
 	//var to prevent keydown triggering multiple times when a key is hold for too long
 	var fired = false;

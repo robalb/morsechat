@@ -18,7 +18,33 @@ var settings = {
 	*/
 	
 	//morse reader speed
-	morserDotSpeed:80,//100 is also good
+	morserDotSpeed: 80,//100 is also good
+	
+	//key mode: 0 straight, 1 iambic(A) 2 iambic(B)
+	keyMode: 0,
+	//iambic paddle options
+	paddleLeftIsDot: true,
+	
+	changeKeyMode: function(){
+		if(this.keyMode == 0){
+			this.keyMode = 1;
+			document.getElementById("msbutton").innerText = "straight";
+		}else if(this.keyMode == 1){
+			this.keyMode = 0;
+			document.getElementById("msbutton").innerText = "iambic A";
+		}
+	},
+	changeIambicPaddle: function(){
+		if(this.paddleLeftIsDot){
+			this.paddleLeftIsDot = false;
+			console.log(this.paddleLeftIsDot)
+			document.getElementById("psbutton").innerText = "left paddle is dot";
+		}else{
+			this.paddleLeftIsDot = true;
+			console.log(this.paddleLeftIsDot)
+			document.getElementById("psbutton").innerText = "right paddle is dot";
+		}
+	},
 	
 	updateMorserSpeed: function(speed){
 		this.morserDotSpeed = speed;
@@ -52,6 +78,7 @@ var settings = {
 		console.log(this.hasOwnProperty(applyListName)); */
 		//update variables
 		var dotSpeed = applyList[0];
+		this.dotLength = dotSpeed;
 		this.dashLength = dotSpeed*applyList[1];
 		this.elementsPause = dotSpeed*applyList[2];
 		this.charactersPause = dotSpeed*applyList[3];
