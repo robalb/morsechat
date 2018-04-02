@@ -62,6 +62,7 @@ if(isset($_SESSION["user_id"]) && isset($_SESSION["channel"])){
 					$pusher->trigger($_SESSION["channel"], 'stoppedkeying', $data);
 					
 				}else{
+					//TODO: change status to 400
 					header("HTTP/1.0 403 wait X seconds");
 					echo "wait X seconds";
 				}		
@@ -71,7 +72,7 @@ if(isset($_SESSION["user_id"]) && isset($_SESSION["channel"])){
 			echo "invalid parameter";		
 		}
 }else{
-	header("HTTP/1.0 400 invalid session");
+	header("HTTP/1.0 401 invalid session");
 	echo "invalid session";
 }
  

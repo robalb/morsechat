@@ -144,7 +144,7 @@ li:before {
 		<h2>todo list:</h2>
 		<ul>
 			<li>queque all the messages received from a user if one of its messages is still playing</li>
-			<li>online users list, with 'user is typing' status</li>
+			<li><strike>online users list, with 'user is typing' status</strike></li>
 			<li>more options for the received morse player (mute annoying messages, mute your own messages when received)</li>
 			<li>customizable morse key (iambic, custom keys)</li>
 			<li>better anti-spam algorithms, limit on users per room</li>

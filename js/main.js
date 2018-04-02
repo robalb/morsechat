@@ -83,8 +83,12 @@ window.addEventListener('load', function(){
 		morseKey.up();
 	}, false);
 	//mouse
-	keyId.addEventListener('mousedown',function(){console.log(morseKey);morseKey.down()}, false);	
-	keyId.addEventListener('mouseup',function(){morseKey.up()}, false);
+	keyId.addEventListener('mousedown',function(){
+		morseKey.down()
+		}, false);	
+	keyId.addEventListener('mouseup',function(){
+		morseKey.up()
+		}, false);
 	//keyboard
 	//var to prevent keydown triggering multiple times when a key is hold for too long
 	var fired = false;

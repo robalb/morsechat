@@ -46,11 +46,12 @@ if(isset($_SESSION["user_id"]) && isset($_SESSION["channel"]) ){
 		}
 	}else{
 		$seconds = $config['MSG_COOLDOWN'] - (time() - $_SESSION["last_msg"]);
+		//TODO: change status to 400
 		header("HTTP/1.0 403 wait ".$seconds." seconds");
 		echo "wait ".$seconds." seconds";
 	}
 }else{
-	header("HTTP/1.0 400 invalid session");
+	header("HTTP/1.0 401 invalid session");
 	echo "invalid session";
 }
  
