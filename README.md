@@ -9,7 +9,7 @@
 A fully responsive morse code web chat that you can use to learn morse and comunicate with friends, without having to buy
 a radio. This project is based on [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
 
-This project is based on the [pusher](https://www.pusher.com) library, and the live website is currently limited to 200.000 messages per day (including the 'started typing' message).
+Because of some restrictions of my shared hosting service, the websocket connections are handled by the third party service [pusher](https://www.pusher.com). The live website is currently limited to 200.000 messages per day (including the 'started typing' message) and max 100 cuncurrent connections.
 
 ## Requirements
 
