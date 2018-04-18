@@ -123,12 +123,14 @@ li:before {
 
 	<div class="block1">
 		<h1>morsechat</h1>
-		<p>Morsechat is an open source morse chat for learning morse code, inspired by 
+		<p>This is an open source morse chat that you can use to learn morse and comunicate with friends,
+		without having to buy a radio.<br>This project is based on
 		<a href="https://twitter.com/bkanber">&nbsp;@bkanber&nbsp;</a> 's web app <a href="morsecode.me">&nbsp;morsecode.me&nbsp;</a></p>
-		<p>Press the button at the bottom of the page or use the spacebar to transmit. Customizable keys will be added soon.</p>
-		<p>This chat is not in real time, the messages you type are only sent after a short period of inactivity, when
+		<p>Press the key at the bottom of the page or use the spacebar to transmit. Iambic mode and keying speed can be configured in the settings section.</p>
+		<p>This chat is not in real time, the messages you type are sent after a short period of inactivity, when
 		the progress bar at the top of the page reaches the end.</p>
-		<p>Neither this website nor the external service used to create real-time connection stores the messages sent.</p>
+		<p>This website uses a third party websocket service that allows a real time connection between all the users. The messages you type are broadcasted without being stored on the server,
+		and reloading the page or switching channel will permanently delete all the messages you received.</p>	
 		
 		<!--
 		<h2>what's new</h2>
@@ -143,10 +145,10 @@ li:before {
 		
 		<h2>todo list:</h2>
 		<ul>
-			<li>queque all the messages received from a user if one of its messages is still playing</li>
 			<li><strike>online users list, with 'user is typing' status</strike></li>
+			<li><strike>more morse key options (iambic, custom keys)</strike></li>
+			<li>option to queque all the messages received from a user and play them one after the other</li>
 			<li>more options for the received morse player (mute annoying messages, mute your own messages when received)</li>
-			<li>customizable morse key (iambic, custom keys)</li>
 			<li>better anti-spam algorithms, limit on users per room</li>
 			<li>accounts with stats and skill level. Private rooms and rooms restricted to skilled morsers only</h1>
 			
