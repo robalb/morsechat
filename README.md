@@ -3,12 +3,11 @@
 [![Website](https://img.shields.io/website-up-down-green-red/http/halb.it.svg?label=morse%20chat)](http://halb.it/morsecode)
 [![Online](https://img.shields.io/badge/dynamic/json.svg?label=online%20users&uri=http%3A%2F%2Fwww.halb.it%2Fmorsecode%2Fapp%2Fgetonline.php&query=%24..online_users)](http://halb.it/morsecode)
 [![Channels](https://img.shields.io/badge/dynamic/json.svg?label=active%20channels&uri=http%3A%2F%2Fwww.halb.it%2Fmorsecode%2Fapp%2Fgetonline.php&query=%24..channels)](http://halb.it/morsecode)
-
 ![license](https://img.shields.io/github/license/robalb/morsechat.svg)
 
 
 A fully responsive morse code web chat that you can use to learn morse and comunicate with friends, without having to buy
-a radio.
+a radio. This project is based on [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
 
 This project is based on the [pusher](https://www.pusher.com) library, and the live website is currently limited to 200.000 messages per day (including the 'started typing' message).
 
