@@ -12,6 +12,12 @@ session_start();
 require_once('pusher/Pusher.php');
 require_once('pusher/PusherException.php');
 require_once('pusher/PusherInstance.php');
+//add custom analytics and notifications
+$NOTIFICATIONS_ENABLED = false;
+if(file_exists('notifications.php')){
+    include('notifications.php');
+    $NOTIFICATIONS_ENABLED = true;
+}
 
 $config = include('config.php');
 
@@ -80,7 +86,10 @@ if(isset($_POST["channel_name"]) && isset($_POST["socket_id"])){
 			"countryCode" => $_SESSION["geoplugin_countryCode"],
 			"countryName" => $_SESSION["geoplugin_countryName"]
 		);
-		echo $pusher->presence_auth($_POST["channel_name"], $_POST["socket_id"], $_SESSION["user_id"],$presence_data);		
+		echo $pusher->presence_auth($_POST["channel_name"], $_POST["socket_id"], $_SESSION["user_id"],$presence_data);
+        if($NOTIFICATIONS_ENABLED){
+            pushNotification('joined',$_SESSION["geoplugin_countryCode"]);
+        }
 	
 	}else{
 		//channel name was not valid
