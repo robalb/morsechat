@@ -1,0 +1,11 @@
+{
+  "files": {
+    "included": [
+      "js/**/*.js"
+    ],
+    "excluded": [
+      "js/min.js",
+      "js/pusher_min.js"
+    ]
+  }
+}
