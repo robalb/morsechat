@@ -47,7 +47,7 @@ function validateMsg($msg){
 }
 
 
-if(!isset($_SESSION["user_id"]) || !isset($_SESSION["channel"]) ){
+if(!isset($_SESSION["user_id"]) ){
     //user is not logged
     header("HTTP/1.0 401 invalid session");
     echo "invalid session";    
