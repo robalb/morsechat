@@ -4,6 +4,7 @@
 [![Online](https://img.shields.io/badge/dynamic/json.svg?label=online%20users&uri=http%3A%2F%2Fwww.halb.it%2Fmorsecode%2Fapp%2Fgetonline.php&query=%24..online_users)](http://halb.it/morsecode)
 [![Channels](https://img.shields.io/badge/dynamic/json.svg?label=active%20channels&uri=http%3A%2F%2Fwww.halb.it%2Fmorsecode%2Fapp%2Fgetonline.php&query=%24..channels)](http://halb.it/morsecode)
 ![license](https://img.shields.io/github/license/robalb/morsechat.svg)
+![docs](https://inch-ci.org/github/robalb/morsechat.svg?branch=master)
 
 
 A fully responsive morse code web chat that you can use to learn morse and comunicate with friends, without having to buy
