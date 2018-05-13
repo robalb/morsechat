@@ -69,9 +69,22 @@ var morse = {
 		"K":"|"
 
 	},
+    /**
+    * escape special chars, to avoid conflicts in a regexp
+    * @param {string} text - the string to escape
+    * @return {string} the escaped string
+    */
 	escapeRegExp: function(text){
 		return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 	},
+    /**
+    * encode spaces and symbols into uppercase letters according to the specialChars array
+    * @param {string} - the string to encode 
+    * @return {string} the encoded string
+    * @example
+    * //returns 'fooJbarE'
+    * webEncode('foo bar!')
+    */
 	webEncode: function(string){
 		var dString = string;
 		for (var key in this.specialChars) {
@@ -81,7 +94,14 @@ var morse = {
 		console.log("encoded phrase to "+dString)
 		return dString;
 	},
-
+    /**
+    * decode uppercase letters into spaces and symbols according to the specialChars array
+    * @param {string} - the string to decode
+    * @return {string} the decoded string containing spaces and special chars
+    * @example
+    * //returns 'foo bar!'
+    * webEncode('fooJbarE')
+    */
 	webDecode: function(string){
 		var dString = string;
 		for (var key in this.specialChars) {
@@ -89,7 +109,18 @@ var morse = {
 		}
 		return dString.toLowerCase();
 	},
-
+    /**
+    * return the morse equivalent of the char provided, according to the array tree
+    * @param {string} - the letter to decode
+    * @return {array} an array containing 0(dit) or 1(dah), of variable length
+    * or null if the letter is not found
+    * @example
+    * //returns [1,0,1,0]
+    * translateLetterToMorse('c')
+    * @example
+    * //returns null
+    * translateLetterToMorse('^')
+    */
 	translateLetterToMorse: function(value){
 		for(var key in this.tree){
 			if(this.tree[key] == value) return key.split("");

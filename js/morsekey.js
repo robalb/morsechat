@@ -1,12 +1,12 @@
-/*
-morsekey:
-this morsekey object can be pushed down or pushed up  by using the methods down() and up().
-up and down are translated into dot and dashes
-dot and dashes are translated into a letter
-the letter is added to the phrase buffer
-
-if up or down are not called, the morsekey starts the sender object, that 
-broadcasts the phrase typed after a delay
+/**
+* morsekey:
+* this morsekey object can be pushed down or pushed up  by using the methods down() and up().
+* up and down are translated into dot and dashes
+* dot and dashes are translated into a letter
+* the letter is added to the phrase buffer
+* 
+* if up or down are not called, the morsekey starts the sender object, that 
+* broadcasts the phrase typed after a delay
 */
 var morseKey = {
 	//identifier id for timer that calls up() if the key has been down for too long
