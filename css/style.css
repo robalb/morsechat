@@ -335,10 +335,14 @@ margin:0;
   font-size:16px;
   font-family:monospace;
   overflow-Y:auto;
-  padding-left:10px;
+  padding-left:7px;
   padding-top:5px;
   column-count:2;
-  column-rule: 1px solid #bdbdbd;
+  /* column-rule: 1px solid #bdbdbd; */
+  
+  -webkit-column-gap: 0px;
+  -moz-column-gap: 0px;
+  column-gap: 0px;
 }
 #morseList p{
   break-inside: avoid-column;
