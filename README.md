@@ -25,12 +25,7 @@ In the same file you can also configure:
 
 * the maximum number of channels available (default 7)
 * the minimum number of seconds before an user can send another message (default 5s)
-* chat admin username and password
-
-note: the admin password must be a bcrypt hash. You can get a valid bcrypt hash of your password by using the file `app/makepassword.php` with get parameter `?password=yourpassword`
-
-
-For example: opening `makepassword.php?password=hunter2` will return the bcrypt hash for the password hunter2
+* chat admin username and password <coming soon>
 
 ## Apis
 
