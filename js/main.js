@@ -132,7 +132,8 @@ window.addEventListener('load', function(){
 	pusher = new Pusher(config.PUSHER_KEY, {
 	authEndpoint: 'app/auth.php',
 	cluster: config.PUSHER_CLUSTER,
-    encrypted: true
+    encrypted: true,
+    disableStats: true
 	});
 	//default channel
 	
