@@ -60,6 +60,7 @@ function createSession(){
     $_SESSION["countryCode"] = "XX";
     $_SESSION["countryName"] = "unknown";
     //try to get geolocation data from user ip
+    /* Time flies, and apis die
     try{
         $received_json = file_get_contents('http://getcitydetails.geobytes.com/GetCityDetails?fqcn='.$_SERVER['REMOTE_ADDR']);
         $received_data = json_decode($received_json, true);
@@ -70,6 +71,7 @@ function createSession(){
             $_SESSION["countryName"] = htmlSpecialChars($received_data["geobytescountry"]);
         }
     } catch (Exception $e){}
+    */
     //username session variable [2 digit countrycode] . [last 2 digits of user id] . [random letter] //65 uppercase - 97 lowercase
     $_SESSION["username"] = $_SESSION["countryCode"].substr($_SESSION["user_id"],-2).chr(65 + mt_rand(0, 25));
 
