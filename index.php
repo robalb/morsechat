@@ -130,7 +130,9 @@ echo json_encode($out, JSON_HEX_TAG);
 		<p><a href="about.php">about</a></p>
 		<p><a href="about.php#bugs">bugs</a></p>
 		<!--<p><a href="javascript:alert('coming soon')">practice</a></p>-->
-		<p><a href="https://github.com/robalb/morsechat"><img class="icon-32" src="css/GitHub-Mark-Light-32px.png"></a></p>
+		<p><a href="https://github.com/robalb/morsechat"><img class="icon-32" src="css/github.svg"></a></p>
+		<p><a href="https://discord.gg/JPzfzNJG6e"><img class="icon-32" src="css/discord.svg"></a></p>
+		<p><a href="https://twitter.com/albertCoolwind"><img class="icon-32" src="css/twitter.svg"></a></p>
 	</div>
 </div>
 

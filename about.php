@@ -131,7 +131,6 @@ li:before {
 		the progress bar at the top of the page reaches the end.</p>
 		<p>This website uses a third party websocket service that allows a real time connection between all the users. The messages you type are broadcasted without being stored on the server,
 		and reloading the page or switching channel will permanently delete all the messages you received.</p>	
-		
 		<!--
 		<h2>what's new</h2>
 		<h3>V 1.0 <span style="color:#cccccc">[19/ 3/ 2018]</span></h3>
@@ -140,8 +139,9 @@ li:before {
 		-->
 		
 		<h2 id="bugs">bugs</h2>
-		<p>You can report bugs or give your suggestions on <a href="https://github.com/robalb/morsechat/issues">&nbsp;github&nbsp;</a>
-		<!-- or on <a href="https://twitter.com//">&nbsp;twitter&nbsp;</a> --> </p>
+		<p>You can report bugs or give your suggestions on <a href="https://github.com/robalb/morsechat/issues">&nbsp;github&nbsp;</a> or <a href="https://twitter.com/albertCoolwind">twitter</a>
+		 </p>
+    <p><a href="https://discord.gg/JPzfzNJG6e">join our official discord server</a></p>
 		
 		<h2>todo list:</h2>
 		<ul>
