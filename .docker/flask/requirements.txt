@@ -1,0 +1,6 @@
+eventlet
+Flask
+Flask-SocketIO
+Flask-Login
+Flask-Session
+Jinja2

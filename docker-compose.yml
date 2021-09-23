@@ -1,0 +1,15 @@
+services:
+  flask:
+    build: ./.docker/flask
+    volumes:
+      - ./app:/app
+    ports:
+      - '5000:5000'
+    environment:
+      FLASK_DEBUG: 1
+      FLASK_ENV: development
+      FLASK_APP: app.py
+    entrypoint:
+      - flask
+      - run
+      - --host=0.0.0.0
