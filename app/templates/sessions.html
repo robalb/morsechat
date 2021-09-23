@@ -1,144 +1,48 @@
-<html>
-    <head>
-        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Flask-SocketIO Sessions example</title>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
-    </head>
-    <body>
-        <div class="pure-g">
-            <div class="pure-u-1-4"></div>
-            <div class="pure-u-1-2">
-                <h1>Flask-SocketIO Sessions example</h1>
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <title>Flask_Chat_App</title>
+  </head>
+  <body>
 
-                <div class="pure-form">
-                    <h2>HTTP</h2>
-                    <div class="pure-g">
-                        <div class="pure-u-1-6"><h3>Session</h3></div>
-                        <div class="pure-u-5-6">
-                            <p>Current session: <b><span id="http-session"></span></b></p>
-                            <p>
-                                <input type=text id='http-session-set' placeholder="Set session to...">
-                                <button class="pure-button pure-button-primary" id="submit-http">Submit</button>
-                            </p>
-                        </div>
-                        <div class="pure-u-1-6"><h3>User</h3></div>
-                        <div class="pure-u-5-6">
-                            <p>Current user: <b><span id="http-user"></span></b></p>
-                            <p>
-                                <input type=text id='http-user-set' placeholder="User to login...">
-                                <button class="pure-button pure-button-primary" id="login-http">Login</button>
-                                <button class="pure-button pure-button-primary" id="logout-http">Logout</button>
-                            </p>
-                        </div>
-                    </div>
-                    <hr>
-                    <h2>Socket.IO</h2>
-                    <p><button class="pure-button pure-button-primary" id="connect">Connect</button></p>
-                    <div id="socketio" style="display: none">
-                        <div class="pure-g">
-                            <div class="pure-u-1-6"><h3>Session</h3></div>
-                            <div class="pure-u-5-6">
-                                <p>Current session: <b><span id="socketio-session"></span></b></p>
-                                <p>
-                                    <input type=text id='socketio-session-set' placeholder="Set session to...">
-                                    <button class="pure-button pure-button-primary" id="submit-socketio">Submit</button>
-                                </p>
-                            </div>
-                            <div class="pure-u-1-6"><h3>User</h3></div>
-                            <div class="pure-u-5-6">
-                                <p>Current user: <b><span id="socketio-user"></span></b></p>
-                                <p>
-                                    <input type=text id='socketio-user-set' placeholder="User to login...">
-                                    <button class="pure-button pure-button-primary" id="login-socketio">Login</button>
-                                    <button class="pure-button pure-button-primary" id="logout-socketio">Logout</button>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="pure-u-1-4"></div>
-        </div>
+    <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+    <div class="message_holder"></div>
 
-        <script>
-            // HTTP handlers
-            window.setInterval(function() {
-                $.ajax({
-                    type: 'GET',
-                    url: '/session',
-                    success: function(data) {
-                        $('#http-session').text(data['session']);
-                        $('#http-user').text(data['user']);
-                    }
-                });
-            }, 10000);
+    <form action="" method="POST">
+      <input type="text" class="username" placeholder="User Name"/>
+      <input type="text" class="message" placeholder="Messages"/>
+      <input type="submit"/>
+    </form>
 
-            $('#submit-http').click(function() {
-                $.ajax({
-                    type: 'POST',
-                    url: '/session',
-                    data: JSON.stringify({session: $('#http-session-set').val()}),
-                    contentType: 'application/json'
-                });
-            });
-            $('#login-http').click(function() {
-                $.ajax({
-                    type: 'POST',
-                    url: '/session',
-                    data: JSON.stringify({user: $('#http-user-set').val()}),
-                    contentType: 'application/json'
-                });
-            });
-            $('#logout-http').click(function() {
-                $.ajax({
-                    type: 'POST',
-                    url: '/session',
-                    data: JSON.stringify({user: null}),
-                    contentType: 'application/json'
-                });
-            });
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
+    <script type="text/javascript">
+var socket = io.connect('http://' + document.domain + ':' + location.port, { transports: ["websocket"] });
 
+      socket.on( 'connect', function() {
+        socket.emit( 'my event', {
+          data: 'User Connected'
+        } )
+        var form = $( 'form' ).on( 'submit', function( e ) {
+          e.preventDefault()
+          let user_name = $( 'input.username' ).val()
+          let user_input = $( 'input.message' ).val()
+          socket.emit( 'my event', {
+            user_name : user_name,
+            message : user_input
+          } )
+          $( 'input.message' ).val( '' ).focus()
+        } )
+      } )
+      socket.on( 'my response', function( msg ) {
+        console.log( msg )
+        if( typeof msg.user_name !== 'undefined' ) {
+          $( 'h3' ).remove()
+          $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>' )
+        }
+      })
+    </script>
 
-            // Socket.IO handlers
-            var socket = null;
-
-            $('#connect').click(function() {
-                if (!socket) {
-                    socket = io();
-                    socket.on('refresh-session', function(data) {
-                        $('#socketio-session').text(data['session']);
-                        $('#socketio-user').text(data['user']);
-                    });
-
-                    $('#connect').text('Disconnect');
-                    $('#socketio').show();
-                }
-                else {
-                    socket.disconnect();
-                    socket = null;
-                    $('#socketio').hide();
-                    $('#connect').text('Connect');
-                    $('#socketio-session').text('');
-                    $('#socketio-user').text('');
-                }
-            });
-
-            window.setInterval(function() {
-                if (socket)
-                    socket.emit('get-session');
-            }, 10000);
-
-            $('#submit-socketio').click(function() {
-                socket.emit('set-session', {session: $('#socketio-session-set').val()});
-            });
-            $('#login-socketio').click(function() {
-                socket.emit('set-session', {user: $('#socketio-user-set').val()});
-            });
-            $('#logout-socketio').click(function() {
-                socket.emit('set-session', {user: null});
-            });
-        </script>
-    </body>
-</html>
+  </body>
+  </html>
