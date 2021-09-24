@@ -3,6 +3,7 @@ services:
     build: ./.docker/flask
     volumes:
       - ./app:/app
+      - ./morse-frontend/public:/app/static
     ports:
       - '5000:5000'
     environment:

@@ -1,7 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, redirect
 from flask_socketio import SocketIO
 
-app = Flask(__name__)
+app = Flask(__name__,
+        static_url_path='')
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app)
 
@@ -10,6 +11,9 @@ socketio = SocketIO(app)
 def sessions():
     return render_template('sessions.html')
 
+@app.route('/gatsby')
+def gatsby_test():
+    return redirect(url_for('static', filename='index.html'))
 
 def messageReceived(methods=['GET', 'POST']):
     print('message was received!!!')
