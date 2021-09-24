@@ -10,6 +10,7 @@ npx gatsby build
 gatsby di default genera una spa, quindi con solo index.html e 404.html
 
 il 404 si integra facilmente
+
     @app.errorhandler(404)
     def page_not_found(e):
         return app.send_static_file( '404.html'), 404
@@ -19,6 +20,7 @@ soluzione naiive: fare in modo che python serva file statici quando si visita /<
 
 Soluzione migliore, che permette di separare completamente path flask e file statici e quindi di servirli con nginx in modo classico, no configurazioni lato server é:
 in `gatsby-config.js` dentro a `module.exports:{}` aggiungere
+
      assetPrefix: `static`,
 questa configurazione è considerata solo quando si combila con `gatsby build --prefix-paths`
 e fa si che tutte le risorse nei file html siano prefissate con static/
@@ -53,6 +55,7 @@ inesistente. facendo cosi si finisce solo con indicizzare la pagina 404 su googl
 
 quindi se nel caso dell'integrazione non spa basta servire i file con apache/nginx (o fare il casino descritto sopra nel caso flask)
 nel caso spa bisogna per forza avere una lista serverside di tutte le path
+
     @app.route('/')
     @app.route('/page-2/')
     def gatsby_test():
