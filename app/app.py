@@ -7,13 +7,29 @@ app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app)
 
 
-@app.route('/')
+@app.route('/sess')
 def sessions():
     return render_template('sessions.html')
 
-@app.route('/gatsby')
+@app.route('/')
 def gatsby_test():
-    return redirect(url_for('static', filename='index.html'))
+    return app.send_static_file(
+        'index.html'
+        )
+@app.route('/page-2/')
+def gatsby_test2():
+    return app.send_static_file(
+            'page-2/index.html'
+        )
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return 'You want path: %s' % path
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return app.send_static_file( '404.html'), 404
 
 def messageReceived(methods=['GET', 'POST']):
     print('message was received!!!')

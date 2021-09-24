@@ -6,6 +6,7 @@ module.exports = {
     siteUrl: `https://gatsbystarterdefaultsource.gatsbyjs.io/`,
   },
   plugins: [
+    `@wardpeet/gatsby-plugin-static-site`,
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-image`,
     {
