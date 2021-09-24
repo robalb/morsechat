@@ -5,6 +5,9 @@ module.exports = {
     author: `@gatsbyjs`,
     siteUrl: `https://gatsbystarterdefaultsource.gatsbyjs.io/`,
   },
+  //https://www.gatsbyjs.com/docs/how-to/previews-deploys-hosting/asset-prefix/
+  //gatsby build --prefix-paths
+  assetPrefix: `static`,
   plugins: [
     `@wardpeet/gatsby-plugin-static-site`,
     `gatsby-plugin-react-helmet`,

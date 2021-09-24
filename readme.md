@@ -14,9 +14,15 @@ il 404 si integra facilmente
     def page_not_found(e):
         return app.send_static_file( '404.html'), 404
 
-il problema principale è che gli asset statici si trovano in /assets per python se non si usa cose strane con nginx.
-problema aggirabile in questo modo
-` app = Flask(__name__, static_url_path='') `
+il problema principale è che gli asset statici si trovano in /assets per python, e l'html della spa si aspetta che siano in /
+soluzione naiive: fare in modo che python serva file statici quando si visita /<path> , facilmente implementabile tramite  ` app = Flask(__name__, static_url_path='') `
+
+Soluzione migliore, che permette di separare completamente path flask e file statici e quindi di servirli con nginx in modo classico, no configurazioni lato server é:
+in `gatsby-config.js` dentro a `module.exports:{}` aggiungere
+     assetPrefix: `static`,
+questa configurazione è considerata solo quando si combila con `gatsby build --prefix-paths`
+e fa si che tutte le risorse nei file html siano prefissate con static/
+
 
 
 ### INTEGRAZIONE NON SPA
@@ -36,6 +42,7 @@ Ovviamente il trucco sporco di gestire ogni caso a mano funziona, e si può anch
         return app.send_static_file( 'page-2/index.html')
 sarebbe meglio trovare il modo di implementare la seguente route:
 "se ci sono visite a /<folder>/ e non viene richiesto un file in particolare, ne una route particolare di flask servi il file index.html"
+forse si può configurare in NGINX una path dedicata a python, ad esempio /api, mentre il resto è servito usando il sistema descritto nella riga sopra
 
 ### INTEGRAZIONE SPA
 Ha i soliti problemi legati alle spa, perchè le spa fanno schifo:
