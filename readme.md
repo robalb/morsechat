@@ -1,10 +1,25 @@
+COMMANDS
+
+npx gatsby develop
+npx gatsby build --prefix-paths
+
 TOREAD
 https://developer.okta.com/blog/2018/12/20/crud-app-with-python-flask-react
 
-https://www.gatsbyjs.com/starters-next/gatsbyjs/gatsby-starter-default
+RESOURCES
+mysql
+https://codeshack.io/login-system-python-flask-mysql/
+https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
 
-npx gatsby develop
-npx gatsby build
+sessions
+https://flask-session.readthedocs.io/en/latest/
+
+password hashing
+https://github.com/maxcountryman/flask-bcrypt
+https://github.com/red-coracle/flask-argon2 !!!!libreria piccola, non affidabile meglio bcrypt
+
+consider also: flask-login
+https://flask-login.readthedocs.io/en/latest/
 
 ## INTEGRAZIONE con flask:
 gatsby di default genera una spa, quindi con solo index.html e 404.html
