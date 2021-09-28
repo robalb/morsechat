@@ -10,6 +10,7 @@ RESOURCES
 mysql
 https://codeshack.io/login-system-python-flask-mysql/
 https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
+https://towardsdatascience.com/use-flask-and-sqlalchemy-not-flask-sqlalchemy-5a64fafe22a4
 
 sessions
 https://flask-session.readthedocs.io/en/latest/

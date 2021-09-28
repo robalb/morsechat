@@ -6,6 +6,7 @@ services:
       - ./morse-frontend/public:/app/static
     ports:
       - '5000:5000'
+    restart: unless-stopped
     environment:
       FLASK_DEBUG: 1
       FLASK_ENV: development

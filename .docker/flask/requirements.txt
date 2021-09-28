@@ -3,4 +3,8 @@ Flask
 Flask-SocketIO
 Flask-Login
 Flask-Session
+flask-bcrypt
+Flask-SQLAlchemy
+Bcrypt-Flask
+jsonschema
 Jinja2
