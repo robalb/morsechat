@@ -1,4 +1,4 @@
-from flask import render_template, url_for, redirect, Blueprint
+from flask import render_template, url_for, redirect
 from app import app
 
 #python only routes, apis, etch
