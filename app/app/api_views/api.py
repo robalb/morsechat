@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask_login import login_required, current_user, login_user, logout_user
 
 from .. import flask_login_base
+from . import utils
 
 api = Blueprint('api', __name__)
 
@@ -30,4 +31,4 @@ def api_logout():
 @api.route('/', defaults={'path': ''})
 @api.route('/<path:path>')
 def api_page_not_found(path):
-    return "api 404 error", 404
+    return utils.error("api 404"), 404
