@@ -17,7 +17,7 @@ def api_user():
 @api.route('/login')
 def api_login():
     u = flask_login_base.get_user('3g')
-    login_user(u)
+    login_user(u, remember=True)
     return "logged in"
 
 @api.route('/logout')
