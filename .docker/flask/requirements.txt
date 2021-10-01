@@ -5,6 +5,7 @@ Flask-Login
 Flask-Session
 flask-bcrypt
 Flask-SQLAlchemy
+mariadb
 Bcrypt-Flask
 jsonschema
 Jinja2

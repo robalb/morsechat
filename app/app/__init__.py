@@ -6,7 +6,7 @@ from . import flask_login_base
 
 # create application instance
 app = Flask(__name__, static_folder="../static")
-app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
+# app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_COOKIE_NAME'] = 'PHPSESSID'
 

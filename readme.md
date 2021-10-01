@@ -11,6 +11,9 @@ mysql
 https://codeshack.io/login-system-python-flask-mysql/
 https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
 https://towardsdatascience.com/use-flask-and-sqlalchemy-not-flask-sqlalchemy-5a64fafe22a4
+interessante  mariadb
+https://mariadb.com/resources/blog/how-to-connect-python-programs-to-mariadb/
+https://stackoverflow.com/questions/16311974/connect-to-a-database-in-flask-which-approach-is-better
 
 sessions
 https://flask-session.readthedocs.io/en/latest/
