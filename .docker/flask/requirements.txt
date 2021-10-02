@@ -7,5 +7,5 @@ flask-bcrypt
 Flask-SQLAlchemy
 mariadb
 Bcrypt-Flask
-jsonschema
+flask-expects-json
 Jinja2

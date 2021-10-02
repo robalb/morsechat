@@ -15,12 +15,6 @@ socketio = SocketIO(app)
 server_session = Session(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-@login_manager.user_loader
-def user_loader(user_id):
-    return flask_login_base.get_user(user_id)
-@login_manager.unauthorized_handler
-def unauthorized():
-    return "api unauthorized error", 401
 
 # import views
 from .pages_views import pages

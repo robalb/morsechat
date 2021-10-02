@@ -1,5 +1,14 @@
-def error(msg):
-    return "json with success false, and error msg: " + msg
+from flask import jsonify
+
+def error(error, detail=""):
+    return {
+        "success": False,
+        "error": error,
+        "detail": detail
+    }
 
 def success(data):
-    pass
+    return {
+        "success": True,
+        "data": data
+    }
