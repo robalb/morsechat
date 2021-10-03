@@ -21,6 +21,7 @@ https://flask-session.readthedocs.io/en/latest/
 password hashing
 https://github.com/maxcountryman/flask-bcrypt
 https://github.com/red-coracle/flask-argon2 !!!!libreria piccola, non affidabile meglio bcrypt
+https://argon2-cffi.readthedocs.io/en/stable/ (non vedo utilità di integrazione flask per librerie del genere)
 
 consider also: flask-login
 https://flask-login.readthedocs.io/en/latest/

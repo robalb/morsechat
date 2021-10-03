@@ -3,9 +3,7 @@ Flask
 Flask-SocketIO
 Flask-Login
 Flask-Session
-flask-bcrypt
 Flask-SQLAlchemy
 mariadb
-Bcrypt-Flask
+argon2-cffi
 flask-expects-json
-Jinja2

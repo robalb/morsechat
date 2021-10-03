@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `callsign` varchar(20) NOT NULL,
   `password` varchar(97) NOT NULL, 
   `registrationTimestamp` int(11) NOT NULL,
-  `lastOnlineTimestamp` int(11) NOT NULL,
+  `lastOnlineTimestamp` int(11),
   PRIMARY KEY (`id`) USING HASH,
   KEY `email` (`email`),
   KEY `callsign` (`callsign`)
