@@ -19,6 +19,7 @@ login_manager.init_app(app)
 
 # import views
 from .pages_views import pages
+from .socket_events import events
 # from . import api_views
 # from . import socket_views
 
