@@ -23,6 +23,9 @@ schema = {
 @api.route('/login', methods=['POST'])
 @expects_json(schema)
 def api_login():
+    #abort if the user is already logged
+    if current_user.is_authenticated():
+        return error("already_logged"), 400
     ph = PasswordHasher()
     conn = db_connection.get_conn()
     cur = conn.cursor(named_tuple=True)
