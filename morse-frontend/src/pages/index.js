@@ -5,25 +5,32 @@ import { StaticImage } from "gatsby-plugin-image"
 import Layout from "../components/layout"
 import Seo from "../components/seo"
 
-const IndexPage = () => (
-  <Layout>
-    <Seo title="Home" />
-    <h1>we are live ?</h1>
-    <p>Welcome to your new Gatsby site.</p>
-    <p>Now go build something great.</p>
-    <StaticImage
-      src="../images/gatsby-astronaut.png"
-      width={300}
-      quality={95}
-      formats={["auto", "webp", "avif"]}
-      alt="A Gatsby astronaut"
-      style={{ marginBottom: `1.45rem` }}
-    />
-    <p>
-      <Link to="/page-2/">Go to page 2</Link> <br />
-      <Link to="/using-typescript/">Go to "Using TypeScript"</Link>
-    </p>
-  </Layout>
-)
+import { io } from "socket.io-client";
+
+const IndexPage = () => {
+  React.useEffect(()=>{
+    //the page has loaded.
+  }, [])
+  return (
+    <Layout>
+      <Seo title="Home" />
+      <h1>wow</h1>
+      <p>Welcome to your new Gatsby site.</p>
+      <p>Now go build something great.</p>
+      <StaticImage
+        src="../images/gatsby-astronaut.png"
+        width={300}
+        quality={95}
+        formats={["auto", "webp", "avif"]}
+        alt="A Gatsby astronaut"
+        style={{ marginBottom: `1.45rem` }}
+      />
+      <p>
+        <Link to="/page-2/">Go to page 2</Link> <br />
+        <Link to="/using-typescript/">Go to "Using TypeScript"</Link>
+      </p>
+    </Layout>
+  )
+}
 
 export default IndexPage
