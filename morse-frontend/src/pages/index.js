@@ -1,35 +1,61 @@
 import * as React from "react"
 import { Link } from "gatsby"
 import { StaticImage } from "gatsby-plugin-image"
+import { positions, Provider } from "react-alert";
+// import AlertTemplate from "react-alert-template-basic";
 
-import Layout from "../components/layout"
+import mainContext from '../contexts/mainContext'
+import MainView from "../components/mainView"
 import Seo from "../components/seo"
 
-import { io } from "socket.io-client";
+import ApiManager from '../utils/apiManager'
+let api = new ApiManager()
+async function test(){
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  let resp = await api.post('login', {})
+  console.log(resp)
+}
+test()
+//TODO: connect api to a contextProvider
+
+// import { io } from "socket.io-client";
+const options = {
+  timeout: 5000,
+  position: positions.TOP_RIGHT
+};
+
+// the style contains only the margin given as offset
+// options contains all alert given options
+// message is the alert message
+// close is a function that closes the alert
+const AlertTemplate = ({ style, options, message, close }) => (
+  <div style={style}>
+    {options.type === 'info' && '!'}
+    {options.type === 'success' && ':)'}
+    {options.type === 'error' && ':('}
+    {message}
+    <button onClick={close}>X</button>
+  </div>
+)
 
 const IndexPage = () => {
   React.useEffect(()=>{
     //the page has loaded.
   }, [])
+
+  let mainContextValues = {
+    api: api
+  }
+
   return (
-    <Layout>
+    <>
       <Seo title="Home" />
-      <h1>wow</h1>
-      <p>Welcome to your new Gatsby site.</p>
-      <p>Now go build something great.</p>
-      <StaticImage
-        src="../images/gatsby-astronaut.png"
-        width={300}
-        quality={95}
-        formats={["auto", "webp", "avif"]}
-        alt="A Gatsby astronaut"
-        style={{ marginBottom: `1.45rem` }}
-      />
-      <p>
-        <Link to="/page-2/">Go to page 2</Link> <br />
-        <Link to="/using-typescript/">Go to "Using TypeScript"</Link>
-      </p>
-    </Layout>
+      <mainContext.Provider value={mainContextValues}>
+      <Provider template={AlertTemplate} {...options}>
+        <MainView />
+      </Provider>
+      </mainContext.Provider>
+    </>
   )
 }
 

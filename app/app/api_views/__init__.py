@@ -15,11 +15,13 @@ def unauthorized():
 
 #initialize the api blueprint
 api = Blueprint('api', __name__)
+
 #TODO
 #define before request for api blueprint
 #that handles csrf tokens (by checking a custom header, and by using sessions)
 #and also handles SEC_FETCH headers
 #https://pythonise.com/series/learning-flask/python-before-after-request
+
 #https://stackoverflow.com/questions/34164464/flask-decorate-every-route-at-once
 
 from . import register

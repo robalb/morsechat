@@ -56,9 +56,13 @@ def api_login():
         return error("invalid_credentials")
 
 
-@api.route('/logout')
+@api.route('/logout', methods=['POST'])
 @login_required
 def api_logout():
     logout_user()
     return success("")
+
+@api.route('/csrf', methods=['POST'])
+def api_csrf():
+    return success({ 'token':'TEST123123' })
 

@@ -1,10 +1,10 @@
 from flask import jsonify
 
-def error(error, detail=""):
+def error(error, details=""):
     return {
         "success": False,
         "error": error,
-        "detail": detail
+        "details": details
     }
 
 def success(data):

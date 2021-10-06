@@ -4,7 +4,7 @@
 //   return new Promise(resolve => setTimeout(resolve, ms));
 // }
 
-class apiManager{
+class ApiManager{
   /**
    * initialize the class attributes, 
    * and start the initialization method
@@ -12,11 +12,14 @@ class apiManager{
   constructor(reactAlert=false){
     if(reactAlert)
       this.setAlert(reactAlert)
-    this.cors = "";
-    this.baseUrl = "http://localhost:5000/api/v1/"
+    this.csrfToken = "";
+    this.baseUrl = document.location + "api/v1/"
     this.alertErrorQueqe = []
-    this.apiCallsQueque = []
-    this.initManager()
+    let success = this.initCsrfToken()
+    if(success){
+      console.log("apiManager: initialized")
+      console.log(this)
+    }
   }
   /*
    * connect the class to a react-alert interface.
@@ -26,62 +29,97 @@ class apiManager{
     this.reactAlert = reactAlert;
     //TODO
   }
-  /**
-   * attempt to
-   * initialize the class, by setting the cors token.
-   * if the initialization is succesfull, and there are api calls in the apiCalls queque,
-   * make those api calls
-   * if the initialization is unsuccesful alert an error
-   */
-  async initManager(){
-    let success = await this.setCors()
-    if(success){
-    }
-  }
   /*
-   * makes a special api call to the backend to get the cors protection token,
-   * and stores it in this.cors
-   * if the call fails, it attempts to make it a second time
+   * makes a special api call to the backend to get the csrf protection token,
+   * and stores it in this.csrfToken
    */
-  async setCors(){
-   
+  async initCsrfToken(){
+    let url = this.baseUrl + 'csrf'
+    let data = {}
+    let call = await this.request(url, data)
+    if( call.success && call.data.token )
+      this.csrfToken = call.data.token
+    else
+      console.log("csrfToken init failed")
+    return call.success
   }
   /*
    * api call to a specific api endpoint
-   * if the apiManager is in an uninitialized state because of authentication issues during its istantiation,
-   * the call will be added to a call queque and the initmanager method will be called again
-   * if the api call fails, an error is displayed
+   * only if the csrf token has been set
    */
   async post(endpoint, data){
-
+    if(this.csrfToken.length > 0){
+      //make request, on fail alert error
+      let response = await this.request(this.baseUrl + endpoint, data)
+      if(!response.success)
+        this.alertError("operation failed, please retry. " + response.error)
+      return response
+    }
+    else{
+      //try to init the csrfToken again
+      this.alertError("operation failed. please retry")
+      this.initCsrfToken()
+    }
   }
   /**
    * display an error or store the error message internally in a queque until
    * the class is connected to a react-error interface
    */
   alertError(error){
-
+    console.log("apiManager alert:")
+    console.log(error)
   }
   /*
-   * internal request method
+   * internal request method.
+   * any kind of error will be handled internally, this
+   * merthod will always return an object in the api standard format
+   * { success: false, error:errstring, details:errdetails}
+   * { success: true, data:returneddata}
+   * in case of connection issues for example this method will return
+   * { success: false, error:'network_error'}
    */
-  async request(url, data={}, cors=false){
-    //TODO wrap in try catch(e){ return {error:"network error" details:e}}
-    const response = await fetch(url, {
-      method: 'POST',
-      mode: 'cors', // no-cors, *cors, same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Cors-Magic':cors
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify(data) // body data type must match "Content-Type" header
-    });
-    //TODO wrap in try catch
-    decoded = response.json(); // parses JSON response into native JavaScript objects
-    
+  async request(url, data={}, csrf=false){
+    let response = {}
+    //prepare request headers
+    let headers = {
+      'Content-Type': 'application/json',
+    }
+    if(csrf) headers['X-Csrf-Magic'] = csrf
+    //attempt to make an api call.
+    try{
+      response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'include', // include, *same-origin, omit
+        headers: headers,
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+      });
+    }
+    catch(e){
+      return {
+        success: false,
+        error: 'network_error',
+        details: e
+      }
+    }
+    //attempt to decode the api response into an object
+    try{
+      response = await response.json(); // parses JSON response into native JavaScript objects
+    }
+    catch(e){
+      return {
+        success: false,
+        error: 'response_data_error',
+        details: e
+      }
+    }
+    //TODO: validate the decoded object content, ex: must contain success key
+    //if all was right, return the decoded response object
+    return response
   }
 }
+
+export default ApiManager
