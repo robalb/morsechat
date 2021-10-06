@@ -10,7 +10,7 @@ def user_loader(user_id):
     return flask_login_base.get_user(user_id)
 @login_manager.unauthorized_handler
 def unauthorized():
-    return error("unauthorized", detail="you are not logged in"), 401
+    return error("unauthorized", details="you are not logged in"), 401
 
 
 #initialize the api blueprint

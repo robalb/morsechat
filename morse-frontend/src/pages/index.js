@@ -12,7 +12,13 @@ import ApiManager from '../utils/apiManager'
 let api = new ApiManager()
 async function test(){
   await new Promise(resolve => setTimeout(resolve, 2000));
-  let resp = await api.post('login', {})
+  let resp = await api.post('login', {
+        "password": "password",
+        "email": "test@testx.t"
+  })
+  console.log(resp)
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  resp = await api.post('user', {})
   console.log(resp)
 }
 test()

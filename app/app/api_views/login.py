@@ -2,7 +2,7 @@
 from flask import g
 from flask_expects_json import expects_json
 from argon2 import PasswordHasher
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from .. import db_connection
 from .. import flask_login_base
 from .. import app
@@ -24,7 +24,7 @@ schema = {
 @expects_json(schema)
 def api_login():
     #abort if the user is already logged
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         return error("already_logged"), 400
     ph = PasswordHasher()
     conn = db_connection.get_conn()
@@ -53,7 +53,7 @@ def api_login():
         login_user(u, remember=False)
         return success("")
     else:
-        return error("invalid_credentials")
+        return error("invalid_credentials"), 400
 
 
 @api.route('/logout', methods=['POST'])
@@ -61,6 +61,11 @@ def api_login():
 def api_logout():
     logout_user()
     return success("")
+
+@api.route('/user', methods=['POST'])
+@login_required
+def api_user():
+    return success("logged_user_data")
 
 @api.route('/csrf', methods=['POST'])
 def api_csrf():
