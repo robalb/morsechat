@@ -4,7 +4,7 @@ import mainContext from '../contexts/mainContext'
 
 const Home = () => {
   const alert = useAlert();
-  let {state, setState} = React.useContext(mainContext)
+  let {state, setState, post} = React.useContext(mainContext)
 
   return (
     <Fragment>
@@ -25,7 +25,8 @@ const Home = () => {
       </button>
       <button
         onClick={() => {
-          alert.success("It's ok now!");
+          // alert.success("It's ok now!");
+          post('userx', {})
         }}
       >
         Success!
