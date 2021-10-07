@@ -16,6 +16,14 @@ def unauthorized():
 #initialize the api blueprint
 api = Blueprint('api', __name__)
 
+@api.after_request # blueprint can also be app~~
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = 'http://localhost:8000'
+    header['Access-Control-Allow-Credentials'] = 'true'
+    header['Access-Control-Allow-Headers'] = 'X-Csrf-Magic, Content-Type'
+    return response
+
 #TODO
 #define before request for api blueprint
 #that handles csrf tokens (by checking a custom header, and by using sessions)

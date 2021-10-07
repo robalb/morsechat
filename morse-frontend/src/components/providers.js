@@ -50,7 +50,7 @@ const Providers = ({children}) => {
     queque: []
   })
   //TODO: work on this hardcoded url
-  let baseUrl = 'http://localhost:8000/api/v1/'
+  let baseUrl = 'http://localhost:5000/api/v1/'
 
   /*
   * makes a special api call to the backend to get the csrf protection token,

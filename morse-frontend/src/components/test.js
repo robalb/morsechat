@@ -1,7 +1,9 @@
 import React, { Fragment } from "react";
 import { useAlert } from "react-alert";
 import mainContext from '../contexts/mainContext'
+// import { io } from "socket.io-client";
 
+// const socket = io('http://localhost:5000');
 const Home = () => {
   const alert = useAlert();
   let {state, setState, post} = React.useContext(mainContext)
@@ -26,7 +28,7 @@ const Home = () => {
       <button
         onClick={() => {
           // alert.success("It's ok now!");
-          post('userx', {})
+          post('user', {})
         }}
       >
         Success!
