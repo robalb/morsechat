@@ -1,16 +1,17 @@
 import * as React from "react"
-import { Link } from "gatsby"
-import { StaticImage } from "gatsby-plugin-image"
-import { positions, Provider } from "react-alert";
+// import { Link } from "gatsby"
+// import { StaticImage } from "gatsby-plugin-image"
+import { positions, Provider, useAlert } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 
 import mainContext from '../contexts/mainContext'
-import TestComp from "../components/mainView"
 import Seo from "../components/seo"
-import ApiManager from '../utils/apiManager'
+import Home from '../components/test'
+import ApiProvider from '../components/apiProvider'
+// import ApiManager from '../utils/apiManager'
 
 //initialize the apiManager class that will be used by every component
-let api = new ApiManager()
+// let api = new ApiManager()
 
 
 
@@ -35,16 +36,20 @@ const alertTemplateOptions = {
 
 const IndexPage = () => {
 
-  let initialState = {
+  let [state, setState] = React.useState({
       logged: false,
       loading: true,
       userData: {}
-  }
-  let [state, setState] = React.useState(initialState)
+  })
+
+  let [apiState, setApiState] = React.useState({
+    csrf: "",
+    loading: false
+  })
 
 
   let mainContextValues = {
-    api,
+    // api,
     state,
     setState
   }
@@ -54,7 +59,9 @@ const IndexPage = () => {
       <Seo title="Home" />
       <mainContext.Provider value={mainContextValues}>
       <Provider template={AlertTemplate} {...alertTemplateOptions}>
-        <TestComp />
+        <ApiProvider>
+        <Home />
+        </ApiProvider>
       </Provider>
       </mainContext.Provider>
     </>
