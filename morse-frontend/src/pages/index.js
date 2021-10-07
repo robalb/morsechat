@@ -3,21 +3,16 @@ import { Link } from "gatsby"
 import { StaticImage } from "gatsby-plugin-image"
 import { positions, Provider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
-// import AlertTemplate from "react-alert-template-basic";
 
 import mainContext from '../contexts/mainContext'
-import MainView from "../components/mainView"
+import TestComp from "../components/mainView"
 import Seo from "../components/seo"
 import ApiManager from '../utils/apiManager'
 
 //initialize the apiManager class that will be used by every component
 let api = new ApiManager()
 
-let initialState = {
-    logged: false,
-    loading: true,
-    userData: {}
-}
+
 
 const alertTemplateOptions = {
   timeout: 5000,
@@ -40,6 +35,11 @@ const alertTemplateOptions = {
 
 const IndexPage = () => {
 
+  let initialState = {
+      logged: false,
+      loading: true,
+      userData: {}
+  }
   let [state, setState] = React.useState(initialState)
 
 
@@ -54,7 +54,7 @@ const IndexPage = () => {
       <Seo title="Home" />
       <mainContext.Provider value={mainContextValues}>
       <Provider template={AlertTemplate} {...alertTemplateOptions}>
-        <MainView />
+        <TestComp />
       </Provider>
       </mainContext.Provider>
     </>
