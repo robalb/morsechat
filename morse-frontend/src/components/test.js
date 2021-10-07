@@ -1,9 +1,9 @@
 import React, { Fragment } from "react";
 import { useAlert } from "react-alert";
 import mainContext from '../contexts/mainContext'
-// import { io } from "socket.io-client";
+import { io } from "socket.io-client";
 
-// const socket = io('http://localhost:5000');
+const socket = io('http://localhost:5000');
 const Home = () => {
   const alert = useAlert();
   let {state, setState, post} = React.useContext(mainContext)

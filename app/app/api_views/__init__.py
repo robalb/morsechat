@@ -16,6 +16,7 @@ def unauthorized():
 #initialize the api blueprint
 api = Blueprint('api', __name__)
 
+#TODO: this must be set only in development
 @api.after_request # blueprint can also be app~~
 def after_request(response):
     header = response.headers
