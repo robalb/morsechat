@@ -27,12 +27,21 @@ const alertTemplateOptions = {
 // )
 
 const Providers = ({children}) => {
+  /*
+   * the main app state
+   */
   let [state, setState] = React.useState({
       logged: false,
       loading: true,
       userData: {}
   })
 
+  React.useEffect(()=>{
+    alertError("asd asdas")
+  }, [])
+
+
+  //internal states
   let [apiState, setApiState] = React.useState({
     csrf: ""
   })
@@ -40,6 +49,7 @@ const Providers = ({children}) => {
     alertRef: false,
     queque: []
   })
+  //TODO: work on this hardcoded url
   let baseUrl = 'http://localhost:8000/api/v1/'
 
   /*
@@ -112,13 +122,8 @@ const Providers = ({children}) => {
       })
   }
 
-  React.useEffect(()=>{
-    alertError("asd asdas")
-  }, [])
-
 
   let mainContextValues = {
-    // api,
     state,
     setState,
     post
