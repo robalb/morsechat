@@ -63,9 +63,18 @@ def api_logout():
     return success("")
 
 @api.route('/user', methods=['POST'])
-@login_required
 def api_user():
-    return success("logged_user_data")
+    #authenticated data
+    if current_user.is_authenticated:
+        data = {
+                'logged':True
+                }
+        return success(data)
+    #unauthenticated data
+    data = {
+            'logged':False
+            }
+    return success(data)
 
 @api.route('/csrf', methods=['POST'])
 def api_csrf():

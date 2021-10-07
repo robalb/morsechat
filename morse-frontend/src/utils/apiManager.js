@@ -15,11 +15,6 @@ class ApiManager{
     this.csrfToken = "";
     this.baseUrl = document.location + "api/v1/"
     this.alertErrorQueqe = []
-    let success = this.initCsrfToken()
-    if(success){
-      console.log("apiManager: initialized")
-      console.log(this)
-    }
   }
   /*
    * connect the class to a react-alert interface.
@@ -41,25 +36,31 @@ class ApiManager{
       this.csrfToken = call.data.token
     else
       console.log("csrfToken init failed")
-    return call.success
+    return call
   }
   /*
    * api call to a specific api endpoint
-   * only if the csrf token has been set
+   * init the csrf token if not set
    */
   async post(endpoint, data){
-    if(this.csrfToken.length > 0){
-      //make request, on fail alert error
-      let response = await this.request(this.baseUrl + endpoint, data)
-      if(!response.success)
-        this.alertError("operation failed, please retry. " + response.error)
-      return response
+    //if the csrf token hasn't been initialized yet
+    if(this.csrfToken.length == 0){
+      let initCall = await this.initCsrfToken()
+      if(!initCall.success){
+        this.alertError("operation failed, please retry. " + initCall.error)
+        return {
+          success: false,
+          error: "csrf_init_failed",
+          details: initCall.details
+        }
+      }
     }
-    else{
-      //try to init the csrfToken again
-      this.alertError("operation failed. please retry")
-      this.initCsrfToken()
-    }
+    
+    //make request, on fail alert error
+    let response = await this.request(this.baseUrl + endpoint, data, this.csrfToken)
+    if(!response.success)
+      this.alertError("operation failed, please retry. " + response.error)
+    return response
   }
   /**
    * display an error or store the error message internally in a queque until

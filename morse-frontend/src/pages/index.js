@@ -2,30 +2,24 @@ import * as React from "react"
 import { Link } from "gatsby"
 import { StaticImage } from "gatsby-plugin-image"
 import { positions, Provider } from "react-alert";
+import AlertTemplate from "react-alert-template-basic";
 // import AlertTemplate from "react-alert-template-basic";
 
 import mainContext from '../contexts/mainContext'
 import MainView from "../components/mainView"
 import Seo from "../components/seo"
-
 import ApiManager from '../utils/apiManager'
-let api = new ApiManager()
-async function test(){
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  let resp = await api.post('login', {
-        "password": "password",
-        "email": "test@testx.t"
-  })
-  console.log(resp)
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  resp = await api.post('user', {})
-  console.log(resp)
-}
-test()
-//TODO: connect api to a contextProvider
 
-// import { io } from "socket.io-client";
-const options = {
+//initialize the apiManager class that will be used by every component
+let api = new ApiManager()
+
+let initialState = {
+    logged: false,
+    loading: true,
+    userData: {}
+}
+
+const alertTemplateOptions = {
   timeout: 5000,
   position: positions.TOP_RIGHT
 };
@@ -34,30 +28,32 @@ const options = {
 // options contains all alert given options
 // message is the alert message
 // close is a function that closes the alert
-const AlertTemplate = ({ style, options, message, close }) => (
-  <div style={style}>
-    {options.type === 'info' && '!'}
-    {options.type === 'success' && ':)'}
-    {options.type === 'error' && ':('}
-    {message}
-    <button onClick={close}>X</button>
-  </div>
-)
+// const AlertTemplate = ({ style, options, message, close }) => (
+//   <div style={style}>
+//     {options.type === 'info' && '!'}
+//     {options.type === 'success' && ':)'}
+//     {options.type === 'error' && ':('}
+//     {message}
+//     <button onClick={close}>X</button>
+//   </div>
+// )
 
 const IndexPage = () => {
-  React.useEffect(()=>{
-    //the page has loaded.
-  }, [])
+
+  let [state, setState] = React.useState(initialState)
+
 
   let mainContextValues = {
-    api: api
+    api,
+    state,
+    setState
   }
 
   return (
     <>
       <Seo title="Home" />
       <mainContext.Provider value={mainContextValues}>
-      <Provider template={AlertTemplate} {...options}>
+      <Provider template={AlertTemplate} {...alertTemplateOptions}>
         <MainView />
       </Provider>
       </mainContext.Provider>

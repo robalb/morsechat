@@ -12,7 +12,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_COOKIE_NAME'] = 'PHPSESSID'
 
 # initializes extensions
-socketio = SocketIO(app)
+socketio = SocketIO(app, manage_sessions=True) #manage_sessions=True tells socketIO to use flask internal sessions instead of its own implementation. this is fine because we are using the flask-session extension that doesn't rely on cookies
 server_session = Session(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
