@@ -1,8 +1,9 @@
 import * as React from "react"
 
 import { positions, Provider} from "react-alert";
-import AlertTemplate from "react-alert-template-basic";
+// import AlertTemplate from "react-alert-template-basic";
 import ApiProvider from './apiProvider'
+import {Button, Alert} from '@mui/material';
 
 const alertTemplateOptions = {
   timeout: 5000,
@@ -13,15 +14,12 @@ const alertTemplateOptions = {
 // options contains all alert given options
 // message is the alert message
 // close is a function that closes the alert
-// const AlertTemplate = ({ style, options, message, close }) => (
-//   <div style={style}>
-//     {options.type === 'info' && '!'}
-//     {options.type === 'success' && ':)'}
-//     {options.type === 'error' && ':('}
-//     {message}
-//     <button onClick={close}>X</button>
-//   </div>
-// )
+const AlertTemplate = ({ style, options, message, close }) => (
+  <Alert severity={options.type}>
+    {message}
+    <button onClick={close}>X</button>
+  </Alert>
+)
 
 /*
  * this component wraps all the providers toghether into one single

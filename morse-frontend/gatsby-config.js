@@ -14,7 +14,9 @@ module.exports = {
   assetPrefix: `static`,
   plugins: [
     `@wardpeet/gatsby-plugin-static-site`,
+    'gatsby-plugin-top-layout',
     `gatsby-plugin-react-helmet`,
+    'gatsby-plugin-mui-emotion',
     `gatsby-plugin-image`,
     {
       resolve: `gatsby-source-filesystem`,

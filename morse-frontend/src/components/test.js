@@ -2,6 +2,7 @@ import React, { Fragment } from "react";
 import { useAlert } from "react-alert";
 import mainContext from '../contexts/mainContext'
 import { io } from "socket.io-client";
+import {Button, Alert} from '@mui/material';
 
 const socket = io('http://localhost:5000');
 const Home = () => {
@@ -11,28 +12,28 @@ const Home = () => {
   return (
     <Fragment>
       <p>{state.loading ? 1 : 0}</p>
-      <button
+      <Button variant="contained"
         onClick={() => {
           alert.show("Oh look, an alert!");
         }}
       >
         Show Alert
-      </button>
-      <button
+      </Button>
+      <Button variant="outlined"
         onClick={() => {
           alert.error("You just broke something!");
         }}
       >
         Oops, an error
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => {
           // alert.success("It's ok now!");
           post('user', {})
         }}
       >
         Success!
-      </button>
+      </Button>
     </Fragment>
   );
 };
