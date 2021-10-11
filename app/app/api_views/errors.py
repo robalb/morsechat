@@ -7,7 +7,7 @@ from ._utils import success, error
 @api.route('/', defaults={'path': ''})
 @api.route('/<path:path>')
 def api_page_not_found(path):
-    return error(404, detail="api endpoint not found"), 404
+    return error(404, details="api endpoint not found"), 404
 
 
 #handle 400 errors, mostly issued by flask-expect-json

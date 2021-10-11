@@ -26,6 +26,7 @@ const alertTemplateOptions = {
 /*
  * this component wraps all the providers toghether into one single
  * provider HOC
+ *
  */
 const Providers = ({children}) => {
  return(
