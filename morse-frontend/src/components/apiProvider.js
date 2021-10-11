@@ -75,7 +75,7 @@ const ApiProvider = ({children}) => {
 
   function alertError(error){
     // alert.error(error)
-    enqueueSnackbar(error, {variant: "error"})
+    enqueueSnackbar(error, {variant: "error", preventDuplicate:true})
   }
 
 
