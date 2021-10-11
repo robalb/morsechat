@@ -1,12 +1,12 @@
 import React, { Fragment } from "react";
-import { useAlert } from "react-alert";
+import { useSnackbar } from 'notistack';
 import mainContext from '../contexts/mainContext'
 import { io } from "socket.io-client";
 import {Button, Alert} from '@mui/material';
 
 const socket = io('http://localhost:5000');
 const Home = () => {
-  const alert = useAlert();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   let {state, setState, post} = React.useContext(mainContext)
 
   return (
@@ -14,14 +14,14 @@ const Home = () => {
       <p>{state.loading ? 1 : 0}</p>
       <Button variant="contained"
         onClick={() => {
-          alert.show("Oh look, an alert!");
+          enqueueSnackbar("Oh look", {variant: "show"})
         }}
       >
         Show Alert
       </Button>
       <Button variant="outlined"
         onClick={() => {
-          alert.error("You just broke something!");
+          enqueueSnackbar("Oh look", {variant: "error"})
         }}
       >
         Oops, an error

@@ -3,11 +3,11 @@ import * as React from "react"
 
 import {request} from '../utils/apiResolver'
 import mainContext from '../contexts/mainContext'
-import { useAlert } from "react-alert";
+import { useSnackbar } from 'notistack';
 
 
 const ApiProvider = ({children}) => {
-  const alert = useAlert();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   /*
    * the main app state
    */
@@ -74,7 +74,8 @@ const ApiProvider = ({children}) => {
   }
 
   function alertError(error){
-    alert.error(error)
+    // alert.error(error)
+    enqueueSnackbar(error, {variant: "error"})
   }
 
 
