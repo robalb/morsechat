@@ -18,7 +18,7 @@ const ApiProvider = ({children}) => {
   })
 
   React.useEffect(()=>{
-    alertError("asd asdas")
+    alertError("Hello")
   }, [])
 
 
