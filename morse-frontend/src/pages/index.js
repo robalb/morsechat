@@ -89,8 +89,8 @@ const Menu = ({logged}) => {
   )
   let [room, setRoom] = React.useState()
     return (
-  <>
-    <FormControl fullWidth>
+  <div className="loaded-index-content">
+    <FormControl fullWidth size="small" >
       <InputLabel id="demo-simple-select-label">Select channel</InputLabel>
       <Select
         labelId="demo-simple-select-label"
@@ -102,7 +102,10 @@ const Menu = ({logged}) => {
         {roomsProps}
       </Select>
     </FormControl>
-  </>
+    <Button size="medium" color="secondary" variant="contained">
+      Join
+    </Button>
+  </div>
   )
 }
 

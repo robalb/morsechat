@@ -45,3 +45,7 @@
 .sidebar{
   grid-area:sidebar;
 }
+
+.loaded-index-content{
+  margin: 2em;
+}
