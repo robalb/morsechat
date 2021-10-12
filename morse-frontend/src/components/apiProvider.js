@@ -14,11 +14,30 @@ const ApiProvider = ({children}) => {
   let [state, setState] = React.useState({
       logged: false,
       loading: true,
+      error: "",
+      errorDetails: "",
       userData: {}
   })
 
   React.useEffect(()=>{
-    alertError("Hello")
+    async function getUser(){
+      let res = await post('user', {}, true)
+      if(res.success){
+        setState( s => ({
+          ...s,
+          loading: false,
+          logged: res.data.logged,
+        }) )
+      }
+      else{
+        setState( s => ({
+          ...s,
+          error: res.error,
+          errorDetails: res.details
+        }) )
+      }
+    }
+    getUser()
   }, [])
 
 
@@ -49,7 +68,7 @@ const ApiProvider = ({children}) => {
    * api call to a specific api endpoint
    * init the csrf token if not set
    */
-  async function post(endpoint, data){
+  async function post(endpoint, data, silent=false){
     let csrf = apiState.csrf
     //if the csrf token hasn't been initialized yet
     if(csrf.length == 0){
@@ -68,7 +87,7 @@ const ApiProvider = ({children}) => {
     }
     //make request, on fail alert error
     let response = await request(baseUrl + endpoint, data, csrf)
-    if(!response.success)
+    if(!response.success && !silent)
       alertError("operation failed, please retry. " + response.error)
     return response
   }

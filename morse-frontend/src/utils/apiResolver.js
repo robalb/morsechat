@@ -31,7 +31,7 @@
       return {
         success: false,
         error: 'network_error',
-        details: e
+        details: e.message
       }
     }
     //attempt to decode the api response into an object

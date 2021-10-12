@@ -67,7 +67,8 @@ def api_user():
     #authenticated data
     if current_user.is_authenticated:
         data = {
-                'logged':True
+                'logged':True,
+                'callsign': 'IT00ALB'
                 }
         return success(data)
     #unauthenticated data

@@ -1,0 +1,47 @@
+
+/* ----------- Loading --------- */
+.loading{
+  width: 100%;
+  height:100%;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+.loading .message{
+  /* display: flex; */
+  /* /1* flex-direction: vertical; *1/ */
+  /* justify-content: center; */
+}
+
+/* ----------- Index --------- */
+.main-container{
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+  grid-template-areas:
+    "hero"
+    "container"
+    "sidebar";
+}
+
+@media (min-width: 600px) {
+  .main-container {
+    grid-template-columns: 3fr 1fr;
+    grid-template-areas:
+      "hero  hero"
+      "container sidebar";
+  }
+}
+
+.hero{
+  grid-area:hero;
+  min-height: 60px;
+  background-color: gray;
+}
+.index-container{
+  grid-area:container;
+}
+.sidebar{
+  grid-area:sidebar;
+}

@@ -1,13 +1,17 @@
 module.exports = {
-  proxy: {
-    prefix: "/api/v1",
-    url: "http://localhost:5000",
-  },
+  /*
+    this proxy doesn't work with websocket requests, so currently the solutions is
+    to open cors in the backend for localhost:8000 when running in development mode
+  */
+  /* proxy: { */
+  /*   prefix: "/api/v1", */
+  /*   url: "http://localhost:5000", */
+  /* }, */
   siteMetadata: {
-    title: `Gatsby Default Starter`,
-    description: `Kick off your next, great Gatsby project with this default starter. This barebones starter ships with the main Gatsby configuration files you might need.`,
-    author: `@gatsbyjs`,
-    siteUrl: `https://gatsbystarterdefaultsource.gatsbyjs.io/`,
+    title: `Morsechat`,
+    description: `A live internet morse radio`,
+    author: `robalb - halb.it`,
+    siteUrl: `https://halb.it/`,
   },
   //https://www.gatsbyjs.com/docs/how-to/previews-deploys-hosting/asset-prefix/
   //gatsby build --prefix-paths
