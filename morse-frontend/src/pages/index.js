@@ -91,12 +91,12 @@ const Menu = ({logged}) => {
     return (
   <>
     <FormControl fullWidth>
-      <InputLabel id="demo-simple-select-label">Room</InputLabel>
+      <InputLabel id="demo-simple-select-label">Select channel</InputLabel>
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
         value={room}
-        label="channel"
+        label="Select channel"
         onChange={e => setRoom(e.value)}
       >
         {roomsProps}
