@@ -38,12 +38,8 @@ def api_login():
     #if the username exist
     if row:
         #check that the password is good
-        app.logger.info("mail is good")
-        app.logger.info(row)
-        app.logger.info(f"{g.data['password']}")
         try:
             if ph.verify(row.password, g.data['password']):
-                app.logger.info("pass is good")
                 credentials_are_good = True
         except:
             pass

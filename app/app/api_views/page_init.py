@@ -12,11 +12,9 @@ import secrets
 # this method is also responsible for initializing the user session variables, when not set
 @api.route('/page_init', methods=['POST'])
 def api_page_init():
-    isFresh = False
     #initialize if not set the anti-csrf token
     if not session.get('csrf'):
         session['csrf'] = 'csrf_' + secrets.token_hex(16)
-        isFresh = True
     #initialize if not set the variable indicating that the user has choosen to stay anonymous
     if not session.get('app_anonymous'):
         session['app_anonymous'] = False
@@ -34,10 +32,10 @@ def api_page_init():
             'session': {
                 'authenticated': current_user.is_authenticated,
                 'anonymous': session['app_anonymous'],
-                'csrf': session['csrf'],
-                'csrf_generated_fresh': isFresh,
+                'csrf': session['csrf']
                 },
             'app': {
+                #TODO use real data, from some config file
                 'rooms': {
                     'chat': 3,
                     'radio': 3
