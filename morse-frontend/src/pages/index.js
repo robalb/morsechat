@@ -6,31 +6,27 @@ import Home from '../components/test'
 import Providers from '../components/providers'
 import mainContext from '../contexts/mainContext'
 
-import {Container, Paper, Typography, Grid} from '@mui/material';
+import {Paper, Typography, Grid} from '@mui/material';
 import {FormControl, InputLabel, Select, MenuItem} from '@mui/material';
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
-import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
 
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
+
+import {ManageAccounts, Person, InfoOutlined} from '@mui/icons-material';
 
 import '../styles/common.css'
 
 const Sidebar = () =>(
-<Card elevation={24} sx={{ minWidth: 275 }}>
+<Card elevation={12} sx={{ minWidth: 275 }}>
     <CardContent>
     <Typography variant="h5" >
     Community
@@ -91,11 +87,6 @@ const Loading = ({error, errorDetails}) => {
 }
 
 const Menu = ({logged}) => {
-  const [selectedValue, setSelectedValue] = React.useState('a');
-
-  const handleChange = (event) => {
-    setSelectedValue(event.target.value);
-  };
   let rooms = [
    "C1", "C2", "C3", "R1", "R2", "R3"
   ]
@@ -113,31 +104,50 @@ const Menu = ({logged}) => {
       </Grid>
       <Grid item xs={12} >
 
-    <List sx={{  maxWidth: 360, }} component="nav" aria-label="mailbox folders">
-      <ListItem >
-        <Radio
-          checked={selectedValue === 'a'}
-          onChange={handleChange}
-          value="a"
-          name="radio-buttons"
-          inputProps={{ 'aria-label': 'A' }}
-        />
-        <Chip label="anonymous" color="primary" />
-      </ListItem>
-      <Divider />
-      <ListItem >
-        <Radio
-          checked={selectedValue === 'b'}
-          onChange={handleChange}
-          value="b"
-          name="radio-buttons"
-          inputProps={{ 'aria-label': 'B' }}
-        />
-        <Chip label="IT000HAL" color="primary" />
-      </ListItem>
-    </List>
+      <ListItemButton component="a" href="#simple-list"
+      sx={{  maxWidth: 360, backgroundColor: "#424242"}} dense={true} aria-label="mailbox folders">
+            <ListItemAvatar>
+              <Avatar>
+                <Person/>
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary="Anonymous"
+            />
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <InfoOutlined />
+        </Stack>
+      </ListItemButton>
 
+        <Stack direction="row" sx={{padding: "10px"}} alignItems="center" spacing={1}>
+          <Button variant="outlined" size="small">Login</Button>
+          <Button size="small">Register</Button>
+        </Stack>
+    <p>--</p>
 
+      <ListItemButton component="a" href="#simple-list"
+      sx={{  maxWidth: 360, backgroundColor: "#424242"}} dense={true} aria-label="mailbox folders">
+            <ListItemAvatar>
+              <Avatar>
+                <Person/>
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary="IT0asdasdasd00HAL"
+            />
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <ManageAccounts />
+        </Stack>
+      </ListItemButton>
+
+      </Grid>
+      <Grid item xs={12} >
+        <Divider />
+      </Grid>
+      <Grid item xs={12} >
+        <Typography variant="h5" color="primary" >
+          channel
+        </Typography>
       </Grid>
       <Grid item xs={12} >
         <FormControl fullWidth size="small" >
@@ -164,7 +174,7 @@ const Menu = ({logged}) => {
 }
 
 const Index = () => {
-  let {state, setState, post} = React.useContext(mainContext)
+  let {state} = React.useContext(mainContext)
   
   let mainContent = state.loading ?
     <Loading error={state.error} errorDetails={state.errorDetails}/> :

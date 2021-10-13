@@ -8,6 +8,7 @@
     "@emotion/react": "^11.4.1",
     "@emotion/server": "^11.4.0",
     "@emotion/styled": "^11.3.0",
+    "@mui/icons-material": "^5.0.3",
     "@mui/material": "^5.0.3",
     "@wardpeet/gatsby-plugin-static-site": "^0.3.0",
     "gatsby": "^3.13.1",

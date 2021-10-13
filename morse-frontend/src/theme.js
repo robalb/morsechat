@@ -1,4 +1,4 @@
-import { red } from '@mui/material/colors';
+// import { red } from '@mui/material/colors';
 import { createTheme } from '@mui/material/styles';
 
 // A custom theme for this app
@@ -17,7 +17,8 @@ const theme = createTheme({
     //   main: red.A400,
     // },
     background: {
-      default: "#303030"
+      default: "#303030",
+      // paper: "#424242"
     }
   },
 });
