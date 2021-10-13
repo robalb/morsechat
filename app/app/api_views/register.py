@@ -55,6 +55,7 @@ def api_register():
     conn.commit()
     conn.close()
     #authenticate the user
+    session['app_anonymous'] = False
     u = flask_login_base.get_user(userId)
     login_user(u, remember=False)
 

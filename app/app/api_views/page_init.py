@@ -9,40 +9,41 @@ import secrets
 # this api endpoint is called when a page in the frontend loads.
 # it returns the essential data required by every page. 
 # - In other systems, this data would be injected in the page before serving it.
-# this method is also responsible for initializing the user session variables, when not set,
-# and should be the only one that doesn't require authentication
-@api.route('/pageInit', methods=['POST'])
+# this method is also responsible for initializing the user session variables, when not set
+@api.route('/page_init', methods=['POST'])
 def api_page_init():
     isFresh = False
     #initialize if not set the anti-csrf token
     if not session.get('csrf'):
         session['csrf'] = 'csrf_' + secrets.token_hex(16)
         isFresh = True
-    #initialize if not set the variable used to know if the user has choosen to stay
-    #anonymous
-    if not session.get('wants_anonymous'):
-        session['wants_anonymous'] = False
-    data = {
-            'authenticated': current_user.is_authenticated,
-            'anonymous': current_user.is_anonymous,
-            'wants_anonymous': session['wants_anonymous'],
-            'csrf': session['csrf'],
-            'csrf_generated_fresh': isFresh,
-            'user': {
-
+    #initialize if not set the variable indicating that the user has choosen to stay anonymous
+    if not session.get('app_anonymous'):
+        session['app_anonymous'] = False
+    #prepare return data
+    user_data = {}
+    if current_user.is_authenticated:
+        user_data = {
+                'id': current_user.id,
+                'email': current_user.email,
+                'username': current_user.username,
+                'callsign': current_user.callsign,
+                'last_online': current_user.last_online
                 }
+    data = {
+            'session': {
+                'authenticated': current_user.is_authenticated,
+                'anonymous': session['app_anonymous'],
+                'csrf': session['csrf'],
+                'csrf_generated_fresh': isFresh,
+                },
+            'app': {
+                'rooms': {
+                    'chat': 3,
+                    'radio': 3
+                    }
+                },
+            'user': user_data
             }
     return success(data)
-    #authenticated data
-    # if current_user.is_authenticated:
-    #     data = {
-    #             'logged':True,
-    #             'callsign': 'IT00ALB'
-    #             }
-    #     return success(data)
-    #unauthenticated data
-    # data = {
-    #         'logged':False
-    #         }
-    # return success(data)
 

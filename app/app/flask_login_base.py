@@ -8,7 +8,7 @@ class User:
         this.email = namedTuple.email
         this.username = namedTuple.username
         this.callsign = namedTuple.callsign
-        this.lastOnline = namedTuple.lastOnlineTimestamp
+        this.last_online = namedTuple.lastOnlineTimestamp
 
         #required properties
         this.is_authenticated = True

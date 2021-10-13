@@ -1,5 +1,5 @@
 #page specific imports
-from flask import g
+from flask import g, session
 from flask_expects_json import expects_json
 from argon2 import PasswordHasher
 from flask_login import login_user, logout_user, login_required, current_user
@@ -50,34 +50,32 @@ def api_login():
     #authenticate the user
     if credentials_are_good:
         u = flask_login_base.get_user(row.ID)
+        session['app_anonymous'] = False
         login_user(u, remember=False)
         return success("")
     else:
         return error("invalid_credentials"), 400
 
 
+@api.route('/anonymous_login', methods=['POST'])
+def api_anonymous_login():
+    #abort if the user is already logged
+    if current_user.is_authenticated:
+        return error("already_logged"), 400
+    #abort if the user is already 'anonimously logged'
+    if session.get('app_anonymous'):
+        if session['app_anonymous']:
+            return error("already logged anonimously"), 400
+    session['app_anonymous'] = True
+    return success("")
+
+#logs out authenticated users.
+#anonymous users don't have this option, they can only
+#login or register an account
 @api.route('/logout', methods=['POST'])
 @login_required
 def api_logout():
     logout_user()
     return success("")
 
-@api.route('/user', methods=['POST'])
-def api_user():
-    #authenticated data
-    if current_user.is_authenticated:
-        data = {
-                'logged':True,
-                'callsign': 'IT00ALB'
-                }
-        return success(data)
-    #unauthenticated data
-    data = {
-            'logged':False
-            }
-    return success(data)
-
-@api.route('/csrf', methods=['POST'])
-def api_csrf():
-    return success({ 'token':'TEST123123' })
 
