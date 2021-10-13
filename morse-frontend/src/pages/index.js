@@ -3,6 +3,7 @@ import * as React from "react"
 import { StaticImage } from "gatsby-plugin-image"
 import Seo from "../components/seo"
 import Home from '../components/test'
+import CurrentUserChip from '../components/currentUserChip'
 import Providers from '../components/providers'
 import mainContext from '../contexts/mainContext'
 
@@ -93,7 +94,7 @@ const Menu = ({logged}) => {
   let roomsProps = rooms.map(r => 
         <MenuItem value={r} key={r} >{r}</MenuItem>
   )
-  let [room, setRoom] = React.useState()
+  let [room, setRoom] = React.useState(rooms[0])
     return (
   <div className="loaded-index-content">
     <Grid container spacing={3}>
@@ -104,6 +105,12 @@ const Menu = ({logged}) => {
       </Grid>
       <Grid item xs={12} >
 
+      <CurrentUserChip
+        logged={false}
+        username={"robalb"}
+        handle={"IT000"}
+        />
+
       <ListItemButton component="a" href="#simple-list"
       sx={{  maxWidth: 360, backgroundColor: "#424242"}} dense={true} aria-label="mailbox folders">
             <ListItemAvatar>
@@ -113,6 +120,7 @@ const Menu = ({logged}) => {
             </ListItemAvatar>
             <ListItemText
               primary="Anonymous"
+              secondary="IT001"
             />
         <Stack direction="row" alignItems="center" spacing={1}>
           <InfoOutlined />
@@ -133,7 +141,8 @@ const Menu = ({logged}) => {
               </Avatar>
             </ListItemAvatar>
             <ListItemText
-              primary="IT0asdasdasd00HAL"
+              primary="Robalb"
+              secondary="IT00HAL"
             />
         <Stack direction="row" alignItems="center" spacing={1}>
           <ManageAccounts />

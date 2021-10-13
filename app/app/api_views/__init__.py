@@ -37,3 +37,4 @@ from . import register
 from . import login
 
 from . import errors
+from . import page_init
