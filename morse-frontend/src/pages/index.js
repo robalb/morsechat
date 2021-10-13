@@ -26,6 +26,8 @@ import {ManageAccounts, Person, InfoOutlined} from '@mui/icons-material';
 
 import '../styles/common.css'
 
+//part of the layout
+//TODO: enhance with content from graphQL (md file for ex.)
 const Sidebar = () =>(
 <Card elevation={12} sx={{ minWidth: 275 }}>
     <CardContent>
@@ -54,7 +56,7 @@ const Sidebar = () =>(
 </Card>
 )
 
-const Loading = ({error, errorDetails}) => {
+const MainDataLoading = ({error, errorDetails}) => {
   let content = error.length > 0 ?
     <>
       <Typography color="error" variant="h6">
@@ -87,15 +89,32 @@ const Loading = ({error, errorDetails}) => {
   )
 }
 
-const Menu = ({logged}) => {
-  let rooms = [
-   "C1", "C2", "C3", "R1", "R2", "R3"
-  ]
+const LoginForm = ({loginState, setLoginState}) =>{
+
+}
+
+const Menu = ({state}) => {
+  //generate rooms list
+  let rooms = []
+  for(let i=0; i< state.appData.rooms.chat; i++)
+    rooms.push("chat" + i)
+  for(let i=0; i< state.appData.rooms.radio; i++)
+    rooms.push("radio" + i)
   let roomsProps = rooms.map(r => 
         <MenuItem value={r} key={r} >{r}</MenuItem>
   )
   let [room, setRoom] = React.useState(rooms[0])
-    return (
+  //handle join button
+  //TODO: make a call to anonymous login on component mount
+  function handleJoin(){
+
+  }
+  //internal page handling
+  // let [menuPage, setMenuPage] = React.useState(initialPage)
+  let logged = state.sessionData.authenticated
+
+  //strong php vibes here
+  let menu = (
   <div className="loaded-index-content">
     <Grid container spacing={3}>
       <Grid item xs={12} >
@@ -106,48 +125,16 @@ const Menu = ({logged}) => {
       <Grid item xs={12} >
 
       <CurrentUserChip
-        logged={false}
-        username={"robalb"}
-        handle={"IT000"}
+        logged={logged}
+        username={logged && state.userData.username}
+        callSign={logged ? state.userData.callsign : "IT000"}
         />
-
-      <ListItemButton component="a" href="#simple-list"
-      sx={{  maxWidth: 360, backgroundColor: "#424242"}} dense={true} aria-label="mailbox folders">
-            <ListItemAvatar>
-              <Avatar>
-                <Person/>
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary="Anonymous"
-              secondary="IT001"
-            />
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <InfoOutlined />
-        </Stack>
-      </ListItemButton>
-
-        <Stack direction="row" sx={{padding: "10px"}} alignItems="center" spacing={1}>
-          <Button variant="outlined" size="small">Login</Button>
-          <Button size="small">Register</Button>
-        </Stack>
-    <p>--</p>
-
-      <ListItemButton component="a" href="#simple-list"
-      sx={{  maxWidth: 360, backgroundColor: "#424242"}} dense={true} aria-label="mailbox folders">
-            <ListItemAvatar>
-              <Avatar>
-                <Person/>
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary="Robalb"
-              secondary="IT00HAL"
-            />
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <ManageAccounts />
-        </Stack>
-      </ListItemButton>
+        { !logged && (
+          <Stack direction="row" sx={{padding: "10px"}} alignItems="center" spacing={1}>
+            <Button variant="outlined" size="small">Login</Button>
+            <Button size="small">Register</Button>
+          </Stack>
+        ) }
 
       </Grid>
       <Grid item xs={12} >
@@ -166,7 +153,7 @@ const Menu = ({logged}) => {
             id="demo-simple-select"
             value={room}
             label="Select channel"
-            onChange={e => setRoom(e.value)}
+            onChange={e => setRoom(e.target.value)}
           >
             {roomsProps}
           </Select>
@@ -180,14 +167,18 @@ const Menu = ({logged}) => {
     </Grid>
   </div>
   )
+
+  return menu
 }
 
+//define the layout of the index page, and in the main container
+//shows either a loading status, or the menu
 const Index = () => {
   let {state} = React.useContext(mainContext)
   
   let mainContent = state.loading ?
-    <Loading error={state.error} errorDetails={state.errorDetails}/> :
-    <Menu logged={state.logged}/>;
+    <MainDataLoading error={state.error} errorDetails={state.errorDetails}/> :
+    <Menu state={state}/>;
 
   return (
     <div className="main-container">
