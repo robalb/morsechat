@@ -14,7 +14,18 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
+
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
 
 import '../styles/common.css'
 
@@ -80,6 +91,11 @@ const Loading = ({error, errorDetails}) => {
 }
 
 const Menu = ({logged}) => {
+  const [selectedValue, setSelectedValue] = React.useState('a');
+
+  const handleChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
   let rooms = [
    "C1", "C2", "C3", "R1", "R2", "R3"
   ]
@@ -91,11 +107,37 @@ const Menu = ({logged}) => {
   <div className="loaded-index-content">
     <Grid container spacing={3}>
       <Grid item xs={12} >
-      </Grid>
-      <Grid item xs={12} >
         <Typography variant="h5" color="primary" >
           Account
         </Typography>
+      </Grid>
+      <Grid item xs={12} >
+
+    <List sx={{  maxWidth: 360, }} component="nav" aria-label="mailbox folders">
+      <ListItem >
+        <Radio
+          checked={selectedValue === 'a'}
+          onChange={handleChange}
+          value="a"
+          name="radio-buttons"
+          inputProps={{ 'aria-label': 'A' }}
+        />
+        <Chip label="anonymous" color="primary" />
+      </ListItem>
+      <Divider />
+      <ListItem >
+        <Radio
+          checked={selectedValue === 'b'}
+          onChange={handleChange}
+          value="b"
+          name="radio-buttons"
+          inputProps={{ 'aria-label': 'B' }}
+        />
+        <Chip label="IT000HAL" color="primary" />
+      </ListItem>
+    </List>
+
+
       </Grid>
       <Grid item xs={12} >
         <FormControl fullWidth size="small" >
@@ -132,7 +174,7 @@ const Index = () => {
     <div className="main-container">
       <div className="hero">
         <Typography variant="h3" color="primary" sx={{
-          fontWheight:800
+          fontWeight:800
         }}>
           morsecode
         </Typography>
