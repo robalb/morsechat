@@ -7,7 +7,7 @@ import {Button, Alert} from '@mui/material';
 const socket = io('http://localhost:5000');
 const Home = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  let {state, setState, post} = React.useContext(mainContext)
+  let {state, post} = React.useContext(mainContext)
 
   return (
     <Fragment>

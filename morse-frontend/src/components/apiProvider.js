@@ -7,26 +7,37 @@ import { useSnackbar } from 'notistack';
 
 
 const ApiProvider = ({children}) => {
+  //TODO: work on this hardcoded url
+  let baseUrl = 'http://localhost:5000/api/v1/'
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   /*
-   * the main app state
+   * the main app state, containing essential application data
    */
   let [state, setState] = React.useState({
-      logged: false,
+      //state of the data fetch
       loading: true,
       error: "",
       errorDetails: "",
-      userData: {}
+      //the data that must be fetched
+      //WARNING: this data can't be used if loading == true
+      userData: {},
+      sessionData: {},
+      appData: {}
   })
 
   React.useEffect(()=>{
-    async function getUser(){
-      let res = await post('user', {}, true)
+    //make a raw request, without csrf tokens, to get the initial, essential data required by 
+    //any interactive page
+    async function getInitData(){
+      let url = baseUrl + 'page_init'
+      let res = await request(url, {}) 
       if(res.success){
         setState( s => ({
           ...s,
           loading: false,
-          logged: res.data.logged,
+          appData: res.data.app,
+          sessionData: res.data.session,
+          userData: res.data.user
         }) )
       }
       else{
@@ -37,70 +48,39 @@ const ApiProvider = ({children}) => {
         }) )
       }
     }
-    getUser()
+    getInitData()
   }, [])
 
 
-  //internal states
-  let [apiState, setApiState] = React.useState({
-    csrf: ""
-  })
-  //TODO: work on this hardcoded url
-  let baseUrl = 'http://localhost:5000/api/v1/'
-
   /*
-  * makes a special api call to the backend to get the csrf protection token,
-  * and stores it in the apiState
-  */
-  async function initCsrfToken(){
-    let url = baseUrl + 'csrf'
-    let call = await request(url, {})
-    if( call.success && call.data.token )
-      setApiState(state => ({
-        ...state,
-        csrf: call.data.token
-      }))
-    else
-      console.log("csrfToken init failed")
-    return call
-  }
-  /*
-   * api call to a specific api endpoint
-   * init the csrf token if not set
+   * api call to a specific api endpoint.
+   * will fail if the apiProvider hasn't been initialized.
+   * If a component needs to make an api call on mount, it must use an effect
+   * to start it only when state.loading == false
    */
   async function post(endpoint, data, silent=false){
-    let csrf = apiState.csrf
     //if the csrf token hasn't been initialized yet
-    if(csrf.length == 0){
-      let initCall = await initCsrfToken()
-      if(!initCall.success){
-        alertError("operation failed, please retry. " + initCall.error)
+    if(state.loading){
+        alertError("operation failed, the app has not finished initializing ")
         return {
           success: false,
           error: "csrf_init_failed",
-          details: initCall.details
         }
-      }
-      else{
-        csrf = initCall.data.token
-      }
     }
     //make request, on fail alert error
-    let response = await request(baseUrl + endpoint, data, csrf)
+    let response = await request(baseUrl + endpoint, data, state.sessionData.csrf)
     if(!response.success && !silent)
       alertError("operation failed, please retry. " + response.error)
     return response
   }
 
   function alertError(error){
-    // alert.error(error)
     enqueueSnackbar(error, {variant: "error", preventDuplicate:true})
   }
 
 
   let mainContextValues = {
     state,
-    setState,
     post
   }
 
