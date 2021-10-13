@@ -3,23 +3,20 @@ from . import db_connection
 from . import app
 
 class User:
-    authenticated = False
     def __init__(this, namedTuple):
         this.id = namedTuple.ID
         this.email = namedTuple.email
+        this.username = namedTuple.username
         this.callsign = namedTuple.callsign
         this.lastOnline = namedTuple.lastOnlineTimestamp
-    def is_active(self):
-        return True
+
+        #required properties
+        this.is_authenticated = True
+        this.is_active = True
+        this.is_anonymous = False
 
     def get_id(self):
         return self.id
-
-    def is_authenticated(self):
-        return self.authenticated
-
-    def is_anonymous(self):
-        return False
 
 def get_user(user_id):
     app.logger.info('This is info output')

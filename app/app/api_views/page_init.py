@@ -14,15 +14,23 @@ import secrets
 @api.route('/pageInit', methods=['POST'])
 def api_page_init():
     isFresh = False
-    isLogged = current_user.is_authenticated
+    #initialize if not set the anti-csrf token
     if not session.get('csrf'):
         session['csrf'] = 'csrf_' + secrets.token_hex(16)
         isFresh = True
-    app.logger.info(isLogged)
+    #initialize if not set the variable used to know if the user has choosen to stay
+    #anonymous
+    if not session.get('wants_anonymous'):
+        session['wants_anonymous'] = False
     data = {
-            'logged': isLogged,
+            'authenticated': current_user.is_authenticated,
+            'anonymous': current_user.is_anonymous,
+            'wants_anonymous': session['wants_anonymous'],
             'csrf': session['csrf'],
-            'csrf_generated_fresh': isFresh
+            'csrf_generated_fresh': isFresh,
+            'user': {
+
+                }
             }
     return success(data)
     #authenticated data

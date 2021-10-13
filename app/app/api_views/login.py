@@ -14,10 +14,10 @@ from ._utils import success, error
 schema = {
     'type': 'object',
     'properties': {
-        'email': {'type': 'string', 'maxLength':255, 'minLength':1 },
+        'username': {'type': 'string', 'maxLength':20, 'minLength':1 },
         'password': {'type': 'string', 'maxLength':255, 'minLength':8 },
     },
-    'required': ['email', 'password'],
+    'required': ['username', 'password'],
     'maxProperties': 2
 }
 @api.route('/login', methods=['POST'])
@@ -30,12 +30,12 @@ def api_login():
     conn = db_connection.get_conn()
     cur = conn.cursor(named_tuple=True)
     try:
-        cur.execute("SELECT ID, password FROM users WHERE email = ?", (g.data['email'],))
+        cur.execute("SELECT ID, password FROM users WHERE username = ?", (g.data['username'],))
     except:
         return error("database error"), 500
     row = cur.fetchone()
     credentials_are_good = False
-    #if the mail exist
+    #if the username exist
     if row:
         #check that the password is good
         app.logger.info("mail is good")

@@ -26,13 +26,15 @@ CREATE TABLE IF NOT EXISTS `special_callsigns` (
 
 CREATE TABLE IF NOT EXISTS `users` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NOT NULL,
-  `callsign` varchar(20) NOT NULL,
+  `email` varchar(255),
+  `username` varchar(20) NOT NULL UNIQUE,
+  `callsign` varchar(20) NOT NULL UNIQUE,
   `password` varchar(97) NOT NULL, 
   `registrationTimestamp` int(11) NOT NULL,
   `lastOnlineTimestamp` int(11),
   PRIMARY KEY (`id`) USING HASH,
   KEY `email` (`email`),
+  KEY `username` (`username`),
   KEY `callsign` (`callsign`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

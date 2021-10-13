@@ -26,6 +26,12 @@ https://argon2-cffi.readthedocs.io/en/stable/ (non vedo utilità di integrazione
 consider also: flask-login
 https://flask-login.readthedocs.io/en/latest/
 
+profanity filters: (non un gran che)
+https://gitlab.com/dimitrios/alt-profanity-check/
+https://pypi.org/project/profanity-filter/
+probably the best, still not a solid solution
+https://github.com/snguyenthanh/better_profanity
+
 ## INTEGRAZIONE con flask:
 gatsby di default genera una spa, quindi con solo index.html e 404.html
 

@@ -12,3 +12,10 @@ def success(data):
         "success": True,
         "data": data
     }
+
+
+def clearly_a_profanity(data):
+    #TODO implement this in a separate package outside of this
+    #repository. Not everything can be open source
+    return False
+
