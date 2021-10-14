@@ -94,6 +94,8 @@ const LoginForm = ({loginState, setLoginState}) =>{
 }
 
 const Menu = ({state}) => {
+  //semplify data extraction from the state object
+  let logged = state.sessionData.authenticated
   //generate rooms list
   let rooms = []
   for(let i=0; i< state.appData.rooms.chat; i++)
@@ -104,6 +106,11 @@ const Menu = ({state}) => {
         <MenuItem value={r} key={r} >{r}</MenuItem>
   )
   let [room, setRoom] = React.useState(rooms[0])
+  let [loginState, setLoginState] = React.useState( {
+      username: '',
+      password: ''
+    }
+  )
   //handle join button
   //TODO: make a call to anonymous login on component mount
   function handleJoin(){
@@ -111,7 +118,6 @@ const Menu = ({state}) => {
   }
   //internal page handling
   // let [menuPage, setMenuPage] = React.useState(initialPage)
-  let logged = state.sessionData.authenticated
 
   //strong php vibes here
   let menu = (
@@ -127,7 +133,7 @@ const Menu = ({state}) => {
       <CurrentUserChip
         logged={logged}
         username={logged && state.userData.username}
-        callSign={logged ? state.userData.callsign : "IT000"}
+        callSign={state.userData.callsign}
         />
         { !logged && (
           <Stack direction="row" sx={{padding: "10px"}} alignItems="center" spacing={1}>

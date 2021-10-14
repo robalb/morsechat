@@ -1,9 +1,9 @@
-from flask import g, session
+from flask import g, session, request
 from flask_login import current_user
 from .. import db_connection
 from . import api
 from .. import app
-from ._utils import success, error
+from ._utils import success, error, generate_anonymous_callsign
 import secrets
 
 # this api endpoint is called when a page in the frontend loads.
@@ -18,8 +18,14 @@ def api_page_init():
     #initialize if not set the variable indicating that the user has choosen to stay anonymous
     if not session.get('app_anonymous'):
         session['app_anonymous'] = False
+    #generate random callsign if the user is not authenticated, and if not already set
+    #this will be regenerated if the user joins a room where someone has the same callsign
+    if not current_user.is_authenticated and not session.get('anonymous_callsign'):
+        lang_header = ""
+        if request.headers.get('Accept-Language'):
+            lang_header = request.headers['Accept-Language']
+        session['anonymous_callsign'] = generate_anonymous_callsign(lang_header)
     #prepare return data
-    user_data = {}
     if current_user.is_authenticated:
         user_data = {
                 'id': current_user.id,
@@ -27,6 +33,10 @@ def api_page_init():
                 'username': current_user.username,
                 'callsign': current_user.callsign,
                 'last_online': current_user.last_online
+                }
+    else:
+        user_data = {
+                'callsign': session['anonymous_callsign']
                 }
     data = {
             'session': {
