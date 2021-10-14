@@ -1,6 +1,8 @@
-from flask import Blueprint
+from flask import Blueprint, request, session
+import secrets
 
 from .. import flask_login_base
+from .. import app
 from .. import login_manager
 from ._utils import success, error
 
@@ -17,21 +19,61 @@ def unauthorized():
 api = Blueprint('api', __name__)
 
 #TODO: this must be set only in development
-@api.after_request # blueprint can also be app~~
+development_mode = True
+
+#this function will run after every request, setting the appropriate cors headers
+#if the app is in development mode
+@api.after_request
 def after_request(response):
-    header = response.headers
-    header['Access-Control-Allow-Origin'] = 'http://localhost:8000'
-    header['Access-Control-Allow-Credentials'] = 'true'
-    header['Access-Control-Allow-Headers'] = 'X-Csrf-Magic, Content-Type'
+    if development_mode:
+        header = response.headers
+        header['Access-Control-Allow-Origin'] = 'http://localhost:8000'
+        header['Access-Control-Allow-Credentials'] = 'true'
+        header['Access-Control-Allow-Headers'] = 'X-Csrf-Magic, Content-Type'
     return response
 
-#TODO
-#define before request for api blueprint
-#that handles csrf tokens (by checking a custom header, and by using sessions)
-#and also handles SEC_FETCH headers
-#https://pythonise.com/series/learning-flask/python-before-after-request
 
-#https://stackoverflow.com/questions/34164464/flask-decorate-every-route-at-once
+# this function will run before every request, and will return an error if:
+# -it doesn't contain a valid anti-csrf header
+# -it contains invalid sec-fetch headers
+@api.before_request
+def before_request_func():
+    reject = False
+    #exclusion rules: the endpoint /page_init defined in page_init.py with the function
+    #api.api_page_init should allow requests without csrf token, since it's the endpoint
+    #that the client uses to receive the csrf token
+    if request.endpoint == "api.api_page_init":
+        app.logger.info("skipping csrf token checks")
+    else:
+        if not request.headers.get("X-Csrf-Magic"):
+            app.logger.error("rejected for missing csrf header")
+            reject = True
+        elif not session.get('csrf'):
+            app.logger.error("rejected for missing csrf in session")
+            reject = True
+        elif not secrets.compare_digest(request.headers["X-Csrf-Magic"], session["csrf"]):
+            app.logger.error("rejected for wrong csrf")
+            reject = True
+    #reject for csrf errors
+    if reject:
+        return error("csrf_token_error"), 401
+
+    # https://web.dev/fetch-metadata/
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Dest
+    if request.headers.get("Sec-Fetch-Site") and not development_mode:
+        if request.headers['Sec-Fetch-Site'] not in ('same-origin',):
+            app.logger.error("rejected for wrong sec-fetch-site")
+            app.logger.info(request.headers.get("Sec-Fetch-Site"))
+            reject = True
+    if request.headers.get("Sec-Fetch-Dest"):
+        if request.headers['Sec-Fetch-Dest'] not in ('empty',):
+            app.logger.error("rejected for wrong sec-fetch-Dest")
+            app.logger.info(request.headers.get("Sec-Fetch-Dest"))
+            reject = True
+    #reject for sec-fetch errors
+    if reject:
+        return error("request_origin_error"), 401
+
 
 from . import register
 from . import login

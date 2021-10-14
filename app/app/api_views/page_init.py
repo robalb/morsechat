@@ -55,3 +55,9 @@ def api_page_init():
             }
     return success(data)
 
+
+
+@api.route('/test', methods=['POST'])
+def api_test_2():
+    app.logger.info("---- body")
+    return "test"

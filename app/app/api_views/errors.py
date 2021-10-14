@@ -5,7 +5,7 @@ from ._utils import success, error
 
 #handle 404s in a custom way
 @api.route('/', defaults={'path': ''})
-@api.route('/<path:path>')
+@api.route('/<path:path>', methods=['GET', 'POST'])
 def api_page_not_found(path):
     return error(404, details="api endpoint not found"), 404
 
