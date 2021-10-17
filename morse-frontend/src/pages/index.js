@@ -56,7 +56,7 @@ const Sidebar = () =>(
 </Card>
 )
 
-const MainDataLoading = ({error, errorDetails}) => {
+const MainDataLoading = ({error, errorDetails, reload}) => {
   let content = error.length > 0 ?
     <>
       <Typography color="error" variant="h6">
@@ -68,7 +68,7 @@ const MainDataLoading = ({error, errorDetails}) => {
       <Typography variant="body2">
       {errorDetails}
       </Typography>
-      <Button href="/" variant="outlined" color="error">
+      <Button onClick={reload} variant="outlined" color="error">
         retry
       </Button>
     </>
@@ -93,7 +93,7 @@ const LoginForm = ({loginState, setLoginState}) =>{
 
 }
 
-const Menu = ({state}) => {
+const Menu = ({state, reload}) => {
   //semplify data extraction from the state object
   let logged = state.sessionData.authenticated
   //generate rooms list
@@ -137,7 +137,7 @@ const Menu = ({state}) => {
         />
         { !logged && (
           <Stack direction="row" sx={{padding: "10px"}} alignItems="center" spacing={1}>
-            <Button variant="outlined" size="small">Login</Button>
+            <Button variant="outlined" size="small" onClick={reload}>Login</Button>
             <Button size="small">Register</Button>
           </Stack>
         ) }
@@ -180,11 +180,11 @@ const Menu = ({state}) => {
 //define the layout of the index page, and in the main container
 //shows either a loading status, or the menu
 const Index = () => {
-  let {state} = React.useContext(mainContext)
+  let {state, post, reload} = React.useContext(mainContext)
   
   let mainContent = state.loading ?
-    <MainDataLoading error={state.error} errorDetails={state.errorDetails}/> :
-    <Menu state={state}/>;
+    <MainDataLoading error={state.error} errorDetails={state.errorDetails} reload={reload}/> :
+    <Menu state={state} reload={reload}/>;
 
   return (
     <div className="main-container">

@@ -9,6 +9,7 @@ import { useSnackbar } from 'notistack';
 const ApiProvider = ({children}) => {
   //TODO: work on this hardcoded url
   let baseUrl = 'http://localhost:5000/api/v1/'
+  // baseUrl +="WRONG"
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   /*
    * the main app state, containing essential application data
@@ -24,8 +25,11 @@ const ApiProvider = ({children}) => {
       sessionData: {},
       appData: {}
   })
+  //internal state used by this api provider
+  let [fetchCount, setFetchCount] = React.useState(0)
 
   React.useEffect(()=>{
+    console.log("fetching app data. for the "+ fetchCount +" th time in this session")
     //make a raw request, without csrf tokens, to get the initial, essential data required by 
     //any interactive page
     async function getInitData(){
@@ -41,6 +45,8 @@ const ApiProvider = ({children}) => {
         }) )
       }
       else{
+        if(fetchCount > 0)
+          alertError(res.error)
         setState( s => ({
           ...s,
           error: res.error,
@@ -48,8 +54,20 @@ const ApiProvider = ({children}) => {
         }) )
       }
     }
+    
     getInitData()
-  }, [])
+    //use this instead of a simple function call to set the whole app in
+    //a loading state when the data is reloading
+    // setState(
+    //   s =>{
+    //     getInitData()
+    //     return ({
+    //       ...s,
+    //       loading: true
+    //     })
+    //   }
+    // )
+  }, [fetchCount])
 
 
   /*
@@ -78,10 +96,15 @@ const ApiProvider = ({children}) => {
     enqueueSnackbar(error, {variant: "error", preventDuplicate:true})
   }
 
+  function reload(){
+    setFetchCount(c => c+1)
+  }
+
 
   let mainContextValues = {
     state,
-    post
+    post,
+    reload
   }
 
  return(
