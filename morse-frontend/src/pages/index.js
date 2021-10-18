@@ -56,6 +56,7 @@ const Sidebar = () =>(
 </Card>
 )
 
+//TODO: move to dedicated file
 const MainDataLoading = ({error, errorDetails, reload}) => {
   let content = error.length > 0 ?
     <>
@@ -89,14 +90,19 @@ const MainDataLoading = ({error, errorDetails, reload}) => {
   )
 }
 
+//TODO: move to dedicated file
 const LoginForm = ({loginState, setLoginState}) =>{
-
+  return <p>login</p>
+}
+//TODO: move to dedicated file
+const RegisterForm = ({loginState, setLoginState}) =>{
+  return <p>register</p>
 }
 
-const Menu = ({state, reload}) => {
+const IndexMenu = ({state, reload, setPage, post}) => {
   //semplify data extraction from the state object
   let logged = state.sessionData.authenticated
-  //generate rooms list
+  //generate rooms list, and handle room state
   let rooms = []
   for(let i=0; i< state.appData.rooms.chat; i++)
     rooms.push("chat" + i)
@@ -106,21 +112,25 @@ const Menu = ({state, reload}) => {
         <MenuItem value={r} key={r} >{r}</MenuItem>
   )
   let [room, setRoom] = React.useState(rooms[0])
-  let [loginState, setLoginState] = React.useState( {
-      username: '',
-      password: ''
+  let roomUrl = "/rooms/chat/"+room
+
+  //join button
+  let [join, setJoin] = React.useState(!state.sessionData.show_popup)
+  //activate the join button when the nopopup request complete (TODO: remove
+  //completely this request, and set the flag serverside, or do it silently without disabling
+  //the button)
+  React.useEffect(()=>{
+    async function setNoPopup(){
+      let res = await post("no_popup", {})
+      if(res.success)
+        setJoin(true)
     }
-  )
-  //handle join button
-  //TODO: make a call to anonymous login on component mount
-  function handleJoin(){
+    if(state.sessionData.show_popup){
+      setNoPopup()
+    }
+  }, [])
 
-  }
-  //internal page handling
-  // let [menuPage, setMenuPage] = React.useState(initialPage)
-
-  //strong php vibes here
-  let menu = (
+  return (
   <div className="loaded-index-content">
     <Grid container spacing={3}>
       <Grid item xs={12} >
@@ -137,8 +147,8 @@ const Menu = ({state, reload}) => {
         />
         { !logged && (
           <Stack direction="row" sx={{padding: "10px"}} alignItems="center" spacing={1}>
-            <Button variant="outlined" size="small" onClick={reload}>Login</Button>
-            <Button size="small">Register</Button>
+            <Button variant="outlined" size="small" onClick={e => setPage("login")}>Login</Button>
+            <Button size="small" onClick={e => setPage("register")}>Register</Button>
           </Stack>
         ) }
 
@@ -166,25 +176,36 @@ const Menu = ({state, reload}) => {
         </FormControl>
       </Grid>
       <Grid item xs={12} >
-        <Button size="medium" color="secondary" variant="contained">
+        <Button size="medium" href={roomUrl} disabled={!join} color="secondary" variant="contained">
           Join
         </Button>
       </Grid>
     </Grid>
   </div>
   )
-
-  return menu
 }
 
 //define the layout of the index page, and in the main container
-//shows either a loading status, or the menu
+//shows either a loading status, or the menu/login/register pages
 const Index = () => {
   let {state, post, reload} = React.useContext(mainContext)
+
+  //You may not like it, but this is how javascript code is supposed to look like
+  let pages = {
+    "menu": IndexMenu,
+    "login": LoginForm,
+    "register": RegisterForm
+  }
+  let [page, _setPage] = React.useState("menu")
+  function setPage(pageName){
+    if(pages.hasOwnProperty(pageName))
+      _setPage(pageName)
+  }
+  let CurrentPage = pages[page]
   
   let mainContent = state.loading ?
     <MainDataLoading error={state.error} errorDetails={state.errorDetails} reload={reload}/> :
-    <Menu state={state} reload={reload}/>;
+    <CurrentPage state={state} post={post} reload={reload} setPage={setPage}/>;
 
   return (
     <div className="main-container">

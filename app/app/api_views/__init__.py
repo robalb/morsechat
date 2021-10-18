@@ -39,10 +39,16 @@ def after_request(response):
 @api.before_request
 def before_request_func():
     reject = False
-    #exclusion rules: the endpoint /page_init defined in page_init.py with the function
-    #api.api_page_init should allow requests without csrf token, since it's the endpoint
-    #that the client uses to receive the csrf token
-    if request.endpoint == "api.api_page_init":
+    #exclusion rules:
+    # -the endpoint /page_init defined in page_init.py with the function
+    #  api.api_page_init should allow requests without csrf token, since it's the endpoint
+    #  that the client uses to receive the csrf token
+    # -cors preflight requests should be allowed in development mode
+    if request.endpoint == "api.api_page_init" or (
+            development_mode and
+            request.method == "OPTIONS" and 
+            "Access-Control-Request-Method" in request.headers
+            ):
         app.logger.info("skipping csrf token checks")
     else:
         if not request.headers.get("X-Csrf-Magic"):

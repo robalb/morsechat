@@ -13,6 +13,7 @@ import secrets
 @api.route('/page_init', methods=['POST'])
 def api_page_init():
     #initialize if not set the anti-csrf token
+    #TODO: check if this is safe, or if it's better to use the 'in' keyword
     if not session.get('csrf'):
         session['csrf'] = 'csrf_' + secrets.token_hex(16)
     #initialize if not set the show_popup variable. When true client pages will show
