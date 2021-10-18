@@ -46,23 +46,19 @@ def api_login():
     #authenticate the user
     if credentials_are_good:
         u = flask_login_base.get_user(row.ID)
-        session['app_anonymous'] = False
+        session['show_popup'] = False
         login_user(u, remember=False)
         return success("")
     else:
         return error("invalid_credentials"), 400
 
 
-@api.route('/anonymous_login', methods=['POST'])
-def api_anonymous_login():
-    #abort if the user is already logged
-    if current_user.is_authenticated:
-        return error("already_logged"), 400
-    #abort if the user is already 'anonimously logged'
-    if session.get('app_anonymous'):
-        if session['app_anonymous']:
-            return error("already logged anonimously"), 400
-    session['app_anonymous'] = True
+# set the session popup flag to False.
+# when this flag is false, the frontend pages won't show
+# the login popup on load
+@api.route('/no_popup', methods=['POST'])
+def api_no_popup():
+    session['show_popup'] = False
     return success("")
 
 #logs out authenticated users.

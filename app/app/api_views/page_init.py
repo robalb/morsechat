@@ -15,9 +15,11 @@ def api_page_init():
     #initialize if not set the anti-csrf token
     if not session.get('csrf'):
         session['csrf'] = 'csrf_' + secrets.token_hex(16)
-    #initialize if not set the variable indicating that the user has choosen to stay anonymous
-    if not session.get('app_anonymous'):
-        session['app_anonymous'] = False
+    #initialize if not set the show_popup variable. When true client pages will show
+    # the login popup on load
+    if not 'show_popup' in session:
+        app.logger.info("setting to false")
+        session['show_popup'] = True
     #generate random callsign if the user is not authenticated, and if not already set
     #this will be regenerated if the user joins a room where someone has the same callsign
     if not current_user.is_authenticated and not session.get('anonymous_callsign'):
@@ -41,7 +43,7 @@ def api_page_init():
     data = {
             'session': {
                 'authenticated': current_user.is_authenticated,
-                'anonymous': session['app_anonymous'],
+                'show_popup': session['show_popup'],
                 'csrf': session['csrf']
                 },
             'app': {
