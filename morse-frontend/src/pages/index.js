@@ -91,11 +91,17 @@ const MainDataLoading = ({error, errorDetails, reload}) => {
 }
 
 //TODO: move to dedicated file
-const LoginForm = ({loginState, setLoginState}) =>{
+const LoginForm = ({state, reload, setPage, post}) =>{
+  let [form, setForm] = React.useState({
+
+  })
   return <p>login</p>
 }
 //TODO: move to dedicated file
-const RegisterForm = ({loginState, setLoginState}) =>{
+const RegisterForm = ({state, reload, setPage, post}) =>{
+  let [form, setForm] = React.useState({
+
+  })
   return <p>register</p>
 }
 
@@ -114,16 +120,12 @@ const IndexMenu = ({state, reload, setPage, post}) => {
   let [room, setRoom] = React.useState(rooms[0])
   let roomUrl = "/rooms/chat/"+room
 
-  //join button
-  let [join, setJoin] = React.useState(!state.sessionData.show_popup)
   //activate the join button when the nopopup request complete (TODO: remove
   //completely this request, and set the flag serverside, or do it silently without disabling
   //the button)
   React.useEffect(()=>{
     async function setNoPopup(){
       let res = await post("no_popup", {})
-      if(res.success)
-        setJoin(true)
     }
     if(state.sessionData.show_popup){
       setNoPopup()
@@ -176,7 +178,7 @@ const IndexMenu = ({state, reload, setPage, post}) => {
         </FormControl>
       </Grid>
       <Grid item xs={12} >
-        <Button size="medium" href={roomUrl} disabled={!join} color="secondary" variant="contained">
+        <Button size="medium" href={roomUrl} color="secondary" variant="contained">
           Join
         </Button>
       </Grid>

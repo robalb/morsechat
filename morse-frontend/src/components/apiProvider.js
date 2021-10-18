@@ -96,6 +96,9 @@ const ApiProvider = ({children}) => {
     enqueueSnackbar(error, {variant: "error", preventDuplicate:true})
   }
 
+  //TODO: add the option to reload using data passed in the arguments
+  //this could be useful in login systems, where after the login the user data
+  //is returned, and the state version of that data should be updated
   function reload(){
     setFetchCount(c => c+1)
   }
