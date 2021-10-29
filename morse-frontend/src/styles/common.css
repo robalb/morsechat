@@ -77,11 +77,9 @@ body{
 .index-container-paper{
   min-height: 30em;
   height: 100%;
+  padding: 2em;
 }
 .sidebar{
   grid-area:sidebar;
 }
 
-.loaded-index-content{
-  padding: 2em;
-}

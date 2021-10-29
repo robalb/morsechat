@@ -4,6 +4,9 @@ import { StaticImage } from "gatsby-plugin-image"
 import Seo from "../components/seo"
 import Home from '../components/test'
 import CurrentUserChip from '../components/currentUserChip'
+import MainDataLoading from '../components/mainDataLoading'
+import LoginForm from '../components/loginForm'
+import RegisterForm from '../components/registerForm'
 import Providers from '../components/providers'
 import mainContext from '../contexts/mainContext'
 
@@ -56,55 +59,6 @@ const Sidebar = () =>(
 </Card>
 )
 
-//TODO: move to dedicated file
-const MainDataLoading = ({error, errorDetails, reload}) => {
-  let content = error.length > 0 ?
-    <>
-      <Typography color="error" variant="h6">
-       Loading error
-      </Typography>
-      <Typography variant="body2">
-       Error code: {error}
-      </Typography>
-      <Typography variant="body2">
-      {errorDetails}
-      </Typography>
-      <Button onClick={reload} variant="outlined" color="error">
-        retry
-      </Button>
-    </>
-      :
-    <>
-      <Typography variant="body2">
-      Loading account data
-      </Typography>
-      <LinearProgress color="secondary" />
-    </>
-    
-  return (
-  <div className="loading">
-  <div className="message">
-    {content}
-  </div>
-  </div>
-  )
-}
-
-//TODO: move to dedicated file
-const LoginForm = ({state, reload, setPage, post}) =>{
-  let [form, setForm] = React.useState({
-
-  })
-  return <p>login</p>
-}
-//TODO: move to dedicated file
-const RegisterForm = ({state, reload, setPage, post}) =>{
-  let [form, setForm] = React.useState({
-
-  })
-  return <p>register</p>
-}
-
 const IndexMenu = ({state, reload, setPage, post}) => {
   //semplify data extraction from the state object
   let logged = state.sessionData.authenticated
@@ -133,7 +87,7 @@ const IndexMenu = ({state, reload, setPage, post}) => {
   }, [])
 
   return (
-  <div className="loaded-index-content">
+  <>
     <Grid container spacing={3}>
       <Grid item xs={12} >
         <Typography variant="h5" color="primary" >
@@ -183,7 +137,7 @@ const IndexMenu = ({state, reload, setPage, post}) => {
         </Button>
       </Grid>
     </Grid>
-  </div>
+  </>
   )
 }
 
@@ -192,7 +146,7 @@ const IndexMenu = ({state, reload, setPage, post}) => {
 const Index = () => {
   let {state, post, reload} = React.useContext(mainContext)
 
-  //You may not like it, but this is how javascript code is supposed to look like
+  //You may not like it, but this is how peak javascript code is supposed to look like
   let pages = {
     "menu": IndexMenu,
     "login": LoginForm,
@@ -215,7 +169,7 @@ const Index = () => {
         <Typography variant="h3" color="primary" sx={{
           fontWeight:800
         }}>
-          morsecode
+          appname
         </Typography>
       </div>
       <div className="index-container">
