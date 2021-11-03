@@ -1,5 +1,5 @@
 html{
-  overflow-y: auto;
+  /* overflow-y: auto; */
 }
 body{
   overflow: hidden;

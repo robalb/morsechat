@@ -1,7 +1,7 @@
 import React from 'react';
 import {Typography, Grid, TextField, Button, Divider} from '@mui/material';
 
-import CallSignEditor from './callSignEditor'
+import CallSignEditor from './callSignEditor/callSignEditor'
 
 
 
@@ -22,7 +22,7 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
         </Typography>
       </Grid>
       <Grid item xs={12} >
-        <CallSignEditor />
+        <CallSignEditor setData={e => console.log(e)}/>
       </Grid>
       <Grid item xs={12} >
         <Divider />
