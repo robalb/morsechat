@@ -83,6 +83,8 @@ def before_request_func():
 
 from . import register
 from . import login
+from . import validate_callsign
+from . import redeem
 
 from . import errors
 from . import page_init

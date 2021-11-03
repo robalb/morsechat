@@ -39,7 +39,8 @@ def api_page_init():
                 }
     else:
         user_data = {
-                'callsign': session['anonymous_callsign']
+                'callsign': session['anonymous_callsign'],
+                'country': 'IT'
                 }
     data = {
             'session': {

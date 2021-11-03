@@ -1,6 +1,6 @@
 import secrets
 
-def error(error, details=""):
+def error(error, details="", code=200):
     return {
         "success": False,
         "error": error,

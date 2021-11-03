@@ -17,7 +17,7 @@ import mainContext from '../../contexts/mainContext'
 //https://www.techonthenet.com/js/language_tags.php
 // <Chip label="valid callsign" icon={<DoneIcon />} size="small" color="success"/>
 function SimpleEditor(props){
-  let {state, post, reload} = React.useContext(mainContext)
+  let {post} = React.useContext(mainContext)
   let [modulesData, setModulesData] = React.useState(props.schema)
 
   let validationStates = {
@@ -40,8 +40,8 @@ function SimpleEditor(props){
       const signal = controller.signal
       const promise = new Promise(async (resolve) =>{
           const ret = await post(
-            'asd', //endpoint
-            { call_sign: callSign }, //request data
+            'validate_callsign', //endpoint
+            { 'callsign': callSign }, //request data
             true, //silent request
             signal //signal controller
           )
@@ -77,9 +77,8 @@ function SimpleEditor(props){
         console.log("promise resolved")
         console.log(ret)
         if(ret.success)
-          if(Math.random()>0.5)
             setValidationState(validationStates.GOOD)
-          else
+        else if(ret.error == 'already_taken')
             setValidationState(validationStates.BAD)
         else if(ret.error != 'abort_error')
           //on errors such as network errors, it's good to remove the
@@ -160,12 +159,13 @@ function SimpleEditor(props){
 }
 
 const CallSignEditor = (props) =>{
+  let {state} = React.useContext(mainContext)
   //TODO: replace this hardcoded data with data received from the apis
   //allow either a default schema or a custom schema, validated through a secret code
   const [schema, setSchema] = React.useState([
     {
       module: 'country',
-      value: 'IT'
+      value: state.userData.country
     },
     {
       module: 'text',
