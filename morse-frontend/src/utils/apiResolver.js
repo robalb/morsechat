@@ -7,7 +7,10 @@
    * in case of connection issues for example this method will return
    * { success: false, error:'network_error'}
    */
- export async function request(url, data={}, csrf=false){
+ export async function request(url, data={}, csrf=false, signal=false){
+   let optional = {}
+   if(signal) optional.signal = signal
+
     let response = {}
     //prepare request headers
     let headers = {
@@ -17,6 +20,7 @@
     //attempt to make an api call.
     try{
       response = await fetch(url, {
+        ...optional,
         method: 'POST',
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -28,6 +32,12 @@
       });
     }
     catch(e){
+      if(e.name === "AbortError")
+        return {
+          success: false,
+          error: 'abort_error',
+          details: ''
+        }
       return {
         success: false,
         error: 'network_error',

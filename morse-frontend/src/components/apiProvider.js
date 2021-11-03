@@ -76,7 +76,7 @@ const ApiProvider = ({children}) => {
    * If a component needs to make an api call on mount, it must use an effect
    * to start it only when state.loading == false
    */
-  async function post(endpoint, data, silent=false){
+  async function post(endpoint, data, silent=false, signal=false){
     //if the csrf token hasn't been initialized yet
     if(state.loading){
         alertError("operation failed, the app has not finished initializing ")
@@ -86,7 +86,7 @@ const ApiProvider = ({children}) => {
         }
     }
     //make request, on fail alert error
-    let response = await request(baseUrl + endpoint, data, state.sessionData.csrf)
+    let response = await request(baseUrl + endpoint, data, state.sessionData.csrf, signal)
     if(!response.success && !silent)
       alertError("operation failed, please retry. " + response.error)
     return response

@@ -28,14 +28,31 @@ function SimpleEditor(props){
   }
   let [validationState, setValidationState] = React.useState(validationStates.NOOP)
 
+  let [validationPromise, setValidationPromise] = React.useState(undefined)
+
   React.useEffect(()=>{
-    async function validateCallSign(){
-      const ret = await post('asd', {})
-      if(ret.success || Math.random()>0.5)
-        setValidationState(validationStates.GOOD)
-      else
-        setValidationState(validationStates.BAD)
+
+    //abortable promise that performs a callsign validation api call
+    //https://www.carlrippon.com/cancelling-fetch-in-React-and-typescript/
+    function validateCallSign(callSign){
+      console.log("starting promise")
+      const controller = new AbortController();
+      const signal = controller.signal
+      const promise = new Promise(async (resolve) =>{
+          const ret = await post(
+            'asd', //endpoint
+            { call_sign: callSign }, //request data
+            true, //silent request
+            signal //signal controller
+          )
+          resolve(ret)
+        })
+      promise.cancel = () => controller.abort();
+      return promise;
     }
+
+    //abort previous validation requests
+    validationPromise?.cancel()
     //check that all values are valid
     const allValid = modulesData.every(m => {
       if(m.hasOwnProperty('len') && m.len != m.value.length)
@@ -49,14 +66,36 @@ function SimpleEditor(props){
       props.setData( modulesData.map(m => m.value))
       //set the state to loading, then start the online validation
       setValidationState(validationStates.LOADING)
-      validateCallSign()
+      //make the api request:
+      //launch the request promise
+      let callSign = modulesData.map(m => m.value).join("")
+      const livePromise = validateCallSign(callSign)
+      //put the validation promise in a react state, to preserve it during rerenders
+      setValidationPromise(livePromise)
+      //logic following the promise resolve
+      livePromise.then( ret => {
+        console.log("promise resolved")
+        console.log(ret)
+        if(ret.success)
+          if(Math.random()>0.5)
+            setValidationState(validationStates.GOOD)
+          else
+            setValidationState(validationStates.BAD)
+        else if(ret.error != 'abort_error')
+          //on errors such as network errors, it's good to remove the
+          //loading indicator.
+          //However, abort errors indicate that a new request is takin place,
+          //and the new request is taking care of the validation states.
+          setValidationState(validationStates.NOOP)
+
+      })
     }
     else{
       setValidationState(validationStates.NOOP)
     }
     //cleanup function
-    return function (){
-
+    return function cleanUp(){
+      validationPromise?.cancel()
     }
   }, [modulesData])
 
