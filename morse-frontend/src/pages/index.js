@@ -49,7 +49,7 @@ const Sidebar = () =>(
     </Typography>
 
         <List>
-          <ListItem disablePadding>
+          <ListItem dense={true} disablePadding>
             <ListItemButton>
               <ListItemIcon>
                 <InboxIcon />
@@ -57,7 +57,7 @@ const Sidebar = () =>(
               <ListItemText primary="discord server" />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding>
+          <ListItem dense={true} disablePadding>
             <ListItemButton>
               <ListItemIcon>
                 <InboxIcon />
@@ -65,7 +65,7 @@ const Sidebar = () =>(
               <ListItemText primary="github" />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding>
+          <ListItem dense={true} disablePadding>
             <ListItemButton>
               <ListItemIcon>
                 <InboxIcon />
@@ -73,7 +73,7 @@ const Sidebar = () =>(
               <ListItemText primary="halb.it" />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding>
+          <ListItem dense={true} disablePadding>
             <ListItemButton>
               <ListItemIcon>
                 <InboxIcon />
