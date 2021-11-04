@@ -214,19 +214,11 @@ const Index = () => {
         <Typography variant="h3" color="primary" sx={{
           fontWeight:800
         }}>
-          appname
+          morsechat
         </Typography>
       </div>
       <div className="index-container">
         <div className="index-container-img float1">
-          <StaticImage
-               className="static-image"
-               src="../images/circuit.png"
-               alt=""
-               placeholder="blurred"
-               layout="fixed"
-               width={800}
-             />
         </div>
         <div className="index-container-img float2">
         </div>
