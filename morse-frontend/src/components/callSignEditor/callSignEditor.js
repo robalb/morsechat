@@ -34,6 +34,7 @@ function SimpleEditor(props){
 
     //abortable promise that performs a callsign validation api call
     //https://www.carlrippon.com/cancelling-fetch-in-React-and-typescript/
+    //https://www.timveletta.com/blog/2020-07-14-accessing-react-state-in-your-component-cleanup-with-hooks/
     function validateCallSign(callSign){
       console.log("starting promise")
       const controller = new AbortController();
@@ -94,7 +95,6 @@ function SimpleEditor(props){
     }
     //cleanup function
     return function cleanUp(){
-      validationPromise?.cancel()
     }
   }, [modulesData])
 

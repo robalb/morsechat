@@ -1,20 +1,39 @@
 import React from 'react';
-import {Typography, Grid, TextField, Button, Divider} from '@mui/material';
+import {Typography, Grid, TextField, Button, Divider, IconButton} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 import CallSignEditor from './callSignEditor/callSignEditor'
 
 
-
 const RegisterForm = ({state, reload, setPage, post}) =>{
   let [form, setForm] = React.useState({
-
+    username: '',
+    email: '',
+    password: '',
+    callSign: undefined
   })
+
+  function handleUpdate(type){
+    return function update(data){
+      setForm(f => ({
+        ...f,
+        [type]: data.target.value
+      }))
+    }
+  }
+
+  function handleRegister(){
+
+  }
+
   return (
-    <Grid container spacing={3} component="form" onSubmit={e => alert("submit")}>
+    <Grid container spacing={3} >
+
+
       <Grid item xs={12} >
-        <Typography variant="h5" color="primary" >
-          Register
-        </Typography>
+        <IconButton aria-label="close" color="primary" onClick={e => setPage("menu") }>
+          <CloseIcon />
+        </IconButton>
       </Grid>
       <Grid item xs={12} >
         <Typography variant="h5" color="primary" >
@@ -22,7 +41,7 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
         </Typography>
       </Grid>
       <Grid item xs={12} >
-        <CallSignEditor setData={e => console.log(e)}/>
+        <CallSignEditor setData={e => setForm( f => ({...f, callSign:e}) )}/>
       </Grid>
       <Grid item xs={12} >
         <Divider />
@@ -33,17 +52,17 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
         </Typography>
       </Grid>
       <Grid item xs={12} md={6}>
-        <TextField label="Username" type="text"  fullWidth variant="standard" />
+        <TextField label="Username" type="text" value={form.username} onChange={handleUpdate('username')} fullWidth variant="standard" />
       </Grid>
       <Grid item xs={12} md={6} >
-        <TextField label="Email" type="email"  fullWidth variant="standard" />
+        <TextField label="Email" type="email" value={form.email} onChange={handleUpdate('email')} fullWidth variant="standard" />
       </Grid>
       <Grid item xs={12} >
-        <TextField label="password" type="password"  fullWidth variant="standard" />
+        <TextField label="password" type="password" value={form.password} onChange={handleUpdate('password')} fullWidth variant="standard" />
       </Grid>
       <Grid item xs={12} >
-        <Button size="medium" color="secondary" variant="contained">
-          Join
+        <Button size="medium" color="secondary" onClick={handleRegister} variant="contained">
+          Register
         </Button>
       </Grid>
     </Grid>
