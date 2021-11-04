@@ -22,7 +22,7 @@ body{
 
 /* ----------- Index --------- */
 .main-container{
-  max-width: 900px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 10px;
   display: grid;
@@ -33,12 +33,19 @@ body{
     "sidebar";
 }
 
-@media (min-width: 600px) {
+@media (min-width: 800px) {
   .main-container {
+    max-width: 900px;
     grid-template-columns: 3fr 1fr;
     grid-template-areas:
       "hero  hero"
       "container sidebar";
+  }
+}
+@media (min-width: 900px) {
+  .main-container {
+    max-width: 1200px;
+    grid-template-columns: 600px 1fr;
   }
 }
 

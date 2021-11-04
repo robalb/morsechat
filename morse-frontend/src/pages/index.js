@@ -11,16 +11,19 @@ import Providers from '../components/providers'
 import mainContext from '../contexts/mainContext'
 
 import {Paper, Typography, Grid} from '@mui/material';
-import {FormControl, InputLabel, Select, MenuItem} from '@mui/material';
+import {FormControl, InputLabel, Select, MenuItem, Link} from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 
-
-import ListItemButton from '@mui/material/ListItemButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import InboxIcon from '@mui/icons-material/Inbox';
+import ListItemButton from '@mui/material/ListItemButton';
 import Divider from '@mui/material/Divider';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
@@ -38,7 +41,55 @@ const Sidebar = () =>(
     Community
     </Typography>
     <Typography variant="body2">
-    follow the development on Discord
+      Join the discord community to get the latest updates on the project and
+      participate on its development.
+    </Typography>
+    <Typography variant="body2">
+      This project is open source. View its full source on github
+    </Typography>
+
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText primary="discord server" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText primary="github" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText primary="halb.it" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText primary="twitter" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+    <Typography variant="h5" >
+      Report an issue
+    </Typography>
+    <Typography variant="body2">
+      Bug reports are always welcome! you can 
+      <Link href="#" color="primary" variant="inherit" underline="always"> Open an issue </Link>
+      on github or write in the 'bugs' section on the
+      <Link href="#" color="primary" variant="inherit" underline="always"> Discord server </Link>
     </Typography>
     <Typography variant="h5" >
     What's new
@@ -47,14 +98,8 @@ const Sidebar = () =>(
     v 0.1
     </Typography>
     <Typography variant="body2">
-    This is a rewrite of the old halb.it/morsecode website, that implements:
+    [md parse failed]
     </Typography>
-    <ul>
-    <li>accounts</li>
-    <li> custom callsigns</li>
-<li> private rooms </li>
-<li>radio rooms, with real time comunications </li>
-</ul>
 </CardContent>
 </Card>
 )

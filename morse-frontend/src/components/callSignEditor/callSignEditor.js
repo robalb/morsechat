@@ -136,7 +136,7 @@ function SimpleEditor(props){
     <Grid container spacing={3}>
       <Grid item xs={12} >
         <Stack direction="row" spacing={1}>
-          <Typography variant="p">
+          <Typography variant="body1">
             {preview}
           </Typography>
           { validationState == validationStates.LOADING ?
