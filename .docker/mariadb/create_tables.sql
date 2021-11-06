@@ -42,11 +42,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   `expiry` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `session_id` (`session_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=197 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Dump dei dati della tabella morsechat.sessions: ~189 rows (circa)
-/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
+) ENGINE=InnoDB AUTO_INCREMENT=208 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dump della struttura di tabella morsechat.users
 CREATE TABLE IF NOT EXISTS `users` (
@@ -58,11 +54,12 @@ CREATE TABLE IF NOT EXISTS `users` (
   `registrationTimestamp` int(11) NOT NULL,
   `lastOnlineTimestamp` int(11) NOT NULL,
   PRIMARY KEY (`ID`) USING HASH,
-  KEY `email` (`email`),
-  KEY `callsign` (`callsign`)
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4;
+  UNIQUE KEY `email` (`email`) USING HASH,
+  UNIQUE KEY `callsign` (`callsign`) USING HASH,
+  UNIQUE KEY `username` (`username`) USING HASH
+) ENGINE=InnoDB AUTO_INCREMENT=99 DEFAULT CHARSET=utf8mb4;
 
--- Dump dei dati della tabella morsechat.users: ~12 rows (circa)
+-- Dump dei dati della tabella morsechat.users: ~0 rows (circa)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`ID`, `email`, `callsign`, `username`, `password`, `registrationTimestamp`, `lastOnlineTimestamp`) VALUES
 	(71, 'test@test.t', 'IT00HAL', 'robalb', '$argon2id$v=19$m=102400,t=2,p=8$9SY/qdKAO+ekjUFQ76/yjA$u5VmZ7X3nx3wCwmaXxQv7g', 1634152835, 1634152835);

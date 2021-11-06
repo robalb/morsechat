@@ -19,6 +19,66 @@ def clearly_a_profanity(data):
     #repository. Not everything can be open source
     return False
 
+country_codes = [
+  ['ar-SA', 'SA'],
+  ['bn-BD', 'BD'],
+  ['bn-IN', 'IN'],
+  ['cs-CZ', 'CZ'],
+  ['da-DK', 'DK'],
+  ['de-AT', 'AT'],
+  ['de-CH', 'CH'],
+  ['de-DE', 'DE'],
+  ['el-GR', 'GR'],
+  ['en-AU', 'AU'],
+  ['en-CA', 'CA'],
+  ['en-GB', 'GB'],
+  ['en-IE', 'IE'],
+  ['en-IN', 'IN'],
+  ['en-NZ', 'NZ'],
+  ['en-US', 'US'],
+  ['en-ZA', 'ZA'],
+  ['es-AR', 'AR'],
+  ['es-CL', 'CL'],
+  ['es-CO', 'CO'],
+  ['es-ES', 'ES'],
+  ['es-MX', 'MX'],
+  ['es-US', 'US'],
+  ['fi-FI', 'FI'],
+  ['fr-BE', 'BE'],
+  ['fr-CA', 'CA'],
+  ['fr-CH', 'CH'],
+  ['fr-FR', 'FR'],
+  ['he-IL', 'IL'],
+  ['hi-IN', 'IN'],
+  ['hu-HU', 'HU'],
+  ['id-ID', 'ID'],
+  ['it-CH', 'CH'],
+  ['it-IT', 'IT'],
+  ['jp-JP', 'JP'],
+  ['ko-KR', 'KR'],
+  ['nl-BE', 'BE'],
+  ['nl-NL', 'NL'],
+  ['no-NO', 'NO'],
+  ['pl-PL', 'PL'],
+  ['pt-BR', 'BR'],
+  ['pt-PT', 'PT'],
+  ['ro-RO', 'RO'],
+  ['ru-RU', 'RU'],
+  ['sk-SK', 'SK'],
+  ['sv-SE', 'SE'],
+  ['ta-IN', 'IN'],
+  ['ta-LK', 'LK'],
+  ['th-TH', 'TH'],
+  ['tr-TR', 'TR'],
+  ['zh-CN', 'CN'],
+  ['zh-HK', 'HK'],
+  ['zh-TW', 'TW'],
+]
+
+def get_country_names():
+    return list(map(lambda x: x[1], country_codes))
+
+
 #https://github.com/siongui/userpages/blob/master/content/articles/2012/10/11/python-parse-accept-language-in-http-request-header%25en.rst
 #https://siongui.github.io/2012/10/11/python-parse-accept-language-in-http-request-header/
 # https://www.techonthenet.com/js/language_tags.php

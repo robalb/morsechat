@@ -19,7 +19,7 @@ class User:
         return self.id
 
 def get_user(user_id):
-    app.logger.info('This is info output')
+    app.logger.info('flask_login called get_user')
     with db_connection.Cursor() as cur:
         try:
             cur.execute("SELECT * FROM users WHERE `ID` = %d ", (user_id,))
