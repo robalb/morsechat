@@ -24,6 +24,7 @@ socketio = SocketIO(app,
 alchemy = SQLAlchemy(app)
 app.config['SESSION_SQLALCHEMY'] = alchemy
 server_session = Session(app)
+#TODO: find out if this is bad
 server_session.app.session_interface.db.create_all()
 login_manager = LoginManager()
 login_manager.init_app(app)

@@ -12,6 +12,9 @@ config = {
 }
 
 # https://stackoverflow.com/questions/16311974/connect-to-a-database-in-flask-which-approach-is-better
+#TODO: need connection pooling.
+#since we are using sqlalchemy, that seems to use connection pooling, maybe
+#the best option is to borrow sqlalchemy's cursor
 def get_conn():
     return mariadb.connect(**config)
 
