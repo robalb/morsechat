@@ -1,11 +1,13 @@
 import React from 'react';
 import {Typography, Grid, TextField, Button, Divider, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { useSnackbar } from 'notistack';
 
 import CallSignEditor from './callSignEditor/callSignEditor'
 
 
 const RegisterForm = ({state, reload, setPage, post}) =>{
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   let [form, setForm] = React.useState({
     username: '',
     email: '',
@@ -77,12 +79,22 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     resetError()
     if (!clientValidate())
       return
-    const res = await post('register', form);
+    const res = await post('register', form, true);
     console.log(res)
     if(res.success){
       reload()
       setPage("menu")
     }
+    else if(res.error == "invalid_email")
+      setError('email', 'invalid email')
+    else if(res.error == "invalid_username")
+      setError('username', 'invalid username')
+    else if(res.error == "email_exist")
+      setError('email', 'email already registered')
+    else if(res.error == "username_exist")
+      setError('username', 'username already registered')
+    else
+      enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, {variant: "error", preventDuplicate:true})
   }
 
   return (

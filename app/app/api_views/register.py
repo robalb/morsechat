@@ -59,6 +59,7 @@ def api_register():
     callsign = callsign_validation_data['callsign']
 
     #TODO: check for duplicates (mail, username, callsign)
+    #return error email_exist username_exist or callsign_exist
 
     #prepare password
     password = g.data['password']
