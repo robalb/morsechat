@@ -44,13 +44,12 @@ def api_register():
     #validate mail
     filtered_mail = parseaddr(g.data['email'])[1]
     if not '@' in filtered_mail:
-        return error("invalid_email"), 400
+        return error("invalid_email", code=400)
     #validate username
     if clearly_a_profanity(g.data['username']):
-        return error("invalid_username"), 400
+        return error("invalid_username", code=400)
     username = g.data['username']
     #validate callsign
-    validate_callsign(g.data['callsign'])
     try:
         callsign_validation_data = validate_callsign(g.data['callsign'])
     except:

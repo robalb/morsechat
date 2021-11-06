@@ -161,7 +161,6 @@ function SimpleEditor(props){
 const CallSignEditor = (props) =>{
   let {state} = React.useContext(mainContext)
   //TODO: replace this hardcoded data with data received from the apis
-  //allow either a default schema or a custom schema, validated through a secret code
   const [schema, setSchema] = React.useState([
     {
       module: 'country',
@@ -182,7 +181,7 @@ const CallSignEditor = (props) =>{
       description: "3 letters"
     },
   ]);
-  const [schemaCode,  setSchemaCode] = React.useState("hlb_base")
+  const [schemaCode,  setSchemaCode] = React.useState("mrse_default")
 
   function handleSetData(data){
     props.setData({

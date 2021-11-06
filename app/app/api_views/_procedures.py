@@ -3,6 +3,7 @@ from .. import app
 import time
 import mariadb
 import hashlib
+import re
 import json
 from ._utils import get_country_names
 
@@ -24,25 +25,26 @@ def validate_callsign(callsign_data):
      details: "err description"
     }
 
-    @TODO: decide if it's useful to implement max uses (requires logging data, updating this table after successful code use)
     """
-    app.logger.info("STARTING callsign validation")
-    app.logger.info(callsign_data)
-    app.logger.info(get_country_names())
-
     def validate(value, schema):
         """
             add here the server side validation logic for new modules
         """
-        app.logger.info("----- validatin module: ")
-        app.logger.info(schema)
         #country module
         if schema['module'] == 'country':
             if value not in get_country_names():
+                app.logger.error("callsign validation: invalid country: " + value)
                 return False
         #text module
-        # else if schema['module'] == 'text':
-        #     pass
+        elif schema['module'] == 'text':
+            if 'len' in schema and len(value) != schema['len']:
+                app.logger.error("callsign validation: invalid text len: " + value)
+                return False
+            if 'ecmaPattern' in schema:
+                pattern = re.compile(schema['ecmaPattern'])
+                if not pattern.match(value):
+                    app.logger.error("callsign validation: invalid text pattern: " + value)
+                    return False
         #unknown module
         else:
             return False
@@ -72,4 +74,5 @@ def validate_callsign(callsign_data):
         if not validate(value, schema_objects[i]):
             return { 'valid': False, 'details': 'callsign doesn\'t match the schema' }
 
-    return { 'valid': True, 'callsign': 'asdasd' }
+    callsign = ''.join(callsign_data['value'])
+    return { 'valid': True, 'callsign': callsign}
