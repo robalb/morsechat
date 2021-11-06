@@ -7,6 +7,7 @@ from flask_login import login_user
 import time
 from .. import db_connection
 from .. import flask_login_base
+from .. import app
 
 #basic imports
 from . import api
@@ -42,22 +43,21 @@ def api_register():
     #prepare other data
     timestamp = int(time.time())
     #insert the data
-    conn = db_connection.get_conn()
-    cur = conn.cursor()
-    try:
-        cur.execute("""INSERT INTO users
-                (email, username, password, callsign, registrationTimestamp, lastOnlineTimestamp)
-                VALUES ( ?, ?, ?, ?, ?, ?)""", (filtered_mail, username, phash, "", timestamp, timestamp) )
-    except:
-        conn.close()
-        return error("database error"), 500
-    userId = cur.lastrowid
-    conn.commit()
-    conn.close()
+    with db_connection.Cursor() as cur:
+        try:
+            cur.execute("""INSERT INTO users
+                    (email, username, password, callsign, registrationTimestamp, lastOnlineTimestamp)
+                    VALUES ( ?, ?, ?, ?, ?, ?)""", (filtered_mail, username, phash, "", timestamp, timestamp) )
+        except:
+            return error("server_error", details="database query failed", code=500)
+        userId = cur.lastrowid
+    app.logger.info(userId)
+    if not userId:
+        #TODO: make this more explicit
+        return error("username_mail_callsign_invalid")
     #authenticate the user
     session['show_popup'] = False
     u = flask_login_base.get_user(userId)
     login_user(u, remember=False)
-
     return success(userId)
 

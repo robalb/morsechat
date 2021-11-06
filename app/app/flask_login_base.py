@@ -20,14 +20,13 @@ class User:
 
 def get_user(user_id):
     app.logger.info('This is info output')
-    conn = db_connection.get_conn()
-    cur = conn.cursor(named_tuple=True)
-    try:
-        cur.execute("SELECT * FROM users WHERE `ID` = %d ", (user_id,))
-    except mariadb.Error as e:
-        app.logger.info(f'error sql {e}')
-        return None
-    row = cur.fetchone()
+    with db_connection.Cursor() as cur:
+        try:
+            cur.execute("SELECT * FROM users WHERE `ID` = %d ", (user_id,))
+        except mariadb.Error as e:
+            app.logger.info(f'error sql {e}')
+            return None
+        row = cur.fetchone()
     if not row:
         return None
     user = User(row)

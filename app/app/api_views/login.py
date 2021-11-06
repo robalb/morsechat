@@ -27,13 +27,12 @@ def api_login():
     if current_user.is_authenticated:
         return error("already_logged"), 400
     ph = PasswordHasher()
-    conn = db_connection.get_conn()
-    cur = conn.cursor(named_tuple=True)
-    try:
-        cur.execute("SELECT ID, password FROM users WHERE username = ?", (g.data['username'],))
-    except:
-        return error("database error"), 500
-    row = cur.fetchone()
+    with db_connection.Cursor() as cur:
+        try:
+            cur.execute("SELECT ID, password FROM users WHERE username = ?", (g.data['username'],))
+        except:
+            return error("server_error", details="database query failed", code=500)
+        row = cur.fetchone()
     credentials_are_good = False
     #if the username exist
     if row:

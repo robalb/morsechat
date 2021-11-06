@@ -20,21 +20,22 @@ def get_conn():
 
 # https://stackoverflow.com/questions/5669878/when-to-close-cursors-using-mysqldb/22618781#22618781
 class Cursor:
+    def __init__(this, autocommit=True):
+        this.autocommit = autocommit
+
     def __enter__(this):
         this.conn = get_conn()
+        if this.autocommit:
+            this.conn.autocommit = True
         this.cur = this.conn.cursor(named_tuple=True)
         return this.cur
 
     def __exit__(this, exc, value, tb):
-        #put here commit logic based on exc error
-        #autocommit should be enabled by default
+        #commit logic. mariadb has autocommit disabled by default
+        # if this.commit:
+        #     if exc:
+        #         this.conn.rollback()
+        #     else:
+        #         this.conn.commit()
         this.cur.close()
         this.conn.close()
-
-
-
-"""
-cur = conn.cursor() 
-conn.commit() 
-conn.close()
-"""
