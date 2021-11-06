@@ -20,6 +20,8 @@ def clearly_a_profanity(data):
     return False
 
 #https://github.com/siongui/userpages/blob/master/content/articles/2012/10/11/python-parse-accept-language-in-http-request-header%25en.rst
+#https://siongui.github.io/2012/10/11/python-parse-accept-language-in-http-request-header/
+# https://www.techonthenet.com/js/language_tags.php
 def parseAcceptLanguage(acceptLanguage):
   languages = acceptLanguage.split(",")
   locale_q_pairs = []
