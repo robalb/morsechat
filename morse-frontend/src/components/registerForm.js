@@ -41,6 +41,15 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     }
   }
 
+  function passwordIsDumb(){
+    let mostCommon = ['123456', '123456789', 'picture1', 'password', '12345678', '111111', '123123', '12345', '1234567890', 'senha', '1234567', 'qwerty', 'abc123', 'Million2', '000000', '1234', 'iloveyou', 'aaron431', 'password1', 'qqww1122'];
+    if(mostCommon.includes(form.password))
+      return true
+    if(form.password == form.username || form.password == form.email)
+      return true
+    return false
+  }
+
   function clientValidate(){
     let isGood = true
     //username length
@@ -66,6 +75,11 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     //password length
     if(form.password.length <8 || form.password.length > 255){
       setError('password', 'too short')
+      isGood = false
+    }
+    //password dumbness
+    else if(passwordIsDumb()){
+      setError('password', 'too dumb')
       isGood = false
     }
     //valid callsign
