@@ -22,10 +22,11 @@ def api_validate_callsign():
     cur = conn.cursor(named_tuple=True)
     try:
         cur.execute("SELECT ID FROM users WHERE callsign = ?", (g.data['callsign'],))
-        # conn.close()
     except:
+        conn.close()
         return error("server_error", details="database query failed", code=500)
     row = cur.fetchone()
+    conn.close()
     if row:
         return error("already_taken")
     return success("")

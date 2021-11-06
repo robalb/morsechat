@@ -82,7 +82,8 @@ const ApiProvider = ({children}) => {
         alertError("operation failed, the app has not finished initializing ")
         return {
           success: false,
-          error: "csrf_init_failed",
+          error: "network_error",
+          details: "api call made before the csrf token was initialized"
         }
     }
     //make request, on fail alert error

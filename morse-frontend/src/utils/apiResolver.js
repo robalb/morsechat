@@ -1,11 +1,19 @@
-  /*
-   * internal request method.
-   * any kind of error will be handled internally, this
-   * merthod will always return an object in the api standard format
+  /**
+   * Internal request method.
+   *
+   * Any kind of error will be handled internally, this
+   * function will always return an object in the following format
    * { success: false, error:errstring, details:errdetails}
    * { success: true, data:returneddata}
    * in case of connection issues for example this method will return
    * { success: false, error:'network_error'}
+   *
+   * here is the complete list of errors this function could return:
+   * network_error -The http request failed. This could happen because of CORS, or connection issues
+   * server_error  -The server responded with something unexpected: invalid json, or an http response
+   *                code different than 200. For help in debugging this issue you can check the details
+   *                string
+   * abort_error   -The request was aborted internally in the app logic by an abortcontroller
    */
  export async function request(url, data={}, csrf=false, signal=false){
    let optional = {}
@@ -44,6 +52,14 @@
         details: e.message
       }
     }
+    //handle responses with a status different from 200
+    if(response.status != 200){
+      return {
+        success: false,
+        error: 'server_error',
+        details: "server returned status code: " + response.status
+      }
+    }
     //attempt to decode the api response into an object
     try{
       response = await response.json(); // parses JSON response into native JavaScript objects
@@ -51,8 +67,8 @@
     catch(e){
       return {
         success: false,
-        error: 'response_data_error',
-        details: e
+        error: 'server_error',
+        details: "server status is 200, but json parse failed"
       }
     }
     //TODO: validate the decoded object content, ex: must contain success key

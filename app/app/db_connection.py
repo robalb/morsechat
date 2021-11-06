@@ -2,7 +2,7 @@ import os
 import mariadb
 import flask
 
-# configuration used to connect to MariaDB
+# configuration used to connect to MariaDB and sqlalchemy
 config = {
     'host': os.environ['MARIADB_HOST'],
     'port': 3306,
