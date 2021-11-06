@@ -14,6 +14,10 @@
    *                code different than 200. For help in debugging this issue you can check the details
    *                string
    * abort_error   -The request was aborted internally in the app logic by an abortcontroller
+   *
+   * other errors are defined by every api endpoint. common ones are
+   * bad_schema
+   * unauthorized
    */
  export async function request(url, data={}, csrf=false, signal=false){
    let optional = {}

@@ -17,9 +17,9 @@ services:
       MARIADB_PASSWORD: ${DB_LOWP_USER_PASSWORD}
       MARIADB_DATABASE: ${DB_DBNAME}
 
-      FLASK_DEBUG: 1
       FLASK_ENV: development
-      FLASK_APP: app.py
+      FLASK_DEBUG: 1 # default to 0 when env==production, no need to change this
+      FLASK_APP: app.py #TODO: remove, probably useless (not part of flask env variables)
 
   #MariaDb Service
   mariadb:

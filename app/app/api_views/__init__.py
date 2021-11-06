@@ -1,5 +1,6 @@
 from flask import Blueprint, request, session
 import secrets
+import os
 
 from .. import flask_login_base
 from .. import app
@@ -12,14 +13,13 @@ def user_loader(user_id):
     return flask_login_base.get_user(user_id)
 @login_manager.unauthorized_handler
 def unauthorized():
-    return error("unauthorized", details="you are not logged in"), 401
+    return error("unauthorized", details="you are not logged in", code=401)
 
 
 #initialize the api blueprint
 api = Blueprint('api', __name__)
 
-#TODO: this must be set only in development
-development_mode = True
+development_mode = os.environ['FLASK_ENV'] == 'development'
 
 #this function will run after every request, setting the appropriate cors headers
 #if the app is in development mode
@@ -39,12 +39,13 @@ def after_request(response):
 @api.before_request
 def before_request_func():
     reject = False
-    #exclusion rules:
-    # -the endpoint /page_init defined in page_init.py with the function
-    #  api.api_page_init should allow requests without csrf token, since it's the endpoint
-    #  that the client uses to receive the csrf token
-    # -cors preflight requests should be allowed in development mode
-    if request.endpoint == "api.api_page_init" or (
+    #endpoints that don't require csrf tokens
+    no_csrf_views = [
+      "api.api_page_init",
+      "api.api_page_not_found",
+    ]
+    if request.endpoint in no_csrf_views or (
+            #allow cors preflight requests in development mode
             development_mode and
             request.method == "OPTIONS" and 
             "Access-Control-Request-Method" in request.headers
@@ -62,12 +63,12 @@ def before_request_func():
             reject = True
     #reject for csrf errors
     if reject:
-        return error("csrf_token_error"), 401
+        return error("unauthorized", details="csrf_token_error", code=401)
 
     # https://web.dev/fetch-metadata/
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Dest
     if request.headers.get("Sec-Fetch-Site") and not development_mode:
-        if request.headers['Sec-Fetch-Site'] not in ('same-origin',):
+        if request.headers['Sec-Fetch-Site'] not in ('same-site',):
             app.logger.error("rejected for wrong sec-fetch-site")
             app.logger.info(request.headers.get("Sec-Fetch-Site"))
             reject = True
@@ -78,7 +79,7 @@ def before_request_func():
             reject = True
     #reject for sec-fetch errors
     if reject:
-        return error("request_origin_error"), 401
+        return error("unauthorized", details="request_origin_error", code=401)
 
 
 from . import register
