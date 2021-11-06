@@ -25,7 +25,7 @@ schema = {
 def api_login():
     #abort if the user is already logged
     if current_user.is_authenticated:
-        return error("already_logged"), 400
+        return error("unauthorized", details="you are already logged", code=400)
     ph = PasswordHasher()
     with db_connection.Cursor() as cur:
         try:

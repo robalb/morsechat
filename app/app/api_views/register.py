@@ -3,7 +3,7 @@ from flask import g, session
 from flask_expects_json import expects_json
 from email.utils import parseaddr
 from argon2 import PasswordHasher
-from flask_login import login_user
+from flask_login import login_user, current_user
 import time
 from .. import db_connection
 from .. import flask_login_base
@@ -28,6 +28,9 @@ schema = {
 @api.route('/register', methods=['POST'])
 @expects_json(schema)
 def api_register():
+    #abort if the user is already logged
+    if current_user.is_authenticated:
+        return error("unauthorized", details="you are already logged", code=400)
     #validate mail
     filtered_mail = parseaddr(g.data['email'])[1]
     if not '@' in filtered_mail:
