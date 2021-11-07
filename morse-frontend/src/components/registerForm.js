@@ -42,14 +42,14 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
   }
 
   function passwordIsDumb(){
-    let mostCommon = ['123456', '123456789', 'picture1', 'password', '12345678', '111111', '123123', '12345', '1234567890', 'senha', '1234567', 'qwerty', 'abc123', 'Million2', '000000', '1234', 'iloveyou', 'aaron431', 'password1', 'qqww1122'];
+    let mostCommon = [ "123456789", "picture1", "password", "12345678", "1234567890", "Million2", "iloveyou", "aaron431", "password1", "qqww1122",
+   "starwars", "qwertyuiop", "asdfghjkl", "aa123456", "trustno1", "princess", "morsecode", "morsechat", "00000000" ]
     if(mostCommon.includes(form.password))
       return true
     if(form.password == form.username || form.password == form.email)
       return true
     return false
   }
-
   function clientValidate(){
     let isGood = true
     //username length
