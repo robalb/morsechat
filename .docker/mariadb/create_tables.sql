@@ -47,22 +47,20 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 -- Dump della struttura di tabella morsechat.users
 CREATE TABLE IF NOT EXISTS `users` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NOT NULL,
   `callsign` varchar(20) NOT NULL,
   `username` varchar(20) NOT NULL,
   `password` varchar(97) NOT NULL,
   `registrationTimestamp` int(11) NOT NULL,
   `lastOnlineTimestamp` int(11) NOT NULL,
   PRIMARY KEY (`ID`) USING HASH,
-  UNIQUE KEY `email` (`email`) USING HASH,
   UNIQUE KEY `callsign` (`callsign`) USING HASH,
   UNIQUE KEY `username` (`username`) USING HASH
 ) ENGINE=InnoDB AUTO_INCREMENT=99 DEFAULT CHARSET=utf8mb4;
 
 -- Dump dei dati della tabella morsechat.users: ~0 rows (circa)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`ID`, `email`, `callsign`, `username`, `password`, `registrationTimestamp`, `lastOnlineTimestamp`) VALUES
-	(71, 'test@test.t', 'IT00HAL', 'robalb', '$argon2id$v=19$m=102400,t=2,p=8$9SY/qdKAO+ekjUFQ76/yjA$u5VmZ7X3nx3wCwmaXxQv7g', 1634152835, 1634152835);
+INSERT INTO `users` (`ID`, `callsign`, `username`, `password`, `registrationTimestamp`, `lastOnlineTimestamp`) VALUES
+	(71, 'IT00HAL', 'robalb', '$argon2id$v=19$m=102400,t=2,p=8$9SY/qdKAO+ekjUFQ76/yjA$u5VmZ7X3nx3wCwmaXxQv7g', 1634152835, 1634152835);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
