@@ -87,6 +87,6 @@ from . import login
 from . import validate_callsign
 from . import redeem
 from . import generate_schema
+from . import page_init
 
 from . import errors
-from . import page_init

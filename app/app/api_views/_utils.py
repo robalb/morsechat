@@ -95,7 +95,7 @@ def parseAcceptLanguage(acceptLanguage):
       locale_q_pairs.append((locale, q))
   return locale_q_pairs
 
-def generate_anonymous_callsign(lang_header):
+def negotiate_country(lang_header):
     country_code = "XX"
     #TODO: implement seriously: negotiate lang against a list of approved languages,
     #and associate a country to the language
@@ -106,8 +106,10 @@ def generate_anonymous_callsign(lang_header):
                 country_code = parsed[0][0][:2].upper()
         except:
             country_code = "xX"
+    return country_code
 
-    return country_code + secrets.token_hex(2).upper()
+def generate_anonymous_callsign(country):
+    return country + secrets.token_hex(2).upper()
 
 
 

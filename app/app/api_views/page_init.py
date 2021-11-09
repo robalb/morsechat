@@ -3,58 +3,36 @@ from flask_login import current_user
 from .. import db_connection
 from . import api
 from .. import app
-from ._utils import success, error, generate_anonymous_callsign
+from ._utils import success, error, generate_anonymous_callsign, negotiate_country
+from ._procedures import Data_modules
 import secrets
 
-# this api endpoint is called when a page in the frontend loads.
-# it returns the essential data required by every page. 
-# - In other systems, this data would be injected in the page before serving it.
-# this method is also responsible for initializing the user session variables, when not set
+#the only endpoint that can be called without a csrf token. therefore the first endpoint that will
+#be called when any frontend page loads, 
+# Returns essential data required by all frontend pages
 @api.route('/page_init', methods=['POST'])
 def api_page_init():
-    #initialize if not set the anti-csrf token
-    #TODO: check if this is safe, or if it's better to use the 'in' keyword
-    if not session.get('csrf'):
+    #initialize the csrf token
+    if not 'csrf' in session:
         session['csrf'] = 'csrf_' + secrets.token_hex(16)
-    #initialize if not set the show_popup variable. When true client pages will show
-    # the login popup on load
+
+    #initialize the show_popup variable. When true client pages will show the login popup on load
     if not 'show_popup' in session:
-        app.logger.info("setting to false")
         session['show_popup'] = True
-    #generate random callsign if the user is not authenticated, and if not already set
-    #this will be regenerated if the user joins a room where someone has the same callsign
-    if not current_user.is_authenticated and not session.get('anonymous_callsign'):
+
+    #if the user is not authenticated, generate random callsign and get user country
+    if not current_user.is_authenticated and 'anonymous_callsign' not in session:
         lang_header = ""
         if request.headers.get('Accept-Language'):
             lang_header = request.headers['Accept-Language']
-        session['anonymous_callsign'] = generate_anonymous_callsign(lang_header)
-    #prepare return data
-    if current_user.is_authenticated:
-        user_data = {
-                'id': current_user.id,
-                'username': current_user.username,
-                'callsign': current_user.callsign,
-                'last_online': current_user.last_online
-                }
-    else:
-        user_data = {
-                'callsign': session['anonymous_callsign'],
-                'country': 'IT'
-                }
+        session['country'] = negotiate_country(lang_header)
+        session['anonymous_callsign'] = generate_anonymous_callsign(session['country'])
+
+    data_modules = Data_modules(current_user, session)
     data = {
-            'session': {
-                'authenticated': current_user.is_authenticated,
-                'show_popup': session['show_popup'],
-                'csrf': session['csrf']
-                },
-            'app': {
-                #TODO use real data, from some config file
-                'rooms': {
-                    'chat': 3,
-                    'radio': 3
-                    }
-                },
-            'user': user_data
+            'session': data_modules.user_session(),
+            'app': data_modules.app(),
+            'user': data_modules.user()
             }
     return success(data)
 
