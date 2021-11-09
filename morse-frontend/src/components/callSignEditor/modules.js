@@ -16,7 +16,6 @@ function ModuleCountrySelector(props) {
         <Select
           sx={{minWidth: 100}}
           value={country}
-          hiddenLabel
           onChange={handleChange}
           autoWidth
           size="small"
@@ -39,7 +38,6 @@ function ModuleText(props){
   return (
       <FormControl sx={{maxWidth: 100}}>
         <TextField
-              hiddenLabel
               error={!completelyValid}
               value={props.value}
               onChange={handleChange}

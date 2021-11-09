@@ -5,7 +5,6 @@ from . import app
 class User:
     def __init__(this, namedTuple):
         this.id = namedTuple.ID
-        this.email = namedTuple.email
         this.username = namedTuple.username
         this.callsign = namedTuple.callsign
         this.last_online = namedTuple.lastOnlineTimestamp

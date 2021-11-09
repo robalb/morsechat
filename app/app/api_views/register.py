@@ -1,7 +1,6 @@
 #page specific imports
 from flask import g, session
 from flask_expects_json import expects_json
-from email.utils import parseaddr
 from argon2 import PasswordHasher
 from flask_login import login_user, current_user
 import time
@@ -17,7 +16,6 @@ from ._utils import success, error, clearly_a_profanity
 schema = {
     'type': 'object',
     'properties': {
-        'email': {'type': 'string', 'maxLength':255, 'minLength':6 },
         'username': {'type': 'string', 'maxLength':20, 
                      'minLength':3, "pattern": "^[A-Za-z0-9-_]+$"
                      },
@@ -32,8 +30,8 @@ schema = {
             'maxProperties': 2
         }
     },
-    'required': ['email', 'username', 'password', 'callsign'],
-    'maxProperties': 4
+    'required': ['username', 'password', 'callsign'],
+    'maxProperties': 3
 }
 @api.route('/register', methods=['POST'])
 @expects_json(schema)
@@ -41,10 +39,6 @@ def api_register():
     #abort if the user is already logged
     if current_user.is_authenticated:
         return error("unauthorized", details="you are already logged", code=400)
-    #validate mail
-    filtered_mail = parseaddr(g.data['email'])[1]
-    if not '@' in filtered_mail:
-        return error("invalid_email", code=400)
     #validate username
     if clearly_a_profanity(g.data['username']):
         return error("invalid_username", code=400)
@@ -58,8 +52,15 @@ def api_register():
         return error("invalid_callsign", details=callsign_validation_data['details'])
     callsign = callsign_validation_data['callsign']
 
-    #TODO: check for duplicates (mail, username, callsign)
-    #return error email_exist username_exist or callsign_exist
+    #check if the callsign is in use
+    with db_connection.Cursor() as cur:
+        try:
+            cur.execute("""SELECT `ID` FROM users WHERE callsign = ? LIMIT 1 """, (callsign,) )
+        except:
+            return error("server_error", details="database query 0 failed", code=500)
+        row = cur.fetchone()
+        if row:
+            return error("callsign_exist")
 
     #prepare password
     password = g.data['password']
@@ -71,15 +72,15 @@ def api_register():
     with db_connection.Cursor() as cur:
         try:
             cur.execute("""INSERT INTO users
-                    (email, username, password, callsign, registrationTimestamp, lastOnlineTimestamp)
-                    VALUES ( ?, ?, ?, ?, ?, ?)""", (filtered_mail, username, phash, callsign, timestamp, timestamp) )
+                    (username, password, callsign, registrationTimestamp, lastOnlineTimestamp)
+                    VALUES ( ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `ID`=`ID`""", (username, phash, callsign, timestamp, timestamp) )
         except:
-            return error("server_error", details="database query failed", code=500)
+            return error("server_error", details="database query 1 failed", code=500)
         userId = cur.lastrowid
     app.logger.info(userId)
     if not userId:
-        #TODO: make this more explicit
-        return error("server_error", details="insertion in database failed", code=500)
+        # return error("server_error", details="insertion in database failed", code=500)
+        return error("username_exist")
     #authenticate the user
     session['show_popup'] = False
     u = flask_login_base.get_user(userId)

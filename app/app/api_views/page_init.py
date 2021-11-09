@@ -32,7 +32,6 @@ def api_page_init():
     if current_user.is_authenticated:
         user_data = {
                 'id': current_user.id,
-                'email': current_user.email,
                 'username': current_user.username,
                 'callsign': current_user.callsign,
                 'last_online': current_user.last_online

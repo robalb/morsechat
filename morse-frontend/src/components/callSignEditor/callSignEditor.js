@@ -129,7 +129,7 @@ function SimpleEditor(props){
   let renderedModules = modulesData.map( (current, index) => {
         let { module, value, ...props } = current
         let Comp = modules[module]
-        return <Comp value={value} update={handleUpdate(index)} {...props} />
+        return <Comp value={value} key={index} update={handleUpdate(index)} {...props} />
       })
 
   return (

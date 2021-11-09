@@ -7,6 +7,7 @@ import CurrentUserChip from '../components/currentUserChip'
 import MainDataLoading from '../components/mainDataLoading'
 import LoginForm from '../components/loginForm'
 import RegisterForm from '../components/registerForm'
+import VerificationForm from '../components/verificationForm'
 import Providers from '../components/providers'
 import mainContext from '../contexts/mainContext'
 
@@ -195,9 +196,10 @@ const Index = () => {
   let pages = {
     "menu": IndexMenu,
     "login": LoginForm,
-    "register": RegisterForm
+    "register": RegisterForm,
+    "verify": VerificationForm
   }
-  let [page, _setPage] = React.useState("menu")
+  let [page, _setPage] = React.useState("register")
   function setPage(pageName){
     if(pages.hasOwnProperty(pageName))
       _setPage(pageName)

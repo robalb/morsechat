@@ -10,14 +10,12 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   let [form, setForm] = React.useState({
     username: '',
-    email: '',
     password: '',
     callsign: undefined
   })
 
   const initialError = {
     username: '',
-    email: '',
     password: '',
   };
   let [error, _setError] = React.useState(initialError)
@@ -46,7 +44,7 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
    "starwars", "qwertyuiop", "asdfghjkl", "aa123456", "trustno1", "princess", "morsecode", "morsechat", "00000000" ]
     if(mostCommon.includes(form.password))
       return true
-    if(form.password == form.username || form.password == form.email)
+    if(form.password == form.username)
       return true
     return false
   }
@@ -60,16 +58,6 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     //username content
     else if(!/^[A-Za-z0-9-_]+$/.test(form.username)){
       setError('username', 'invalid characters')
-      isGood = false
-    }
-    //email length
-    if(form.email.length <6 || form.email.length > 255){
-      setError('email', 'invalid format')
-      isGood = false
-    }
-    //email format
-    if(!/\S+@\S+\.\S+/.test(form.email)){
-      setError('email', 'invalid format')
       isGood = false
     }
     //password length
@@ -97,16 +85,14 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     console.log(res)
     if(res.success){
       reload()
-      setPage("menu")
+      setPage("verify")
     }
-    else if(res.error == "invalid_email")
-      setError('email', 'invalid email')
     else if(res.error == "invalid_username")
       setError('username', 'invalid username')
-    else if(res.error == "email_exist")
-      setError('email', 'email already registered')
     else if(res.error == "username_exist")
       setError('username', 'username already registered')
+    else if(res.error == "callsign_exist")
+      enqueueSnackbar('callsign already taken', {variant: "error", preventDuplicate:true})
     else
       enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, {variant: "error", preventDuplicate:true})
   }
@@ -133,7 +119,7 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
       </Grid>
       <Grid item xs={12} >
         <Typography variant="h5" color="primary" >
-          account data
+          your data
         </Typography>
       </Grid>
       <Grid item xs={12} md={6}>
@@ -142,11 +128,6 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
         error={error.username.length > 0} helperText={error.username} />
       </Grid>
       <Grid item xs={12} md={6} >
-        <TextField label="Email" type="email" value={form.email}
-        onChange={handleUpdate('email')} fullWidth variant="standard"
-        error={error.email.length > 0} helperText={error.email} />
-      </Grid>
-      <Grid item xs={12} >
         <TextField label="password" type="password" value={form.password}
         onChange={handleUpdate('password')} fullWidth variant="standard"
         error={error.password.length > 0} helperText={error.password} />
