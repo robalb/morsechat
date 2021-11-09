@@ -199,7 +199,7 @@ const Index = () => {
     "register": RegisterForm,
     "verify": VerificationForm
   }
-  let [page, _setPage] = React.useState("register")
+  let [page, _setPage] = React.useState("menu")
   function setPage(pageName){
     if(pages.hasOwnProperty(pageName))
       _setPage(pageName)

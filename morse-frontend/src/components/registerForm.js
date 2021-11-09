@@ -36,6 +36,7 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
         ...f,
         [type]: data.target.value
       }))
+      setError(type, '')
     }
   }
 

@@ -49,7 +49,7 @@ def api_login():
         login_user(u, remember=False)
         return success("")
     else:
-        return error("invalid_credentials"), 400
+        return error("invalid_credentials", code=400)
 
 
 # set the session popup flag to False.

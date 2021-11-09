@@ -190,12 +190,14 @@ const CallSignEditor = (props) =>{
     })
   }
 
- return (
-   <>
-    <SimpleEditor schema={schema} setData={handleSetData} />
+/*
     <Button size="small" variant="text" sx={{marginTop: 5}}>
      use custom code
     </Button>
+ */
+ return (
+   <>
+    <SimpleEditor schema={schema} setData={handleSetData} />
     </>
  )
 }
