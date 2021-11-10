@@ -1,8 +1,6 @@
 import * as React from "react"
 // import { Link } from "gatsby"
-import { StaticImage } from "gatsby-plugin-image"
 import Seo from "../components/seo"
-import Home from '../components/test'
 import CurrentUserChip from '../components/currentUserChip'
 import MainDataLoading from '../components/mainDataLoading'
 import LoginForm from '../components/loginForm'
@@ -16,7 +14,6 @@ import {FormControl, InputLabel, Select, MenuItem, Link} from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-import LinearProgress from '@mui/material/LinearProgress';
 import Stack from '@mui/material/Stack';
 
 import List from '@mui/material/List';
@@ -26,10 +23,6 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/Inbox';
 import ListItemButton from '@mui/material/ListItemButton';
 import Divider from '@mui/material/Divider';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
-
-import {ManageAccounts, Person, InfoOutlined} from '@mui/icons-material';
 
 import '../styles/common.css'
 
