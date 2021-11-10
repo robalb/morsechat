@@ -7,7 +7,7 @@ import time
 from .. import db_connection
 from .. import flask_login_base
 from .. import app
-from ._procedures import validate_callsign
+from ._procedures import validate_callsign, Data_modules
 
 #basic imports
 from . import api
@@ -85,5 +85,12 @@ def api_register():
     session['show_popup'] = False
     u = flask_login_base.get_user(userId)
     login_user(u, remember=False)
-    return success(userId)
+
+    #prepare critical data that the user must update
+    data_modules = Data_modules(current_user, session)
+    data = {
+            'session': data_modules.user_session(),
+            'user': data_modules.user()
+            }
+    return success(data)
 

@@ -85,7 +85,7 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     const res = await post('register', form, true);
     console.log(res)
     if(res.success){
-      reload()
+      reload(res.data)
       setPage("verify")
     }
     else if(res.error == "invalid_username")
