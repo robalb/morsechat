@@ -3,6 +3,7 @@ from flask import g, session
 from flask_expects_json import expects_json
 from argon2 import PasswordHasher
 from flask_login import login_user, logout_user, login_required, current_user
+from ._procedures import Data_modules
 from .. import db_connection
 from .. import flask_login_base
 from .. import app
@@ -47,7 +48,14 @@ def api_login():
         u = flask_login_base.get_user(row.ID)
         session['show_popup'] = False
         login_user(u, remember=False)
-        return success("")
+
+        #prepare critical data that the user must update
+        data_modules = Data_modules(current_user, session)
+        data = {
+                'session': data_modules.user_session(),
+                'user': data_modules.user()
+                }
+        return success(data)
     else:
         return error("invalid_credentials", code=400)
 

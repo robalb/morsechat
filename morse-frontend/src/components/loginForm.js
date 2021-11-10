@@ -63,7 +63,7 @@ const LoginForm = ({state, reload, setPage, post}) =>{
     const res = await post('login', form, true);
     console.log(res)
     if(res.success){
-      reload()
+      reload(res.data)
       setPage("menu")
     }
     else if(res.error == "invalid_credentials"){

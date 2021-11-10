@@ -34,7 +34,7 @@ const ApiProvider = ({children}) => {
     //any interactive page
     async function getInitData(){
       let url = baseUrl + 'page_init'
-      let res = await request(url, {}) 
+      let res = await request(url, {})
       if(res.success){
         setState( s => ({
           ...s,
@@ -97,11 +97,31 @@ const ApiProvider = ({children}) => {
     enqueueSnackbar(error, {variant: "error", preventDuplicate:true})
   }
 
-  //TODO: add the option to reload using data passed in the arguments
-  //this could be useful in login systems, where after the login the user data
-  //is returned, and the state version of that data should be updated
-  function reload(){
-    setFetchCount(c => c+1)
+  function reload(data = false){
+    if(!data){
+      setFetchCount(c => c+1)
+    }
+    else{
+      let newKeys = {}
+      if(data.hasOwnProperty('app'))
+        newKeys.appData = data.app
+      if(data.hasOwnProperty('session'))
+        newKeys.sessionData = data.session
+      if(data.hasOwnProperty('user'))
+        newKeys.userData = data.user
+
+      console.log("newKeys object")
+      console.log(newKeys)
+
+      if(Object.values(newKeys).length > 0)
+        setState(s => ({
+          ...s,
+          ...newKeys
+        }))
+      else
+        //fallback to api call update if the received data was malformed
+        setFetchCount(c => c+1)
+    }
   }
 
 
