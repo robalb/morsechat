@@ -1,0 +1,42 @@
+services:
+
+  #Flask service
+  flask:
+    build: ./.docker/flask
+    volumes:
+      - ./app:/app
+      - ./morse-frontend/public:/app/static
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_HOST: mariadb
+      MARIADB_USER: ${DB_LOWP_USER}
+      MARIADB_PASSWORD: ${DB_LOWP_USER_PASSWORD}
+      MARIADB_DATABASE: ${DB_DBNAME}
+
+      FLASK_ENV: development
+      FLASK_DEBUG: 1 # default to 0 when env==production, no need to change this
+      FLASK_APP: app.py #TODO: remove, probably useless (not part of flask env variables)
+
+  #MariaDb Service
+  mariadb:
+    image: bitnami/mariadb:latest
+    ports:
+      - 3306:3306
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_USER: ${DB_LOWP_USER}
+      MARIADB_PASSWORD: ${DB_LOWP_USER_PASSWORD}
+      MARIADB_DATABASE: ${DB_DBNAME}
+      MARIADB_PORT_NUMBER: 3306
+    volumes:
+      - ./.docker/mariadb/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf
+      - ./.docker/mariadb/create_tables.sql:/docker-entrypoint-initdb.d/init.sql
+      - mariadata:/bitnami/mariadb/data
+
+# Volumes
+volumes:
+  mariadata:

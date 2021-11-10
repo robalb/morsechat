@@ -1,2 +1,43 @@
+# Configure line ending normalisation for this repository.
+#
+# Also each developer should configure the old style normalisation on her workstation
+# See https://adaptivepatchwork.com/2012/03/01/mind-the-end-of-your-line/ for more information.
+# and https://stackoverflow.com/a/9977954
+#
+# Navigate into the repository, then execute
+#  git config core.eol lf
+#  git config core.autocrlf input
+# Or set this globally for every repository on your machine
+#  git config --global core.eol lf
+#  git config --global core.autocrlf input
+
 # Auto detect text files and perform LF normalization
-* text=auto
+*       text=auto
+
+#text files
+*.txt      text
+*.md       text
+*.yml      text
+.env       text
+Docherfile text
+*.sql      text
+*.json     text
+*.js       text
+*.jsx      text
+*.tsx      text
+*.ts       text
+*.css      text
+*.html     text
+*.py       text
+
+#binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.psd binary
+*.pwd binary
+
+# Shell scripts require LF
+*.sh    text eol=lf
+# Batch scripts require CRLF
+*.bat   text eol=crlf

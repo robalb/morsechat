@@ -7,34 +7,14 @@
 [![docs](https://inch-ci.org/github/robalb/morsechat.svg?branch=master)](https://inch-ci.org/github/robalb/morsechat/)
 
 
-A fully responsive morse code web chat designed to learn morse and comunicate with friends, without having to buy
-a radio. This project is based on [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
+A mobile-friendly morse code web chat designed to learn morse and communicate with friends, without having to buy
+a radio. Inspired by [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
 
 Live demo: [halb.it/morsecode](https://halb.it/morsecode)
 
-Because of some restrictions of my shared hosting service, the websocket connections are handled by the third party service [pusher](https://www.pusher.com). The live website is currently limited to 200.000 messages per day (including the 'started typing' message) and max 100 cuncurrent connections.
+## important
 
-## Requirements
+This is a complete rewrite of the old morsechat, written using more modern web technologies.
+The old codebase is archived in the 'legacy_php_morsechat' branch of this repository, and is no longer maintained.
 
-* PHP 5.4 or higher, with cUrl and json modules
-* [pusher](https://www.pusher.com) api keys
-
-## Configuration
-
-Insert your pusher api credentials in `app/config.php`  You can get them by registering a free account on pusher.com
-
-In the same file you can also configure:
-
-* the maximum number of channels available (default 7)
-* the minimum number of seconds before an user can send another message (default 5s)
-* chat admin username and password <coming soon>
-
-## Apis
-
-You can get basic informations about the status of the chat from the script `app/getonline.php`.
-
-The script returns the number of active channels and online users in json format.
-
-Example: `{"channels":0,"online_users":0}`
-
-
+This rewrite is not ready to go live yet, halb.it/morsecode is still serving the old php version
