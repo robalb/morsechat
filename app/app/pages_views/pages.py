@@ -10,9 +10,9 @@ def sessions():
 @app.route('/')
 def gatsby_test():
     return app.send_static_file( 'index.html')
-@app.route('/page-2/')
+@app.route('/chat/')
 def gatsby_test2():
-    return app.send_static_file( 'page-2/index.html')
+    return app.send_static_file( 'chat/index.html')
 
 #404 page (this also should be handled by nginx)
 @app.errorhandler(404)

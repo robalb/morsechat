@@ -7,11 +7,13 @@ from ._utils import success, error, generate_anonymous_callsign, negotiate_count
 from ._procedures import Data_modules
 import secrets
 
+
 #the only endpoint that can be called without a csrf token. therefore the first endpoint that will
 #be called when any frontend page loads, 
 # Returns essential data required by all frontend pages
 @api.route('/page_init', methods=['POST'])
 def api_page_init():
+    app.logger.info("RECEIVED")
     #initialize the csrf token
     if not 'csrf' in session:
         session['csrf'] = 'csrf_' + secrets.token_hex(16)
