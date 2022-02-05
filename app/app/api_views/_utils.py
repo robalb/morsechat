@@ -19,64 +19,10 @@ def clearly_a_profanity(data):
     #repository. Not everything can be open source
     return False
 
-country_codes = [
-  ['ar-SA', 'SA'],
-  ['bn-BD', 'BD'],
-  ['bn-IN', 'IN'],
-  ['cs-CZ', 'CZ'],
-  ['da-DK', 'DK'],
-  ['de-AT', 'AT'],
-  ['de-CH', 'CH'],
-  ['de-DE', 'DE'],
-  ['el-GR', 'GR'],
-  ['en-AU', 'AU'],
-  ['en-CA', 'CA'],
-  ['en-GB', 'GB'],
-  ['en-IE', 'IE'],
-  ['en-IN', 'IN'],
-  ['en-NZ', 'NZ'],
-  ['en-US', 'US'],
-  ['en-ZA', 'ZA'],
-  ['es-AR', 'AR'],
-  ['es-CL', 'CL'],
-  ['es-CO', 'CO'],
-  ['es-ES', 'ES'],
-  ['es-MX', 'MX'],
-  ['es-US', 'US'],
-  ['fi-FI', 'FI'],
-  ['fr-BE', 'BE'],
-  ['fr-CA', 'CA'],
-  ['fr-CH', 'CH'],
-  ['fr-FR', 'FR'],
-  ['he-IL', 'IL'],
-  ['hi-IN', 'IN'],
-  ['hu-HU', 'HU'],
-  ['id-ID', 'ID'],
-  ['it-CH', 'CH'],
-  ['it-IT', 'IT'],
-  ['jp-JP', 'JP'],
-  ['ko-KR', 'KR'],
-  ['nl-BE', 'BE'],
-  ['nl-NL', 'NL'],
-  ['no-NO', 'NO'],
-  ['pl-PL', 'PL'],
-  ['pt-BR', 'BR'],
-  ['pt-PT', 'PT'],
-  ['ro-RO', 'RO'],
-  ['ru-RU', 'RU'],
-  ['sk-SK', 'SK'],
-  ['sv-SE', 'SE'],
-  ['ta-IN', 'IN'],
-  ['ta-LK', 'LK'],
-  ['th-TH', 'TH'],
-  ['tr-TR', 'TR'],
-  ['zh-CN', 'CN'],
-  ['zh-HK', 'HK'],
-  ['zh-TW', 'TW'],
-]
-
-def get_country_names():
-    return list(map(lambda x: x[1], country_codes))
+def get_country_codes():
+    # ISO 3166-1 alpha-2 country codes
+    country_codes = [ "AF", "AL", "DZ", "AD", "AO", "AI", "AQ", "AG", "SA", "AR", "AM", "AW", "AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BE", "BZ", "BJ", "BM", "BT", "BY", "MM", "BO", "BA", "BW", "BR", "BN", "BG", "BF", "BI", "KH", "CM", "CA", "CV", "TD", "CL", "CN", "CY", "VA", "CO", "KM", "KP", "KR", "CI", "CR", "HR", "CU", "CW", "DK", "DM", "EC", "EG", "SV", "AE", "ER", "EE", "ET", "FJ", "PH", "FI", "FR", "GA", "GM", "GE", "GS", "DE", "GH", "JM", "JP", "GI", "DJ", "JO", "GR", "GD", "GL", "GP", "GU", "GT", "GG", "GN", "GW", "GQ", "GY", "GF", "HT", "HN", "HK", "IN", "ID", "IR", "IQ", "IE", "IS", "BV", "IM", "CX", "NF", "AX", "BQ", "KY", "CC", "CK", "FO", "FK", "HM", "MP", "MH", "UM", "PN", "SB", "VG", "VI", "IL", "IT", "JE", "KZ", "KE", "KG", "KI", "KW", "LA", "LS", "LV", "LB", "LR", "LY", "LI", "LT", "LU", "MO", "MK", "MG", "MW", "MY", "MV", "ML", "MT", "MA", "MQ", "MR", "MU", "YT", "MX", "FM", "MD", "MN", "ME", "MS", "MZ", "NA", "NR", "NP", "NI", "NE", "NG", "NU", "NO", "NC", "NZ", "OM", "NL", "PK", "PW", "PS", "PA", "PG", "PY", "PE", "PF", "PL", "PR", "PT", "MC", "QA", "GB", "CD", "CZ", "CF", "CG", "DO", "RE", "RO", "RW", "RU", "EH", "KN", "LC", "SH", "VC", "BL", "MF", "PM", "WS", "AS", "SM", "ST", "SN", "RS", "SC", "SL", "SG", "SX", "SY", "SK", "SI", "SO", "ES", "LK", "US", "ZA", "SD", "SS", "SR", "SJ", "SE", "CH", "SZ", "TW", "TJ", "TZ", "TF", "IO", "TH", "TL", "TG", "TK", "TO", "TT", "TN", "TR", "TM", "TC", "TV", "UA", "UG", "HU", "UY", "UZ", "VU", "VE", "VN", "WF", "YE", "ZM", "ZW" ]
+    return country_codes
 
 
 #https://github.com/siongui/userpages/blob/master/content/articles/2012/10/11/python-parse-accept-language-in-http-request-header%25en.rst

@@ -12,6 +12,15 @@ function ModuleCountrySelector(props) {
     let v = event.target.value
     props.update(v)
   };
+
+  //browser-only feature
+  function countryCodeName(countryCode){
+    const regionNamesInEnglish = new Intl.DisplayNames(['en'], { type: 'region' })
+    if(countryCode)
+      return regionNamesInEnglish.of(countryCode)
+    return ""
+  }
+
   return(
         <Select
           sx={{minWidth: 100}}
@@ -21,7 +30,7 @@ function ModuleCountrySelector(props) {
           size="small"
         >
         {
-          countryCodes.map((c,i) => <MenuItem key={i} value={c[0].substring(3)}> {c[2]} </MenuItem>)
+          countryCodes.map((c,i) => <MenuItem key={i} value={c}> {countryCodeName(c)} </MenuItem>)
         }
     </Select>
   )

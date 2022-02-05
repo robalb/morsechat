@@ -17,8 +17,8 @@ services:
       MARIADB_PASSWORD: ${DB_LOWP_USER_PASSWORD}
       MARIADB_DATABASE: ${DB_DBNAME}
 
-      FLASK_ENV: production
-      FLASK_DEBUG: 0 # default to 0 when env==production, no need to change this
+      FLASK_ENV: development
+      FLASK_DEBUG: 1 #set to 0 in production
 
   #MariaDb Service
   mariadb:

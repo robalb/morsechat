@@ -109,7 +109,7 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
       </Grid>
       <Grid item xs={12} >
         <Typography variant="h5" color="primary" >
-          your call sign
+          Create your call sign
         </Typography>
       </Grid>
       <Grid item xs={12} >
