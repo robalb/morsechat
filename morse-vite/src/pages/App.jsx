@@ -6,6 +6,8 @@ import ProTip from '../components/ProTIp';
 import Copyright from '../components/Copyright';
 import pageRender from '../pageRender/pageRender'
 
+import './index.css'
+
 export default function App() {
   return (
     <Container maxWidth="sm">
