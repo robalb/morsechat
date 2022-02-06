@@ -10,6 +10,7 @@ import mainContext from '../contexts/mainContext'
 
 import {Paper, Typography} from '@mui/material';
 
+import '../styles/index.css'
 import '../styles/common.css'
 import {MainIndexForm} from "../components/index/mainIndexForm";
 import {Sidebar} from "../components/index/sidebar";

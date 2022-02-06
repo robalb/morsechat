@@ -4,10 +4,24 @@ import mainContext from '../contexts/mainContext'
 import Seo from "../components/seo"
 import {io} from 'socket.io-client'
 
-import '../styles/common.css'
-import MainDataLoading from '../components/mainDataLoading';
+import Card from "@mui/material/Card";
 
-function Index(props){
+import '../styles/common.css'
+import '../styles/chat.css'
+
+function authPopup(props){
+
+}
+
+function Navbar(props){
+  return (
+    <Card elevation={5} >
+      <h1>title</h1>
+    </Card>
+  )
+}
+
+function Chat(props){
     let { state, post, reload } = React.useContext(mainContext)
 
     React.useEffect(() => {
@@ -27,6 +41,8 @@ function Index(props){
     }, [])
 
     return <>
+    <Navbar />
+    <h1>hello</h1>
         <p> {state.sessionData.authenticated ? "authenticated" : "--"} </p>
     </>
 }
@@ -36,7 +52,7 @@ const ChatPage = () => {
     <>
       <Seo title="chat" />
       <Providers>
-        <Index />
+        <Chat />
       </Providers>
     </>
   )
