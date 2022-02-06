@@ -1,5 +1,5 @@
 import React from 'react';
-import Providers from '../components/providers'
+import Providers from '../components/providers/providers'
 import mainContext from '../contexts/mainContext'
 import Seo from "../components/seo"
 import {io} from 'socket.io-client'

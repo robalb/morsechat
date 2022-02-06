@@ -1,8 +1,8 @@
 import * as React from "react"
 
 
-import {request} from '../utils/apiResolver'
-import mainContext from '../contexts/mainContext'
+import {request} from '../../utils/apiResolver'
+import mainContext from '../../contexts/mainContext'
 import { useSnackbar } from 'notistack';
 
 

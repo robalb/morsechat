@@ -28,10 +28,9 @@ const CurrentUserChip = ({logged, username, callSign}) => {
           <DialogTitle>Anonymous account</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Yor account is currently an anonymous account.
-                You can join rooms and participate in conversations, but some functionalities
-              will be restricted, and your callsign will be randomly generated<br/>
-              Login or register to unlock the full features
+              You have an anonymous account.<br/>
+              Login or register to unlock custom callsigns, access to
+              private rooms, and many other features.
             </DialogContentText>
           </DialogContent>
         </Dialog>
