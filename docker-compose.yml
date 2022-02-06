@@ -5,7 +5,8 @@ services:
     build: ./.docker/flask
     volumes:
       - ./app:/app
-      - ./morse-vite/dist:/app/static
+      # during the development, use the vite testserver
+      # - ./morse-vite/dist:/app/static
     ports:
       - '5000:5000'
     depends_on:
