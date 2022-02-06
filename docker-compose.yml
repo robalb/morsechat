@@ -5,7 +5,7 @@ services:
     build: ./.docker/flask
     volumes:
       - ./app:/app
-      - ./morse-frontend/public:/app/static
+      - ./morse-vite/dist:/app/static
     ports:
       - '5000:5000'
     depends_on:
