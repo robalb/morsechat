@@ -23,7 +23,7 @@ function ModuleCountrySelector(props) {
 
   return(
         <Select
-          sx={{minWidth: 100}}
+          sx={{minWidth: 100, maxWidth: 250}}
           value={country}
           onChange={handleChange}
           autoWidth

@@ -40,6 +40,7 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     }
   }
 
+
   function passwordIsDumb(){
     let mostCommon = [ "123456789", "picture1", "password", "12345678", "1234567890", "Million2", "iloveyou", "aaron431", "password1", "qqww1122",
    "starwars", "qwertyuiop", "asdfghjkl", "aa123456", "trustno1", "princess", "morsecode", "morsechat", "00000000" ]
@@ -49,6 +50,8 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
       return true
     return false
   }
+
+
   function clientValidate(){
     let isGood = true
     //username length
@@ -75,10 +78,12 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     if(!form.callsign){
       isGood = false
     }
-
     return isGood
   }
-  async function handleRegister(){
+
+
+  async function handleRegister(e){
+    e.preventDefault()
     resetError()
     if (!clientValidate())
       return
@@ -99,9 +104,8 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
   }
 
   return (
+    <form onSubmit={handleRegister}>
     <Grid container spacing={3} >
-
-
       <Grid item xs={12} >
         <IconButton aria-label="close" color="primary" onClick={e => setPage("menu") }>
           <CloseIcon />
@@ -134,11 +138,12 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
         error={error.password.length > 0} helperText={error.password} />
       </Grid>
       <Grid item xs={12} >
-        <Button size="medium" color="secondary" onClick={handleRegister} variant="contained">
+        <Button size="medium" type="submit" color="secondary" variant="contained">
           Register
         </Button>
       </Grid>
     </Grid>
+    </form>
   )
 }
 

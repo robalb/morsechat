@@ -1,9 +1,8 @@
-from flask import g, session, request
+from flask import session, request
 from flask_login import current_user
-from .. import db_connection
 from . import api
 from .. import app
-from ._utils import success, error, generate_anonymous_callsign, negotiate_country
+from ._utils import success, generate_anonymous_callsign, negotiate_country
 from ._procedures import Data_modules
 import secrets
 
@@ -37,10 +36,3 @@ def api_page_init():
             'user': data_modules.user()
             }
     return success(data)
-
-
-
-@api.route('/test', methods=['POST'])
-def api_test_2():
-    app.logger.info("---- body")
-    return "test"
