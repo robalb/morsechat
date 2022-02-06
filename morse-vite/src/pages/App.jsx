@@ -13,7 +13,7 @@ export default function App() {
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-        index
+        index2
         </Typography>
         <ProTip />
         <Copyright />

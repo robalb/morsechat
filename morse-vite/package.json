@@ -9,7 +9,9 @@
   "dependencies": {
     "@emotion/react": "latest",
     "@emotion/styled": "latest",
+    "@mui/icons-material": "^5.3.1",
     "@mui/material": "latest",
+    "notistack": "^2.0.3",
     "react": "latest",
     "react-dom": "latest"
   },
