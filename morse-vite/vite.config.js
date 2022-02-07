@@ -19,5 +19,9 @@ export default defineConfig({
         chat: resolve(root, 'chat', 'index.html')
       }
     }
+  },
+  preview: {
+    port: 3000,
+    strictPort: true
   }
 });
