@@ -1,0 +1,40 @@
+# Production dockerfile
+########## FIRST STEP: FRONTEND BUILD #######
+FROM node:16 as frontendbuild
+
+WORKDIR /frontend
+
+COPY /morse-vite .
+
+RUN npm ci --only=production
+RUN npm run build
+
+########## FINAL STEP: PRODUCTION IMAGE #######
+FROM python:3.9
+
+WORKDIR /app
+copy .docker/flask/requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
+EXPOSE 5000
+
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=0
+
+ADD wait.sh /wait.sh
+RUN chmod +x /wait.sh
+
+#copy the backend
+COPY app .
+
+#copy the frondend files generated in the previous step
+COPY --from=frontendbuild /frontend/dist ./static/
+
+#the frontend build genrates html files, and a /static folder containing scripts.
+# There is an issue where an html page would request /static/a.js, and flask
+# would look for it in /app/static/a.js, when it's actually in /app/static/static/a.js
+# to solve this issue, we move all the files in /app/static/static into /app/static
+# - A more practical approach would be to serve the static site from nginx,
+#   or any other software actually made for serving static sites.
+RUN mv ./static/static/* ./static/
+
+ENTRYPOINT ["/wait.sh", "mariadb:3306", "--", "python3", "main.py"]

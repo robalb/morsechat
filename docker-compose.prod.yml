@@ -2,11 +2,9 @@ services:
 
   #Flask service
   flask:
-    build:
-      context: ./.docker/flask
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./app:/app
+    build: 
+      context: .
+      dockerfile: ./.docker/flask/Dockerfile.prod
     ports:
       - '5000:5000'
     depends_on:
