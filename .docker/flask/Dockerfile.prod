@@ -6,7 +6,8 @@ WORKDIR /frontend
 
 COPY /morse-vite .
 
-RUN npm ci --only=production
+# RUN npm ci --only=production
+RUN npm ci
 RUN npm run build
 
 ########## FINAL STEP: PRODUCTION IMAGE #######
@@ -20,7 +21,7 @@ EXPOSE 5000
 ENV FLASK_ENV=production
 ENV FLASK_DEBUG=0
 
-ADD wait.sh /wait.sh
+ADD .docker/flask/wait.sh /wait.sh
 RUN chmod +x /wait.sh
 
 #copy the backend

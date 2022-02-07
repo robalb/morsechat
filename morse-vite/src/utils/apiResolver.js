@@ -1,3 +1,16 @@
+
+  // This is a VITE variable
+  // https://vitejs.dev/guide/env-and-mode.html
+  const isProduction = import.meta.env.PROD
+
+
+  /**
+   * Api endpoint url
+   */
+  export const baseApiUrl = isProduction ?
+    '/api/v1/' :
+    'http://localhost:5000/api/v1/'
+
   /**
    * Internal request method.
    *

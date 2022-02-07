@@ -68,7 +68,7 @@ def before_request_func():
     # https://web.dev/fetch-metadata/
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Dest
     if request.headers.get("Sec-Fetch-Site") and not development_mode:
-        if request.headers['Sec-Fetch-Site'] not in ('same-site',):
+        if request.headers['Sec-Fetch-Site'] not in ('same-site','same-origin'):
             app.logger.error("rejected for wrong sec-fetch-site")
             app.logger.info(request.headers.get("Sec-Fetch-Site"))
             reject = True
