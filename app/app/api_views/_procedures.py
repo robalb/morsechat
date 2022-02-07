@@ -5,7 +5,7 @@ import mariadb
 import hashlib
 import re
 import json
-from ._utils import get_country_names
+from ._utils import get_country_codes
 
 def validate_callsign(callsign_data):
     """
@@ -32,7 +32,7 @@ def validate_callsign(callsign_data):
         """
         #country module
         if schema['module'] == 'country':
-            if value not in get_country_names():
+            if value not in get_country_codes():
                 app.logger.error("callsign validation: invalid country: " + value)
                 return False
         #text module

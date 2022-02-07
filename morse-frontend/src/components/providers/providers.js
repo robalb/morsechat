@@ -3,7 +3,7 @@ import { SnackbarProvider } from 'notistack';
 import ApiProvider from './apiProvider'
 
 /*
- * this component wraps all the providers toghether into one single
+ * this component wraps all the providers together into one single
  * provider HOC
  *
  */

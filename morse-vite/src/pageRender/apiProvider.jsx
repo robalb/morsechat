@@ -1,15 +1,13 @@
 import * as React from "react"
 
 
-import {request} from '../utils/apiResolver'
+import {request, baseApiUrl} from '../utils/apiResolver'
 import mainContext from '../contexts/mainContext'
 import { useSnackbar } from 'notistack';
 
 
 const ApiProvider = ({children}) => {
-  //TODO: work on this hardcoded url
-  let baseUrl = 'http://localhost:5000/api/v1/'
-  // baseUrl +="WRONG"
+
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   /*
    * the main app state, containing essential application data
@@ -33,7 +31,7 @@ const ApiProvider = ({children}) => {
     //make a raw request, without csrf tokens, to get the initial, essential data required by 
     //any interactive page
     async function getInitData(){
-      let url = baseUrl + 'page_init'
+      let url = baseApiUrl + 'page_init'
       let res = await request(url, {})
       if(res.success){
         setState( s => ({
@@ -87,7 +85,7 @@ const ApiProvider = ({children}) => {
         }
     }
     //make request, on fail alert error
-    let response = await request(baseUrl + endpoint, data, state.sessionData.csrf, signal)
+    let response = await request(baseApiUrl + endpoint, data, state.sessionData.csrf, signal)
     if(!response.success && !silent)
       alertError("operation failed, please retry. " + response.error)
     return response

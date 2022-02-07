@@ -14,6 +14,7 @@ def test_disconnect():
 @socketio.on('message')
 def handle_message(message):
     app.logger.info("handle message")
+    app.logger.info(message)
     send("i received your message")
 
 @socketio.on('join')

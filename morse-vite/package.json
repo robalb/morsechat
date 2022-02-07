@@ -1,0 +1,23 @@
+{
+  "name": "vite-mui",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "latest",
+    "@emotion/styled": "latest",
+    "@mui/icons-material": "^5.3.1",
+    "@mui/material": "latest",
+    "notistack": "^2.0.3",
+    "react": "latest",
+    "react-dom": "latest",
+    "socket.io-client": "^4.4.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react-refresh": "latest",
+    "vite": "latest"
+  }
+}

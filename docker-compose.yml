@@ -2,10 +2,11 @@ services:
 
   #Flask service
   flask:
-    build: ./.docker/flask
+    build:
+      context: ./.docker/flask
+      dockerfile: Dockerfile.dev
     volumes:
       - ./app:/app
-      - ./morse-frontend/public:/app/static
     ports:
       - '5000:5000'
     depends_on:
@@ -16,10 +17,6 @@ services:
       MARIADB_USER: ${DB_LOWP_USER}
       MARIADB_PASSWORD: ${DB_LOWP_USER_PASSWORD}
       MARIADB_DATABASE: ${DB_DBNAME}
-
-      FLASK_ENV: development
-      FLASK_DEBUG: 1 # default to 0 when env==production, no need to change this
-      FLASK_APP: app.py #TODO: remove, probably useless (not part of flask env variables)
 
   #MariaDb Service
   mariadb:

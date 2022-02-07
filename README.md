@@ -18,3 +18,24 @@ This is a complete rewrite of the old morsechat, written using more modern web t
 The old codebase is archived in the 'legacy_php_morsechat' branch of this repository, and is no longer maintained.
 
 This rewrite is not ready to go live yet, halb.it/morsecode is still serving the old php version
+
+## development
+
+clone this repository `git clone https://github.com/robalb/morsechat.git`
+
+navigate into the repository `cd morsechat`
+
+start the apis in development mode `docker-compose up`
+
+start vite in development mode `cd /morse-vite && npm run dev`
+
+## production
+
+A prosuction ready image can be generated from the docker-compose.prod,
+It will also handle the website build.
+
+`docker-compose -f docker-compose.prod.yml up --build`
+
+## schemas migrations
+
+## Horizontal scaling

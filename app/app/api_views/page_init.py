@@ -1,17 +1,18 @@
-from flask import g, session, request
+from flask import session, request
 from flask_login import current_user
-from .. import db_connection
 from . import api
 from .. import app
-from ._utils import success, error, generate_anonymous_callsign, negotiate_country
+from ._utils import success, generate_anonymous_callsign, negotiate_country
 from ._procedures import Data_modules
 import secrets
+
 
 #the only endpoint that can be called without a csrf token. therefore the first endpoint that will
 #be called when any frontend page loads, 
 # Returns essential data required by all frontend pages
 @api.route('/page_init', methods=['POST'])
 def api_page_init():
+    app.logger.info("RECEIVED")
     #initialize the csrf token
     if not 'csrf' in session:
         session['csrf'] = 'csrf_' + secrets.token_hex(16)
@@ -35,10 +36,3 @@ def api_page_init():
             'user': data_modules.user()
             }
     return success(data)
-
-
-
-@api.route('/test', methods=['POST'])
-def api_test_2():
-    app.logger.info("---- body")
-    return "test"
