@@ -12,7 +12,7 @@ export default function render(App){
     <React.StrictMode>
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
+        {/*<CssBaseline />*/}
         <SnackbarProvider 
           anchorOrigin={{
               vertical: 'top',

@@ -1,18 +1,45 @@
 import * as React from 'react';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import MenuIcon from '@mui/icons-material/Menu';
+import PeopleIcon from '@mui/icons-material/People';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+
 import pageRender from '../../pageRender/pageRender'
+
+import './app.css'
 
 export default function App() {
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-        chat
-        </Typography>
-      </Box>
-    </Container>
+    <header>
+
+      <div>
+        <IconButton aria-label="Menu">
+          <MenuIcon />
+        </IconButton>
+
+        <Button className="header-bt-left" startIcon={<PeopleIcon/>}>
+          <output>
+            2
+          </output>
+        </Button>
+      </div>
+
+      <p>asd</p>
+
+      <div>
+        <IconButton className="header-bt-right" aria-label="Settings">
+          <SettingsIcon />
+        </IconButton>
+
+        <IconButton aria-label="morse table">
+          <LibraryBooksIcon />
+        </IconButton>
+      </div>
+
+    </header>
   );
 }
 

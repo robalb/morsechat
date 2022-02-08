@@ -1,5 +1,5 @@
 {
-  "name": "vite-mui",
+  "name": "morsechat-webapp",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",

@@ -11,3 +11,24 @@
        url('../fonts/roboto-v29-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
        url('../fonts/roboto-v29-latin-regular.svg#Roboto') format('svg'); /* Legacy iOS */
 }
+
+html {
+  /** font size */
+  --icon-small: 1em;
+  --icon-large: 1.4em;
+
+  /** color system */
+  --gray-50: #121212;
+  --gray-60: #1e1e1e;
+  --gray-70: #2c2c2c;
+  --gray-80: #383838;
+  --gray-90: #424242;
+  --gray-100: #efefef;
+}
+
+body{
+  font-family: 'Roboto', 'Arial';
+  margin: 0;
+  background-color: var(--gray-80);
+  color: var(--gray-100);
+}

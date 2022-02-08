@@ -1,0 +1,19 @@
+header{
+    background-color: var(--gray-50);
+    height: 3em;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0.8em;
+
+}
+header div{
+    display: flex;
+    /* margin-left: 1em;
+    margin-right: 1em; */
+}
+header .header-bt-left{
+    margin-left: 1em;
+}
+header .header-bt-right{
+    margin-right: 0.4em;
+}
