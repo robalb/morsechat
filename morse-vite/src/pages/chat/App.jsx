@@ -103,7 +103,7 @@ export default function App() {
         </div>
       </div>
       <div className="info">
-
+        <h2> Logo </h2>
       </div>
     </main>
     </div>
