@@ -10,6 +10,7 @@ import Button from '@mui/material/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CloseIcon from '@mui/icons-material/Close';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 import pageRender from '../../pageRender/pageRender'
@@ -81,7 +82,9 @@ export default function App() {
       </div>
       <div className="sheet">
         <div className="controls">
-
+          <IconButton color="opposite_text" aria-label="close morse view">
+            <CloseIcon />
+          </IconButton>
         </div>
         <div className="list">
           <p>A .-</p><p>B -...</p><p>C -.-.</p><p>D -..</p>
@@ -96,6 +99,7 @@ export default function App() {
           <p>- -....-</p><p>@ .--.-.</p><p>1 .----</p><p>2 ..---</p>
           <p>3 ...--</p><p>4 ....-</p><p>5 .....</p><p>6 -....</p>
           <p>7 --...</p><p>8 ---..</p><p>9 ----.</p><p>0 -----</p>
+
         </div>
       </div>
       <div className="info">

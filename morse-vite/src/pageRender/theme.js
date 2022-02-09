@@ -13,6 +13,9 @@ const theme = createTheme({
     secondary: {
       main: '#f50057',
     },
+    opposite_text: {
+      main: '#121212',
+    },
     // error: {
     //   main: red.A400,
     // },

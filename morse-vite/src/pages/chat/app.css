@@ -6,7 +6,7 @@ div.app-container{
 
 header{
     background-color: var(--gray-50);
-    height: 3em;
+    height: var(--header-height);
     display: flex;
     justify-content: space-between;
     padding: 0 0.8em;
@@ -22,9 +22,10 @@ header .header-bt-right{
 }
 
 main{
-    height: calc(100% - 3em);
+    height: calc(100% - var(--header-height));
     width:100%;
     background-color: var(--gray-90);
+    overflow: hidden;
     
     display: grid;
     grid-template-columns:15em 1fr 20em 38em 1fr 15em;
@@ -59,33 +60,26 @@ main .side{
     grid-area: sheet;
     background-color: var(--gray-95);
     color: var(--gray-50);
-    overflow: hidden;
- }
-/* main .sheet{
-    grid-area: sheet;
-    background-color: var(--gray-95);
-    color: var(--gray-50);
     display: flex;
-    max-height: 100%;
     flex-direction: column;
-} */
-/* main .sheet .controls{
+ }
+ main .sheet .controls{
     background-color: var(--gray-100);
-    height: 2em;
-    width: 100%;
+    flex-basis: 2em;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+
 }
 main .sheet .list{
-    overflow:hidden;
-    max-height: 100%;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    overflow:hidden;
-    overflow-x: auto;
     font-family: monospace;
     padding: 1em;
-    box-sizing: content-box;
-} */
+    overflow: auto;
+}
+
 main .info{
     background-color: lightgreen;
     grid-area: info;

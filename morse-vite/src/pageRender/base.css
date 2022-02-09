@@ -26,6 +26,9 @@ html {
   --gray-95: #e0e0e0;
   --gray-100: #efefef;
   --gray-105: #fff;
+
+  /** high-level customization variables */
+  --header-height: 3em;
 }
 
 body{
