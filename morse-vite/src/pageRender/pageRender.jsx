@@ -24,7 +24,7 @@ export default function render(App){
             <App />
           </ApiProvider>
         </SnackbarProvider>
-      </ThemeProvider>,
+      </ThemeProvider>
     </React.StrictMode>,
     document.getElementById('root')
   )
