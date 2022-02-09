@@ -11,6 +11,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 import pageRender from '../../pageRender/pageRender'
@@ -74,6 +75,14 @@ export default function App() {
           { /* only visible in desktiop, show users to the side of chat (right side?) (show also user& logged status?) */}
       </div>
       <div className="preview">
+        <div className="progress">
+        </div>
+        <div className="text">
+          <p>hello world cammin di nostra vita mi ritrovai per una selva uscura_..</p>
+          <IconButton aria-label="cancel message">
+            <DeleteOutlineIcon />
+          </IconButton>
+        </div>
 
       </div>
       <div className="chat">
@@ -108,7 +117,7 @@ export default function App() {
         <h1>Morsechat</h1>
         <p>Welcome to the best internet morse radio. </p>
         <p>
-          This project is open source! <br/> Join the discord community
+          This webapp is open source! <br/> Join the discord community
           to get the latest news, and to participate on its development.
         </p>
         <h3>What's new</h3>

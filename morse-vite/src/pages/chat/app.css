@@ -39,7 +39,6 @@ main{
 
 main .preview{
     /* floating (? maybe only hidden, onclick it appears by sliding from top, causing layout shift to the bottom) on mobile */
-    background-color: orange;
     grid-area: preview;
 }
 main .chat{
@@ -52,7 +51,7 @@ main .key{
 }
 
 main .side{
-    background-color: aqua;
+    background-color: orange;
     grid-area: side;
 }
 
@@ -92,11 +91,19 @@ main .sheet .list{
 
 main .info{
     padding-left: 1.5rem;
+    -webkit-font-smoothing: antialiased;
 }
 main .info h1{
     font-family: 'Lobster', cursive;
     font-size: 2.5rem;
     margin: 15px 0;
+
+    background-color: var(--golden);
+    background-image: linear-gradient( var(--golden-gradiant));
+    background-size: 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 main .info p, main .info h3{
     margin: 7px 0;
@@ -104,4 +111,26 @@ main .info p, main .info h3{
 main .info a{
     margin-top: 1rem;
     display: inline-block;
+}
+
+
+/* preview, chat, key */
+
+main .preview{
+    background-color: var(--gray-80);
+}
+main .preview .progress{
+    height: 2px;
+    width: 100%; /* change this with an animation */
+    background-color: var(--golden);
+    box-shadow: 0px 1px 12px 1px rgba(255, 128, 122, 1);
+    opacity: .8;
+    background-image: linear-gradient( var(--golden-gradiant));
+}
+main .preview .text{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 1rem;
+    height: 100%;
 }
