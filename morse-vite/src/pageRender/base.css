@@ -33,6 +33,7 @@ html {
   hsl(51, 100%, 74%) 0%,
   hsl(47deg 100% 68%) 50%,
   hsl(45deg 100% 58%) 100%;
+
   --header-height: 3em;
 }
 

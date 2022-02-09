@@ -19,6 +19,7 @@ import pageRender from '../../pageRender/pageRender'
 import './app.css'
 import discordUrl from '../../fonts/discord.svg'
 import githubUrl from '../../fonts/github.svg'
+import blur1 from '../../fonts/blr1.png'
 
 export default function App() {
   let [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -89,7 +90,7 @@ export default function App() {
           { /* typed stuff, progress bar, actual chat*/ }
       </div>
       <div className="key">
-          { /* the morse key. */ }
+        <button className='activex'>-</button>
       </div>
       <div className="sheet">
         <div className="controls">

@@ -42,11 +42,9 @@ main .preview{
     grid-area: preview;
 }
 main .chat{
-    background-color: pink;
     grid-area: chat;
 }
 main .key{
-    background-color: hotpink;
     grid-area: key;
 }
 
@@ -133,4 +131,29 @@ main .preview .text{
     align-items: center;
     margin-left: 1rem;
     height: 100%;
+}
+
+main .key{
+    background-color: var(--gray-80);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 5px;
+    box-sizing: border-box;
+}
+main .key button{
+    width: 70%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    border: 0;
+    border-radius: 3px;
+    cursor: pointer;
+}
+main .key button.active{
+    /* apply programmatically (?) maybe applying manually  from js the property is better */
+    background-color: rgba(0,0,0,0.2);
+}
+
+main .chat{
+    background-color: rgba(0,0,0,0.4);
 }
