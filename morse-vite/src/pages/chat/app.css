@@ -10,7 +10,6 @@ header{
     display: flex;
     justify-content: space-between;
     padding: 0 0.8em;
-
 }
 header div{
     display: flex;
@@ -23,7 +22,7 @@ header .header-bt-right{
 }
 
 main{
-    height: 100%;
+    height: calc(100% - 3em);
     width:100%;
     background-color: var(--gray-90);
     
@@ -60,6 +59,7 @@ main .side{
     grid-area: sheet;
     background-color: var(--gray-95);
     color: var(--gray-50);
+    overflow: hidden;
  }
 /* main .sheet{
     grid-area: sheet;
