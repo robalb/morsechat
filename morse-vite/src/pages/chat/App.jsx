@@ -70,11 +70,20 @@ export default function App() {
       <div className="side">
           { /* only visible in desktiop, show users to the side of chat (right side?) (show also user& logged status?) */}
       </div>
+      <div className="preview">
+
+      </div>
       <div className="chat">
           { /* typed stuff, progress bar, actual chat*/ }
       </div>
       <div className="key">
           { /* the morse key. */ }
+      </div>
+      <div className="sheet">
+
+      </div>
+      <div className="info">
+
       </div>
     </main>
     </div>
