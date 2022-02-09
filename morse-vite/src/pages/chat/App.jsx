@@ -16,6 +16,8 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import pageRender from '../../pageRender/pageRender'
 
 import './app.css'
+import discordUrl from '../../fonts/discord.svg'
+import githubUrl from '../../fonts/github.svg'
 
 export default function App() {
   let [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -103,7 +105,20 @@ export default function App() {
         </div>
       </div>
       <div className="info">
-        <h2> Logo </h2>
+        <h1>Morsechat</h1>
+        <p>Welcome to the best internet morse radio. </p>
+        <p>
+          This project is open source! <br/> Join the discord community
+          to get the latest news, and to participate on its development.
+        </p>
+        <h3>What's new</h3>
+        <p>12/11/2021 update notes</p>
+        <a href="https://discord.gg/JPzfzNJG6e">
+          <img src={discordUrl} />
+        </a><br/>
+        <a href="https://github.com/robalb/morsechat">
+          <img src={githubUrl} />
+        </a>
       </div>
     </main>
     </div>

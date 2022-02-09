@@ -28,7 +28,7 @@ main{
     overflow: hidden;
     
     display: grid;
-    grid-template-columns:15em 1fr 20em 38em 1fr 15em;
+    grid-template-columns:minmax(15em, 2fr) 1fr 20em 38em 1fr 15em;
     grid-template-rows: 4em 1fr 4em;
     grid-template-areas: 
         ".    . side preview . sheet"
@@ -61,7 +61,6 @@ main .sheet{
 }
 
 main .info{
-    background-color: lightgreen;
     grid-area: info;
 }
 
@@ -92,5 +91,17 @@ main .sheet .list{
 /* info styles */
 
 main .info{
-    padding-left: 10px;
+    padding-left: 1.5rem;
+}
+main .info h1{
+    font-family: 'Lobster', cursive;
+    font-size: 2.5rem;
+    margin: 15px 0;
+}
+main .info p, main .info h3{
+    margin: 7px 0;
+}
+main .info a{
+    margin-top: 1rem;
+    display: inline-block;
 }
