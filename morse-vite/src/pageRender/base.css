@@ -23,7 +23,9 @@ html {
   --gray-70: #2c2c2c;
   --gray-80: #383838;
   --gray-90: #424242;
+  --gray-95: #e0e0e0;
   --gray-100: #efefef;
+  --gray-105: #fff;
 }
 
 body{

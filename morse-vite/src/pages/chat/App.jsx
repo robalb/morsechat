@@ -80,7 +80,23 @@ export default function App() {
           { /* the morse key. */ }
       </div>
       <div className="sheet">
+        <div className="controls">
 
+        </div>
+        <div className="list">
+          <p>A .-</p><p>B -...</p><p>C -.-.</p><p>D -..</p>
+          <p>E .</p><p>F ..-.</p><p>G --.</p><p>H ....</p>
+          <p>I ..</p><p>J .---</p><p>K -.-</p><p>L .-..</p>
+          <p>M --</p><p>N -.</p><p>O ---</p><p>P .--.</p>
+          <p>Q --.-</p><p>R .-.</p><p>S ...</p><p>T -</p>
+          <p>U ..-</p><p>V ...-</p><p>W .--</p><p>X -..-</p>
+          <p>Y -.--</p><p>Z --..</p><p>. .-.-.-</p><p>, --..--</p>
+          <p>? ..--..</p><p>' .----.</p><p>! -.-.--</p><p>/ -..-.</p>
+          <p>: ---...</p><p>; -.-.-.</p><p>= -...-</p><p>+ .-.-.</p>
+          <p>- -....-</p><p>@ .--.-.</p><p>1 .----</p><p>2 ..---</p>
+          <p>3 ...--</p><p>4 ....-</p><p>5 .....</p><p>6 -....</p>
+          <p>7 --...</p><p>8 ---..</p><p>9 ----.</p><p>0 -----</p>
+        </div>
       </div>
       <div className="info">
 

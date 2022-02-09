@@ -34,6 +34,7 @@ main{
         "info . side preview . sheet"
         "info . side chat . sheet"
         "info . side key . sheet";
+
 }
 
 main .preview{
@@ -55,10 +56,36 @@ main .side{
     grid-area: side;
 }
 
-main .sheet{
-    background-color: white;
+ main .sheet{
     grid-area: sheet;
+    background-color: var(--gray-95);
+    color: var(--gray-50);
+ }
+/* main .sheet{
+    grid-area: sheet;
+    background-color: var(--gray-95);
+    color: var(--gray-50);
+    display: flex;
+    max-height: 100%;
+    flex-direction: column;
+} */
+/* main .sheet .controls{
+    background-color: var(--gray-100);
+    height: 2em;
+    width: 100%;
 }
+main .sheet .list{
+    overflow:hidden;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    overflow:hidden;
+    overflow-x: auto;
+    font-family: monospace;
+    padding: 1em;
+    box-sizing: content-box;
+} */
 main .info{
     background-color: lightgreen;
     grid-area: info;
