@@ -130,6 +130,13 @@ export default function App() {
           <img src={githubUrl} />
         </a>
       </div>
+
+
+      <div className="blur">
+        <img src={blur1} alt="" />
+        <img src={blur1} className="blur2" alt="" />
+      </div>
+
     </main>
     </div>
   );

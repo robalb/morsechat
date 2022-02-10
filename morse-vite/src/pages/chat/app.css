@@ -156,4 +156,18 @@ main .key button.active{
 
 main .chat{
     background-color: rgba(0,0,0,0.4);
+    z-index: 3;/*TODO work here */
+}
+
+.blur{
+ grid-area: chat;
+ z-index: 2;
+ filter:blur(190px);
+ opacity: .4;
+ overflow: hidden;
+}
+.blur2{
+    position: relative;
+    right: 400px;
+    z-index: 99;
 }
