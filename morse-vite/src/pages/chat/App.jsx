@@ -19,7 +19,7 @@ import pageRender from '../../pageRender/pageRender'
 import './app.css'
 import discordUrl from '../../fonts/discord.svg'
 import githubUrl from '../../fonts/github.svg'
-import blur1 from '../../fonts/blr1.png'
+import blur from '../../fonts/blur.png'
 
 export default function App() {
   let [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -133,8 +133,7 @@ export default function App() {
 
 
       <div className="blur">
-        <img src={blur1} alt="" />
-        <img src={blur1} className="blur2" alt="" />
+        <img src={blur} alt="" />
       </div>
 
     </main>

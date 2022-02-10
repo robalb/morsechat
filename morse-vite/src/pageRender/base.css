@@ -34,6 +34,9 @@ html {
   hsl(47deg 100% 68%) 50%,
   hsl(45deg 100% 58%) 100%;
 
+  --pastel-yellow: #ffd57a;
+  --pastel-green: #90c384;
+
   --header-height: 3em;
 }
 

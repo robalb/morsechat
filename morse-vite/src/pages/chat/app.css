@@ -25,6 +25,8 @@ main{
     height: calc(100% - var(--header-height));
     width:100%;
     background-color: var(--gray-90);
+    background-color: #132034;
+    background-color: #14181e;
     overflow: hidden;
     
     display: grid;
@@ -40,25 +42,30 @@ main{
 main .preview{
     /* floating (? maybe only hidden, onclick it appears by sliding from top, causing layout shift to the bottom) on mobile */
     grid-area: preview;
+    z-index: 2;
 }
 main .chat{
     grid-area: chat;
+    z-index: 2;
 }
 main .key{
     grid-area: key;
+    z-index: 2;
 }
 
 main .side{
-    background-color: orange;
     grid-area: side;
+    z-index: 2;
 }
 
 main .sheet{
     grid-area: sheet;
+    z-index: 2;
 }
 
 main .info{
     grid-area: info;
+    z-index: 2;
 }
 
 /* sheet styles */
@@ -155,19 +162,14 @@ main .key button.active{
 }
 
 main .chat{
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(85, 85, 85, 0.12);
     z-index: 3;/*TODO work here */
 }
 
 .blur{
- grid-area: chat;
- z-index: 2;
+ grid-area: 1 / 1 / -1 / -1;
+ z-index: 1;
  filter:blur(190px);
  opacity: .4;
  overflow: hidden;
-}
-.blur2{
-    position: relative;
-    right: 400px;
-    z-index: 99;
 }
