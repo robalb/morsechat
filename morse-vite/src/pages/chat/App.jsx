@@ -88,13 +88,25 @@ export default function App() {
       </div>
       <div className="chat">
           { /* typed stuff, progress bar, actual chat*/ }
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
       </div>
       <div className="key">
         <button className='activex'>-</button>
       </div>
       <div className="sheet">
         <div className="controls">
-          <IconButton color="opposite_text" aria-label="close morse view">
+          <IconButton aria-label="close morse view">
             <CloseIcon />
           </IconButton>
         </div>
