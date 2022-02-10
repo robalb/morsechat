@@ -94,6 +94,7 @@ export default function App() {
           <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
           <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
           <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
+          <p className="you"><span>IT00HAL</span>: asdasd asd dsad ads</p>
           <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
           <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
           <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
@@ -144,9 +145,6 @@ export default function App() {
       </div>
 
 
-      <div className="blur">
-        <img src={blur} alt="" />
-      </div>
 
     </main>
     </div>
