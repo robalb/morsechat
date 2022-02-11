@@ -10,8 +10,6 @@ import Button from '@mui/material/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
-import CloseIcon from '@mui/icons-material/Close';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 
@@ -19,7 +17,10 @@ import pageRender from '../../pageRender/pageRender'
 
 import './app.css'
 import {Info} from "../../components/info/Info";
-
+import {Sheet} from "../../components/sheet/Sheet";
+import {Preview} from "../../components/preview/Preview";
+import {Chat} from "../../components/chat/Chat";
+import {Key} from "../../components/key/Key";
 
 
 function Header(props){
@@ -75,80 +76,9 @@ function Header(props){
 }
 
 
-function Sheet({className= ""}){
-  return (
-    <div className="sheet">
-      <div className="controls">
-        <IconButton aria-label="close morse view">
-          <CloseIcon />
-        </IconButton>
-      </div>
-      <div className="list">
-        <p>A .-</p><p>B -...</p><p>C -.-.</p><p>D -..</p>
-        <p>E .</p><p>F ..-.</p><p>G --.</p><p>H ....</p>
-        <p>I ..</p><p>J .---</p><p>K -.-</p><p>L .-..</p>
-        <p>M --</p><p>N -.</p><p>O ---</p><p>P .--.</p>
-        <p>Q --.-</p><p>R .-.</p><p>S ...</p><p>T -</p>
-        <p>U ..-</p><p>V ...-</p><p>W .--</p><p>X -..-</p>
-        <p>Y -.--</p><p>Z --..</p><p>. .-.-.-</p><p>, --..--</p>
-        <p>? ..--..</p><p>' .----.</p><p>! -.-.--</p><p>/ -..-.</p>
-        <p>: ---...</p><p>; -.-.-.</p><p>= -...-</p><p>+ .-.-.</p>
-        <p>- -....-</p><p>@ .--.-.</p><p>1 .----</p><p>2 ..---</p>
-        <p>3 ...--</p><p>4 ....-</p><p>5 .....</p><p>6 -....</p>
-        <p>7 --...</p><p>8 ---..</p><p>9 ----.</p><p>0 -----</p>
-
-      </div>
-    </div>
-  );
-}
-
-function Preview({className= ""}){
-  return (
-    <div className="preview">
-      <div className="progress">
-      </div>
-      <div className="text">
-        <p>hello world cammin di nostra vita mi ritrovai per una selva uscura_..</p>
-        <IconButton aria-label="cancel message">
-          <DeleteOutlineIcon />
-        </IconButton>
-      </div>
-
-    </div>
-  );
-}
-
-function Chat({className= ""}){
-  return (
-    <div className="chat">
-      { /* typed stuff, progress bar, actual chat*/}
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p className="you"><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-      <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-    </div>
-  );
-}
-
-function Key({className= ""}){
-  return (
-    <div className="key">
-      <button className='activex'>-</button>
-    </div>
-  );
-}
 function Online({className= ""}){
   return (
-    <div className="online">
+    <div className={`online ${className}`}>
       <h2>online</h2>
       {
         ['IT000HAL', 'AS89ASD', 'ASDASDd', 'SLUR000'].map((h, i) =>
@@ -169,9 +99,10 @@ function Online({className= ""}){
     </div>
   );
 }
+
 function SideControls({className= ""}){
   return (
-    <div className="sidecontrols">
+    <div className={`sidecontrols ${className}`}>
       <h2>controls</h2>
       <p>wpm</p>
       <p>receiver volume</p>
@@ -191,14 +122,14 @@ export default function App() {
       <Header />
       <main>
         <Info className="grid-info" />
-        <div className="side">
+        <div className="grid-side">
           <Online />
           <SideControls />
         </div>
-        <Preview />
-        <Chat />
-        <Key />
-        <Sheet />
+        <Preview className='grid-preview'/>
+        <Chat className='grid-chat'/>
+        <Key className='grid-key'/>
+        <Sheet className='grid-sheet'/>
       </main>
     </div>
   );

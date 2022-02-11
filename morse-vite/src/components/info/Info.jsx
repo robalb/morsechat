@@ -1,11 +1,11 @@
 import discordUrl from "../../fonts/discord.svg";
 import githubUrl from "../../fonts/github.svg";
 import * as React from "react";
-import './info.css'
+import styles from './info.module.css'
 
 export function Info({className="", ...props}) {
     return (
-        <div className={`info ${className}`} >
+        <div className={`${styles.info} ${className}`} >
             <h1>Morsechat</h1>
             <p>Welcome to the best internet morse radio. </p>
             <p>

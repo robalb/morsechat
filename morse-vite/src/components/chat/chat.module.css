@@ -1,0 +1,12 @@
+
+.chat{
+    background-color: var(--gray-60);
+    box-shadow: var(--shadow-1);
+    padding: 1rem;
+}
+.chat span{
+    color: var(--pastel-yellow);
+}
+.chat .you span{
+    color: var(--pastel-red);
+}

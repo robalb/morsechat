@@ -37,30 +37,28 @@ main{
 
 }
 
-main .preview{
+main .grid-preview{
     /* floating (? maybe only hidden, onclick it appears by sliding from top, causing layout shift to the bottom) on mobile */
     grid-area: preview;
     z-index: 2;
 }
-main .chat{
+main .grid-chat{
     grid-area: chat;
     z-index: 2;
-    box-shadow: var(--shadow-1);
 }
-main .key{
+main .grid-key{
     grid-area: key;
     z-index: 2;
 }
 
-main .side{
+main .grid-side{
     grid-area: side;
     z-index: 2;
 }
 
-main .sheet{
+main .grid-sheet{
     grid-area: sheet;
     z-index: 2;
-    box-shadow: var(--shadow-1);
 }
 
 main .grid-info{
@@ -69,36 +67,6 @@ main .grid-info{
 }
 
 /* sheet styles */
- main .sheet{
-    background-color: var(--gray-60);
-    color: var(--gray-100);
-    display: flex;
-    flex-direction: column;
-
- }
- main .sheet .controls{
-    background-color: var(--gray-80);
-    flex-basis: 2em;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-
-}
-main .sheet .list{
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    font-family: monospace;
-    font-weight: bold;
-    padding: 1em;
-    overflow: auto;
-}
-main .sheet p{
-    margin-right: 1rem;
-}
-main .sheet p:first-letter{
-    color: var(--pastel-red);
-}
 
 /* info styles */
 
@@ -106,89 +74,36 @@ main .sheet p:first-letter{
 
 /* preview, chat, key */
 
-main .preview{
-    background-color: var(--gray-80);
-}
-main .preview .progress{
-    height: 2px;
-    width: 100%; /* change this with an animation */
-    background-color: var(--golden);
-    box-shadow: 0px 1px 12px 1px rgba(255, 128, 122, 1);
-    opacity: .8;
-    background-image: var(--golden-gradiant);
-}
-main .preview .text{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-left: 1rem;
-    height: 100%;
-}
-
-main .key{
-    background-color: var(--gray-80);
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 5px;
-    box-sizing: border-box;
-}
-main .key button{
-    width: 70%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    border: 0;
-    border-radius: 3px;
-    cursor: pointer;
-    background-image: var(--red-gradiant);
-    background-size: 200% auto;
-    box-shadow: var(--shadow-1);
-}
-main .key button.active{
-    /* apply programmatically (?) maybe applying manually  from js the property is better */
-    opacity: .3;
-}
-
-main .chat{
-    background-color: var(--gray-60);
-    padding: 1rem;
-}
-main .chat span{
-    color: var(--pastel-yellow);
-}
-main .chat .you span{
-    color: var(--pastel-red);
-}
 
 
 /** side online */
-main .side{
+main .grid-side{
     padding-right: 1rem;
     display: flex;
     flex-direction: column;
 }
-main .side > div{
+main .grid-side > div{
     padding: 1rem;
     padding-right: .2rem;
     background-color: var(--gray-80);
     box-shadow: var(--shadow-1);
 }
-main .side > div h2{
+main .grid-side > div h2{
     margin-top: 0;
 }
-main .side .online{
+main .grid-side .online{
     flex-grow: 1;
     max-height: 20rem;
     overflow-y: auto;
 }
 
-main .side .online > div{
+main .grid-side .online > div{
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 2rem;
 }
-main .side .online .left{
+main .grid-side .online .left{
     display: flex;
     align-items: center;
     height: 100%;
@@ -226,7 +141,7 @@ main .side .online .left{
 }
 
 /* side controls */
-main .side .sidecontrols{
+main .grid-side .sidecontrols{
     flex-grow: 1;
     margin-top: 2rem;
 }

@@ -1,0 +1,19 @@
+
+.preview{
+    background-color: var(--gray-80);
+}
+.preview .progress{
+    height: 2px;
+    width: 100%; /* change this with an animation */
+    background-color: var(--golden);
+    box-shadow: 0px 1px 12px 1px rgba(255, 128, 122, 1);
+    opacity: .8;
+    background-image: var(--golden-gradiant);
+}
+.preview .text{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 1rem;
+    height: 100%;
+}
