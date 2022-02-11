@@ -13,6 +13,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import MoreVertIcon  from '@mui/icons-material/MoreVert'
 
 import pageRender from '../../pageRender/pageRender'
 
@@ -73,7 +75,37 @@ export default function App() {
     </header>
     <main>
       <div className="side">
-          { /* only visible in desktiop, show users to the side of chat (right side?) (show also user& logged status?) */}
+          <div className="online">
+            <h2>online</h2>
+          {
+            ['IT000HAL', 'AS89ASD', 'ASDASDd', 'SLUR000'].map((h, i) =>
+              <div key={i}>
+                <div className="left">
+                  <p>{h}</p>
+                  <div className="typing">
+                    <div></div>
+                    <div></div>
+                  </div>
+                </div>
+                <IconButton aria-label="mute user">
+                  <VolumeOffIcon />
+                </IconButton>
+              </div>
+              )
+          }
+          </div>
+
+          <div className="sidecontrols">
+            <h2>controls</h2>
+            <p>wpm</p>
+            <p>receiver volume</p>
+            <p>key volume</p>
+            <p>submit delay</p>
+            <p>show words</p>
+            <Button size="small" startIcon={<SettingsIcon/>} variant="outlined">
+              Advanced
+            </Button>
+          </div>
       </div>
       <div className="preview">
         <div className="progress">
@@ -135,7 +167,7 @@ export default function App() {
           to get the latest news, and to participate on its development.
         </p>
         <h3>What's new</h3>
-        <p>12/11/2021 update notes</p>
+        <p>2021-02-10 update notes</p>
         <a href="https://discord.gg/JPzfzNJG6e">
           <img src={discordUrl} />
         </a><br/>
