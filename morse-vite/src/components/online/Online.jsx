@@ -9,7 +9,7 @@ export function Online({className = ""}) {
         <div className={`${styles.online} ${className}`}>
             <h2>online</h2>
             {
-                ['IT000HAL', 'AS89ASD', 'ASDASDd', 'SLUR000'].map((h, i) =>
+                ['ASDASD', 'ASDASD', 'ASDASD', 'IT000HAL', 'AS89ASD', 'ASDASDd', 'SLUR000'].map((h, i) =>
                     <div key={i}>
                         <div className={styles.left}>
                             <p>{h}</p>

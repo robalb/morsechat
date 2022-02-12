@@ -14,7 +14,7 @@ main{
     grid-template-columns:minmax(15em, 2fr) 1fr 20em 38em 1fr 15em;
     grid-template-rows: 4em 1fr 4em;
     grid-template-areas: 
-        ".    . . preview . sheet"
+        ".    . side preview . sheet"
         "info . side chat . sheet"
         "info . side key . sheet";
 
