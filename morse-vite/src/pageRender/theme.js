@@ -24,6 +24,13 @@ const theme = createTheme({
       // paper: "#424242"
     }
   },
+  components: {
+    MuiUseMediaQuery: {
+      defaultProps: {
+        noSsr: true,
+      },
+    },
+  },
 });
 
 export default theme;

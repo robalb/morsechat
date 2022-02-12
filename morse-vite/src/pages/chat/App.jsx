@@ -19,9 +19,11 @@ import {Online} from "../../components/online/Online";
 import {SideControls} from "../../components/sideControls/SideControls";
 import {Header} from "../../components/header/Header";
 
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function App() {
 
+  const matches = useMediaQuery('(min-width:600px)');
 
   let [sidebarOpen, setSidebarOpen] = React.useState(false);
   function closeSidebar(event){
