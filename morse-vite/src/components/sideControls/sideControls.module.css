@@ -1,0 +1,9 @@
+
+.sidecontrols{
+    flex-grow: 1;
+    margin-top: 2rem;
+}
+
+.sidecontrols h2{
+    margin-top: 0;
+}

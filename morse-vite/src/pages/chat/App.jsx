@@ -11,7 +11,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 
 import pageRender from '../../pageRender/pageRender'
 
@@ -21,9 +20,11 @@ import {Sheet} from "../../components/sheet/Sheet";
 import {Preview} from "../../components/preview/Preview";
 import {Chat} from "../../components/chat/Chat";
 import {Key} from "../../components/key/Key";
+import {Online} from "../../components/online/Online";
+import {SideControls} from "../../components/sideControls/SideControls";
 
 
-function Header(props){
+function Header({leftContent="", rightContent=""}){
   let [sidebarOpen, setSidebarOpen] = React.useState(false);
   function toggleSidebar(event){
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -76,50 +77,16 @@ function Header(props){
 }
 
 
-function Online({className= ""}){
-  return (
-    <div className={`online ${className}`}>
-      <h2>online</h2>
-      {
-        ['IT000HAL', 'AS89ASD', 'ASDASDd', 'SLUR000'].map((h, i) =>
-          <div key={i}>
-            <div className="left">
-              <p>{h}</p>
-              <div className="typing">
-                <div></div>
-                <div></div>
-              </div>
-            </div>
-            <IconButton aria-label="mute user">
-              <VolumeOffIcon />
-            </IconButton>
-          </div>
-        )
-      }
-    </div>
-  );
-}
-
-function SideControls({className= ""}){
-  return (
-    <div className={`sidecontrols ${className}`}>
-      <h2>controls</h2>
-      <p>wpm</p>
-      <p>receiver volume</p>
-      <p>key volume</p>
-      <p>submit delay</p>
-      <p>show words</p>
-      <Button size="small" startIcon={<SettingsIcon />} variant="outlined">
-        Advanced
-      </Button>
-    </div>
-  );
-}
-
 export default function App() {
   return (
     <div className="app-container">
-      <Header />
+      <Header 
+        leftContent={
+          []
+        }
+        rightContent={
+          []
+        }/>
       <main>
         <Info className="grid-info" />
         <div className="grid-side">

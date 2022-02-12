@@ -1,0 +1,53 @@
+
+.online{
+    flex-grow: 1;
+    max-height: 20rem;
+    overflow-y: auto;
+}
+
+.online h2{
+    margin-top: 0;
+}
+
+.online > div{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 2rem;
+}
+.online .left{
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+.online .typing {
+  margin-left: 1rem;
+}
+
+.online .typing div {
+  width: 13px;
+  height: 13px;
+  background-color: var(--gray-95);
+  display: inline-block;
+  -webkit-animation: sk-bouncedelay 1.2s infinite ease-in-out both;
+  animation: sk-bouncedelay 1.2s infinite ease-in-out both;
+}
+
+.online .typing div:first-child {
+  -webkit-animation-delay: -0.2s;
+  animation-delay: -0.2s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0.0) }
+  40% { -webkit-transform: scale(0.4) }
+}
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    -webkit-transform: scale(0.0);
+    transform: scale(0.0);
+  } 40% { 
+    -webkit-transform: scale(0.4);
+    transform: scale(0.4);
+  }
+}
