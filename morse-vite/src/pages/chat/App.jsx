@@ -39,6 +39,10 @@ export default function App() {
     setSidebarOpen(false);
   }
 
+  function toggleSheet(e){
+    setSheetOpen(!sheetOpen);
+  }
+
   return (
     <div className="app-container">
       <Drawer
@@ -52,14 +56,20 @@ export default function App() {
       <Header 
         leftContent={
           <>
-            <IconButton aria-label="Menu" onClick={e => setSidebarOpen(true)}>
-              <MenuIcon />
-            </IconButton>
-            <Button className="header-bt-left" startIcon={<PeopleIcon />}>
-              <output>
-                2
-              </output>
-            </Button>
+            {
+              !desktop &&
+              <IconButton aria-label="Menu" onClick={e => setSidebarOpen(true)}>
+                <MenuIcon />
+              </IconButton>
+            }
+            {
+              !tablet &&
+              <Button className="header-bt-left" startIcon={<PeopleIcon />}>
+                <output>
+                  2
+                </output>
+              </Button>
+            }
           </>
         }
       />
@@ -84,10 +94,13 @@ export default function App() {
               <SettingsIcon />
             </IconButton>
           }
+          sheetBtHandler={toggleSheet}
         />
         {
-          true &&
-          <Sheet className='grid-sheet'/>
+          sheetOpen &&
+          <Sheet className='grid-sheet'
+            closeBtHandler={toggleSheet}
+          />
         }
       </main>
     </div>

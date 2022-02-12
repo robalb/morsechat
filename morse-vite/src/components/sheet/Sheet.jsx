@@ -4,11 +4,11 @@ import * as React from "react";
 
 import styles from './sheet.module.css';
 
-export function Sheet({className = ""}) {
+export function Sheet({className = "", closeBtHandler}) {
     return (
         <div className={`${styles.sheet} ${className}`}>
             <div className={styles.controls}>
-                <IconButton aria-label="close morse view">
+                <IconButton aria-label="close morse view" onClick={closeBtHandler}>
                     <CloseIcon/>
                 </IconButton>
             </div>

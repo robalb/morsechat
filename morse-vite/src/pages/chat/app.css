@@ -31,7 +31,7 @@ main .grid-sheet{
     grid-area: chat;
     z-index: 2;
     overflow: hidden;
-    margin-left: 5rem;
+    margin-left: 10rem;
     border-top: 1px solid var(--gray-95);
 }
 main .grid-preview{
@@ -79,6 +79,9 @@ main .grid-key{
     .grid-side-sidecontrols{
         flex-grow: 1;
         margin-top: 2rem;
+    }
+    main .grid-sheet{
+        margin-left: 15rem;
     }
 
 }

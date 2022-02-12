@@ -3,6 +3,7 @@
     background-color: var(--gray-70);
     box-shadow: var(--shadow-1);
     padding: 1rem;
+    overflow-y: auto;
 }
 .chat span{
     color: var(--pastel-yellow);
