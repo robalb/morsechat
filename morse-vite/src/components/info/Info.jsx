@@ -14,10 +14,10 @@ export function Info({className="", ...props}) {
             </p>
             <h3>What's new</h3>
             <p>2021-02-10 update notes</p>
-            <a href="https://discord.gg/JPzfzNJG6e">
+            <a href="https://discord.gg/JPzfzNJG6e" title="discord">
                 <img src={discordUrl}/>
             </a><br/>
-            <a href="https://github.com/robalb/morsechat">
+            <a href="https://github.com/robalb/morsechat" title="github">
                 <img src={githubUrl}/>
             </a>
         </div>

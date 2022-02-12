@@ -7,6 +7,8 @@ import Button from '@mui/material/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CloseIcon from "@mui/icons-material/Close";
+
 
 import pageRender from '../../pageRender/pageRender'
 
@@ -45,13 +47,22 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <Drawer
-        anchor="left"
-        open={sidebarOpen}
-        onClose={closeSidebar}
-      >
-        <h2>sidebar. put here the Info component on mobile</h2>
-      </Drawer>
+      {
+        !desktop &&
+        <Drawer
+          anchor="left"
+          open={sidebarOpen}
+          onClose={closeSidebar}
+        >
+          <div className='sidebar-controls'>
+
+            <IconButton aria-label="close sidebar" onClick={closeSidebar}>
+                <CloseIcon/>
+            </IconButton>
+          </div>
+          <Info className='sidebar-info'/>
+        </Drawer>
+      }
 
       <Header 
         leftContent={
@@ -64,7 +75,8 @@ export default function App() {
             }
             {
               !tablet &&
-              <Button className="header-bt-left" startIcon={<PeopleIcon />}>
+              <Button className="header-bt-left" startIcon={<PeopleIcon />} 
+                aria-label="Online users">
                 <output>
                   2
                 </output>

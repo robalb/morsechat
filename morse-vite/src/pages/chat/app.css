@@ -47,6 +47,14 @@ main .grid-key{
     grid-area: key;
     z-index: 2;
 }
+.sidebar-controls{
+    padding: 1rem;
+    padding-bottom: 0;
+}
+.sidebar-info{
+    max-width: 20rem;
+    margin-right: 1rem;
+}
 
 
 /* tablet or larger*/
