@@ -23,7 +23,13 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function App() {
 
-  const matches = useMediaQuery('(min-width:600px)');
+  /**
+   * Breakpoints definitions:
+   */
+  const tablet = useMediaQuery('(min-width:800px)');
+  const desktop = useMediaQuery('(min-width:1400px)');
+
+  let [sheetOpen, setSheetOpen] = React.useState(desktop);
 
   let [sidebarOpen, setSidebarOpen] = React.useState(false);
   function closeSidebar(event){
@@ -58,21 +64,31 @@ export default function App() {
         }
       />
       <main>
-        <Info className="grid-info" />
-        <div className="grid-side">
-          <Online />
-          <SideControls className='grid-side-sidecontrols'/>
-        </div>
+        {
+          desktop &&
+          <Info className="grid-info" />
+        }
+        {
+          tablet &&
+          <div className="grid-side">
+            <Online />
+            <SideControls className='grid-side-sidecontrols'/>
+          </div>
+        }
         <Preview className='grid-preview'/>
         <Chat className='grid-chat'/>
         <Key className='grid-key'
           leftButton={
+            tablet ? undefined :
             <IconButton aria-label="Settings">
               <SettingsIcon />
             </IconButton>
           }
         />
-        <Sheet className='grid-sheet'/>
+        {
+          true &&
+          <Sheet className='grid-sheet'/>
+        }
       </main>
     </div>
   );

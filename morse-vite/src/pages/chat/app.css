@@ -18,28 +18,24 @@ main{
     display: grid;
 }
 
-/* mobile */
+/* mobile or larger*/
 main {
-
+    grid-template-columns:1fr minmax(auto 38em)  1fr;
+    grid-template-rows: 4em 1fr 4em;
+    grid-template-areas: 
+        ". preview ."
+        ". chat ."
+        ". key .";
 }
-
-/* tablet */
-
-/* desktop */
-@media (min-width: 800px){
-    main{
-
-        grid-template-columns:minmax(15em, 2fr) 1fr 20em 38em 1fr 15em;
-        grid-template-rows: 4em 1fr 4em;
-        grid-template-areas: 
-            ".    . side preview . sheet"
-            "info . side chat . sheet"
-            "info . side key . sheet";
-    }
+main .grid-sheet{
+    grid-area: chat;
+    z-index: 2;
+    overflow: hidden;
+    margin-left: 5rem;
+    border-top: 1px solid var(--gray-95);
 }
-
 main .grid-preview{
-    /* floating (? maybe only hidden, onclick it appears by sliding from top, causing layout shift to the bottom) on mobile */
+    border-top: 1px solid var(--gray-95);
     grid-area: preview;
     z-index: 2;
 }
@@ -52,36 +48,58 @@ main .grid-key{
     z-index: 2;
 }
 
-main .grid-side{
-    grid-area: side;
-    z-index: 2;
+
+/* tablet or larger*/
+@media (min-width: 800px){
+    main {
+        grid-template-columns:1fr 20rem minmax(auto, 38rem)  1fr;
+        grid-template-areas: 
+            ". side preview ."
+            ". side chat ."
+            ". side key .";
+    }
+
+    main .grid-side{
+        grid-area: side;
+        z-index: 2;
+    }
+
+    main .grid-side{
+        padding-right: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+    main .grid-side > div{
+        border-top: 1px solid var(--gray-95);
+        padding: 1rem;
+        padding-right: .2rem;
+        background-color: var(--gray-80);
+        box-shadow: var(--shadow-1);
+    }
+    .grid-side-sidecontrols{
+        flex-grow: 1;
+        margin-top: 2rem;
+    }
+
 }
 
-main .grid-sheet{
-    grid-area: sheet;
-    z-index: 2;
-}
+/* Desktop */
+@media (min-width: 1400px){
+    main{
+        grid-template-columns:minmax(15rem, 2fr) 1fr 20rem 38rem 1fr 15rem;
+        grid-template-areas: 
+            ".    . side preview . sheet"
+            "info . side chat . sheet"
+            "info . side key . sheet";
+    }
+    main .grid-sheet{
+        grid-area: sheet;
+        z-index: 2;
+        margin-left:0;
+    }
 
-main .grid-info{
-    grid-area: info;
-    z-index: 2;
-}
-
-/** desktop sidebar*/
-main .grid-side{
-    padding-right: 1rem;
-    display: flex;
-    flex-direction: column;
-}
-main .grid-side > div{
-    padding: 1rem;
-    padding-right: .2rem;
-    background-color: var(--gray-80);
-    box-shadow: var(--shadow-1);
-}
-
-
-.grid-side-sidecontrols{
-    flex-grow: 1;
-    margin-top: 2rem;
+    main .grid-info{
+        grid-area: info;
+        z-index: 2;
+    }
 }

@@ -5,6 +5,7 @@
     display: flex;
     justify-content: space-between;
     padding: 0 0.8em;
+    overflow: hidden;
 }
 .header > div{
     display: flex;
