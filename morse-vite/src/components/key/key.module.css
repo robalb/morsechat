@@ -3,11 +3,12 @@
     background-color: var(--gray-80);
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
     padding: 5px;
     box-sizing: border-box;
 }
-.key button{
+.key_bt{
     width: 70%;
     height: 100%;
     background-color: var(--gray-95);
@@ -16,7 +17,12 @@
     cursor: pointer;
     box-shadow: var(--shadow-1);
 }
-.key button.active{
+.key_bt:active{
     /* apply programmatically (?) maybe applying manually  from js the property is better */
     opacity: .3;
+}
+
+.key .settings_invisible{
+    opacity: 0;
+    visibility: hidden;
 }

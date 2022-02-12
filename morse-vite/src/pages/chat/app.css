@@ -4,6 +4,15 @@
     flex-direction: column;
 }
 
+.header-bt-left{
+    margin-left: 1em!important;
+}
+
+/*could be removed, in the right of the header there will be no buttons */
+.header-bt-right{
+    margin-right: 0.4em!important;
+}
+
 main{
     height: calc(100% - var(--header-height));
     width:100%;
@@ -60,4 +69,10 @@ main .grid-side > div{
     padding-right: .2rem;
     background-color: var(--gray-80);
     box-shadow: var(--shadow-1);
+}
+
+
+.grid-side-sidecontrols{
+    flex-grow: 1;
+    margin-top: 2rem;
 }

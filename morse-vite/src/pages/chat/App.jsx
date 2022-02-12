@@ -7,7 +7,6 @@ import Button from '@mui/material/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 import pageRender from '../../pageRender/pageRender'
 
@@ -25,7 +24,7 @@ export default function App() {
 
 
   let [sidebarOpen, setSidebarOpen] = React.useState(false);
-  function toggleSidebar(event){
+  function closeSidebar(event){
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
@@ -37,7 +36,7 @@ export default function App() {
       <Drawer
         anchor="left"
         open={sidebarOpen}
-        onClose={toggleSidebar}
+        onClose={closeSidebar}
       >
         <h2>sidebar. put here the Info component on mobile</h2>
       </Drawer>
@@ -55,27 +54,22 @@ export default function App() {
             </Button>
           </>
         }
-        rightContent={
-          <>
-            <IconButton className="header-bt-right" aria-label="Settings">
-              <SettingsIcon />
-            </IconButton>
-
-            <IconButton aria-label="morse table">
-              <LibraryBooksIcon />
-            </IconButton>
-          </>
-        }
       />
       <main>
         <Info className="grid-info" />
         <div className="grid-side">
           <Online />
-          <SideControls />
+          <SideControls className='grid-side-sidecontrols'/>
         </div>
         <Preview className='grid-preview'/>
         <Chat className='grid-chat'/>
-        <Key className='grid-key'/>
+        <Key className='grid-key'
+          leftButton={
+            <IconButton aria-label="Settings">
+              <SettingsIcon />
+            </IconButton>
+          }
+        />
         <Sheet className='grid-sheet'/>
       </main>
     </div>
