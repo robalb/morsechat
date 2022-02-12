@@ -1,0 +1,11 @@
+
+.header{
+    background-color: var(--gray-50);
+    height: var(--header-height);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0.8em;
+}
+.header > div{
+    display: flex;
+}

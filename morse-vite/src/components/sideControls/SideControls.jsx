@@ -16,6 +16,7 @@ export function SideControls({className = ""}) {
             <Button size="small" startIcon={<SettingsIcon/>} variant="outlined">
                 Advanced
             </Button>
+            <p>advanced: morsedialect,keybindings,keymode,dot-dash-ratio</p>
         </div>
     );
 }
