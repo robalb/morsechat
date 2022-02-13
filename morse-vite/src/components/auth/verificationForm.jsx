@@ -4,16 +4,15 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useSnackbar } from 'notistack';
 
 const VerificationForm = ({state, reload, setPage, post}) =>{
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   function handleCancel(){
-    setPage("menu")
+    setPage("")
   }
   return (
     <Grid container spacing={3} >
 
 
       <Grid item xs={12} >
-        <IconButton aria-label="close" color="primary" onClick={e => setPage("menu") }>
+        <IconButton aria-label="close" color="primary" onClick={e => setPage("") }>
           <CloseIcon />
         </IconButton>
       </Grid>
@@ -34,8 +33,8 @@ const VerificationForm = ({state, reload, setPage, post}) =>{
         </Typography>
       </Grid>
       <Grid item xs={12} >
-        <Skeleton vanimation="wave" ariant="rectangular" height={118} />
-        <Skeleton vanimation="wave" ariant="rectangular" height={118} />
+        <Skeleton animation="wave" height={118} />
+        <Skeleton animation="wave" height={118} />
       </Grid>
       <Grid item xs={12} >
         <Button size="medium" color="primary" onClick={handleCancel} variant="contained">

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Grid, TextField, Button, Divider, IconButton} from '@mui/material';
+import {Typography, Grid, TextField, Button, Link, Stack, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useSnackbar } from 'notistack';
 
@@ -77,10 +77,8 @@ const LoginForm = ({state, reload, setPage, post}) =>{
 
   return (
     <Grid container spacing={3} >
-
-
       <Grid item xs={12} >
-        <IconButton aria-label="close" color="primary" onClick={e => setPage("menu") }>
+        <IconButton aria-label="close" color="primary" onClick={e => setPage("")}>
           <CloseIcon />
         </IconButton>
       </Grid>
@@ -90,22 +88,33 @@ const LoginForm = ({state, reload, setPage, post}) =>{
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <TextField label="Username" type="text" value={form.username} 
-        onChange={handleUpdate('username')} fullWidth variant="standard"
-        error={error.username.length > 0} helperText={error.username.trim()} />
+        <TextField label="Username" type="text" value={form.username}
+          onChange={handleUpdate('username')} fullWidth variant="standard"
+          error={error.username.length > 0} helperText={error.username.trim()} />
       </Grid>
       <Grid item xs={12}>
         <TextField label="password" type="password" value={form.password}
-        onChange={handleUpdate('password')} fullWidth variant="standard"
-        error={error.password.length > 0} helperText={error.password.trim()} />
+          onChange={handleUpdate('password')} fullWidth variant="standard"
+          error={error.password.length > 0} helperText={error.password.trim()} />
       </Grid>
       <Grid item xs={12} >
-        <Button size="medium" color="secondary" onClick={handleLogin} variant="contained">
-          Login
-        </Button>
-        <Button>
-          or register
-        </Button>
+        <Stack direction="row" sx={{ padding: "10px" }} alignItems="center" spacing={1}>
+          <Button size="medium" color="secondary" onClick={handleLogin} variant="contained">
+            Login
+          </Button>
+
+          <Typography variant="body1" color="primary" >
+            Don't have an account?
+          </Typography>
+          <Link
+            component="button"
+            variant="body1"
+            onClick={() => { setPage("register") }}
+          >
+            register
+          </Link>
+
+        </Stack>
       </Grid>
     </Grid>
   )

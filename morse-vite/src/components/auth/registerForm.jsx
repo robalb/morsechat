@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Grid, TextField, Button, Divider, IconButton} from '@mui/material';
+import {Typography, Grid, TextField, Button, Divider, Stack, Link, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useSnackbar } from 'notistack';
 
@@ -105,44 +105,57 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
 
   return (
     <form onSubmit={handleRegister}>
-    <Grid container spacing={3} >
-      <Grid item xs={12} >
-        <IconButton aria-label="close" color="primary" onClick={e => setPage("menu") }>
-          <CloseIcon />
-        </IconButton>
+      <Grid container spacing={3} >
+        <Grid item xs={12} >
+          <IconButton aria-label="close" color="primary" onClick={e => setPage("")}>
+            <CloseIcon />
+          </IconButton>
+        </Grid>
+        <Grid item xs={12} >
+          <Typography variant="h5" color="primary" >
+            Create your call sign
+          </Typography>
+        </Grid>
+        <Grid item xs={12} >
+          <CallSignEditor setData={e => setForm(f => ({ ...f, callsign: e }))} />
+        </Grid>
+        <Grid item xs={12} >
+          <Divider />
+        </Grid>
+        <Grid item xs={12} >
+          <Typography variant="h5" color="primary" >
+            your data
+          </Typography>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <TextField label="Username" type="text" value={form.username}
+            onChange={handleUpdate('username')} fullWidth variant="standard"
+            error={error.username.length > 0} helperText={error.username} />
+        </Grid>
+        <Grid item xs={12} md={6} >
+          <TextField label="password" type="password" value={form.password}
+            onChange={handleUpdate('password')} fullWidth variant="standard"
+            error={error.password.length > 0} helperText={error.password} />
+        </Grid>
+        <Grid item xs={12} >
+          <Stack direction="row" sx={{ padding: "10px" }} alignItems="center" spacing={1}>
+            <Button size="medium" type="submit" color="secondary" variant="contained">
+              Register
+            </Button>
+
+            <Typography variant="body1" color="primary" >
+              Already have an account?
+            </Typography>
+            <Link
+              component="button"
+              variant="body1"
+              onClick={() => { setPage("login") }}
+            >
+              login
+            </Link>
+          </Stack>
+        </Grid>
       </Grid>
-      <Grid item xs={12} >
-        <Typography variant="h5" color="primary" >
-          Create your call sign
-        </Typography>
-      </Grid>
-      <Grid item xs={12} >
-        <CallSignEditor setData={e => setForm( f => ({...f, callsign:e}) )}/>
-      </Grid>
-      <Grid item xs={12} >
-        <Divider />
-      </Grid>
-      <Grid item xs={12} >
-        <Typography variant="h5" color="primary" >
-          your data
-        </Typography>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField label="Username" type="text" value={form.username} 
-        onChange={handleUpdate('username')} fullWidth variant="standard"
-        error={error.username.length > 0} helperText={error.username} />
-      </Grid>
-      <Grid item xs={12} md={6} >
-        <TextField label="password" type="password" value={form.password}
-        onChange={handleUpdate('password')} fullWidth variant="standard"
-        error={error.password.length > 0} helperText={error.password} />
-      </Grid>
-      <Grid item xs={12} >
-        <Button size="medium" type="submit" color="secondary" variant="contained">
-          Register
-        </Button>
-      </Grid>
-    </Grid>
     </form>
   )
 }
