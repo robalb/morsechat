@@ -56,7 +56,8 @@ const LoginForm = ({state, reload, setPage, post}) =>{
     }
     return isGood
   }
-  async function handleLogin(){
+  async function handleLogin(e){
+    e.preventDefault()
     resetError()
     if (!clientValidate())
       return
@@ -76,6 +77,8 @@ const LoginForm = ({state, reload, setPage, post}) =>{
   }
 
   return (
+    <form onSubmit={handleLogin} >
+
     <Grid container spacing={3} >
       <Grid item xs={12} >
         <IconButton aria-label="close" color="primary" onClick={e => setPage("")}>
@@ -99,7 +102,7 @@ const LoginForm = ({state, reload, setPage, post}) =>{
       </Grid>
       <Grid item xs={12} >
         <Stack direction="row" sx={{ padding: "10px" }} alignItems="center" spacing={1}>
-          <Button size="medium" color="secondary" onClick={handleLogin} variant="contained">
+          <Button size="medium" color="secondary" type="submit" variant="contained">
             Login
           </Button>
 
@@ -117,6 +120,7 @@ const LoginForm = ({state, reload, setPage, post}) =>{
         </Stack>
       </Grid>
     </Grid>
+    </form>
   )
 }
 
