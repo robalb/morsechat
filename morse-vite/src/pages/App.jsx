@@ -10,7 +10,7 @@ import RegisterForm from '../components/auth/registerForm'
 import VerificationForm from '../components/auth/verificationForm'
 import mainContext from '../contexts/mainContext'
 import {MainIndexForm} from "../components/auth/mainIndexForm";
-import {Sidebar} from "../components/index/sidebar";
+import {Sidebar} from "../components/index-deprecated/sidebar";
 
 import './index.css'
 

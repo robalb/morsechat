@@ -15,8 +15,8 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(root, 'index.html'),
-        chat: resolve(root, 'chat', 'index.html')
+        main: resolve(root, 'index-deprecated.html'),
+        chat: resolve(root, 'chat', 'index-deprecated.html')
       }
     }
   },
