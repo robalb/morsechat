@@ -103,6 +103,9 @@ const LoginForm = ({state, reload, setPage, post}) =>{
         <Button size="medium" color="secondary" onClick={handleLogin} variant="contained">
           Login
         </Button>
+        <Button>
+          or register
+        </Button>
       </Grid>
     </Grid>
   )

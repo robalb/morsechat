@@ -95,13 +95,16 @@ class Data_modules:
             user_data = {
                     'id': this.current_user.id,
                     'username': this.current_user.username,
+                    'last_online': this.current_user.last_online,
                     'callsign': this.current_user.callsign,
-                    'last_online': this.current_user.last_online
+                    'country': this.session['country'],
+                    'settings': None
                     }
         else:
             user_data = {
                     'callsign': this.session['anonymous_callsign'],
-                    'country': this.session['country']
+                    'country': this.session['country'],
+                    'settings': None
                     }
         return user_data
 
