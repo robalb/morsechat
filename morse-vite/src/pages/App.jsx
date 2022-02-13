@@ -4,12 +4,12 @@ import pageRender from '../pageRender/pageRender'
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 
-import MainDataLoading from '../components/mainDataLoading'
-import LoginForm from '../components/loginForm'
-import RegisterForm from '../components/registerForm'
-import VerificationForm from '../components/verificationForm'
+import MainDataLoading from '../components/auth/mainDataLoading'
+import LoginForm from '../components/auth/loginForm'
+import RegisterForm from '../components/auth/registerForm'
+import VerificationForm from '../components/auth/verificationForm'
 import mainContext from '../contexts/mainContext'
-import {MainIndexForm} from "../components/index/mainIndexForm";
+import {MainIndexForm} from "../components/auth/mainIndexForm";
 import {Sidebar} from "../components/index/sidebar";
 
 import './index.css'

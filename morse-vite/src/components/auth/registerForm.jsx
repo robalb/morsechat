@@ -3,7 +3,7 @@ import {Typography, Grid, TextField, Button, Divider, IconButton} from '@mui/mat
 import CloseIcon from '@mui/icons-material/Close';
 import { useSnackbar } from 'notistack';
 
-import CallSignEditor from './callSignEditor/callSignEditor'
+import CallSignEditor from '../callSignEditor/callSignEditor'
 
 
 const RegisterForm = ({state, reload, setPage, post}) =>{
