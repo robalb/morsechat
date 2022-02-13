@@ -7,6 +7,8 @@ import VerificationForm from "./verificationForm";
 import MainDataLoading from "./mainDataLoading";
 import Dialog from "@mui/material/Dialog";
 
+import styles from './auth.module.css';
+
 /**
  *
  * @param {*} authState - an array returned from React.useState, containing a string state.
@@ -54,7 +56,7 @@ export function Auth({authState, fullScreen = false}) {
             open={open}
             onClose={closeAuth}
         >
-            <div>
+            <div className={styles.auth}>
                 {mainContent}
             </div>
         </Dialog>
