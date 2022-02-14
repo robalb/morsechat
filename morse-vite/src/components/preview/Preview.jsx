@@ -4,13 +4,14 @@ import * as React from "react";
 
 import styles from './preview.module.css';
 
-export function Preview({className = ""}) {
+export function Preview({className = "", width, text, deleteHandler}) {
+    let cssWidth = width + "%"
     return (
         <div className={`${styles.preview} ${className}`}>
-            <div className={styles.progress}>
+            <div className={styles.progress} style={{width: cssWidth}}>
             </div>
             <div className={styles.text}>
-                <p>hello world cammin di nostra vita mi ritrovai per una selva uscura_..</p>
+                <p>{text}</p>
                 <IconButton aria-label="cancel message">
                     <DeleteOutlineIcon/>
                 </IconButton>

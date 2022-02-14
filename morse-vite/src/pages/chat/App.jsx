@@ -25,8 +25,9 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import mainContext from '../../contexts/mainContext'
 import {Auth} from "../../components/auth/Auth";
 
-export default function App() {
-  let {state, post, reload} = React.useContext(mainContext)
+
+function AppLayout() {
+  let {state} = React.useContext(mainContext)
 
   /**
    * Breakpoints definitions.
@@ -123,7 +124,10 @@ export default function App() {
             <SideControls className='grid-side-sidecontrols'/>
           </div>
         }
-        <Preview className='grid-preview'/>
+        <Preview className='grid-preview'
+          width={30}
+          text="hellee woil l e e ee i .--.."
+        />
         <Chat className='grid-chat'/>
         <Key className='grid-key'
           leftButton={
@@ -143,6 +147,13 @@ export default function App() {
       </main>
     </div>
   );
+}
+
+
+function App(props){
+  return(
+    <AppLayout />
+  )
 }
 
 pageRender(App)
