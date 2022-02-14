@@ -4,7 +4,7 @@ import * as React from "react";
 
 import styles from './preview.module.css';
 
-export function Preview({className = "", width, text, deleteHandler}) {
+export function Preview({className = "", width, text, clearHandler}) {
     let cssWidth = width + "%"
     return (
         <div className={`${styles.preview} ${className}`}>
@@ -12,7 +12,7 @@ export function Preview({className = "", width, text, deleteHandler}) {
             </div>
             <div className={styles.text}>
                 <p>{text}</p>
-                <IconButton aria-label="cancel message">
+                <IconButton aria-label="cancel message" onClick={clearHandler}>
                     <DeleteOutlineIcon/>
                 </IconButton>
             </div>

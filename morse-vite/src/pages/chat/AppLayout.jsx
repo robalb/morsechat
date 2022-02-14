@@ -20,7 +20,7 @@ import {Sheet} from "../../components/sheet/Sheet";
 
 import './appLayout.css'
 
-export function AppLayout() {
+export function AppLayout({previewWidth, previewText, previewClearHandler}) {
     let {state} = React.useContext(mainContext)
 
     /**
@@ -52,9 +52,9 @@ export function AppLayout() {
     const setAuthPage = authState[1];
 
     React.useEffect(() => {
-        console.log("state change detected")
-        console.log(state)
-        if (!state.loading && !state.sessionData.authenticated && state.sessionData.show_popup) {
+        if (!state.loading &&
+            !state.sessionData.authenticated &&
+            state.sessionData.show_popup) {
             setAuthPage("menu")
         }
     }, [state])
@@ -62,9 +62,7 @@ export function AppLayout() {
 
     return (
         <div className="app-container">
-            <Auth
-                authState={authState}
-            />
+            <Auth authState={authState} />
             {
                 !desktop &&
                 <Drawer
@@ -119,8 +117,9 @@ export function AppLayout() {
                     </div>
                 }
                 <Preview className='grid-preview'
-                    width={30}
-                    text="hellee woil l e e ee i .--.."
+                    width={previewWidth}
+                    text={previewText}
+                    clearHandler={previewClearHandler}
                 />
                 <Chat className='grid-chat' />
                 <Key className='grid-key'
