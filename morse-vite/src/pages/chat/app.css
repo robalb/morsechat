@@ -20,7 +20,7 @@ main{
 
 /* mobile or larger*/
 main {
-    grid-template-columns:1fr minmax(auto 38em)  1fr;
+    grid-template-columns: auto auto auto;
     grid-template-rows: 4em 1fr 4em;
     grid-template-areas: 
         ". preview ."
