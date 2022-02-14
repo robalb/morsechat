@@ -31,7 +31,7 @@ start vite in development mode `cd /morse-vite && npm run dev`
 
 ## production
 
-A prosuction ready image can be generated from the docker-compose.prod,
+A production ready image can be generated from the docker-compose.prod,
 It will also handle the website build.
 
 `docker-compose -f docker-compose.prod.yml up --build`
