@@ -1,7 +1,10 @@
 import * as React from 'react';
+import { io } from "socket.io-client";
 
 import pageRender from '../../pageRender/pageRender'
 import {AppLayout} from "./AppLayout";
+
+import {socketUrl} from '../../utils/apiResolver'
 
 
 function App(props){
@@ -32,7 +35,7 @@ function App(props){
       cancel_message: "p",
     }
   }
-  //todo: add some kind of flag to the settings object, to signal it's state in the
+  //todo: add some kind of flag to the settings object, to signal its state in the
   //live update lifecycle. add reducer options to change that state, and updates
   //should also change the state
   function settingsReducer(state, action){
@@ -74,12 +77,45 @@ function App(props){
   }
   const [users, usersDispatch] = React.useReducer(usersReducer, initialUsers)
 
+  const [connected, setConnected] = React.useState(false)
+
+  console.log("APP RERENDER")
+
+  React.useEffect(() => {
+    const socket = io(socketUrl);
+    socket.on("FromAPI", data => {
+      console.log(data)
+    });
+    socket.on("connect", () => {
+      setConnected(true)
+      console.log("connect")
+      console.log(socket)
+      socket.emit('join', {username: 'forgedUsername', room: 'room_test'})
+    });
+    socket.on("disconnect", () => {
+      setConnected(false)
+      console.log("disconnect")
+      console.log(socket)
+    });
+
+    socket.onAny( (event, args) => {
+      console.log("GENERIC EVENT LOGGER")
+      console.log({
+        event, args
+      })
+    })
+
+    // CLEAN UP THE EFFECT
+    return () => socket.disconnect();
+    //
+  }, []);
 
   return(
     <AppLayout
       previewWidth={30}
       previewText={"Allor fu la paura un poco queta . che nel lago del cor--.-"}
       previewClearHandler={e=>console.log("clear")}
+      connectionStatus={connected}
     />
   )
 }

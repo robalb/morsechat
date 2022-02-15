@@ -11,6 +11,10 @@
     '/api/v1/' :
     'http://localhost:5000/api/v1/'
 
+  export const socketUrl = isProduction ?
+    '' :
+    'http://localhost:5000'
+
   /**
    * Internal request method.
    *

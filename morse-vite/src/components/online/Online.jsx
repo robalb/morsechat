@@ -4,10 +4,11 @@ import * as React from "react";
 
 import styles from './online.module.css';
 
-export function Online({className = ""}) {
+export function Online({className = "", connectionStatus}) {
+    let status = connectionStatus ? "" : "- connecting.."
     return (
         <div className={`${styles.online} ${className}`}>
-            <h2>online</h2>
+            <h2>online {status}</h2>
             {
                 ['ASDASD', 'ASDASD', 'ASDASD', 'IT000HAL', 'AS89ASD', 'ASDASDd', 'SLUR000'].map((h, i) =>
                     <div key={i}>

@@ -65,7 +65,7 @@ const LoginForm = ({state, reload, setPage, post}) =>{
     console.log(res)
     if(res.success){
       reload(res.data)
-      setPage("menu")
+      setPage("")
     }
     else if(res.error == "invalid_credentials"){
       enqueueSnackbar('wrong username or password', {variant: "error", preventDuplicate:true})

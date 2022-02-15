@@ -20,8 +20,11 @@ import {Sheet} from "../../components/sheet/Sheet";
 
 import './appLayout.css'
 
-export function AppLayout({previewWidth, previewText, previewClearHandler}) {
-    let {state} = React.useContext(mainContext)
+export function AppLayout({
+    previewWidth, previewText, previewClearHandler,
+    connectionStatus
+}) {
+    let { state } = React.useContext(mainContext)
 
     /**
      * Breakpoints definitions.
@@ -112,7 +115,9 @@ export function AppLayout({previewWidth, previewText, previewClearHandler}) {
                 {
                     tablet &&
                     <div className="grid-side">
-                        <Online />
+                        <Online 
+                        connectionStatus={connectionStatus}
+                        />
                         <SideControls className='grid-side-sidecontrols' />
                     </div>
                 }
