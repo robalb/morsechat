@@ -13,9 +13,8 @@ export function SideControls({className = ""}) {
         <div className={`${styles.sidecontrols} ${className}`}>
             <h2>controls</h2>
             <p>wpm</p>
-            <Slider size="small" value={wpm} aria-label="Default" valueLabelDisplay="auto" 
-                onChange={ (e, value) => setWpm(value) }
-                onBlur={e => 
+            <Slider size="small" defaultValue={settings.wpm} aria-label="Default" valueLabelDisplay="auto" 
+                onChangeCommitted={e => 
                     settingsDispatch({
                         type: "update",
                         payload: {

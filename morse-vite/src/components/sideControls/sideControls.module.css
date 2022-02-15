@@ -2,6 +2,9 @@
 .sidecontrols{
     padding: 1rem;
 }
+.sidecontrols p{
+    margin-bottom: 0;
+}
 .sidecontrols h2{
     margin-top: 0;
 }
