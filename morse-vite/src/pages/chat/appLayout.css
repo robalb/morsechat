@@ -79,8 +79,6 @@ main .grid-key{
     }
     main .grid-side > div{
         border-top: 1px solid var(--gray-95);
-        padding: 1rem;
-        padding-right: .2rem;
         background-color: var(--gray-80);
         box-shadow: var(--shadow-1);
     }
