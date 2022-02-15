@@ -6,8 +6,12 @@ import {AppLayout} from "./AppLayout";
 
 import {socketUrl} from '../../utils/apiResolver'
 
+import appContext from "../../contexts/appContext";
+
 
 function App(props){
+
+  let {connected, setConnected} = React.useContext(appContext);
   /*
   TODO: write here all app logic, using the elements exposed by appLayout
   - define settings, and make them available to to layout via contextApi
@@ -20,65 +24,6 @@ function App(props){
   */
 
   /* appstate */
-  const initialSettings = {
-    wpm: 12,
-    volume_receiver: 1,
-    volume_key: 1,
-    dialect: "asd2d2dwd",
-    key_mode: "yambic",
-    show_readable: true,
-    submit_delay: 1000,
-    keybinds: {
-      straight: "c",
-      yambic_dot: "z",
-      yambic_dash: "x",
-      cancel_message: "p",
-    }
-  }
-  //todo: add some kind of flag to the settings object, to signal its state in the
-  //live update lifecycle. add reducer options to change that state, and updates
-  //should also change the state
-  function settingsReducer(state, action){
-    switch(action.type){
-      case 'update':
-        return Object.assign({}, state, action.payload)
-      case 'updateAll':
-        return Object.assign({}, action.payload);
-      default:
-        throw new Error("invalid action in settings reducer");
-    }
-  }
-  const [settings, settingsDispatch] = React.useReducer(settingsReducer, initialSettings)
-
-  const initialUsers = []
-  //TODO: define a user object structure. something like
-  /*
-  {
-    id,
-    activeAudio,
-    callsign,
-    typing,
-    dialect
-  }
-  */
-  
-  //TODO: typing and toggleAudio actions
-  function usersReducer(state, action){
-    switch(action.type){
-      case 'add':
-        let stateCopy = state.slice(0)
-        return stateCopy
-      case 'remove':
-        stateCopy = state.slice(0)
-        return stateCopy
-      default:
-        throw new Error("invalid action in settings reducer");
-    }
-  }
-  const [users, usersDispatch] = React.useReducer(usersReducer, initialUsers)
-
-  const [connected, setConnected] = React.useState(false)
-
   console.log("APP RERENDER")
 
   React.useEffect(() => {
@@ -90,7 +35,7 @@ function App(props){
       setConnected(true)
       console.log("connect")
       console.log(socket)
-      socket.emit('join', {username: 'forgedUsername', room: 'room_test'})
+      socket.emit('join', { username: 'forgedUsername', room: 'room_test' })
     });
     socket.on("disconnect", () => {
       setConnected(false)
@@ -98,7 +43,7 @@ function App(props){
       console.log(socket)
     });
 
-    socket.onAny( (event, args) => {
+    socket.onAny((event, args) => {
       console.log("GENERIC EVENT LOGGER")
       console.log({
         event, args
