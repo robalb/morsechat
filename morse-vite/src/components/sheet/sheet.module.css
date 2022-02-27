@@ -28,5 +28,5 @@
     margin-right: 1rem;
 }
  .sheet p:first-letter{
-    color: var(--pastel-red);
+    font-size: large;
 }

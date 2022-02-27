@@ -32,10 +32,10 @@ main .grid-sheet{
     z-index: 2;
     overflow: hidden;
     margin-left: 10rem;
-    border-top: 1px solid var(--gray-95);
+    border-top: 1px solid var(--gray-70);
 }
 main .grid-preview{
-    border-top: 1px solid var(--gray-95);
+    border-radius: 3px;
     grid-area: preview;
     z-index: 2;
 }
@@ -78,7 +78,7 @@ main .grid-key{
         flex-direction: column;
     }
     main .grid-side > div{
-        border-top: 1px solid var(--gray-95);
+        border-radius: 3px;
         background-color: var(--gray-80);
         box-shadow: var(--shadow-1);
     }
