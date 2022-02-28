@@ -52,6 +52,9 @@ export function Auth({authState, fullScreen = false}) {
 
     return (
         <Dialog
+            PaperProps={{
+              elevation: 1
+            }}
             fullScreen={fullScreen}
             open={open}
             onClose={closeAuth}

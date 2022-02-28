@@ -70,6 +70,7 @@ export function AppLayout({
                 !desktop &&
                 <Drawer
                     anchor="left"
+                    elevation={1}
                     open={sidebarOpen}
                     onClose={closeSidebar}
                 >

@@ -11,7 +11,7 @@ const theme = createTheme({
       light: '#eeeeee',
     },
     secondary: {
-      main: '#f50057',
+      main: '#90c384',
     },
     opposite_text: {
       main: '#121212',
@@ -21,7 +21,8 @@ const theme = createTheme({
     // },
     background: {
       default: "#303030",
-      paper: "#282b2d",
+      paper: "#282b2d",//--gray-70
+      /* paper: "#202224",//--gray-60 */
     }
   },
   components: {
