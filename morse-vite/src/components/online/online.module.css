@@ -1,18 +1,21 @@
 
 .online_container{
-    padding: 1rem;
-    padding-right: .2rem;
-    padding-bottom: 0;
-    margin-top: 0.6rem;
+    padding: 0 .2rem 0 1rem;
     /* outline: 1px solid yellow; */
     overflow:hidden;
+}
+
+.statusContainer{
+  height: 4rem;
+  display: flex;
+  align-items:center;
 }
 .online_container hr{
   border:0;
   border-top: 1px solid rgba(255,255,255,0.1);
   border-bottom: 2px solid rgba(0,0,0,0.5);
   margin-right: 2rem;
-  margin-top: 1rem;
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 .online_container h2{
@@ -21,7 +24,7 @@
 
 .online{
     overflow-y: auto;
-    max-height: calc(100% - 7rem);
+    max-height: calc(100% - 4rem - 5rem);
     /* outline: 1px solid pink; */
     padding-bottom: 1rem;
 }

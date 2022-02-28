@@ -29,7 +29,10 @@ export function Online({className = "", connectionStatus}) {
     ].join(" ")
     return (
         <div className={`${styles.online_container} ${className}`}>
-            <p className={statusStyles} >{status}</p>
+            <div className={styles.statusContainer}>
+
+                <p className={statusStyles} >{status}</p>
+            </div>
             <hr />
             <h2>online users </h2>
             <div className={styles.online}>
