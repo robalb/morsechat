@@ -4,7 +4,11 @@
 }
 .sidecontrols p{
     margin-bottom: 0;
+    margin-top: .6rem;
 }
 .sidecontrols h2{
     margin-top: 0;
+}
+.sidecontrols button{
+    margin-top: .6rem;
 }

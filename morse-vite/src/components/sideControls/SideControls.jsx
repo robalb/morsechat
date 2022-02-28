@@ -29,11 +29,10 @@ export function SideControls({className = ""}) {
             <Slider size="small" defaultValue={50} aria-label="Default" valueLabelDisplay="auto" />
             <p>submit delay</p>
             <Slider size="small" defaultValue={50} aria-label="Default" valueLabelDisplay="auto" />
-            <p>show words</p>
             <Button size="small" startIcon={<SettingsIcon/>} variant="outlined">
                 Advanced
             </Button>
-            <p>advanced: morsedialect,keybindings,keymode,dot-dash-ratio</p>
+            { /*<p>advanced: morsedialect,keybindings,keymode,dot-dash-ratio</p>*/}
         </div>
     );
 }
