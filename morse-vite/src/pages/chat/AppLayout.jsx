@@ -117,6 +117,7 @@ export function AppLayout({
                     tablet &&
                     <div className="grid-side">
                         <Online 
+                        className='grid-side-online'
                         connectionStatus={connectionStatus}
                         />
                         <SideControls className='grid-side-sidecontrols' />

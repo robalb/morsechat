@@ -75,16 +75,15 @@ main .grid-key{
     main .grid-side{
         padding-right: 1rem;
         display: flex;
+        justify-content: space-between;
         flex-direction: column;
     }
-    main .grid-side > div{
-        border-radius: 3px;
-        background-color: var(--gray-80);
-        box-shadow: var(--shadow-1);
+    .grid-side-online{
+        flex-shrink: 4;
+        min-height:0;
     }
     .grid-side-sidecontrols{
-        flex-grow: 1;
-        margin-top: 2rem;
+        /* flex-grow: 1; */
     }
     main .grid-sheet{
         margin-left: 15rem;

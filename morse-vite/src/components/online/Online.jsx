@@ -7,24 +7,28 @@ import styles from './online.module.css';
 export function Online({className = "", connectionStatus}) {
     let status = connectionStatus ? "" : "- connecting.."
     return (
-        <div className={`${styles.online} ${className}`}>
-            <h2>online {status}</h2>
-            {
-                ['ASDASD', 'ASDASD', 'ASDASD', 'IT000HAL', 'AS89ASD', 'ASDASDd', 'SLUR000'].map((h, i) =>
-                    <div key={i}>
-                        <div className={styles.left}>
-                            <p>{h}</p>
-                            <div className={styles.typing}>
-                                <div></div>
-                                <div></div>
+        <div className={`${styles.online_container} ${className}`}>
+            <p className={`${styles.status} ${styles.a_1}`} >connecting</p>
+            <hr />
+            <h2>online users {status}</h2>
+            <div className={styles.online}>
+                {
+                    Array(10).fill('ASDASD').concat(['FINAL00']).map((h, i) =>
+                        <div key={i}>
+                            <div className={styles.left}>
+                                <p>{h}</p>
+                                <div className={styles.typing}>
+                                    <div></div>
+                                    <div></div>
+                                </div>
                             </div>
+                            <IconButton aria-label="mute user">
+                                <VolumeOffIcon/>
+                            </IconButton>
                         </div>
-                        <IconButton aria-label="mute user">
-                            <VolumeOffIcon/>
-                        </IconButton>
-                    </div>
-                )
-            }
+                    )
+                }
+            </div>
         </div>
     );
 }
