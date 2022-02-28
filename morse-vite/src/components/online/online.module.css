@@ -86,7 +86,15 @@
 .status.a_1{
   animation: resize 1s;
 }
+.status.a_2{
+  animation: resize2 1s;
+}
 @keyframes resize{
+  0% {padding: 2px 5px 2px 5px}
+  20% {padding: 2px 15px 2px 15px}
+  100% {padding: 2px 5px 2px 5px}
+}
+@keyframes resize2{
   0% {padding: 2px 5px 2px 5px}
   20% {padding: 2px 15px 2px 15px}
   100% {padding: 2px 5px 2px 5px}
