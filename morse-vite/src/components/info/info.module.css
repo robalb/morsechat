@@ -7,9 +7,9 @@
     font-family: 'Lobster', cursive;
     font-size: 2.5em;
     margin: 15px 0;
-
-    background-color: var(--golden);
-    background-image: var(--golden-gradiant);
+    display: inline;
+    background-color: var(--blue);
+    background-image: var(--blue-gradient);
     background-size: 100%;
     background-clip: text;
     -webkit-background-clip: text;

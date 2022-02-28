@@ -79,12 +79,12 @@
   border-radius: 5px;
   background: #ff9966;  /* fallback for old browsers */
   background: -webkit-linear-gradient(to right, #ff5e62, #ff9966);  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, #ff5e62, #ff9966); 
+  background: var(--orange-gradient);
 }
 .status.ws_online{
   background: #0cebeb;
   background: -webkit-linear-gradient(to right, #29ffc6, #20e3b2, #0cebeb);
-  background: linear-gradient(to right, #29ffc6, #20e3b2, #0cebeb);
+  background: var(--blue-gradient);
 }
 .status.a_1{
   animation: resize 1s;

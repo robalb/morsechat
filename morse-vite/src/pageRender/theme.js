@@ -11,13 +11,13 @@ const theme = createTheme({
       light: '#eeeeee',
     },
     secondary: {
-      main: '#90c384',
+      main: '#0ccaeb',
     },
     opposite_text: {
       main: '#121212',
     },
     // error: {
-    //   main: red.A400,
+    //   main: '#ff336c',
     // },
     background: {
       default: "#303030",

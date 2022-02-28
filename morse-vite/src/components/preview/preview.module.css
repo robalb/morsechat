@@ -5,10 +5,9 @@
 .preview .progress{
     height: 2px;
     width: 100%; /* change this with an animation */
-    background-color: var(--golden);
-    box-shadow: 0px 1px 12px 1px rgba(255, 128, 122, 1);
+    background-color: var(--blue-2);
     opacity: .8;
-    background-image: var(--golden-gradiant);
+    /* background-image: var(--blue-gradient-3); */
 }
 .preview .text{
     display: flex;

@@ -6,8 +6,8 @@
     overflow-y: auto;
 }
 .chat span{
-    color: var(--pastel-yellow);
+    color: var(--blue-2);
 }
 .chat .you span{
-    color: var(--pastel-red);
+    color: var(--blue);
 }

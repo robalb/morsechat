@@ -39,6 +39,11 @@ html {
   --golden-gradiant: linear-gradient(90deg, hsl(51, 100%, 74%) 0%, hsl(47deg 100% 68%) 50%, hsl(45deg 100% 58%) 100%);
   --red-gradiant: linear-gradient(to right, #EB3349 0%, #F45C43  51%, #EB3349  100%);
 
+  --blue: #20e3b2;
+  --blue-2: #0ccaeb;
+  --blue-gradient: linear-gradient(to right, #29ffc6, #20e3b2, #0cebeb);
+  --orange-gradient: linear-gradient(to right, #ff5e62, #ff9966); 
+
   /** shadows */
   --shadow-1: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
 

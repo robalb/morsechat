@@ -30,7 +30,6 @@ export function Online({className = "", connectionStatus}) {
     return (
         <div className={`${styles.online_container} ${className}`}>
             <div className={styles.statusContainer}>
-
                 <p className={statusStyles} >{status}</p>
             </div>
             <hr />
