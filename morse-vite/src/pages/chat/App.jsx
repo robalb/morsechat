@@ -26,34 +26,34 @@ function App(props){
   /* appstate */
   console.log("APP RERENDER")
 
-  React.useEffect(() => {
-    const socket = io(socketUrl);
-    socket.on("FromAPI", data => {
-      console.log(data)
-    });
-    socket.on("connect", () => {
-      setConnected(true)
-      console.log("connect")
-      console.log(socket)
-      socket.emit('join', { username: 'forgedUsername', room: 'room_test' })
-    });
-    socket.on("disconnect", () => {
-      setConnected(false)
-      console.log("disconnect")
-      console.log(socket)
-    });
+  // React.useEffect(() => {
+  //   const socket = io(socketUrl);
+  //   socket.on("FromAPI", data => {
+  //     console.log(data)
+  //   });
+  //   socket.on("connect", () => {
+  //     setConnected(true)
+  //     console.log("connect")
+  //     console.log(socket)
+  //     socket.emit('join', { username: 'forgedUsername', room: 'room_test' })
+  //   });
+  //   socket.on("disconnect", () => {
+  //     setConnected(false)
+  //     console.log("disconnect")
+  //     console.log(socket)
+  //   });
 
-    socket.onAny((event, args) => {
-      console.log("GENERIC EVENT LOGGER")
-      console.log({
-        event, args
-      })
-    })
+  //   socket.onAny((event, args) => {
+  //     console.log("GENERIC EVENT LOGGER")
+  //     console.log({
+  //       event, args
+  //     })
+  //   })
 
-    // CLEAN UP THE EFFECT
-    return () => socket.disconnect();
-    //
-  }, []);
+  //   // CLEAN UP THE EFFECT
+  //   return () => socket.disconnect();
+  //   //
+  // }, []);
 
   return(
     <AppLayout

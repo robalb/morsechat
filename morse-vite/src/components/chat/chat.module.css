@@ -11,3 +11,11 @@
 .chat .you span{
     color: var(--blue);
 }
+
+.loading{
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
