@@ -1,0 +1,71 @@
+# production dockerfile
+########## FIRST STEP: FRONTEND BUILD #######
+FROM node:16 as frontendbuild
+
+WORKDIR /frontend
+
+#first, we copy the package.json and install the dependencies
+COPY web/package*.json .
+RUN npm ci
+
+#then we copy the codebase and build it. If there are no changes to the
+#package json, the installation proces will be cached
+COPY web/ .
+RUN npm run build
+
+########## FINAL STEP: PRODUCTION IMAGE #######
+FROM python:3.9-buster
+
+# ------> nginx <------ #
+# Create user where the nginx app will run
+RUN useradd --no-create-home nginx
+# Make nginx user sudo
+# RUN usermod -aG sudo nginx
+# Install nginx
+RUN apt-get update
+RUN apt-get install --no-install-recommends --no-install-suggests -y nginx
+
+# redirect nginx logs to stdout
+# https://stackoverflow.com/questions/22541333/have-nginx-access-log-and-error-log-log-to-stdout-and-stderr-of-master-process
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && ln -sf /dev/stderr /var/log/nginx/error.log
+
+# ------> uWsgi <------ #
+# Install uWsgi
+RUN pip3 install uwsgi==2.0.20
+
+# ------> Supervisord <------ #
+# Install Supervisord
+RUN apt-get update
+RUN apt-get install --no-install-recommends --no-install-suggests -y supervisor
+RUN rm -rf /var/lib/apt/lists/*
+
+# ------> Load Configs <------ #
+# Remove nginx base config
+RUN rm /etc/nginx/sites-enabled/default
+# copy custom config to all services
+COPY docker/nginx-uwsgi-flask/conf/nginx.conf /etc/nginx/
+COPY docker/nginx-uwsgi-flask/conf/flaskapp.conf /etc/nginx/conf.d/
+COPY docker/nginx-uwsgi-flask/conf/uwsgi.ini /etc/uwsgi/
+COPY docker/nginx-uwsgi-flask/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# ------> Other stuffs <------ #
+# Install requirements
+COPY docker/nginx-uwsgi-flask/requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+
+WORKDIR /backend
+
+#copy the backend
+COPY api .
+
+#copy the frondend files generated in the previous step
+COPY --from=frontendbuild /frontend/dist ./dist/
+
+ENV FLASK_APP=main.py
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=0
+
+ADD docker/nginx-uwsgi-flask/wait.sh /wait.sh
+RUN chmod +x /wait.sh
+
+ENTRYPOINT ["/wait.sh", "mariadb:3306", "--", "/usr/bin/supervisord"]

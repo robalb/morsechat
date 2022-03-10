@@ -1,6 +1,5 @@
 eventlet
 Flask
-Flask-SocketIO
 Flask-Login
 Flask-Session
 Flask-SQLAlchemy
