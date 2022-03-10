@@ -27,7 +27,7 @@ navigate into the repository `cd morsechat`
 
 start the apis in development mode `docker-compose up`
 
-start vite in development mode `cd /morse-vite && npm run dev`
+start vite in development mode `cd /web && npm run dev`
 
 ## production
 
