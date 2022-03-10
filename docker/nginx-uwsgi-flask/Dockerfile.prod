@@ -44,7 +44,7 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN rm /etc/nginx/sites-enabled/default
 # copy custom config to all services
 COPY docker/nginx-uwsgi-flask/conf/nginx.conf /etc/nginx/
-COPY docker/nginx-uwsgi-flask/conf/flask-app.conf /etc/nginx/conf.d/
+COPY docker/nginx-uwsgi-flask/conf/flaskapp.conf /etc/nginx/conf.d/
 COPY docker/nginx-uwsgi-flask/conf/uwsgi.ini /etc/uwsgi/
 COPY docker/nginx-uwsgi-flask/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
