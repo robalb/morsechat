@@ -5,6 +5,7 @@ from flask_session import Session
 import logging
 import os
 from . import db_connection
+from flask_pusher import Pusher
 
 development_mode = os.environ['FLASK_ENV'] == 'development'
 
@@ -27,10 +28,32 @@ server_session.app.session_interface.db.create_all()
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# import views
-from .pages_views import pages
+pusher = Pusher(app,
+  secret= os.environ['PUSHER_SECRET'],
+  key= os.environ['PUSHER_KEY'],
+  app_id= os.environ['PUSHER_APP_ID'],
+  host= os.environ['PUSHER_HOST'],
+  port= os.environ['PUSHER_PORT'],
+  cluster= os.environ['PUSHER_CLUSTER'],
+  ssl=False
+  )
+
+# import generic page views
+# note: in production, only uris starting with /api/v1/ should be forwarded to flask.
+# these pages views are not important
+#from .pages_views import pages
 
 # initialize blueprint
 from .api_views import api
 app.register_blueprint(api, url_prefix='/api/v1/')
+
+
+#TODO implement, and move to dedicated file
+@pusher.auth
+def pusher_auth(channel_name, socket_id):
+    if 'foo' in channel_name:
+        # refuse foo channels
+        return False
+    # authorize only authenticated users
+    return current_user.is_authenticated()
 
