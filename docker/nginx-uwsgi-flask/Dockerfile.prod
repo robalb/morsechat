@@ -5,7 +5,7 @@ FROM node:16 as frontendbuild
 WORKDIR /frontend
 
 #first, we copy the package.json and install the dependencies
-COPY web/package*.json .
+COPY web/package*.json ./
 RUN npm ci
 
 #then we copy the codebase and build it. If there are no changes to the
