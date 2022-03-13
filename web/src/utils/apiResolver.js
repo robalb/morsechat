@@ -1,7 +1,12 @@
+import Pusher from 'pusher-js';
 
   // This is a VITE variable
   // https://vitejs.dev/guide/env-and-mode.html
   const isProduction = import.meta.env.PROD
+
+  //TODO: import from VITE variables
+  const PUSHER_KEY = '0041a61088666d5f7c5d'
+  const PUSHER_CLUSTER = 'eu'
 
 
   /**
@@ -14,6 +19,25 @@
   export const socketUrl = isProduction ?
     '' :
     'http://localhost:5000'
+
+  /**
+  * Pusher client generator
+  */
+  export function pusherClient(csrf=""){
+    if(!isProduction)
+      Pusher.logToConsole = true;
+
+    let pusher = new Pusher(PUSHER_KEY, {
+      cluster: PUSHER_CLUSTER,
+      auth: {
+        headers: {
+          'X-Csrf-Magic': csrf
+        }
+      }
+    });
+
+    return pusher;
+  }
 
   /**
    * Internal request method.

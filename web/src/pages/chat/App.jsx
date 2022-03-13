@@ -1,10 +1,9 @@
 import * as React from 'react';
-import Pusher from 'pusher-client';
 
 import pageRender from '../../pageRender/pageRender'
 import {AppLayout} from "./AppLayout";
 
-import {socketUrl} from '../../utils/apiResolver'
+import {pusherClient} from  '../../utils/apiResolver'
 
 import appContext from "../../contexts/appContext";
 
@@ -28,16 +27,12 @@ function App(props){
 
   React.useEffect(() => {
 
-    /* Pusher.logToConsole = true; */
+    let pusher = pusherClient();
 
-    /* var pusher = new Pusher('0041a61088666d5f7c5d', { */
-    /*   cluster: 'eu' */
-    /* }); */
-
-    /* var channel = pusher.subscribe('my-channel'); */
-    /* channel.bind('my-event', function(data) { */
-    /*   alert(JSON.stringify(data)); */
-    /* }); */
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data) {
+      console.log(JSON.stringify(data));
+    });
 
   }, []);
 
