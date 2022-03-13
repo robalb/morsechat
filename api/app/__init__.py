@@ -29,34 +29,26 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 #pusher credentials configuration
-app.config['PUSHER_APP_ID'] = 'PUSHER_APP_ID'
-app.config['PUSHER_KEY'] = 'PUSHER_KEY'
-app.config['PUSHER_SECRET'] = 'PUSHER_SECRET'
+app.config['PUSHER_APP_ID'] = os.environ['PUSHER_APP_ID']
+app.config['PUSHER_KEY'] = os.environ['PUSHER_KEY']
+app.config['PUSHER_SECRET'] = os.environ['PUSHER_SECRET']
+app.config['PUSHER_SSL'] = False
+
 #pusher server location configuration
-if 'PUSHER_HOST' in os.environ:
-  app.config['PUSHER_HOST'] = 'PUSHER_HOST'
-  app.config['PUSHER_PORT'] = 'PUSHER_PORT'
+if 'PUSHER_HOST' in os.environ and 'PUSHER_PORT' in os.environ:
+  app.config['PUSHER_HOST'] = os.environ['PUSHER_HOST']
+  app.config['PUSHER_PORT'] = int(os.environ['PUSHER_PORT'])
 else:
-  app.config['PUSHER_CLUSTER'] = 'PUSHER_CLUSTER'
+  app.config['PUSHER_CLUSTER'] = os.environ['PUSHER_CLUSTER']
 
-pusher = Pusher(app, ssl=False)
+pusher = Pusher(app)
 
-# import generic page views
-# note: in production, only uris starting with /api/v1/ should be forwarded to flask.
-# these pages views are not important
-#from .pages_views import pages
+# import page views that are not part of the official apis
+# including pusher endpoints
+from .pages_views import pages
 
-# initialize blueprint
+# initialize the api blueprint
 from .api_views import api
 app.register_blueprint(api, url_prefix='/api/v1/')
 
-
-#TODO implement, and move to dedicated file
-# @pusher.auth
-# def pusher_auth(channel_name, socket_id):
-#     if 'foo' in channel_name:
-#         # refuse foo channels
-#         return False
-#     # authorize only authenticated users
-#     return current_user.is_authenticated()
 

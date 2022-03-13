@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { io } from "socket.io-client";
+import Pusher from 'pusher-js/react-native';
 
 import pageRender from '../../pageRender/pageRender'
 import {AppLayout} from "./AppLayout";
@@ -26,7 +26,20 @@ function App(props){
   /* appstate */
   console.log("APP RERENDER")
 
-  // React.useEffect(() => {
+  React.useEffect(() => {
+
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('0041a61088666d5f7c5d', {
+      cluster: 'eu'
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data) {
+      alert(JSON.stringify(data));
+    });
+
+
   //   const socket = io(socketUrl);
   //   socket.on("FromAPI", data => {
   //     console.log(data)
@@ -53,7 +66,7 @@ function App(props){
   //   // CLEAN UP THE EFFECT
   //   return () => socket.disconnect();
   //   //
-  // }, []);
+  }, []);
 
   return(
     <AppLayout
