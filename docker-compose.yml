@@ -13,13 +13,15 @@ services:
       - mariadb
     restart: unless-stopped
     environment:
+      #database configuration
       MARIADB_HOST: mariadb
       MARIADB_USER: ${DB_LOWP_USER}
       MARIADB_PASSWORD: ${DB_LOWP_USER_PASSWORD}
       MARIADB_DATABASE: ${DB_DBNAME}
-      PUSHER_SECRET: ${PUSHER_SECRET}
-      PUSHER_KEY: ${PUSHER_KEY}
+      #pusher configuration
       PUSHER_APP_ID: ${PUSHER_APP_ID}
+      PUSHER_KEY: ${PUSHER_KEY}
+      PUSHER_SECRET: ${PUSHER_SECRET}
       PUSHER_HOST: http://127.0.0.1
       PUSHER_PORT: 9090
       PUSHER_CLUSTER: ${PUSHER_CLUSTER}

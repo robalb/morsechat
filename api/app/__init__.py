@@ -28,15 +28,18 @@ server_session.app.session_interface.db.create_all()
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-pusher = Pusher(app,
-  secret= os.environ['PUSHER_SECRET'],
-  key= os.environ['PUSHER_KEY'],
-  app_id= os.environ['PUSHER_APP_ID'],
-  host= os.environ['PUSHER_HOST'],
-  port= os.environ['PUSHER_PORT'],
-  cluster= os.environ['PUSHER_CLUSTER'],
-  ssl=False
-  )
+#pusher credentials configuration
+app.config['PUSHER_APP_ID'] = 'PUSHER_APP_ID'
+app.config['PUSHER_KEY'] = 'PUSHER_KEY'
+app.config['PUSHER_SECRET'] = 'PUSHER_SECRET'
+#pusher server location configuration
+if 'PUSHER_HOST' in os.environ:
+  app.config['PUSHER_HOST'] = 'PUSHER_HOST'
+  app.config['PUSHER_PORT'] = 'PUSHER_PORT'
+else:
+  app.config['PUSHER_CLUSTER'] = 'PUSHER_CLUSTER'
+
+pusher = Pusher(app, ssl=False)
 
 # import generic page views
 # note: in production, only uris starting with /api/v1/ should be forwarded to flask.
@@ -49,11 +52,11 @@ app.register_blueprint(api, url_prefix='/api/v1/')
 
 
 #TODO implement, and move to dedicated file
-@pusher.auth
-def pusher_auth(channel_name, socket_id):
-    if 'foo' in channel_name:
-        # refuse foo channels
-        return False
-    # authorize only authenticated users
-    return current_user.is_authenticated()
+# @pusher.auth
+# def pusher_auth(channel_name, socket_id):
+#     if 'foo' in channel_name:
+#         # refuse foo channels
+#         return False
+#     # authorize only authenticated users
+#     return current_user.is_authenticated()
 
