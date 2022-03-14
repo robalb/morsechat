@@ -31,24 +31,34 @@ login_manager.init_app(app)
 #pusher credentials configuration
 app.config['PUSHER_APP_ID'] = os.environ['PUSHER_APP_ID']
 app.config['PUSHER_KEY'] = os.environ['PUSHER_KEY']
+app.config['PUSHER_CLUSTER'] = os.environ['PUSHER_CLUSTER']
 app.config['PUSHER_SECRET'] = os.environ['PUSHER_SECRET']
 app.config['PUSHER_SSL'] = False
-
 #pusher server location configuration
 if 'PUSHER_HOST' in os.environ and 'PUSHER_PORT' in os.environ:
   app.config['PUSHER_HOST'] = os.environ['PUSHER_HOST']
   app.config['PUSHER_PORT'] = int(os.environ['PUSHER_PORT'])
-else:
-  app.config['PUSHER_CLUSTER'] = os.environ['PUSHER_CLUSTER']
 
 pusher = Pusher(app)
 
-# import page views that are not part of the official apis
+# import page views that are not part of the apis
 # including pusher endpoints
-from .pages_views import pages
+from .pusher_views import pages
 
 # initialize the api blueprint
 from .api_views import api
 app.register_blueprint(api, url_prefix='/api/v1/')
+
+
+#this function will run after every request, setting the appropriate cors headers
+#if the app is in development mode
+@app.after_request
+def after_request(response):
+    if development_mode:
+        header = response.headers
+        header['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+        header['Access-Control-Allow-Credentials'] = 'true'
+        header['Access-Control-Allow-Headers'] = 'X-Csrf-Magic, Content-Type'
+    return response
 
 

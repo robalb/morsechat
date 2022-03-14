@@ -5,7 +5,7 @@ import * as React from "react";
 import styles from './online.module.css';
 
 export function Online({className = "", connectionStatus}) {
-    let status = connectionStatus ? "connected" : "connecting.."
+    let status = connectionStatus
 
     const [animationClass, setAnimationClass] = React.useState(true);
     const [firstRender, setFirstRender] = React.useState(true);
@@ -24,7 +24,7 @@ export function Online({className = "", connectionStatus}) {
     let statusStyles = [
         styles.status,
         (animationClass ? styles.a_1 : styles.a_2),
-        (connectionStatus ? styles.ws_online : null)
+        (connectionStatus=='connected' ? styles.ws_online : null)
 
     ].join(" ")
     return (

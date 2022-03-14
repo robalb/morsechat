@@ -19,6 +19,17 @@ The old codebase is archived in the 'legacy_php_morsechat' branch of this reposi
 
 This rewrite is not ready to go live yet, halb.it/morsecode is still serving the old php version
 
+## configuration
+
+Copy the file env.example into .env
+
+in the .env configure your pusher credentials.
+You can generate them from your self-hosted instance of socketi (see socketi.app)
+Or you can use pusher.com (if you are using a free tier acount, make sure to
+disable authorized connections in the pusher app dashboard, as explained here
+ https://pusher.com/docs/channels/using_channels/authorized-connections/
+ otherwise you will be open to ddos vulnerabilities)
+
 ## development
 
 clone this repository `git clone https://github.com/robalb/morsechat.git`

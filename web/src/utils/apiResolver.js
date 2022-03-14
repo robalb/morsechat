@@ -1,34 +1,35 @@
 import Pusher from 'pusher-js';
 
-  // This is a VITE variable
+  //This is a VITE env variable
   // https://vitejs.dev/guide/env-and-mode.html
-  const isProduction = import.meta.env.PROD
-
-  //TODO: import from VITE variables
-  const PUSHER_KEY = '0041a61088666d5f7c5d'
-  const PUSHER_CLUSTER = 'eu'
-
+  const IS_PRODUCTION = import.meta.env.PROD
 
   /**
    * Api endpoint url
    */
-  export const baseApiUrl = isProduction ?
+  export const baseApiUrl = IS_PRODUCTION ?
     '/api/v1/' :
     'http://localhost:5000/api/v1/'
 
-  export const socketUrl = isProduction ?
-    '' :
-    'http://localhost:5000'
+    /**
+     * pusher authentication endpoint url
+     */
+  const pusherAuthUrl = IS_PRODUCTION ?
+    '/pusher_auth' :
+    'http://localhost:5000/pusher_auth'
 
   /**
   * Pusher client generator
   */
-  export function pusherClient(csrf=""){
-    if(!isProduction)
+  export function pusherClient(csrf, key, host, port, cluster){
+    if(!IS_PRODUCTION)
       Pusher.logToConsole = true;
 
-    let pusher = new Pusher(PUSHER_KEY, {
-      cluster: PUSHER_CLUSTER,
+    let pusher = new Pusher(key, {
+      cluster: cluster,
+      authEndpoint: pusherAuthUrl,
+      encrypted: true,
+      disableStats: true,
       auth: {
         headers: {
           'X-Csrf-Magic': csrf

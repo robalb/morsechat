@@ -6,11 +6,16 @@ import {AppLayout} from "./AppLayout";
 import {pusherClient} from  '../../utils/apiResolver'
 
 import appContext from "../../contexts/appContext";
+import mainContext from '../../contexts/mainContext'
+
 
 
 function App(props){
 
-  let {connected, setConnected} = React.useContext(appContext);
+  let {connected, setConnected, channel} = React.useContext(appContext);
+  let {state, post, reload} = React.useContext(mainContext)
+  const pusher = React.useRef(null)
+  const pusherChannel = React.useRef(null)
   /*
   TODO: write here all app logic, using the elements exposed by appLayout
   - define settings, and make them available to to layout via contextApi
@@ -22,46 +27,50 @@ function App(props){
      add security feature: if not stopped after x, stop and log error
   */
 
+  React.useEffect(() => {
+    setConnected('loading data')
+  }, [])
+
   /* appstate */
   console.log("APP RERENDER")
 
   React.useEffect(() => {
+      if(state.loading == false){
+        if(pusher.current === null){
+          pusher.current = pusherClient(
+            state.sessionData.csrf,
+            state.appData.pusher_key,
+            state.appData.pusher_host,
+            state.appData.pusher_port,
+            state.appData.pusher_cluster
+          )
 
-    let pusher = pusherClient();
+          pusher.current.connection.bind('state_change', (states)=>{setConnected(states.current)})
+          pusher.current.connection.bind('state_change', (states)=>{
+            setConnected(states.current)
+          })
 
-    var channel = pusher.subscribe('my-channel');
-    channel.bind('my-event', function(data) {
-      console.log(JSON.stringify(data));
-    });
+          pusherChannel.current = pusher.current.subscribe(channel);
+          pusherChannel.current.bind('my-event', function(data) {
+            console.log(JSON.stringify(data));
+          });
+          //TODO: unbind all callbacks and check for mem leaks
+          pusherChannel.current.bind('pusher:subscription_error', function(data) {
+            console.log(data)
+          })
 
-  }, []);
+        }else{
+          console.warn("reinitializing pusher ref")
+        }
+      }
 
-  //   const socket = io(socketUrl);
-  //   socket.on("FromAPI", data => {
-  //     console.log(data)
-  //   });
-  //   socket.on("connect", () => {
-  //     setConnected(true)
-  //     console.log("connect")
-  //     console.log(socket)
-  //     socket.emit('join', { username: 'forgedUsername', room: 'room_test' })
-  //   });
-  //   socket.on("disconnect", () => {
-  //     setConnected(false)
-  //     console.log("disconnect")
-  //     console.log(socket)
-  //   });
+  }, [state.loading, state.userData?.callsign]);
 
-  //   socket.onAny((event, args) => {
-  //     console.log("GENERIC EVENT LOGGER")
-  //     console.log({
-  //       event, args
-  //     })
-  //   })
-
-  //   // CLEAN UP THE EFFECT
-  //   return () => socket.disconnect();
-  //   //
+  React.useEffect(()=>{
+    if(pusher.current){
+      pusher.current.subscribe(channel)
+    }
+  }, [channel])
 
   return(
     <AppLayout

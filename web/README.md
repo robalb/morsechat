@@ -1,6 +1,6 @@
 # morsechat web app
 
-## How to use
+## Development
 
 ```sh
 npm install

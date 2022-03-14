@@ -65,6 +65,12 @@ const AppProvider = ({children}) => {
 
     const [connected, setConnected] = React.useState(false)
 
+    const [channel, setChannel] = React.useState('presence-ch1')
+    const [channels, setChannels] = React.useState([
+        {ch:'presence-ch1', name:'ch1'},
+        {ch:'presence-ch2', name:'ch2'},
+        {ch:'presence-ch3', name:'ch3'},
+    ])
 
     let appContextValues = {
         settings,
@@ -72,7 +78,11 @@ const AppProvider = ({children}) => {
         users,
         usersDispatch,
         connected,
-        setConnected
+        setConnected,
+        channel,
+        setChannel,
+        channels,
+        setChannels
     }
 
     return (
