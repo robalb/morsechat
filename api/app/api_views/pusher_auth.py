@@ -20,27 +20,47 @@ schema = {
 @api.route('/pusher_auth', methods=['POST'])
 @expects_json(schema)
 def api_pusher_auth():
+    #prepare authentication response data
+    uid = None
+    anonymous = True
+    callsign = None
+    country = None
+    username = None
+    codepage = 'TODO'
+
+    #validate the connection request for autheticated users
     if current_user.is_authenticated:
-        #TODO: authenticated users check
-        pass
+        uid = current_user.username
+        anonymous = False
+        callsign = current_user.callsign
+        country = session['country']
+        username = current_user.username
+
+    #validate the connection request for anonymous users
     elif 'anonymous_callsign' in session:
-        #TODO anonymous users check
-        pass
+        uid = session['anonymous_callsign']
+        anonymous = True
+        callsign = session['anonymous_callsign']
+        country = session['country']
+
+    #the user is neither logged nor anonymous (probably expired cookies)
     else:
         return error("pusher_auth_denied", code=403)
 
     #TODO:
     #put here shadow ban logic
 
-    # pusher_client is obtained through pusher_client = pusher.Pusher( ... )
     auth = pusher.client.authenticate(
             channel=g.data['channel_name'],
             socket_id=g.data['socket_id'],
             custom_data={
-                u'user_id': u'1',
-                u'user_info': {
-                    u'twitter':
-                    u'@pusher'
+                'user_id': uid,
+                'user_info': {
+                    'username': username,
+                    'callsign': callsign,
+                    'country': country,
+                    'codepage': codepage,
+                    'anonymous': anonymous
                     }
                 }
             )

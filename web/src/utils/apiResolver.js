@@ -24,7 +24,6 @@ import Pusher from 'pusher-js';
       Pusher.logToConsole = true;
 
     let pusher = new Pusher(key, {
-      disableStats: true,
       cluster: cluster,
       authorizer: authorizer,
     });

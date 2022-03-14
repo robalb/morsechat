@@ -15,7 +15,8 @@ function App(props){
   let {connected, setConnected, channel} = React.useContext(appContext);
   let {state, post, reload} = React.useContext(mainContext)
   const pusher = React.useRef(null)
-  const pusherChannel = React.useRef(null)
+  const [channelLast, setChannelLast] = React.useState(null)
+
   /*
   TODO: write here all app logic, using the elements exposed by appLayout
   - define settings, and make them available to to layout via contextApi
@@ -27,16 +28,14 @@ function App(props){
      add security feature: if not stopped after x, stop and log error
   */
 
-  React.useEffect(() => {
-    setConnected('loading data')
-  }, [])
-
   /* appstate */
   console.log("APP RERENDER")
 
+  //TODO: unbind all callbacks and check for mem leaks
   React.useEffect(() => {
       if(state.loading == false){
         if(pusher.current === null){
+          //initialize the pusher client
           pusher.current = pusherClient(
             state.sessionData.csrf,
             state.appData.pusher_key,
@@ -44,18 +43,22 @@ function App(props){
             state.appData.pusher_port,
             state.appData.pusher_cluster
           )
-
-          pusher.current.connection.bind('state_change', (states)=>{setConnected(states.current)})
+          //update pusher server connection status
+          //this is not related to the channel subscription
           pusher.current.connection.bind('state_change', (states)=>{
             setConnected(states.current)
           })
-
-          pusherChannel.current = pusher.current.subscribe(channel);
-          pusherChannel.current.bind('my-event', function(data) {
+          // bind listeners to channel events globally: we won't have more than one
+          // channel per session so there is no reason to bind to specific channels
+          pusher.current.bind('my-event', function(data) {
             console.log(JSON.stringify(data));
           });
-          //TODO: unbind all callbacks and check for mem leaks
-          pusherChannel.current.bind('pusher:subscription_error', function(data) {
+          pusher.current.bind('pusher:subscription_error', function(data) {
+            console.log("+++ subscription error")
+            console.log(data)
+          })
+          pusher.current.bind('pusher:subscription_succeeded', function(data) {
+            console.log("+++ subscription success")
             console.log(data)
           })
 
@@ -64,13 +67,28 @@ function App(props){
         }
       }
 
-  }, [state.loading, state.userData?.callsign]);
+  }, [state.loading]);
 
+
+  /**
+   * channel connection effect
+   * - runs on every change of the selected channel, or of the user callsign
+   * - unsubscribes from the previous channel
+   * - connects to the new channel
+   */
   React.useEffect(()=>{
     if(pusher.current){
+      console.log(">> effect: subscribing to channel " + channel)
       pusher.current.subscribe(channel)
+      return ()=>{
+        console.log(">> effect: unsubscribing from channel " + channel);
+        pusher.current.unsubscribe(channel)
+        }
     }
-  }, [channel])
+    else{
+      console.log(">> effect: subscribing to channel [NO PUSHER YET] " + channel)
+    }
+  }, [channel, state.userData?.callsign])
 
   return(
     <AppLayout
