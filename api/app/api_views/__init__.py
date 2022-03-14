@@ -21,6 +21,18 @@ api = Blueprint('api', __name__)
 
 development_mode = os.environ['FLASK_ENV'] == 'development'
 
+#this function will run after every request, setting the appropriate cors headers
+#if the app is in development mode
+@api.after_request
+def after_request(response):
+    if development_mode:
+        header = response.headers
+        header['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+        header['Access-Control-Allow-Credentials'] = 'true'
+        header['Access-Control-Allow-Headers'] = 'X-Csrf-Magic, Content-Type'
+    return response
+
+
 # this function will run before every request, and will return an error if:
 # -it doesn't contain a valid anti-csrf header
 # -it contains invalid sec-fetch headers
@@ -76,5 +88,6 @@ from . import validate_callsign
 from . import redeem
 from . import generate_schema
 from . import page_init
+from . import pusher_auth
 
 from . import errors

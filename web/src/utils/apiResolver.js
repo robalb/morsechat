@@ -11,12 +11,10 @@ import Pusher from 'pusher-js';
     '/api/v1/' :
     'http://localhost:5000/api/v1/'
 
-    /**
-     * pusher authentication endpoint url
-     */
-  const pusherAuthUrl = IS_PRODUCTION ?
-    '/pusher_auth' :
-    'http://localhost:5000/pusher_auth'
+  /**
+   * pusher authentication endpoint url
+   */
+  const pusherAuthUrl = baseApiUrl + 'pusher_auth'
 
   /**
   * Pusher client generator
@@ -26,16 +24,35 @@ import Pusher from 'pusher-js';
       Pusher.logToConsole = true;
 
     let pusher = new Pusher(key, {
-      cluster: cluster,
-      authEndpoint: pusherAuthUrl,
-      encrypted: true,
       disableStats: true,
-      auth: {
-        headers: {
-          'X-Csrf-Magic': csrf
-        }
-      }
+      cluster: cluster,
+      authorizer: authorizer,
     });
+
+    /**
+     * Pusher custom authorizer function,
+     * replaces the pusher internal fetch function with the request function
+     * used for api requests in this app
+     * https://github.com/pusher/pusher-js#authorizer-function 
+     *
+     */
+    function authorizer (channel, options) {
+        return {
+          authorize: async function (socketId, callback) {
+            let body = {
+              socket_id: socketId,
+              channel_name: channel.name
+            }
+            let res = await request(pusherAuthUrl, body, csrf)
+            if (res.success) {
+              callback(null, res.data);
+            }
+            else {
+              callback(new Error(res.error + " " + res.details), { auth: "" });
+            }
+          }
+      };
+    }
 
     return pusher;
   }

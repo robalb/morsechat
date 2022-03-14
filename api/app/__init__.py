@@ -41,24 +41,14 @@ if 'PUSHER_HOST' in os.environ and 'PUSHER_PORT' in os.environ:
 
 pusher = Pusher(app)
 
-# import page views that are not part of the apis
-# including pusher endpoints
-from .pusher_views import pages
+#This is here to avoid weird authentication bypasses.
+#TODO: get rid of pusher-flask, use the official python library instead
+@pusher.auth
+def pusher_auth(channel_name, socket_id):
+    return False
+
 
 # initialize the api blueprint
 from .api_views import api
 app.register_blueprint(api, url_prefix='/api/v1/')
-
-
-#this function will run after every request, setting the appropriate cors headers
-#if the app is in development mode
-@app.after_request
-def after_request(response):
-    if development_mode:
-        header = response.headers
-        header['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-        header['Access-Control-Allow-Credentials'] = 'true'
-        header['Access-Control-Allow-Headers'] = 'X-Csrf-Magic, Content-Type'
-    return response
-
 
