@@ -15,7 +15,7 @@ function App(props){
   let {connected, setConnected, channel} = React.useContext(appContext);
   let {state, post, reload} = React.useContext(mainContext)
   const pusher = React.useRef(null)
-  const [channelLast, setChannelLast] = React.useState(null)
+  const pusherChannel = React.useRef(null)
 
   /*
   TODO: write here all app logic, using the elements exposed by appLayout
@@ -48,40 +48,40 @@ function App(props){
           pusher.current.connection.bind('state_change', (states)=>{
             setConnected(states.current)
           })
-          // bind listeners to channel events globally: we won't have more than one
-          // channel per session so there is no reason to bind to specific channels
-          pusher.current.bind('my-event', function(data) {
-            console.log(JSON.stringify(data));
-          });
-          pusher.current.bind('pusher:subscription_error', function(data) {
-            console.log("+++ subscription error")
-            console.log(data)
-          })
-          pusher.current.bind('pusher:subscription_succeeded', function(data) {
-            console.log("+++ subscription success")
-            console.log(data)
-          })
-
         }else{
           console.warn("reinitializing pusher ref")
         }
       }
-
   }, [state.loading]);
+
+
+  function logTest(type){
+    return e =>{
+      console.log("+++++ " + type)
+      console.log(e)
+    }
+  }
 
 
   /**
    * channel connection effect
    * - runs on every change of the selected channel, or of the user callsign
    * - unsubscribes from the previous channel
-   * - connects to the new channel
+   * - connects to the new channel, updating the bindings
    */
   React.useEffect(()=>{
     if(pusher.current){
       console.log(">> effect: subscribing to channel " + channel)
-      pusher.current.subscribe(channel)
+      pusherChannel.current = pusher.current.subscribe(channel)
+      pusherChannel.current.bind('pusher:subscription_succeeded', logTest('pusher:subscription_succeeded'))
+      pusherChannel.current.bind('pusher:subscription_failed', logTest('pusher:subscription_failed'))
+      pusherChannel.current.bind('pusher:member_added', logTest('pusher:member_added'))
+      pusherChannel.current.bind('pusher:member_removed', logTest('pusher:member_removed'))
+      pusherChannel.current.bind('msg', logTest('msg'))
+      pusherChannel.current.bind('typing', logTest('typing'))
       return ()=>{
         console.log(">> effect: unsubscribing from channel " + channel);
+        pusherChannel.current.unbind()
         pusher.current.unsubscribe(channel)
         }
     }
@@ -89,6 +89,7 @@ function App(props){
       console.log(">> effect: subscribing to channel [NO PUSHER YET] " + channel)
     }
   }, [channel, state.userData?.callsign])
+
 
   return(
     <AppLayout
