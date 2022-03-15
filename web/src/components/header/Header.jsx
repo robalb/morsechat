@@ -3,6 +3,7 @@ import * as React from "react";
 import styles from './header.module.css';
 
 import mainContext from '../../contexts/mainContext'
+import appContext from '../../contexts/appContext'
 
 import Select from "@mui/material/Select";
 import Skeleton from "@mui/material/Skeleton"
@@ -15,6 +16,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 
 export function Header({leftContent = "", authState}) {
     let {state, post, reload} = React.useContext(mainContext)
+    let {channel, setChannel, channels} = React.useContext(appContext)
 
     async function logoutHandler(){
         const res = await post('logout', {});
@@ -85,12 +87,14 @@ export function Header({leftContent = "", authState}) {
                 {leftContent}
             </div>
             <Select
-                id="demo-simple-select"
-                value={1}
+                id="channel-select-header"
+                value={channel}
+                onChange={e => setChannel(e.target.value)}
             >
-                <MenuItem value={1}>{"channel 1"}</MenuItem>
-                <MenuItem value={2}>{"channel 2"}</MenuItem>
-                <MenuItem value={2}>{"channel 3"}</MenuItem>
+                {
+                    channels.map(({ch, name}) => 
+                        <MenuItem value={ch} key={ch}>{name}</MenuItem>)
+                }
             </Select>
             <div>
                 { rightContent }

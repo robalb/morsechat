@@ -12,9 +12,9 @@
     "@mui/icons-material": "^5.3.1",
     "@mui/material": "latest",
     "notistack": "^2.0.3",
+    "pusher-js": "^7.0.6",
     "react": "latest",
-    "react-dom": "latest",
-    "socket.io-client": "^4.4.1"
+    "react-dom": "latest"
   },
   "devDependencies": {
     "@vitejs/plugin-react-refresh": "latest",

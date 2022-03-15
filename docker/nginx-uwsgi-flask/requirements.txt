@@ -3,6 +3,7 @@ Flask
 Flask-Login
 Flask-Session
 Flask-SQLAlchemy
+Flask-Pusher
 mariadb
 argon2-cffi
 flask-expects-json

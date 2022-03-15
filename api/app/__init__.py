@@ -5,6 +5,7 @@ from flask_session import Session
 import logging
 import os
 from . import db_connection
+from flask_pusher import Pusher
 
 development_mode = os.environ['FLASK_ENV'] == 'development'
 
@@ -27,10 +28,27 @@ server_session.app.session_interface.db.create_all()
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# import views
-from .pages_views import pages
+#pusher credentials configuration
+app.config['PUSHER_APP_ID'] = os.environ['PUSHER_APP_ID']
+app.config['PUSHER_KEY'] = os.environ['PUSHER_KEY']
+app.config['PUSHER_CLUSTER'] = os.environ['PUSHER_CLUSTER']
+app.config['PUSHER_SECRET'] = os.environ['PUSHER_SECRET']
+app.config['PUSHER_SSL'] = False
+#pusher server location configuration
+if 'PUSHER_HOST' in os.environ and 'PUSHER_PORT' in os.environ:
+  app.config['PUSHER_HOST'] = os.environ['PUSHER_HOST']
+  app.config['PUSHER_PORT'] = int(os.environ['PUSHER_PORT'])
 
-# initialize blueprint
+pusher = Pusher(app)
+
+#This is here to avoid weird authentication bypasses.
+#TODO: get rid of pusher-flask, use the official python library instead
+@pusher.auth
+def pusher_auth(channel_name, socket_id):
+    return False
+
+
+# initialize the api blueprint
 from .api_views import api
 app.register_blueprint(api, url_prefix='/api/v1/')
 

@@ -23,6 +23,7 @@ const ApiProvider = ({children}) => {
       sessionData: {},
       appData: {}
   })
+
   //internal state used by this api provider
   let [fetchCount, setFetchCount] = React.useState(0)
 

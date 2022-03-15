@@ -117,8 +117,18 @@ class Data_modules:
         return ret
 
     def app(this):
-        #TODO use real data, from some config file
+        pusher_key = app.config['PUSHER_KEY']
+        pusher_cluster = app.config['PUSHER_CLUSTER']
+        pusher_host = None
+        pusher_port = None
+        if 'PUSHER_HOST' in app.config and 'PUSHER_PORT' in app.config:
+            pusher_host = app.config['PUSHER_HOST']
+            pusher_port = app.config['PUSHER_PORT']
         ret = {
+                'pusher_key': pusher_key,
+                'pusher_cluster': pusher_cluster,
+                'pusher_host': pusher_host,
+                'pusher_port': pusher_port,
                 'rooms': {
                     'chat': 3,
                     'radio': 3
