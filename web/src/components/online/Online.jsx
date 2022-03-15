@@ -5,8 +5,6 @@ import * as React from "react";
 import styles from './online.module.css';
 
 export function Online({className = "", connectionStatus}) {
-    let status = connectionStatus
-
     const [animationClass, setAnimationClass] = React.useState(true);
     const [firstRender, setFirstRender] = React.useState(true);
 
@@ -18,19 +16,19 @@ export function Online({className = "", connectionStatus}) {
         } else {
             setAnimationClass(a => !a)
         }
-    }, [connectionStatus]);
+    }, [connectionStatus.green]);
 
 
     let statusStyles = [
         styles.status,
         (animationClass ? styles.a_1 : styles.a_2),
-        (connectionStatus=='connected' ? styles.ws_online : null)
+        (connectionStatus.green ? styles.ws_online : null)
 
     ].join(" ")
     return (
         <div className={`${styles.online_container} ${className}`}>
             <div className={styles.statusContainer}>
-                <p className={statusStyles} >{status}</p>
+                <p className={statusStyles} >{connectionStatus.info}</p>
             </div>
             <hr />
             <h2>online users </h2>

@@ -63,7 +63,10 @@ const AppProvider = ({children}) => {
     }
     const [users, usersDispatch] = React.useReducer(usersReducer, initialUsers)
 
-    const [connected, setConnected] = React.useState('tuning radio')
+    const [connected, setConnected] = React.useState({
+        info: 'connecting',
+        green: false
+    })
 
     const [channel, setChannel] = React.useState('presence-ch1')
     const [channels, setChannels] = React.useState([

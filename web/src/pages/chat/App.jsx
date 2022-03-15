@@ -46,7 +46,10 @@ function App(props){
           //update pusher server connection status
           //this is not related to the channel subscription
           pusher.current.connection.bind('state_change', (states)=>{
-            setConnected(states.current)
+            setConnected({
+              info: states.current,
+              green: states.current == 'connected'
+            })
           })
         }else{
           console.warn("reinitializing pusher ref")
@@ -73,8 +76,24 @@ function App(props){
     if(pusher.current){
       console.log(">> effect: subscribing to channel " + channel)
       pusherChannel.current = pusher.current.subscribe(channel)
-      pusherChannel.current.bind('pusher:subscription_succeeded', logTest('pusher:subscription_succeeded'))
-      pusherChannel.current.bind('pusher:subscription_failed', logTest('pusher:subscription_failed'))
+      setConnected({
+        info: 'connecting',
+        green: true
+      })
+      pusherChannel.current.bind('pusher:subscription_succeeded', e =>{
+        setConnected({
+          info: 'connected',
+          green: true
+        })
+        logTest('pusher:subscription_succeeded')(e)
+      })
+      pusherChannel.current.bind('pusher:subscription_error', e =>{
+        setConnected({
+          info: 'connection failed',
+          green: false
+        })
+        logTest('pusher:subscription_error')(e)
+      })
       pusherChannel.current.bind('pusher:member_added', logTest('pusher:member_added'))
       pusherChannel.current.bind('pusher:member_removed', logTest('pusher:member_removed'))
       pusherChannel.current.bind('msg', logTest('msg'))

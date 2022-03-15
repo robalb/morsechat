@@ -42,11 +42,14 @@ def api_pusher_auth():
         anonymous = True
         callsign = session['anonymous_callsign']
         country = session['country']
+        #test. TODO: remove this part
+        if g.data['channel_name'] == 'presence-ch3':
+            return error("test")
 
     #the user is neither logged nor anonymous (probably expired cookies)
     else:
         return error("pusher_auth_denied", code=403)
-
+    
     auth = pusher.client.authenticate(
             channel=g.data['channel_name'],
             socket_id=g.data['socket_id'],
