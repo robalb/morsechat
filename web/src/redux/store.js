@@ -23,5 +23,6 @@ export default configureStore({
   reducer: {
     account: accountReducer,
     chat: chatReducer
+    //TODO: api slice
   },
 })
