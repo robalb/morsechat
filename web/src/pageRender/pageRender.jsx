@@ -8,7 +8,14 @@ import AppProvider from './appProvider';
 import { SnackbarProvider } from 'notistack';
 import './base.css'
 
+import { Provider } from 'react-redux'
+import store from '../redux/store'
+import {fetchUsers} from '../redux/store'
+
 export default function render(App){
+
+  store.dispatch(fetchUsers())
+
   ReactDOM.render(
     <React.StrictMode>
       <ThemeProvider theme={theme}>
@@ -23,7 +30,9 @@ export default function render(App){
           >
           <ApiProvider>
             <AppProvider>
-              <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
             </AppProvider>
           </ApiProvider>
         </SnackbarProvider>
