@@ -6,6 +6,7 @@ import {request, baseApiUrl} from '../utils/apiResolver'
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async (arg, {getState}) => {
     //qui si puo fare fetch alle api, nota che abbiamo accesso allo stato. posiamo leggere csrf o auth tokens
     //https://stackoverflow.com/questions/67338431/can-i-access-state-inside-a-createasyncthunk-w-axios-with-redux-toolkit
+    //https://stackoverflow.com/questions/63439021/handling-errors-with-redux-toolkit
     // per quanto riguarda il salvare csrf nello stato, si può creare una slice api che ascolta su questo thunk
     //   const response = await client.get('/fakeApi/users')
     //   return response.data
