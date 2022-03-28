@@ -41,7 +41,7 @@ const initialState = {
   didAnApiCall: true
 }
 
-const apiSLice = createSlice({
+const apiSlice = createSlice({
   name: 'api',
   initialState,
   reducers: {},
@@ -57,5 +57,5 @@ const apiSLice = createSlice({
   },
 })
 
-export default apiSLice.reducer
+export default apiSlice.reducer
 
