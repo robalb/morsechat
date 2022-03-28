@@ -90,24 +90,34 @@ class Data_modules:
         this.current_user = current_user
         this.session = session
 
+    #TODO: clean this code, there is too much stuff being copypasted, easy to make misktakes
+    #and introduce unwanted differences between schemas
     def user(this):
         if this.current_user.is_authenticated:
             user_data = {
                     'id': this.current_user.id,
                     'username': this.current_user.username,
                     'last_online': this.current_user.last_online,
+                    'settings': None,
                     'callsign': this.current_user.callsign,
                     'country': this.session['country'],
-                    'settings': None
+                    'authenticated': this.current_user.is_authenticated,
+                    'show_popup': this.session['show_popup'],
                     }
         else:
             user_data = {
+                    'id': None,
+                    'username': None,
+                    'last_online': None,
+                    'settings': None,
                     'callsign': this.session['anonymous_callsign'],
                     'country': this.session['country'],
-                    'settings': None
+                    'authenticated': this.current_user.is_authenticated,
+                    'show_popup': this.session['show_popup']
                     }
         return user_data
 
+    #TODO: keep only the csrf token
     def user_session(this):
         ret = {
             'authenticated': this.current_user.is_authenticated,

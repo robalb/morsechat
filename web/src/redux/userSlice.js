@@ -8,8 +8,8 @@ const initialState = []
 //   return response.data
 // })
 
-const accountSlice = createSlice({
-  name: 'account',
+const userSlice = createSlice({
+  name: 'user',
   initialState,
   reducers: {},
 //   extraReducers(builder) {
@@ -19,4 +19,4 @@ const accountSlice = createSlice({
 //   },
 })
 
-export default accountSlice.reducer
+export default userSlice.reducer
