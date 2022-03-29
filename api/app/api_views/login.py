@@ -52,7 +52,7 @@ def api_login():
         #prepare critical data that the user must update
         data_modules = Data_modules(current_user, session)
         data = {
-                'session': data_modules.user_session(),
+                'session': data_modules.api_session(),
                 'user': data_modules.user()
                 }
         return success(data)

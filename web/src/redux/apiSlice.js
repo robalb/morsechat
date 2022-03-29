@@ -11,9 +11,21 @@ import {request, baseApiUrl} from '../utils/apiResolver'
 */
 export const fetchAllData = createAsyncThunk(
   'api/fetchAllData',
-  async (_, {getState, rejectWithValue, signal}) => {
-    const endpoint = "page_init";
-    const data = {}
+  payloadCreatorCreator("page_init")
+  )
+
+
+/**
+ * 
+ * @param {string} endpoint - the api endpoint to call
+ * @param {function} beforeRequest - an action that will be performed before starting
+ *                                   the request
+ * @returns function - a redux thunk payloadCreator function
+ */
+export function payloadCreatorCreator(endpoint, beforeRequest=null){
+  return async (data={}, {getState, rejectWithValue, signal}) => {
+    if(beforeRequest)
+      beforeRequest(data)
     const csrf = getState().api.csrf
     const response = await request(baseApiUrl + endpoint, data, csrf, signal)
     if(response.success)
@@ -22,7 +34,8 @@ export const fetchAllData = createAsyncThunk(
       error: response.error,
       details: response.details
     })
-})
+  }
+}
 
 /**
  * thunk apiCall

@@ -1,5 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-// import { client } from '../../api/client'
+import { payloadCreatorCreator } from './apiSlice'
+
+import { fetchAllData } from './apiSlice'
+
+export const loginUser = createAsyncThunk(
+  'user/login',
+  payloadCreatorCreator("login")
+  )
+
+export const registerUser = createAsyncThunk(
+  'user/register',
+  payloadCreatorCreator("register")
+  )
 
 //default app settings
 const initialSettings = {
@@ -38,11 +50,34 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {},
-//   extraReducers(builder) {
-//     builder.addCase(fetchUsers.fulfilled, (state, action) => {
-//       return action.payload
-//     })
-//   },
+  extraReducers(builder) {
+    //initial page load
+    builder.addCase(fetchAllData.fulfilled, (state, action) => {
+      let toRet = action.payload.user
+      if(!toRet.settings)
+        toRet.settings = initialSettings
+      return toRet
+    })
+    //user logged in
+    builder.addCase(loginUser.fulfilled, (state, action) => {
+      let toRet = action.payload.user
+      if(!toRet.settings)
+        toRet.settings = initialSettings
+      return toRet
+    })
+    //user registered
+    builder.addCase(registerUser.fulfilled, (state, action) => {
+      let toRet = action.payload.user
+      if(!toRet.settings)
+        toRet.settings = initialSettings
+      return toRet
+    })
+    //..
+    //logout
+    //..
+    //optimistic settings update
+    //..
+  },
 })
 
 export default userSlice.reducer

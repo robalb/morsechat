@@ -117,12 +117,15 @@ class Data_modules:
                     }
         return user_data
 
+    #credentials, csrf tokens and other stuff related to an api session
     def api_session(this):
         ret = {
             'csrf': this.session['csrf']
         }
         return ret
 
+    #public api keys, available rooms and other stuff that is not supposed to
+    #change between users or with logins/logout
     def app(this):
         pusher_key = app.config['PUSHER_KEY']
         pusher_cluster = app.config['PUSHER_CLUSTER']
