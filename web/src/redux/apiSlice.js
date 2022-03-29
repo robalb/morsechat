@@ -66,8 +66,9 @@ export const apiCall = createAsyncThunk(
 
 const initialState = {
   csrf: null,
-  //the app did an api call - this is set to false after the first api call
-  didAnApiCall: true
+  loading: true,
+  error: "",
+  errorDetails: ""
 }
 
 const apiSlice = createSlice({
@@ -76,13 +77,17 @@ const apiSlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder.addCase(fetchAllData.fulfilled, (state, action) => {
-      //save csrf and update didanapicall
-      state.didAnApiCall = true
       state.csrf = action.payload.session.csrf
+      state.loading = false
     })
     builder.addCase(fetchAllData.rejected, (state, action) => {
-      //update didanapicall
-      state.didAnApiCall = true
+      //set the app in an error state only if it is not loading.
+      //note: the loading state is set as an initial state, there are no actions
+      //that set the state as loading
+      if(state.loading){
+        state.error = action.payload.error
+        state.errorDetails = action.payload.details
+      }
     })
   },
 })

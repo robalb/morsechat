@@ -125,7 +125,7 @@ class Data_modules:
         return ret
 
     #public api keys, available rooms and other stuff that is not supposed to
-    #change between users or with logins/logout
+    #change between users or between logins/logout
     def app(this):
         pusher_key = app.config['PUSHER_KEY']
         pusher_cluster = app.config['PUSHER_CLUSTER']
