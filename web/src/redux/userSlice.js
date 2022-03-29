@@ -41,11 +41,6 @@ const initialState = {
   last_online: null
 }
 
-// export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
-//   const response = await client.get('/fakeApi/users')
-//   return response.data
-// })
-
 const userSlice = createSlice({
   name: 'user',
   initialState,

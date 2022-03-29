@@ -1,7 +1,7 @@
 import { configureStore, createAsyncThunk } from '@reduxjs/toolkit'
 
 import userReducer from './userSlice'
-import chatReducer from './chatSlice'
+import appReducer from './appSlice'
 import apiReducer from './apiSlice'
 
 //creiamo 2 thunks: loadAccountData, setAccountData
@@ -14,7 +14,7 @@ import apiReducer from './apiSlice'
 export default configureStore({
   reducer: {
     user: userReducer,
-    chat: chatReducer,
+    app: appReducer,
     api: apiReducer
   },
 })
