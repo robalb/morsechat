@@ -2,29 +2,45 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 import {request, baseApiUrl} from '../utils/apiResolver'
 
-//capire come classficare questo, in che slice o file metterlo visto che diverse slices lo ascoltano
-export const fetchUsers = createAsyncThunk('users/fetchUsers', async (arg, {getState}) => {
-    //qui si puo fare fetch alle api, nota che abbiamo accesso allo stato. posiamo leggere csrf o auth tokens
-    //https://stackoverflow.com/questions/67338431/can-i-access-state-inside-a-createasyncthunk-w-axios-with-redux-toolkit
-    //https://stackoverflow.com/questions/63439021/handling-errors-with-redux-toolkit
-    // per quanto riguarda il salvare csrf nello stato, si può creare una slice api che ascolta su questo thunk
-    //   const response = await client.get('/fakeApi/users')
-    //   return response.data
-    return 42
-})
-
 /**
 * thunk fetchAllData
 * This is called when the application renders for the first time
-* makes an api call to page_init, that returns the initial state for every app slice
+* makes an api call to page_init, that returns the initial state of several slices.
 * Every slice that needs initialization from this state must register to this
 * thunk via an extrareducer
 */
 export const fetchAllData = createAsyncThunk(
   'api/fetchAllData',
-  async (arg, {getState, rejectWithValue, signal}) => {
-    const endpoint = "";
+  async (_, {getState, rejectWithValue, signal}) => {
+    const endpoint = "page_init";
     const data = {}
+    const csrf = getState().api.csrf
+    const response = await request(baseApiUrl + endpoint, data, csrf, signal)
+    if(response.success)
+      return response.data;
+    return rejectWithValue({
+      error: response.error,
+      details: response.details
+    })
+})
+
+/**
+ * thunk apiCall
+ * Makes an authenticated api call
+ * Usage example:
+ * <code>
+ * dispatch(apiCall({
+ *  endpoint: "asd",
+ *  data: {}
+ * }))
+ * .unwrap()
+ * .then(succesfulApiResponse =>{})
+ * </code>
+ */
+export const apiCall = createAsyncThunk(
+  'api/call',
+  async ({endpoint, data={}}, {getState, rejectWithValue, signal}) => {
+    const csrf = getState().api.csrf
     const response = await request(baseApiUrl + endpoint, data, csrf, signal)
     if(response.success)
       return response.data;
@@ -48,11 +64,12 @@ const apiSlice = createSlice({
   extraReducers(builder) {
     builder.addCase(fetchAllData.fulfilled, (state, action) => {
       //save csrf and update didanapicall
-      return action.payload
+      state.didAnApiCall = true
+      state.csrf = action.payload.session.csrf
     })
     builder.addCase(fetchAllData.rejected, (state, action) => {
       //update didanapicall
-      return action.payload
+      state.didAnApiCall = true
     })
   },
 })

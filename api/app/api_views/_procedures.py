@@ -117,11 +117,8 @@ class Data_modules:
                     }
         return user_data
 
-    #TODO: keep only the csrf token
-    def user_session(this):
+    def api_session(this):
         ret = {
-            'authenticated': this.current_user.is_authenticated,
-            'show_popup': this.session['show_popup'],
             'csrf': this.session['csrf']
         }
         return ret

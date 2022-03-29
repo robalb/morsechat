@@ -10,16 +10,20 @@ import './base.css'
 
 import { Provider } from 'react-redux'
 import store from '../redux/store'
-import {fetchUsers} from '../redux/store'
+import {fetchAllData} from '../redux/apiSlice'
 
 export default function render(App){
 
-  store.dispatch(fetchUsers())
+  //we are not using the react-redux useDispatch here because this is not a react
+  //component. Is this okay? it sure looks efficient. react is not rendered yet, and here
+  //we are, already fetching the state data
+  store.dispatch(fetchAllData())
 
   ReactDOM.render(
     <React.StrictMode>
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+        {/* but no thank you */}
         {/*<CssBaseline />*/}
         <SnackbarProvider 
           anchorOrigin={{

@@ -9,7 +9,6 @@ import appContext from "../../contexts/appContext";
 import mainContext from '../../contexts/mainContext'
 
 
-
 function App(props){
 
   let {connected, setConnected, channel} = React.useContext(appContext);
