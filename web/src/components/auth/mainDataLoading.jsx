@@ -1,7 +1,15 @@
 import React from 'react';
 import {Typography, Button, LinearProgress} from '@mui/material';
+import { useSelector } from 'react-redux'
 
-const MainDataLoading = ({error, errorDetails, reload}) => {
+const MainDataLoading = (props) => {
+
+  let {error, errorDetails} = useSelector(state => state.api)
+
+  function reload(){
+    alert(1)
+  }
+
   let content = error.length > 0 ?
     <>
       <Typography color="error" variant="h6">

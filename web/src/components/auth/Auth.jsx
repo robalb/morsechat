@@ -9,6 +9,8 @@ import Dialog from "@mui/material/Dialog";
 
 import styles from './auth.module.css';
 
+import { useSelector } from 'react-redux'
+
 /**
  *
  * @param {*} authState - an array returned from React.useState, containing a string state.
@@ -18,11 +20,14 @@ import styles from './auth.module.css';
  * @param {boolean} fullScreen - when true, the dialog will be full screen
  */
 export function Auth({authState, fullScreen = false}) {
-    let {state, post, reload} = React.useContext(mainContext)
+
+    let {loading, error, errorDetails} = useSelector(state => state.api)
 
     let [page, _setPage] = authState
-
     let open = page.length > 0
+
+    //TODO TOREMOVE
+    let {state, post, reload} = React.useContext(mainContext)
 
     let pages = {
         "menu": MainIndexForm,
@@ -44,7 +49,7 @@ export function Auth({authState, fullScreen = false}) {
             console.error("invalid page provided")
         } else {
             let CurrentPage = pages[page]
-            mainContent = state.loading ?
+            mainContent = loading ?
                 <MainDataLoading error={state.error} errorDetails={state.errorDetails} reload={reload}/> :
                 <CurrentPage state={state} post={post} reload={reload} setPage={_setPage}/>;
         }

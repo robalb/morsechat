@@ -35,4 +35,4 @@ def api_page_init():
             'app': data_modules.app(),
             'user': data_modules.user()
             }
-    return success(data)
+    return ""
