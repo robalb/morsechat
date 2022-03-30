@@ -22,7 +22,6 @@ import './appLayout.css'
 
 export function AppLayout({
     previewWidth, previewText, previewClearHandler,
-    connectionStatus
 }) {
     let loading = useSelector(state => state.api.loading)
     let authenticated = useSelector(state => state.user.authenticated)
@@ -118,7 +117,6 @@ export function AppLayout({
                     <div className="grid-side">
                         <Online 
                         className='grid-side-online'
-                        connectionStatus={connectionStatus}
                         />
                         <SideControls className='grid-side-sidecontrols' />
                     </div>

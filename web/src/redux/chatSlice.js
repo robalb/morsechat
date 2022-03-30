@@ -7,6 +7,8 @@ const initialState = {
         {ch:'presence-ch2', name:'ch2'},
         {ch:'presence-ch3', name:'ch3'},
     ],
+    connected: false,
+    connectionStatus: "powering on",
     online: [],
     chat: []
 }
@@ -17,6 +19,10 @@ const chatSlice = createSlice({
   reducers: {
     setChannel(state, action){
         state.channel = action.payload
+    },
+    setConnected(state, action){
+        state.connected = action.payload == 'connected'
+        state.connectionStatus = action.payload
     }
   },
   extraReducers(builder) {
@@ -28,7 +34,7 @@ const chatSlice = createSlice({
   }
 })
 
-export const {setChannel} = chatSlice.actions
+export const {setChannel, setConnected} = chatSlice.actions
 
 export default chatSlice.reducer
 
