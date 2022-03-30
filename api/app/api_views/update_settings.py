@@ -39,4 +39,5 @@ schema = {
 @login_required
 @expects_json(schema)
 def api_update_settings():
+    #TODO
     return success("")
