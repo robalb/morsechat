@@ -4,16 +4,18 @@ import CurrentUserChip from "../currentUserChip";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
+import { useDispatch, useSelector} from 'react-redux'
+import { apiCall } from "../../redux/apiSlice";
 
-export const MainIndexForm = ({state, reload, setPage, post}) => {
+export const MainIndexForm = ({setPage}) => {
+    const dispatch = useDispatch()
+    const show_popup = useSelector(state => state.user.show_popup)
     //make an api call to disable this popup
     React.useEffect(() => {
-        async function setNoPopup() {
-            let res = await post("no_popup", {})
-        }
-
-        if (state.sessionData.show_popup) {
-            setNoPopup()
+        if (show_popup) {
+            dispatch(apiCall({
+                endpoint: "no_popup"
+            }))
         }
     }, [])
 

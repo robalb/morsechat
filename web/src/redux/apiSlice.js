@@ -79,6 +79,8 @@ const apiSlice = createSlice({
     builder.addCase(fetchAllData.fulfilled, (state, action) => {
       state.csrf = action.payload.session.csrf
       state.loading = false
+      state.error = ""
+      state.errorDetails = ""
     })
     builder.addCase(fetchAllData.rejected, (state, action) => {
       //set the app in an error state only if it is not loading.

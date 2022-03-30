@@ -11,6 +11,12 @@ import styles from './auth.module.css';
 
 import { useSelector } from 'react-redux'
 
+//TODO: use these constants
+export const MENU = "menu"
+export const LOGIN = "login"
+export const REGISTER = "register"
+export const VERIFY = "verify"
+
 /**
  *
  * @param {*} authState - an array returned from React.useState, containing a string state.
@@ -21,13 +27,10 @@ import { useSelector } from 'react-redux'
  */
 export function Auth({authState, fullScreen = false}) {
 
-    let {loading, error, errorDetails} = useSelector(state => state.api)
+    let loading = useSelector(state => state.api.loading)
 
     let [page, _setPage] = authState
     let open = page.length > 0
-
-    //TODO TOREMOVE
-    let {state, post, reload} = React.useContext(mainContext)
 
     let pages = {
         "menu": MainIndexForm,
@@ -50,8 +53,8 @@ export function Auth({authState, fullScreen = false}) {
         } else {
             let CurrentPage = pages[page]
             mainContent = loading ?
-                <MainDataLoading error={state.error} errorDetails={state.errorDetails} reload={reload}/> :
-                <CurrentPage state={state} post={post} reload={reload} setPage={_setPage}/>;
+                <MainDataLoading /> :
+                <CurrentPage setPage={_setPage}/>;
         }
     }
 

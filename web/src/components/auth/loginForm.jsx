@@ -2,9 +2,13 @@ import React from 'react';
 import {Typography, Grid, TextField, Button, Link, Stack, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useSnackbar } from 'notistack';
+import { useDispatch } from 'react-redux'
+import { loginUser } from '../../redux/userSlice';
 
-const LoginForm = ({state, reload, setPage, post}) =>{
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+const LoginForm = ({setPage}) =>{
+
+  const dispatch = useDispatch()
+  const { enqueueSnackbar } = useSnackbar();
   let [form, setForm] = React.useState({
     username: '',
     password: '',
@@ -61,19 +65,19 @@ const LoginForm = ({state, reload, setPage, post}) =>{
     resetError()
     if (!clientValidate())
       return
-    const res = await post('login', form, true);
-    console.log(res)
-    if(res.success){
-      reload(res.data)
+    try {
+      const res = await dispatch(loginUser(form)).unwrap()
       setPage("")
     }
-    else if(res.error == "invalid_credentials"){
-      enqueueSnackbar('wrong username or password', {variant: "error", preventDuplicate:true})
-      setError('username', ' ')
-      setError('password', ' ')
+    catch (res) {
+      if (res.error == "invalid_credentials") {
+        enqueueSnackbar('wrong username or password', { variant: "error", preventDuplicate: true })
+        setError('username', ' ')
+        setError('password', ' ')
+      }
+      else
+        enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, { variant: "error", preventDuplicate: true })
     }
-    else
-      enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, {variant: "error", preventDuplicate:true})
   }
 
   return (
