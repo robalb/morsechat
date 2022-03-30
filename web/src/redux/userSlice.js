@@ -1,5 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { payloadCreatorCreator } from './apiSlice'
+
+import createDebouncedAsyncThunk from '../utils/createDebouncedAsyncThunk'
+
+import { apiCall, payloadCreatorCreator } from './apiSlice'
 
 import { fetchAllData } from './apiSlice'
 
@@ -18,6 +21,35 @@ export const logoutUser = createAsyncThunk(
   'user/logout',
   payloadCreatorCreator("logout")
   )
+
+/**
+ * thunk updateSettings
+ * dispatch this to update the settings
+ * it will immediately update the settings locally (into the store)
+ * and after a debounce time will update the settings remotely (api call)
+ */
+export const updateSettings = createAsyncThunk(
+  'user/updateSettings',
+  async (data, {getState, dispatch, rejectWithValue, signal}) => {
+    dispatch(userSlice.actions.updateSettingsLocal(data))
+    return await dispatch(updateSettingsRemote()).unwrap()
+  })
+
+/**
+ * this thunk is used internally by updateSettings
+ * see updateSettings for more info
+ */
+const updateSettingsRemote = createDebouncedAsyncThunk(
+  'user/updateSettingsRemote',
+  async (_, {getState, dispatch, rejectWithValue, signal}) => {
+    return await dispatch(apiCall({
+      endpoint: "update_settings",
+      data: getState(state => state.user.settings)
+    })).unwrap()
+  },
+  1000 * 4
+  )
+
 
 //default app settings
 const initialSettings = {
@@ -50,7 +82,18 @@ const initialState = {
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    /**
+     * this action is used interally by updateSettings
+     * see updateSettings for more info
+     */
+    updateSettingsLocal(state, action) {
+      state.settings = {
+        ...state.settings,
+        ...action.payload
+      }
+    }
+  },
   extraReducers(builder) {
     //initial page load
     builder.addCase(fetchAllData.fulfilled, (state, action) => {
