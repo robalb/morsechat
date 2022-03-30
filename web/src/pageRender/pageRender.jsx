@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
-import ApiProvider from './apiProvider'
-import AppProvider from './appProvider';
 import { SnackbarProvider } from 'notistack';
 import './base.css'
 
@@ -31,14 +29,10 @@ export default function render(App){
               horizontal: 'right',
           }}
           maxSnack={3}
-          >
-          <ApiProvider>
-            <AppProvider>
-      <Provider store={store}>
-        <App />
-      </Provider>
-            </AppProvider>
-          </ApiProvider>
+        >
+          <Provider store={store}>
+            <App />
+          </Provider>
         </SnackbarProvider>
       </ThemeProvider>
     </React.StrictMode>,

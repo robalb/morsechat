@@ -21,7 +21,7 @@ const chatSlice = createSlice({
         state.channel = action.payload
     },
     setConnected(state, action){
-        state.connected = action.payload == 'connected'
+        state.connected = ['connected', 'connecting'].includes(action.payload)
         state.connectionStatus = action.payload
     }
   },
