@@ -75,6 +75,13 @@ def api_no_popup():
 @login_required
 def api_logout():
     logout_user()
-    return success("")
+
+    #prepare critical data that the user must update
+    data_modules = Data_modules(current_user, session)
+    data = {
+            'session': data_modules.api_session(),
+            'user': data_modules.user()
+            }
+    return success(data)
 
 

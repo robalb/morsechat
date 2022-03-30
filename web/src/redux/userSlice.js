@@ -13,6 +13,12 @@ export const registerUser = createAsyncThunk(
   payloadCreatorCreator("register")
   )
 
+
+export const logoutUser = createAsyncThunk(
+  'user/logout',
+  payloadCreatorCreator("logout")
+  )
+
 //default app settings
 const initialSettings = {
   wpm: 12,
@@ -62,6 +68,13 @@ const userSlice = createSlice({
     })
     //user registered
     builder.addCase(registerUser.fulfilled, (state, action) => {
+      let toRet = action.payload.user
+      if(!toRet.settings)
+        toRet.settings = initialSettings
+      return toRet
+    })
+    //user logout
+    builder.addCase(logoutUser.fulfilled, (state, action) => {
       let toRet = action.payload.user
       if(!toRet.settings)
         toRet.settings = initialSettings

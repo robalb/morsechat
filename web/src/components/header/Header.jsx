@@ -2,9 +2,6 @@ import * as React from "react";
 
 import styles from './header.module.css';
 
-import mainContext from '../../contexts/mainContext'
-import appContext from '../../contexts/appContext'
-
 import Select from "@mui/material/Select";
 import Skeleton from "@mui/material/Skeleton"
 import MenuItem from "@mui/material/MenuItem";
@@ -14,15 +11,21 @@ import Menu from '@mui/material/Menu';
 import Logout from '@mui/icons-material/Logout';
 import ListItemIcon from '@mui/material/ListItemIcon';
 
-export function Header({leftContent = "", authState}) {
-    let {state, post, reload} = React.useContext(mainContext)
-    let {channel, setChannel, channels} = React.useContext(appContext)
+import { useSelector, useDispatch } from 'react-redux'
+import { logoutUser } from "../../redux/userSlice";
+import { setChannel } from "../../redux/chatSlice";
 
+export function Header({leftContent = "", authState}) {
+    const dispatch = useDispatch()
+    let loading = useSelector(state => state.api.loading)
+    let authenticated = useSelector(state => state.user.authenticated)
+    let username = useSelector(state => state.user.username)
+
+    let channel = useSelector(state => state.chat.channel)
+    let channels = useSelector(state => state.chat.channels)
+    
     async function logoutHandler(){
-        const res = await post('logout', {});
-        if(res.success){
-            reload()
-        }
+        dispatch(logoutUser())
     }
 
     function setAuthPageClick(page){
@@ -43,8 +46,8 @@ export function Header({leftContent = "", authState}) {
     let rightContent = 
         <Skeleton variant="rectangular" animation="wave" width={110} height={20} sx={{ bgcolor: 'grey.800' }}/>
 
-    if(!state.loading){
-        rightContent = state.sessionData.authenticated ?
+    if(!loading){
+        rightContent = authenticated ?
             <>
                 <Button
                     startIcon={<AccountCircleIcon />}
@@ -52,7 +55,7 @@ export function Header({leftContent = "", authState}) {
                     aria-controls={open ? 'account-menu' : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? 'true' : undefined}
-                > {state.userData.username}</Button>
+                > {username}</Button>
                 <Menu
                     anchorEl={anchorEl}
                     id="account-menu"
@@ -89,7 +92,7 @@ export function Header({leftContent = "", authState}) {
             <Select
                 id="channel-select-header"
                 value={channel}
-                onChange={e => setChannel(e.target.value)}
+                onChange={e => dispatch(setChannel(e.target.value))}
             >
                 {
                     channels.map(({ch, name}) => 
