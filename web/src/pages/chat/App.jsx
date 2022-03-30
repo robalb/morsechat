@@ -11,7 +11,9 @@ import mainContext from '../../contexts/mainContext'
 
 function App(props){
 
+  //TODO TOREMOVE
   let {connected, setConnected, channel} = React.useContext(appContext);
+  //TODO TOREMOVE
   let {state, post, reload} = React.useContext(mainContext)
   const pusher = React.useRef(null)
   const pusherChannel = React.useRef(null)

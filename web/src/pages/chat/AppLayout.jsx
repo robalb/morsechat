@@ -1,5 +1,4 @@
 import * as React from "react";
-import mainContext from "../../contexts/mainContext";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {Auth} from "../../components/auth/Auth";
 import Drawer from "@mui/material/Drawer";
@@ -17,6 +16,7 @@ import {Chat} from "../../components/chat/Chat";
 import {Key} from "../../components/key/Key";
 import SettingsIcon from "@mui/icons-material/Settings";
 import {Sheet} from "../../components/sheet/Sheet";
+import { useSelector } from 'react-redux'
 
 import './appLayout.css'
 
@@ -24,7 +24,9 @@ export function AppLayout({
     previewWidth, previewText, previewClearHandler,
     connectionStatus
 }) {
-    let { state } = React.useContext(mainContext)
+    let loading = useSelector(state => state.api.loading)
+    let authenticated = useSelector(state => state.user.authenticated)
+    let show_popup = useSelector(state => state.user.show_popup)
 
     /**
      * Breakpoints definitions.
@@ -55,12 +57,10 @@ export function AppLayout({
     const setAuthPage = authState[1];
 
     React.useEffect(() => {
-        if (!state.loading &&
-            !state.sessionData.authenticated &&
-            state.sessionData.show_popup) {
+        if (!loading && !authenticated && show_popup) {
             setAuthPage("menu")
         }
-    }, [state])
+    }, [loading, authenticated, show_popup])
 
 
     return (

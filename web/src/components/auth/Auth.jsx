@@ -1,5 +1,4 @@
 import * as React from "react";
-import mainContext from "../../contexts/mainContext";
 import {MainIndexForm} from "./mainIndexForm";
 import LoginForm from "./loginForm";
 import RegisterForm from "./registerForm";
