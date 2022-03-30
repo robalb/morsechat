@@ -27,11 +27,13 @@ export function SideControls({className = ""}) {
     const dispatch = useDispatch()
     let settings = useSelector(state => state.user.settings)
 
-    function update(data){
+    function update(data) {
         dispatch(updateSettings(data)).unwrap()
-        .catch(e => 
-            enqueueSnackbar("your settings could not be saved", {variant: "error", preventDuplicate:true})
-        )
+            // .then(e => {
+            //     if (e.type == "api/call/rejected")
+            //         enqueueSnackbar("your settings could not be saved " + e.payload.error, { variant: "error", preventDuplicate: true })
+            // })
+            .catch(e => { })
     }
 
     return (

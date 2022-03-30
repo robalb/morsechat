@@ -78,6 +78,7 @@ def validate_callsign(callsign_data):
     callsign = ''.join(callsign_data['value'])
     return { 'valid': True, 'callsign': callsign}
 
+# TODO: refactor, move class methods into actual functions, and move those into _schemas
 class Data_modules:
     """
     Defines individual modules that return critical data used by the frontend,
@@ -98,7 +99,7 @@ class Data_modules:
                     'id': this.current_user.id,
                     'username': this.current_user.username,
                     'last_online': this.current_user.last_online,
-                    'settings': None,
+                    'settings': this.settings(),
                     'callsign': this.current_user.callsign,
                     'country': this.session['country'],
                     'authenticated': this.current_user.is_authenticated,
@@ -145,3 +146,10 @@ class Data_modules:
                     }
                 }
         return ret
+
+    def settings(this):
+        if not this.current_user.is_authenticated:
+            return None
+        return None
+
+

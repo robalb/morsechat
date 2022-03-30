@@ -32,7 +32,9 @@ export const updateSettings = createAsyncThunk(
   'user/updateSettings',
   async (data, {getState, dispatch, rejectWithValue, signal}) => {
     dispatch(userSlice.actions.updateSettingsLocal(data))
-    return await dispatch(updateSettingsRemote()).unwrap()
+    const logged = getState().user.authenticated
+    if(logged === true)
+      return await dispatch(updateSettingsRemote()).unwrap()
   })
 
 /**
@@ -44,22 +46,22 @@ const updateSettingsRemote = createDebouncedAsyncThunk(
   async (_, {getState, dispatch, rejectWithValue, signal}) => {
     return await dispatch(apiCall({
       endpoint: "update_settings",
-      data: getState(state => state.user.settings)
-    })).unwrap()
+      data: getState().user.settings
+    }))
   },
-  1000 * 4
+  1000 * 4 //4 seconds debounce
   )
 
 
 //default app settings
 const initialSettings = {
   wpm: 12,
-  volume_receiver: 1,
-  volume_key: 1,
+  volume_receiver: 50, //0-100
+  volume_key: 50, //0-100
   dialect: "asd2d2dwd",
-  key_mode: "yambic",
+  key_mode: "yambic", //straight / yambic
   show_readable: true,
-  submit_delay: 1000,
+  submit_delay: 100, //0-100
   keybinds: {
     straight: "c",
     yambic_dot: "z",
