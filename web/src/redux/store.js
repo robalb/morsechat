@@ -3,6 +3,7 @@ import { configureStore, createAsyncThunk } from '@reduxjs/toolkit'
 import userReducer from './userSlice'
 import appReducer from './appSlice'
 import apiReducer from './apiSlice'
+import chatReducer from './chatSlice'
 
 //creiamo 2 thunks: loadAccountData, setAccountData
 // https://stackoverflow.com/questions/66613260/how-to-dispatch-asyncthunk-inside-another-asyncthunk
@@ -15,7 +16,8 @@ export default configureStore({
   reducer: {
     user: userReducer,
     app: appReducer,
-    api: apiReducer
+    api: apiReducer,
+    chat: chatReducer
   },
 })
 
