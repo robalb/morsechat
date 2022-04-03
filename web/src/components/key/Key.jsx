@@ -10,6 +10,7 @@ function KeyInternal(props){
   const dispatch = useDispatch()
 
   let keyMode = useSelector(state => state.user.settings.key_mode)
+  let wpm = useSelector(state => state.user.settings.wpm)
 
   //TODO: make this an actual global setting
   let leftIsDot = true
@@ -24,15 +25,20 @@ function KeyInternal(props){
   React.useEffect(()=>{
     //stop the yambic loop if there are settings changes
     //while it's running
+    up()
+    clearTimeout(interval.current)
+    console.log("settings changed, releasing key to avoid bugs")
     
-  }, [keyMode])
+  }, [keyMode, wpm])
 
 
   //handle component leave
   React.useEffect(()=>{
     return function(){
       //cancel yambicLoop
+      clearTimeout(interval.current)
       //dispatch up
+      up()
     }
   }, [])
 
@@ -70,17 +76,17 @@ function KeyInternal(props){
       }
       else if(dotDown){
         down()
-        interval.current = setTimeout(()=>{ setYambicEvent(DOT) }, times[DOT])
+        scheduleYambicEvent(DOT)
       }
       else if(dashDown){
         down()
-        interval.current = setTimeout(()=>{ setYambicEvent(DASH) }, times[DASH])
+        scheduleYambicEvent(DASH)
       }
     }
   }, [dotDown, dashDown])
 
 
-  //react to a timer stop
+  //react to a yambic event end
   React.useEffect(()=>{
     // console.log("event terminated:")
     console.log(yambicEvent)
@@ -88,25 +94,25 @@ function KeyInternal(props){
     //one of the following events has terminated
     if(yambicEvent === DOT){
       up()
-      interval.current = setTimeout(()=>{ setYambicEvent(SPACE_DOT) }, times[SPACE_DOT])
+      scheduleYambicEvent(SPACE_DOT)
     }
     else if(yambicEvent === DASH){
       up()
-      interval.current = setTimeout(()=>{ setYambicEvent(SPACE_DASH) }, times[SPACE_DASH])
+      scheduleYambicEvent(SPACE_DASH)
     }
     else{
       if(dotDown && dashDown){
         down()
         const alternate = (yambicEvent == SPACE_DASH ? DOT : DASH)
-        interval.current = setTimeout(()=>{ setYambicEvent(alternate) }, times[alternate])
+        scheduleYambicEvent(alternate)
       }
       else if(dotDown){
         down()
-        interval.current = setTimeout(()=>{ setYambicEvent(DOT) }, times[DOT])
+        scheduleYambicEvent(DOT)
       }
       else if(dashDown){
         down()
-        interval.current = setTimeout(()=>{ setYambicEvent(DASH) }, times[DASH])
+        scheduleYambicEvent(DASH)
       }
 
     }
