@@ -17,6 +17,9 @@ function KeyInternal(props){
 
   let [dotDown, setDotDown] = React.useState(false)
   let [dashDown, setDashDown] = React.useState(false)
+  let [yambicEvent, setYambicEvent] = React.useState(false)
+
+  const interval = React.useRef(null);
 
   React.useEffect(()=>{
     //stop the yambic loop if there are settings changes
@@ -34,38 +37,41 @@ function KeyInternal(props){
   }, [])
 
 
-  function down(e){
-    console.log("down")
-  }
+  const SPACE_DOT = "space"
+  const SPACE_DASH = "space"
+  const DOT = "dot"
+  const DASH = "dash"
 
-  function up(e){
-    console.log("up")
-  }
+  //start the timer
+  React.useEffect(()=>{
+    if(!interval.current && (dotDown || dashDown)){
+      console.log("starting")
+      setTimeout(()=>{
+        setYambicEvent(DASH)
+      }, 2000)
+    }
+  }, [dotDown, dashDown])
 
-  function yambicLoop(){
-
-  }
+  //timer stopped
+  React.useEffect(()=>{
+    console.log("event terminated:")
+    console.log(yambicEvent)
+  }, [yambicEvent])
 
   function yambicDown(isDot){
     console.log("yambic down")
-    console.log(isDot)
     if(isDot)
       setDotDown(true)
     else
       setDashDown(true)
-    //start the yambic loop
-    yambicLoop()
   }
 
   function yambicUp(isDot){
     console.log("yambic up")
-    console.log(isDot)
     if(isDot)
       setDotDown(false)
     else
       setDashDown(false)
-    //start the yambic loop
-    yambicLoop()
   }
 
   function mouseDown(e){
@@ -89,6 +95,15 @@ function KeyInternal(props){
       yambicUp(isLeft)
     }
   }
+
+  function down(e){
+    console.log("down")
+  }
+
+  function up(e){
+    console.log("up")
+  }
+
 
   return (
     <button className={styles.key_bt}
