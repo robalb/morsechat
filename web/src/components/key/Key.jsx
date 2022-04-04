@@ -5,6 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { useSelector, useDispatch } from 'react-redux'
+import { keyDown, keyUp } from "../../redux/chatSlice";
 
 function KeyInternal(props){
   const dispatch = useDispatch()
@@ -16,19 +17,20 @@ function KeyInternal(props){
   let leftIsDot = true
   let yambicVariantIsA = true
 
+  //state used by the yambic keyer.
   let [dotDown, setDotDown] = React.useState(false)
   let [dashDown, setDashDown] = React.useState(false)
   let [yambicEvent, setYambicEvent] = React.useState(false)
-
   const interval = React.useRef(null);
 
   React.useEffect(()=>{
     //stop the yambic loop if there are settings changes
     //while it's running
-    up()
-    clearTimeout(interval.current)
-    console.log("settings changed, releasing key to avoid bugs")
-    
+    if(interval.current){
+      up()
+      clearTimeout(interval.current)
+      console.log("settings changed, releasing key to avoid bugs")
+    }
   }, [keyMode, wpm])
 
 
@@ -50,13 +52,21 @@ function KeyInternal(props){
   const DOT = "dot"
   const DASH = "dash"
   
-  //TODO: get this from the settings
-  const times = {
-    [SPACE_DOT]: 500,
-    [SPACE_DASH]: 500,
-    [DOT]: 500,
-    [DASH]: 1500
+  //TODO: put this in a function somewhere accessible, maybe in a selector
+  function getTimes(wpm){
+    if(wpm < 1) wpm = 1
+    if(wpm > 200) wpm = 200
+    const dotTime = Math.ceil(1200 / wpm)
+    return {
+      [SPACE_DOT]: dotTime,
+      [SPACE_DASH]: dotTime,
+      [DOT]: dotTime,
+      [DASH]: dotTime * 3
+    }
   }
+  const times = getTimes(wpm)
+
+
 
   function scheduleYambicEvent(event){
     if(interval.current){
@@ -129,6 +139,11 @@ function KeyInternal(props){
   function yambicUp(isDot){
     console.log("yambic up")
     if(isDot)
+      //idea: set the down state as a integer with 3 values: 0,1,2 isntead of a bool.
+      //we consider down something that is not 0,
+      //yambic up sets to 1 (careful: sets, not decrement: decrementing causes raceconditions)
+      //the scheduler sets to zero or to 2
+      //this should solve the "key must stay pressed until scheduler sees it"
       setDotDown(false)
     else
       setDashDown(false)
@@ -158,10 +173,12 @@ function KeyInternal(props){
 
   function down(e){
     console.log(">>down")
+    dispatch(keyDown())
   }
 
   function up(e){
     console.log(">>up")
+    dispatch(keyUp() )
   }
 
 
