@@ -12,6 +12,19 @@ function KeyInternal(props){
 
   let keyMode = useSelector(state => state.user.settings.key_mode)
   let wpm = useSelector(state => state.user.settings.wpm)
+  //Apparently by using this & similar tricks we don't need callbacks for the send system:
+  //we can just have a selector countowntime that is zero if we are not countig down,
+  //and > 0 incrementing each tick if we are indeed counting down
+  //no timers means that we can call send message whenever we want, such as here
+  //when we detect settings changes, or directly in redux
+  let countingDown = useSelector(state => {
+    let chat = state.chat
+    return chat.lastTime > 0 && 
+      chat.keyDown == false &&
+      (+new Date() - chat.lastTime) > 100 //calculate from settings
+  })
+
+  console.log(countingDown)
 
   //TODO: make this an actual global setting
   let leftIsDot = true
@@ -23,12 +36,29 @@ function KeyInternal(props){
   let [yambicEvent, setYambicEvent] = React.useState(false)
   const interval = React.useRef(null);
 
+  //TODO: move this logic in the display component
+  //we can always detect if we are in a countdown state by listening to 
+  //chatslice.keYdown==false && chatSlice.lastTime > X
+  // const sendInterval = React.useRef(null);
+
+  // function cancelSendInterval(){
+  //   clearTimeout(sendInterval.current)
+  //   sendInterval.current = null
+  // }
+  // function startSendInterval(){
+  //   cancelSendInterval()
+  //   sendInterval.current = setTimeout(()=>{
+  //    //dispatch send
+  //}, waitTime)
+  // }
+
   React.useEffect(()=>{
     //stop the yambic loop if there are settings changes
     //while it's running
     if(interval.current){
       up()
       clearTimeout(interval.current)
+      interval.current = null
       console.log("settings changed, releasing key to avoid bugs")
     }
   }, [keyMode, wpm])
@@ -39,6 +69,7 @@ function KeyInternal(props){
     return function(){
       //cancel yambicLoop
       clearTimeout(interval.current)
+      interval.current = null
       //dispatch up
       up()
     }
@@ -79,7 +110,6 @@ function KeyInternal(props){
 
   //start the timer
   React.useEffect(()=>{
-    console.log("starting")
     if(!interval.current){
       if(dotDown && dashDown){
         console.log("WARNING weird state: bot dot and dash down, no interval running")

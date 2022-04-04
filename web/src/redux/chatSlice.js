@@ -32,6 +32,14 @@ export const keyUp = createAction('chat/keyUp', function prepare() {
   }
 })
 
+
+export const send = createAsyncThunk(
+  'chat/send',
+  async (_, {getState, dispatch, rejectWithValue, signal}) => {
+    dispatch(chatSlice.actions.resetMessage())
+  })
+
+
 const chatSlice = createSlice({
   name: 'chat',
   initialState,
