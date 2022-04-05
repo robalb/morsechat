@@ -7,7 +7,7 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { useSelector, useDispatch } from 'react-redux'
 import { keyDown, keyUp } from "../../redux/chatSlice";
 
-function useSound(note=220, volume=100){
+function useSound(note=880, volume=100){
   //setting the gain to zero crashes everything, this is a workaround
   const baseVolume = 0.0000001
   if(volume < 0) volume = 0
@@ -26,8 +26,8 @@ function useSound(note=220, volume=100){
   React.useEffect(()=>{
     if(isOn){
       console.log("UPDATING REALTIME KEY VOLUME")
-      g.gain.exponentialRampToValueAtTime(
-        0.1, ctx.currentTime + 0.04
+      g.gain.setValueAtTime(
+        volume, ctx.currentTime
       )
     }
   }, [volume])
@@ -36,8 +36,10 @@ function useSound(note=220, volume=100){
     console.log("AUDIO NODE CREATED")
     //https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
     let context = new AudioContext()
+    context.suspend()
     let o = context.createOscillator()
     o.frequency.value = note
+    o.type = "triangle"
     let g = context.createGain()
     o.connect(g)
     g.connect(context.destination)
@@ -47,7 +49,6 @@ function useSound(note=220, volume=100){
     console.log(context)
 
     // o.start()
-    context.suspend()
     // g.gain.exponentialRampToValueAtTime(
     //   baseVolume, context.currentTime + 0.04
     // )
@@ -72,16 +73,16 @@ function useSound(note=220, volume=100){
       }
       if(g){
         setIsOn(true)
-        g.gain.exponentialRampToValueAtTime(
-          volume, ctx.currentTime + 0.04
+        g.gain.setValueAtTime(
+          volume, ctx.currentTime
         )
       }
     },
     function off(){
       if(initialized && g){
         setIsOn(false)
-        g.gain.exponentialRampToValueAtTime(
-          baseVolume, ctx.currentTime + 0.04
+        g.gain.setValueAtTime(
+          baseVolume, ctx.currentTime
         )
       }
     }
@@ -118,7 +119,7 @@ function KeyInternal(props){
   let [yambicEvent, setYambicEvent] = React.useState(false)
   const interval = React.useRef(null);
 
-  let [on, off] = useSound(440, keyVolume)
+  let [on, off] = useSound(880, keyVolume)
   //TODO: move this logic in the display component
   //we can always detect if we are in a countdown state by listening to 
   //chatslice.keYdown==false && chatSlice.lastTime > X
