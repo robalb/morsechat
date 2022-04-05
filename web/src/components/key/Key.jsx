@@ -7,11 +7,93 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { useSelector, useDispatch } from 'react-redux'
 import { keyDown, keyUp } from "../../redux/chatSlice";
 
+function useSound(note=220, volume=100){
+  //setting the gain to zero crashes everything, this is a workaround
+  const baseVolume = 0.0000001
+  if(volume < 0) volume = 0
+  if(volume > 100) volume = 100
+  volume = (volume + baseVolume) / 100
+  console.log(volume)
+
+  let [ctx, setCtx] = React.useState(null)
+  let [o, setO] = React.useState(null)
+  let [g, setG] = React.useState(null)
+
+  let [isOn, setIsOn] = React.useState(false)
+  let [initialized, setInitialized] = React.useState(false)
+
+  //update the volume in real time if it changes while the sound is playing
+  React.useEffect(()=>{
+    if(isOn){
+      console.log("UPDATING REALTIME KEY VOLUME")
+      g.gain.exponentialRampToValueAtTime(
+        0.1, ctx.currentTime + 0.04
+      )
+    }
+  }, [volume])
+
+  React.useEffect(()=>{
+    console.log("AUDIO NODE CREATED")
+    //https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
+    let context = new AudioContext()
+    let o = context.createOscillator()
+    o.frequency.value = note
+    let g = context.createGain()
+    o.connect(g)
+    g.connect(context.destination)
+    setCtx(context)
+    setO(o)
+    setG(g)
+    console.log(context)
+
+    // o.start()
+    context.suspend()
+    // g.gain.exponentialRampToValueAtTime(
+    //   baseVolume, context.currentTime + 0.04
+    // )
+
+    // function resumeSound(){
+    //   context.resume()
+    // }
+    // document.body.addEventListener("click", resumeSound, {once: true})
+
+    return ()=>{
+      console.log("CLOSING AUDIO CTX")
+      ctx.close()
+    }
+  },[])
+
+  return [
+    function on(){
+      if(!initialized){
+        ctx.resume()
+        o.start()
+        setInitialized(true)
+      }
+      if(g){
+        setIsOn(true)
+        g.gain.exponentialRampToValueAtTime(
+          volume, ctx.currentTime + 0.04
+        )
+      }
+    },
+    function off(){
+      if(initialized && g){
+        setIsOn(false)
+        g.gain.exponentialRampToValueAtTime(
+          baseVolume, ctx.currentTime + 0.04
+        )
+      }
+    }
+  ]
+}
+
 function KeyInternal(props){
   const dispatch = useDispatch()
 
   let keyMode = useSelector(state => state.user.settings.key_mode)
   let wpm = useSelector(state => state.user.settings.wpm)
+  let keyVolume = useSelector(state => state.user.settings.volume_key)
   //Apparently by using this & similar tricks we don't need callbacks for the send system:
   //we can just have a selector countowntime that is zero if we are not countig down,
   //and > 0 incrementing each tick if we are indeed counting down
@@ -36,6 +118,7 @@ function KeyInternal(props){
   let [yambicEvent, setYambicEvent] = React.useState(false)
   const interval = React.useRef(null);
 
+  let [on, off] = useSound(440, keyVolume)
   //TODO: move this logic in the display component
   //we can always detect if we are in a countdown state by listening to 
   //chatslice.keYdown==false && chatSlice.lastTime > X
@@ -203,11 +286,13 @@ function KeyInternal(props){
 
   function down(e){
     console.log(">>down")
+    on()
     dispatch(keyDown())
   }
 
   function up(e){
     console.log(">>up")
+    off()
     dispatch(keyUp() )
   }
 
