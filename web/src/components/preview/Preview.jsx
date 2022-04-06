@@ -12,10 +12,9 @@ function PreviewInternal(){
     let wpm = useSelector(state => state.user.settings.wpm)
     let showReadable = useSelector(state => state.user.settings.show_readable)
     let dialectName = useSelector(state => state.user.settings.dialect)
-    let lastTime = useSelector(state => state.chat.lastTime)
     let dialect = getDialect(dialectName)
 
-    let [updater, setUpdater] = React.useState(false)
+    let [canTranslateLast, setCanTranslateLast] = React.useState(false)
 
     //TODO: abstract this into some sort of reusable function and put it somewhere else
     function getTimes(wpm){
@@ -32,9 +31,14 @@ function PreviewInternal(){
     }
     let times = getTimes(wpm)
 
-    console.log(updater)
+    //this hook starts a countdown that is resetted every time the message buffer updates.
+    //if the countodwn reaches the end, a flag that allows the translation of the last letter is set to true
     React.useEffect(()=>{
-        setTimeout(_ => setUpdater(e => !e), times.letterGap * 2)
+        setCanTranslateLast(false)
+        let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap * 1)
+        return () =>{
+            clearTimeout(t)
+        }
     }, [buffer])
 
 
@@ -73,23 +77,12 @@ function PreviewInternal(){
                     out += letter + (showReadable ? "" : " ")
                     letter = ""
                 }
-                else{
-                    out += ""
-                }
             }
             down = !down
         }
-        //if there is a letter left, we must decide if it has to be translated
-        if(showReadable){
-            let delta =  Math.floor(+new Date()) - lastTime
-            if(delta > times.letterGap)
-                letter = translateToReadable(letter);
-            else{
-                console.log("not updating: delta:")
-                console.log(delta)
-                console.log(times.wordGap)
-            }
-        }
+        //if there is a letter left, we translate it only if the translate flag is set to true
+        if(showReadable && canTranslateLast)
+            return out + translateToReadable(letter);
         return out + (showReadable ? " " : "")+ letter
     }
     let morseString = bufferedMorseToString(buffer, times)
