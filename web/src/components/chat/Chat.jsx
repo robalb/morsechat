@@ -1,23 +1,37 @@
 import * as React from "react";
 import {Button } from '@mui/material';
 
-import mainContext from '../../contexts/mainContext'
 import styles from './chat.module.css';
 
+import { useSelector, useDispatch } from 'react-redux'
+
+import { fetchAllData } from '../../redux/apiSlice';
+import { useSnackbar } from 'notistack';
+
 export function Chat({className = ""}) {
-    let {state, post, reload} = React.useContext(mainContext)
+    const { enqueueSnackbar } = useSnackbar();
+    const dispatch = useDispatch()
+    let {loading, error, errorDetails } = useSelector(state => state.api)
+
+    function reload(){
+        dispatch(fetchAllData()).unwrap()
+        .catch(e => {
+            let error = "Loading failed again"
+            enqueueSnackbar(error, {variant: "error", preventDuplicate:true})
+        })
+    }
 
     let body = "";
 
-    if(state.loading && state.error.length > 0){
+    if(loading && error.length > 0){
         body = <div className={styles.loading}>
-            <h2>Error: {state.error}</h2>
+            <h2>Error: {error}</h2>
             <Button onClick={e => reload()} variant="outlined" color="error">
                 retry
             </Button>
         </div>
     }
-    else if(state.loading){
+    else if(loading){
         body = <div className={styles.loading}>
             <h2>loading</h2>
         </div>

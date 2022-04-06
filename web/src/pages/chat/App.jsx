@@ -5,15 +5,19 @@ import {AppLayout} from "./AppLayout";
 
 import {pusherClient} from  '../../utils/apiResolver'
 
-import appContext from "../../contexts/appContext";
-import mainContext from '../../contexts/mainContext'
+import { useSelector, useDispatch } from 'react-redux'
 
-
+import { setConnected } from '../../redux/chatSlice'
 
 function App(props){
 
-  let {connected, setConnected, channel} = React.useContext(appContext);
-  let {state, post, reload} = React.useContext(mainContext)
+  const dispatch = useDispatch()
+  let loading = useSelector(state => state.api.loading)
+  let csrf = useSelector(state => state.api.csrf)
+  let callsign = useSelector(state => state.user.callsign)
+  let app = useSelector(state => state.app)
+  let channel = useSelector(state => state.chat.channel)
+
   const pusher = React.useRef(null)
   const pusherChannel = React.useRef(null)
 
@@ -33,29 +37,26 @@ function App(props){
 
   //TODO: unbind all callbacks and check for mem leaks
   React.useEffect(() => {
-      if(state.loading == false){
+      if(loading == false){
         if(pusher.current === null){
           //initialize the pusher client
           pusher.current = pusherClient(
-            state.sessionData.csrf,
-            state.appData.pusher_key,
-            state.appData.pusher_host,
-            state.appData.pusher_port,
-            state.appData.pusher_cluster
+            csrf,
+            app.pusher_key,
+            app.pusher_host,
+            app.pusher_port,
+            app.pusher_cluster
           )
           //update pusher server connection status
           //this is not related to the channel subscription
           pusher.current.connection.bind('state_change', (states)=>{
-            setConnected({
-              info: states.current,
-              green: states.current == 'connected'
-            })
+            dispatch(setConnected(states.current))
           })
         }else{
           console.warn("reinitializing pusher ref")
         }
       }
-  }, [state.loading]);
+  }, [loading]);
 
 
   function logTest(type){
@@ -76,22 +77,13 @@ function App(props){
     if(pusher.current){
       console.log(">> effect: subscribing to channel " + channel)
       pusherChannel.current = pusher.current.subscribe(channel)
-      setConnected({
-        info: 'connecting',
-        green: true
-      })
+      dispatch(setConnected('connecting'))
       pusherChannel.current.bind('pusher:subscription_succeeded', e =>{
-        setConnected({
-          info: 'connected',
-          green: true
-        })
+        dispatch(setConnected('connected'))
         logTest('pusher:subscription_succeeded')(e)
       })
       pusherChannel.current.bind('pusher:subscription_error', e =>{
-        setConnected({
-          info: 'connection failed',
-          green: false
-        })
+        dispatch(setConnected( 'connection failed'))
         logTest('pusher:subscription_error')(e)
       })
       pusherChannel.current.bind('pusher:member_added', logTest('pusher:member_added'))
@@ -107,7 +99,7 @@ function App(props){
     else{
       console.log(">> effect: subscribing to channel [NO PUSHER YET] " + channel)
     }
-  }, [channel, state.userData?.callsign])
+  }, [channel, callsign])
 
 
   return(
@@ -115,7 +107,6 @@ function App(props){
       previewWidth={30}
       previewText={"Allor fu la paura un poco queta . che nel lago del cor--.-"}
       previewClearHandler={e=>console.log("clear")}
-      connectionStatus={connected}
     />
   )
 }

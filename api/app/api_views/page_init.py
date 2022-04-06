@@ -31,7 +31,7 @@ def api_page_init():
 
     data_modules = Data_modules(current_user, session)
     data = {
-            'session': data_modules.user_session(),
+            'session': data_modules.api_session(),
             'app': data_modules.app(),
             'user': data_modules.user()
             }

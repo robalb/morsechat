@@ -2,12 +2,14 @@ import React from 'react';
 import {Typography, Grid, TextField, Button, Divider, Stack, Link, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useSnackbar } from 'notistack';
-
+import { useDispatch } from 'react-redux'
+import { registerUser } from '../../redux/userSlice';
 import CallSignEditor from '../callSignEditor/callSignEditor'
 
 
-const RegisterForm = ({state, reload, setPage, post}) =>{
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+const RegisterForm = ({setPage}) =>{
+  const dispatch = useDispatch()
+  const { enqueueSnackbar } = useSnackbar();
   let [form, setForm] = React.useState({
     username: '',
     password: '',
@@ -87,20 +89,20 @@ const RegisterForm = ({state, reload, setPage, post}) =>{
     resetError()
     if (!clientValidate())
       return
-    const res = await post('register', form, true);
-    console.log(res)
-    if(res.success){
-      reload(res.data)
+    try{
+      const res = await dispatch(registerUser(form)).unwrap()
       setPage("verify")
     }
-    else if(res.error == "invalid_username")
-      setError('username', 'invalid username')
-    else if(res.error == "username_exist")
-      setError('username', 'username already registered')
-    else if(res.error == "callsign_exist")
-      enqueueSnackbar('callsign already taken', {variant: "error", preventDuplicate:true})
-    else
-      enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, {variant: "error", preventDuplicate:true})
+    catch(res){
+      if(res.error == "invalid_username")
+        setError('username', 'invalid username')
+      else if(res.error == "username_exist")
+        setError('username', 'username already registered')
+      else if(res.error == "callsign_exist")
+        enqueueSnackbar('callsign already taken', {variant: "error", preventDuplicate:true})
+      else
+        enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, {variant: "error", preventDuplicate:true})
+    }
   }
 
   return (

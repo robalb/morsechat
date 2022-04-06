@@ -1,5 +1,4 @@
 import * as React from "react";
-import mainContext from "../../contexts/mainContext";
 import {MainIndexForm} from "./mainIndexForm";
 import LoginForm from "./loginForm";
 import RegisterForm from "./registerForm";
@@ -8,6 +7,14 @@ import MainDataLoading from "./mainDataLoading";
 import Dialog from "@mui/material/Dialog";
 
 import styles from './auth.module.css';
+
+import { useSelector } from 'react-redux'
+
+//TODO: use these constants
+export const MENU = "menu"
+export const LOGIN = "login"
+export const REGISTER = "register"
+export const VERIFY = "verify"
 
 /**
  *
@@ -18,10 +25,10 @@ import styles from './auth.module.css';
  * @param {boolean} fullScreen - when true, the dialog will be full screen
  */
 export function Auth({authState, fullScreen = false}) {
-    let {state, post, reload} = React.useContext(mainContext)
+
+    let loading = useSelector(state => state.api.loading)
 
     let [page, _setPage] = authState
-
     let open = page.length > 0
 
     let pages = {
@@ -44,9 +51,9 @@ export function Auth({authState, fullScreen = false}) {
             console.error("invalid page provided")
         } else {
             let CurrentPage = pages[page]
-            mainContent = state.loading ?
-                <MainDataLoading error={state.error} errorDetails={state.errorDetails} reload={reload}/> :
-                <CurrentPage state={state} post={post} reload={reload} setPage={_setPage}/>;
+            mainContent = loading ?
+                <MainDataLoading /> :
+                <CurrentPage setPage={_setPage}/>;
         }
     }
 

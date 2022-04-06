@@ -1,23 +1,18 @@
 import React from 'react';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import {ListItemText, Stack, Chip, TextField, Grid, Button} from '@mui/material';
+import {Stack, Chip, Grid} from '@mui/material';
 import DoneIcon from '@mui/icons-material/Done';
 import ErrorIcon from '@mui/icons-material/Error';
 import FindReplaceIcon from '@mui/icons-material/FindReplace';
-
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-
 import modules from './modules'
-import mainContext from '../../contexts/mainContext'
 
+import { useDispatch, useSelector } from 'react-redux'
+import { apiCall } from '../../redux/apiSlice';
 
 //https://www.techonthenet.com/js/language_tags.php
 // <Chip label="valid callsign" icon={<DoneIcon />} size="small" color="success"/>
 function SimpleEditor(props){
-  let {post} = React.useContext(mainContext)
+  const dispatch = useDispatch()
   let [modulesData, setModulesData] = React.useState(props.schema)
 
   let validationStates = {
@@ -31,29 +26,6 @@ function SimpleEditor(props){
   let [validationPromise, setValidationPromise] = React.useState(undefined)
 
   React.useEffect(()=>{
-
-    //abortable promise that performs a callsign validation api call
-    //https://www.carlrippon.com/cancelling-fetch-in-React-and-typescript/
-    //https://www.timveletta.com/blog/2020-07-14-accessing-react-state-in-your-component-cleanup-with-hooks/
-    function validateCallSign(callSign){
-      console.log("starting promise")
-      const controller = new AbortController();
-      const signal = controller.signal
-      const promise = new Promise(async (resolve) =>{
-          const ret = await post(
-            'validate_callsign', //endpoint
-            { 'callsign': callSign }, //request data
-            true, //silent request
-            signal //signal controller
-          )
-          resolve(ret)
-        })
-      promise.cancel = () => controller.abort();
-      return promise;
-    }
-
-    //abort previous validation requests
-    validationPromise?.cancel()
     //check that all values are valid
     const allValid = modulesData.every(m => {
       if(m.hasOwnProperty('len') && m.len != m.value.length)
@@ -67,34 +39,37 @@ function SimpleEditor(props){
       props.setData( modulesData.map(m => m.value))
       //set the state to loading, then start the online validation
       setValidationState(validationStates.LOADING)
-      //make the api request:
-      //launch the request promise
-      let callSign = modulesData.map(m => m.value).join("")
-      const livePromise = validateCallSign(callSign)
-      //put the validation promise in a react state, to preserve it during rerenders
+      //prepare the data for the api request
+      let callsign = modulesData.map(m => m.value).join("")
+      //start the api request
+      const livePromise = dispatch(apiCall({
+        endpoint: "validate_callsign",
+        data: {callsign}
+      }))
+      //put the validation promise in a react state (we need to preserve it during rerenders if we want to abort it)
       setValidationPromise(livePromise)
-      //logic following the promise resolve
-      livePromise.then( ret => {
-        console.log("promise resolved")
-        console.log(ret)
-        if(ret.success)
-            setValidationState(validationStates.GOOD)
-        else if(ret.error == 'already_taken')
+      //logic following the promise resolve / reject
+      livePromise.unwrap()
+        .then(ret => {
+          setValidationState(validationStates.GOOD)
+        })
+        .catch(ret => {
+          if (ret.error == 'already_taken')
             setValidationState(validationStates.BAD)
-        else if(ret.error != 'abort_error')
-          //on errors such as network errors, it's good to remove the
-          //loading indicator.
-          //However, abort errors indicate that a new request is takin place,
-          //and the new request is taking care of the validation states.
-          setValidationState(validationStates.NOOP)
-
-      })
+          else if (ret.error != 'abort_error')
+            //on errors such as network errors, it's good to remove the
+            //loading indicator.
+            //However, abort errors indicate that a new request is takin place,
+            //and the new request is taking care of the validation states.
+            setValidationState(validationStates.NOOP)
+        })
     }
-    else{
+    else {
       setValidationState(validationStates.NOOP)
     }
     //cleanup function
     return function cleanUp(){
+      validationPromise?.abort()
     }
   }, [modulesData])
 
@@ -159,12 +134,12 @@ function SimpleEditor(props){
 }
 
 const CallSignEditor = (props) =>{
-  let {state} = React.useContext(mainContext)
+  const country = useSelector(state => state.user.country)
   //TODO: replace this hardcoded data with data received from the apis
   const [schema, setSchema] = React.useState([
     {
       module: 'country',
-      value: state.userData.country
+      value: country
     },
     {
       module: 'text',
@@ -190,11 +165,6 @@ const CallSignEditor = (props) =>{
     })
   }
 
-/*
-    <Button size="small" variant="text" sx={{marginTop: 5}}>
-     use custom code
-    </Button>
- */
  return (
    <>
     <SimpleEditor schema={schema} setData={handleSetData} />

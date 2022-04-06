@@ -1,7 +1,24 @@
 import React from 'react';
 import {Typography, Button, LinearProgress} from '@mui/material';
+import { useSelector, useDispatch } from 'react-redux'
 
-const MainDataLoading = ({error, errorDetails, reload}) => {
+import { fetchAllData } from '../../redux/apiSlice';
+import { useSnackbar } from 'notistack';
+
+const MainDataLoading = () => {
+
+  const {enqueueSnackbar} = useSnackbar();
+  const dispatch = useDispatch()
+  let {error, errorDetails} = useSelector(state => state.api)
+
+  function reload(){
+    dispatch(fetchAllData()).unwrap()
+      .catch(e => {
+        let error = "Loading failed again"
+        enqueueSnackbar(error, {variant: "error", preventDuplicate:true})
+      })
+  }
+
   let content = error.length > 0 ?
     <>
       <Typography color="error" variant="h6">

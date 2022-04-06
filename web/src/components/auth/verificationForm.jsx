@@ -1,16 +1,13 @@
 import React from 'react';
-import {Typography, Grid, TextField, Button, Divider, IconButton, Skeleton} from '@mui/material';
+import {Typography, Grid, Button, IconButton, Skeleton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useSnackbar } from 'notistack';
 
-const VerificationForm = ({state, reload, setPage, post}) =>{
+const VerificationForm = ({setPage}) =>{
   function handleCancel(){
     setPage("")
   }
   return (
     <Grid container spacing={3} >
-
-
       <Grid item xs={12} >
         <IconButton aria-label="close" color="primary" onClick={e => setPage("") }>
           <CloseIcon />

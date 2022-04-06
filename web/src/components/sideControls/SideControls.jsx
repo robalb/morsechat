@@ -2,33 +2,70 @@ import Button from "@mui/material/Button";
 import SettingsIcon from "@mui/icons-material/Settings";
 import * as React from "react";
 import Slider from '@mui/material/Slider';
-
-import appContext from "../../contexts/appContext";
+import { useSelector, useDispatch } from 'react-redux'
+import { updateSettings } from "../../redux/userSlice";
 import styles from './sideControls.module.css';
+import { useSnackbar } from 'notistack';
+
+import { useStateDep } from "../../hooks/useStateDep";
+
+/**
+ * this complicated contraption is here to prevent a rerender of every slider
+ * every time there is a settings change.
+ * Additionally, for optimal performance onChangeCommitted must be passed through useCallback
+ */
+const MemoSlider = React.memo(function CustomSlider({value, onChangeCommitted, ...props}){
+    let [val, setVal] = useStateDep(value)
+    return <Slider value={val} 
+                onChange={e=>{ setVal(e.target.value) }}
+                onChangeCommitted={onChangeCommitted}
+                {...props} />
+})
 
 export function SideControls({className = ""}) {
-    let {settings, settingsDispatch} = React.useContext(appContext);
-    let [wpm, setWpm] = React.useState(settings.wpm)
+    const {enqueueSnackbar} = useSnackbar();
+    const dispatch = useDispatch()
+    let settings = useSelector(state => state.user.settings)
+
+    function update(data) {
+        dispatch(updateSettings(data)).unwrap()
+            // .then(e => {
+            //     if (e.type == "api/call/rejected")
+            //         enqueueSnackbar("your settings could not be saved " + e.payload.error, { variant: "error", preventDuplicate: true })
+            // })
+            .catch(e => { })
+    }
+
     return (
         <div className={`${styles.sidecontrols} ${className}`}>
             <h2>controls</h2>
             <p>wpm</p>
-            <Slider size="small" defaultValue={settings.wpm} aria-label="Default" valueLabelDisplay="auto" 
-                onChangeCommitted={e => 
-                    settingsDispatch({
-                        type: "update",
-                        payload: {
-                            wpm: wpm
-                        }
-                    })
-                }
+            <MemoSlider size="small" value={settings.wpm} aria-label="Default" valueLabelDisplay="auto" 
+                min={5}
+                max={50}
+                onChangeCommitted={React.useCallback(
+                    (e, v) => update({ wpm: v }),
+                    [])}
             />
+
             <p>receiver volume</p>
-            <Slider size="small" defaultValue={50} aria-label="Default" valueLabelDisplay="auto" />
+            <MemoSlider size="small" value={settings.volume_receiver} aria-label="Default" valueLabelDisplay="auto"
+                onChangeCommitted={React.useCallback(
+                    (e, v) => update({ volume_receiver: v }),
+                    [])}
+             />
             <p>key volume</p>
-            <Slider size="small" defaultValue={50} aria-label="Default" valueLabelDisplay="auto" />
+            <MemoSlider size="small" value={settings.volume_key} aria-label="Default" valueLabelDisplay="auto"
+                onChangeCommitted={React.useCallback(
+                    (e, v) => update({ volume_key: v }),
+                    [])}
+             />
             <p>submit delay</p>
-            <Slider size="small" defaultValue={50} aria-label="Default" valueLabelDisplay="auto" />
+            <MemoSlider size="small" value={settings.submit_delay} aria-label="Default" valueLabelDisplay="auto"
+                onChangeCommitted={React.useCallback(
+                    (e, v) => update({ submit_delay: v }),
+                    [])}
+             />
             <Button size="small" startIcon={<SettingsIcon/>} variant="outlined">
                 Advanced
             </Button>

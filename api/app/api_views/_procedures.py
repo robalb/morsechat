@@ -78,6 +78,7 @@ def validate_callsign(callsign_data):
     callsign = ''.join(callsign_data['value'])
     return { 'valid': True, 'callsign': callsign}
 
+# TODO: refactor, move class methods into actual functions, and move those into _schemas
 class Data_modules:
     """
     Defines individual modules that return critical data used by the frontend,
@@ -90,32 +91,42 @@ class Data_modules:
         this.current_user = current_user
         this.session = session
 
+    #TODO: clean this code, there is too much stuff being copypasted, easy to make misktakes
+    #and introduce unwanted differences between schemas
     def user(this):
         if this.current_user.is_authenticated:
             user_data = {
                     'id': this.current_user.id,
                     'username': this.current_user.username,
                     'last_online': this.current_user.last_online,
+                    'settings': this.settings(),
                     'callsign': this.current_user.callsign,
                     'country': this.session['country'],
-                    'settings': None
+                    'authenticated': this.current_user.is_authenticated,
+                    'show_popup': this.session['show_popup'],
                     }
         else:
             user_data = {
+                    'id': None,
+                    'username': None,
+                    'last_online': None,
+                    'settings': None,
                     'callsign': this.session['anonymous_callsign'],
                     'country': this.session['country'],
-                    'settings': None
+                    'authenticated': this.current_user.is_authenticated,
+                    'show_popup': this.session['show_popup']
                     }
         return user_data
 
-    def user_session(this):
+    #credentials, csrf tokens and other stuff related to an api session
+    def api_session(this):
         ret = {
-            'authenticated': this.current_user.is_authenticated,
-            'show_popup': this.session['show_popup'],
             'csrf': this.session['csrf']
         }
         return ret
 
+    #public api keys, available rooms and other stuff that is not supposed to
+    #change between users or between logins/logout
     def app(this):
         pusher_key = app.config['PUSHER_KEY']
         pusher_cluster = app.config['PUSHER_CLUSTER']
@@ -135,3 +146,11 @@ class Data_modules:
                     }
                 }
         return ret
+
+    def settings(this):
+        if not this.current_user.is_authenticated:
+            return None
+        #TODO
+        return None
+
+
