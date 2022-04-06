@@ -12,6 +12,7 @@ function PreviewInternal(){
     let wpm = useSelector(state => state.user.settings.wpm)
     let showReadable = useSelector(state => state.user.settings.show_readable)
     let dialectName = useSelector(state => state.user.settings.dialect)
+    let keyDown = useSelector(state => state.chat.keyDown)
     let dialect = getDialect(dialectName)
 
     let [canTranslateLast, setCanTranslateLast] = React.useState(false)
@@ -35,7 +36,7 @@ function PreviewInternal(){
     //if the countodwn reaches the end, a flag that allows the translation of the last letter is set to true
     React.useEffect(()=>{
         setCanTranslateLast(false)
-        let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap * 1)
+        let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap )
         return () =>{
             clearTimeout(t)
         }
@@ -81,7 +82,7 @@ function PreviewInternal(){
             down = !down
         }
         //if there is a letter left, we translate it only if the translate flag is set to true
-        if(showReadable && canTranslateLast)
+        if(showReadable && canTranslateLast && !keyDown)
             return out + translateToReadable(letter);
         return out + (showReadable ? " " : "")+ letter
     }
