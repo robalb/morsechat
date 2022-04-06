@@ -54,11 +54,9 @@ function PreviewInternal(){
         let down = true;
         let letter = ""
         for(let i=0; i<buffer.length; i++){
-            // console.log("--- " + i)
             let t = buffer[i]
             //released after t millis
             if(down){
-                // console.log("released after " + t)
                 if(t < times.dash){
                     letter += "."
                 }else{
@@ -67,7 +65,6 @@ function PreviewInternal(){
             }
             //pressed after t millis
             else{
-                // console.log("pressed after " + t)
                 if(t > times.wordGap){
                     if(showReadable) letter = translateToReadable(letter);
                     out += letter + (showReadable ? "" : " ") + "  "
@@ -81,7 +78,7 @@ function PreviewInternal(){
             }
             down = !down
         }
-        //if there is a letter left, we translate it only if the translate flag is set to true
+        //if there is a letter left, we translate it only if a certain time has passed since the last keypress
         if(showReadable && canTranslateLast && !keyDown)
             return out + translateToReadable(letter);
         return out + (showReadable ? " " : "")+ letter
