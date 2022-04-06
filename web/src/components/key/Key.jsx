@@ -32,6 +32,8 @@ function useSound(note=880, volume=100){
     }
   }, [volume])
 
+  //initialize the audio context - in chrome this will throw a warning
+  //because apparently an user action is required but it still works
   React.useEffect(()=>{
     console.log("AUDIO NODE CREATED")
     //https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
@@ -47,16 +49,6 @@ function useSound(note=880, volume=100){
     setO(o)
     setG(g)
     console.log(context)
-
-    // o.start()
-    // g.gain.exponentialRampToValueAtTime(
-    //   baseVolume, context.currentTime + 0.04
-    // )
-
-    // function resumeSound(){
-    //   context.resume()
-    // }
-    // document.body.addEventListener("click", resumeSound, {once: true})
 
     return ()=>{
       console.log("CLOSING AUDIO CTX")
@@ -95,23 +87,20 @@ function KeyInternal(props){
   let keyMode = useSelector(state => state.user.settings.key_mode)
   let wpm = useSelector(state => state.user.settings.wpm)
   let keyVolume = useSelector(state => state.user.settings.volume_key)
+  let leftIsDot = useSelector(state => state.user.settings.left_is_dot)
   //Apparently by using this & similar tricks we don't need callbacks for the send system:
   //we can just have a selector countowntime that is zero if we are not countig down,
   //and > 0 incrementing each tick if we are indeed counting down
   //no timers means that we can call send message whenever we want, such as here
   //when we detect settings changes, or directly in redux
-  let countingDown = useSelector(state => {
-    let chat = state.chat
-    return chat.lastTime > 0 && 
-      chat.keyDown == false &&
-      (+new Date() - chat.lastTime) > 100 //calculate from settings
-  })
+  // let countingDown = useSelector(state => {
+  //   let chat = state.chat
+  //   return chat.lastTime > 0 && 
+  //     chat.keyDown == false &&
+  //     (+new Date() - chat.lastTime) > 100 //calculate from settings
+  // })
 
-  console.log(countingDown)
-
-  //TODO: make this an actual global setting
-  let leftIsDot = true
-  let yambicVariantIsA = true
+  // console.log(countingDown)
 
   //state used by the yambic keyer.
   let [dotDown, setDotDown] = React.useState(false)
@@ -136,16 +125,16 @@ function KeyInternal(props){
   //}, waitTime)
   // }
 
+  //stop the yambic loop if there are settings changes
+  //while it's running, to avoid bugs
   React.useEffect(()=>{
-    //stop the yambic loop if there are settings changes
-    //while it's running
     if(interval.current){
       up()
       clearTimeout(interval.current)
       interval.current = null
       console.log("settings changed, releasing key to avoid bugs")
     }
-  }, [keyMode, wpm])
+  }, [keyMode, wpm, leftIsDot])
 
 
   //handle component leave

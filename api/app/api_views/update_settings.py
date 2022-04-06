@@ -17,11 +17,12 @@ schema = {
     'properties': {
         'dialect': {'type': 'string', 'maxLength':20, 'minLength':1 },
         'key_mode': {'type': 'string', 'maxLength':20, 'minLength':1 },
-        'wpm': {'type': 'integer', 'minimum':0, 'maximum':100 },
+        'wpm': {'type': 'integer', 'minimum':5, 'maximum':50 },
         'volume_receiver': {'type': 'integer', 'minimum':0, 'maximum':100 },
         'volume_key': {'type': 'integer', 'minimum':0, 'maximum':100 },
         'submit_delay': {'type': 'integer', 'minimum':0, 'maximum':100 },
         'show_readable': {'type': 'boolean'},
+        'left_is_dot': {'type': 'boolean'},
         'keybinds': {
             'type': 'object',
             'properties': {

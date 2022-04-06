@@ -55,12 +55,13 @@ const updateSettingsRemote = createDebouncedAsyncThunk(
 
 //default app settings
 const initialSettings = {
-  wpm: 12,
+  wpm: 12, //0-50
   volume_receiver: 50, //0-100
   volume_key: 50, //0-100
   dialect: "asd2d2dwd",
-  key_mode: "yambic", //straight / yambic
+  key_mode: "yambic", //straight - yambic
   show_readable: true,
+  left_is_dot: true,
   submit_delay: 100, //0-100
   keybinds: {
     straight: "c",

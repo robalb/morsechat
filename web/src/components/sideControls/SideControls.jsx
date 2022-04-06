@@ -41,6 +41,8 @@ export function SideControls({className = ""}) {
             <h2>controls</h2>
             <p>wpm</p>
             <MemoSlider size="small" value={settings.wpm} aria-label="Default" valueLabelDisplay="auto" 
+                min={5}
+                max={50}
                 onChangeCommitted={React.useCallback(
                     (e, v) => update({ wpm: v }),
                     [])}
