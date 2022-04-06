@@ -34,6 +34,7 @@ function PreviewInternal(){
 
     //this hook starts a countdown that is resetted every time the message buffer updates.
     //if the countodwn reaches the end, a flag that allows the translation of the last letter is set to true
+    //and a rerender is triggered, causing the translation of the last letter
     React.useEffect(()=>{
         setCanTranslateLast(false)
         let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap )
