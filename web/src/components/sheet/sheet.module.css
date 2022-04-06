@@ -23,6 +23,7 @@
     font-weight: bold;
     padding: 1em;
     overflow: auto;
+    text-transform: uppercase;
 }
  .sheet p{
     margin-right: 1rem;

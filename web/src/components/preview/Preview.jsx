@@ -29,6 +29,7 @@ function PreviewInternal(){
     function bufferedMorseToString(buffer, times){
         let out = ""
         let down = true;
+        let word = ""
         for(let i=0; i<buffer.length; i++){
             // console.log("--- " + i)
             let t = buffer[i]
@@ -36,19 +37,21 @@ function PreviewInternal(){
             if(down){
                 // console.log("released after " + t)
                 if(t < times.dash){
-                    out += "."
+                    word += "."
                 }else{
-                    out += "_"
+                    word += "_"
                 }
             }
             //pressed after t millis
             else{
                 // console.log("pressed after " + t)
                 if(t > times.wordGap){
-                    out+="/"
+                    out+= word + "   "
+                    word = ""
                 }
                 else if(t > times.letterGap){
-                    out += " "
+                    out += word + " "
+                    word = ""
                 }
                 else{
                     out += ""
@@ -56,7 +59,7 @@ function PreviewInternal(){
             }
             down = !down
         }
-        return out
+        return out + word
     }
     let morseString = bufferedMorseToString(buffer, times)
 

@@ -58,8 +58,8 @@ const initialSettings = {
   wpm: 12, //0-50
   volume_receiver: 50, //0-100
   volume_key: 50, //0-100
-  dialect: "asd2d2dwd",
-  key_mode: "yambic", //straight - yambic
+  dialect: "international",
+  key_mode: "straight", //straight - yambic
   show_readable: true,
   left_is_dot: true,
   submit_delay: 100, //0-100
