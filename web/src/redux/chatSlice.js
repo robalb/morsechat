@@ -52,8 +52,8 @@ const chatSlice = createSlice({
         state.connectionStatus = action.payload
     },
     resetMessage(state, action){
-        lastTime = 0
-        messageBuffer = []
+        state.lastTime = 0
+        state.messageBuffer = []
     }
   },
   extraReducers(builder) {
@@ -73,16 +73,21 @@ const chatSlice = createSlice({
     builder.addCase(keyUp, (state, action) => {
         //do nothing if keyUp is called when already up
         if(state.keyDown){
-            let delta = action.payload.time - state.lastTime
-            state.messageBuffer.push(delta)
-            state.lastTime = action.payload.time
-            state.keyDown = false
+            if(state.lastTime > 0){
+                let delta = action.payload.time - state.lastTime
+                state.messageBuffer.push(delta)
+                state.lastTime = action.payload.time
+                state.keyDown = false
+            }
+            else{
+                console.warn("WEIRD STATE: up reducer triggered, but no down is registered. race condition with resetMessage?")
+            }
         }
     })
   }
 })
 
-export const {setChannel, setConnected} = chatSlice.actions
+export const {setChannel, setConnected, resetMessage} = chatSlice.actions
 
 export default chatSlice.reducer
 

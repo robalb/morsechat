@@ -13,7 +13,6 @@ function useSound(note=880, volume=100){
   if(volume < 0) volume = 0
   if(volume > 100) volume = 100
   volume = (volume + baseVolume) / 100
-  console.log(volume)
 
   let [ctx, setCtx] = React.useState(null)
   let [o, setO] = React.useState(null)
@@ -174,7 +173,7 @@ function KeyInternal(props){
 
   function scheduleYambicEvent(event){
     if(interval.current){
-      console.log("WARNING weird state: setting timer while another is running")
+      console.warn("WARNING weird state: setting timer while another is running")
     }
     else{
       interval.current = setTimeout(()=>{ setYambicEvent(event) }, times[event])
@@ -185,7 +184,7 @@ function KeyInternal(props){
   React.useEffect(()=>{
     if(!interval.current){
       if(dotDown && dashDown){
-        console.log("WARNING weird state: bot dot and dash down, no interval running")
+        console.warn("WARNING weird state: bot dot and dash down, no interval running")
       }
       else if(dotDown){
         down()
@@ -201,8 +200,7 @@ function KeyInternal(props){
 
   //react to a yambic event end
   React.useEffect(()=>{
-    // console.log("event terminated:")
-    console.log(yambicEvent)
+    // console.log(yambicEvent)
     interval.current = null
     //one of the following events has terminated
     if(yambicEvent === DOT){
@@ -232,7 +230,7 @@ function KeyInternal(props){
   }, [yambicEvent])
 
   function yambicDown(isDot){
-    console.log("yambic down")
+    // console.log("yambic down")
     if(isDot)
       setDotDown(true)
     else
@@ -240,7 +238,7 @@ function KeyInternal(props){
   }
 
   function yambicUp(isDot){
-    console.log("yambic up")
+    // console.log("yambic up")
     if(isDot)
       //idea: set the down state as a integer with 3 values: 0,1,2 isntead of a bool.
       //we consider down something that is not 0,
@@ -275,13 +273,13 @@ function KeyInternal(props){
   }
 
   function down(e){
-    console.log(">>down")
+    // console.log(">>down")
     on()
     dispatch(keyDown())
   }
 
   function up(e){
-    console.log(">>up")
+    // console.log(">>up")
     off()
     dispatch(keyUp() )
   }
