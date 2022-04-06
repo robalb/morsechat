@@ -103,11 +103,7 @@ function App(props){
 
 
   return(
-    <AppLayout
-      previewWidth={30}
-      previewText={"Allor fu la paura un poco queta . che nel lago del cor--.-"}
-      previewClearHandler={e=>console.log("clear")}
-    />
+    <AppLayout />
   )
 }
 

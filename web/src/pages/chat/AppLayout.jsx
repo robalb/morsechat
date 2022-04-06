@@ -20,9 +20,7 @@ import { useSelector } from 'react-redux'
 
 import './appLayout.css'
 
-export function AppLayout({
-    previewWidth, previewText, previewClearHandler,
-}) {
+export function AppLayout(props) {
     let loading = useSelector(state => state.api.loading)
     let authenticated = useSelector(state => state.user.authenticated)
     let show_popup = useSelector(state => state.user.show_popup)
@@ -121,11 +119,7 @@ export function AppLayout({
                         <SideControls className='grid-side-sidecontrols' />
                     </div>
                 }
-                <Preview className='grid-preview'
-                    width={previewWidth}
-                    text={previewText}
-                    clearHandler={previewClearHandler}
-                />
+                <Preview className='grid-preview' />
                 <Chat className='grid-chat' />
                 <Key className='grid-key'
                     leftButton={

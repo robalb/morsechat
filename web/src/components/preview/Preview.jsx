@@ -4,8 +4,13 @@ import * as React from "react";
 
 import styles from './preview.module.css';
 
-export function Preview({className = "", width, text, clearHandler}) {
+export function Preview({className = ""}) {
+    let width = 20
+    let text = "asd"
     let cssWidth = width + "%"
+    function clearHandler(e){
+
+    }
     return (
         <div className={`${styles.preview} ${className}`}>
             <div className={styles.progress} style={{width: cssWidth}}>
