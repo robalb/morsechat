@@ -5,11 +5,17 @@ import * as React from "react";
 import styles from './preview.module.css';
 import { useSelector, useDispatch } from 'react-redux'
 import { resetMessage } from "../../redux/chatSlice";
+import getDialect from '../../utils/dialects'
 
 function PreviewInternal(){
     let buffer = useSelector(state => state.chat.messageBuffer)
     let wpm = useSelector(state => state.user.settings.wpm)
+    let showReadable = useSelector(state => state.user.settings.show_readable)
+    let dialectName = useSelector(state => state.user.settings.dialect)
+    let lastTime = useSelector(state => state.chat.lastTime)
+    let dialect = getDialect(dialectName)
 
+    let [updater, setUpdater] = React.useState(false)
 
     //TODO: abstract this into some sort of reusable function and put it somewhere else
     function getTimes(wpm){
@@ -25,11 +31,23 @@ function PreviewInternal(){
         }
     }
     let times = getTimes(wpm)
+
+    console.log(updater)
+    React.useEffect(()=>{
+        setTimeout(_ => setUpdater(e => !e), times.letterGap * 2)
+    }, [buffer])
+
+
+    function translateToReadable(letter){
+        if(dialect.table.hasOwnProperty(letter))
+            return dialect.table[letter];
+        return letter;
+    }
     // console.log(times)
     function bufferedMorseToString(buffer, times){
         let out = ""
         let down = true;
-        let word = ""
+        let letter = ""
         for(let i=0; i<buffer.length; i++){
             // console.log("--- " + i)
             let t = buffer[i]
@@ -37,21 +55,23 @@ function PreviewInternal(){
             if(down){
                 // console.log("released after " + t)
                 if(t < times.dash){
-                    word += "."
+                    letter += "."
                 }else{
-                    word += "_"
+                    letter += "-"
                 }
             }
             //pressed after t millis
             else{
                 // console.log("pressed after " + t)
                 if(t > times.wordGap){
-                    out+= word + "   "
-                    word = ""
+                    if(showReadable) letter = translateToReadable(letter);
+                    out += letter + (showReadable ? "" : " ") + "  "
+                    letter = ""
                 }
                 else if(t > times.letterGap){
-                    out += word + " "
-                    word = ""
+                    if(showReadable) letter = translateToReadable(letter);
+                    out += letter + (showReadable ? "" : " ")
+                    letter = ""
                 }
                 else{
                     out += ""
@@ -59,7 +79,18 @@ function PreviewInternal(){
             }
             down = !down
         }
-        return out + word
+        //if there is a letter left, we must decide if it has to be translated
+        if(showReadable){
+            let delta =  Math.floor(+new Date()) - lastTime
+            if(delta > times.letterGap)
+                letter = translateToReadable(letter);
+            else{
+                console.log("not updating: delta:")
+                console.log(delta)
+                console.log(times.wordGap)
+            }
+        }
+        return out + (showReadable ? " " : "")+ letter
     }
     let morseString = bufferedMorseToString(buffer, times)
 
