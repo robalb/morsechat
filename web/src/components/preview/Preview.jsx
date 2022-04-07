@@ -91,11 +91,33 @@ function PreviewInternal(){
 export function Preview({className = ""}) {
     const dispatch = useDispatch()
     let emptyBuffer = useSelector(state => state.chat.messageBuffer.length == 0)
-    let width = 20
-    let cssWidth = width + "%"
+    let keyDown = useSelector(state => state.chat.keyDown)
+    let [width, setWidth] = React.useState(0);
+    let animation = React.useRef()
+
+    function progressAnimation(){
+        animation.current = requestAnimationFrame(progressAnimation)
+    }
+    React.useEffect(()=>{
+        if(!keyDown){
+            console.log("starting countdown")
+            let t = setTimeout(()=>{
+                console.log("starting animation")
+                animation.current = requestAnimationFrame(progressAnimation)
+            }, 2000)
+            return ()=>{
+                console.log("cancelling countdown and animation")
+                setWidth(0)
+                cancelAnimationFrame(animation.current)
+                clearTimeout(t)
+            }
+        }
+    }, [keyDown])
+
     function clearHandler(e){
         dispatch(resetMessage())
     }
+    let cssWidth = width + "%"
     return (
         <div className={`${styles.preview} ${className}`}>
             <div className={styles.progress} style={{width: cssWidth}}>

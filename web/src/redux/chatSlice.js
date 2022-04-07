@@ -63,25 +63,23 @@ const chatSlice = createSlice({
     //   return toRet
     // })
     builder.addCase(keyDown, (state, action) => {
-        if(state.lastTime > 0){
-            let delta = action.payload.time - state.lastTime
-            state.messageBuffer.push(delta)
+        if(!state.keyDown){
+            if(state.lastTime > 0){
+                let delta = action.payload.time - state.lastTime
+                state.messageBuffer.push(delta)
+            }
+            state.lastTime = action.payload.time
+            state.keyDown = true
         }
-        state.lastTime = action.payload.time
-        state.keyDown = true
     })
     builder.addCase(keyUp, (state, action) => {
-        //do nothing if keyUp is called when already up
         if(state.keyDown){
             if(state.lastTime > 0){
                 let delta = action.payload.time - state.lastTime
                 state.messageBuffer.push(delta)
                 state.lastTime = action.payload.time
-                state.keyDown = false
             }
-            else{
-                console.warn("WEIRD STATE: up reducer triggered, but no down is registered. race condition with resetMessage?")
-            }
+            state.keyDown = false
         }
     })
   }
