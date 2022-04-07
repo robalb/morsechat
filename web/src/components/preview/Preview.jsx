@@ -92,35 +92,50 @@ export function Preview({className = ""}) {
     const dispatch = useDispatch()
     let emptyBuffer = useSelector(state => state.chat.messageBuffer.length == 0)
     let keyDown = useSelector(state => state.chat.keyDown)
-    let [width, setWidth] = React.useState(0);
-    let animation = React.useRef()
+    let submitDelay = useSelector(state => state.user.settings.submit_delay)
+    let bar = React.useRef(null)
+    let startTime = React.useRef(0)
+    let animation = React.useRef(null)
+
+    function setWidth(w){
+        if(bar.current)
+            bar.current.style.width = w + "%"
+    }
 
     function progressAnimation(){
-        animation.current = requestAnimationFrame(progressAnimation)
+        let delta = +new Date() - startTime.current
+        let multiplier = 1 / (submitDelay)
+        let progress = delta * multiplier
+        if(progress < 100){
+            setWidth(progress)
+            animation.current = requestAnimationFrame(progressAnimation)
+        }
+        else{
+            setWidth(0)
+            //dispatch send
+        }
     }
     React.useEffect(()=>{
-        if(!keyDown){
+        setWidth(0)
+        if(!keyDown && !emptyBuffer){
             console.log("starting countdown")
             let t = setTimeout(()=>{
-                console.log("starting animation")
+                startTime.current = +new Date()
                 animation.current = requestAnimationFrame(progressAnimation)
-            }, 2000)
+            }, 600) //completely arbitrary value lol. may cause issues in the future
             return ()=>{
-                console.log("cancelling countdown and animation")
-                setWidth(0)
                 cancelAnimationFrame(animation.current)
                 clearTimeout(t)
             }
         }
-    }, [keyDown])
+    }, [keyDown, emptyBuffer])
 
     function clearHandler(e){
         dispatch(resetMessage())
     }
-    let cssWidth = width + "%"
     return (
         <div className={`${styles.preview} ${className}`}>
-            <div className={styles.progress} style={{width: cssWidth}}>
+            <div className={styles.progress} ref={bar}>
             </div>
             <div className={styles.text}>
                 <PreviewInternal />

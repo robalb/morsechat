@@ -62,6 +62,8 @@ export function SideControls({className = ""}) {
              />
             <p>submit delay</p>
             <MemoSlider size="small" value={settings.submit_delay} aria-label="Default" valueLabelDisplay="auto"
+                min={5}
+                max={50}
                 onChangeCommitted={React.useCallback(
                     (e, v) => update({ submit_delay: v }),
                     [])}

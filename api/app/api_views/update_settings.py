@@ -20,7 +20,7 @@ schema = {
         'wpm': {'type': 'integer', 'minimum':5, 'maximum':50 },
         'volume_receiver': {'type': 'integer', 'minimum':0, 'maximum':100 },
         'volume_key': {'type': 'integer', 'minimum':0, 'maximum':100 },
-        'submit_delay': {'type': 'integer', 'minimum':0, 'maximum':100 },
+        'submit_delay': {'type': 'integer', 'minimum':5, 'maximum':50 },
         'show_readable': {'type': 'boolean'},
         'left_is_dot': {'type': 'boolean'},
         'keybinds': {
