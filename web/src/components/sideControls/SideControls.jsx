@@ -8,6 +8,7 @@ import styles from './sideControls.module.css';
 import { useSnackbar } from 'notistack';
 
 import { useStateDep } from "../../hooks/useStateDep";
+import { Switch } from "@mui/material";
 
 /**
  * this complicated contraption is here to prevent a rerender of every slider
@@ -21,6 +22,8 @@ const MemoSlider = React.memo(function CustomSlider({value, onChangeCommitted, .
                 onChangeCommitted={onChangeCommitted}
                 {...props} />
 })
+
+const MemoSwitch = React.memo(Switch)
 
 export function SideControls({className = ""}) {
     const {enqueueSnackbar} = useSnackbar();
@@ -68,6 +71,17 @@ export function SideControls({className = ""}) {
                     (e, v) => update({ submit_delay: v }),
                     [])}
              />
+            <div>
+                <p>show letters</p>
+                <MemoSwitch 
+                    checked={settings.show_readable}
+                    color="secondary"
+                    onChange={React.useCallback(
+                        (e) => update({ show_readable: e.target.checked }),
+                        [])}
+                />
+            </div>
+
             <Button size="small" startIcon={<SettingsIcon/>} variant="outlined">
                 Advanced
             </Button>

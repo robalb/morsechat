@@ -2,6 +2,9 @@
 .sidecontrols{
     padding: 1rem;
 }
+.sidecontrols div{
+    display: flex;
+}
 .sidecontrols p{
     margin-bottom: 0;
     margin-top: .6rem;

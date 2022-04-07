@@ -119,7 +119,6 @@ function CountdownPreview({emptyBuffer}){
     React.useEffect(()=>{
         setWidth(0)
         if(!keyDown && !emptyBuffer){
-            console.log("starting countdown")
             let t = setTimeout(()=>{
                 startTime.current = +new Date()
                 animation.current = requestAnimationFrame(progressAnimation)

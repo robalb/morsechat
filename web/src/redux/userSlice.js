@@ -59,7 +59,7 @@ const initialSettings = {
   volume_receiver: 50, //0-100
   volume_key: 50, //0-100
   dialect: "international",
-  key_mode: "straight", //straight - yambic
+  key_mode: "yambic", //straight - yambic
   show_readable: true,
   left_is_dot: true,
   submit_delay: 12, //5-50
