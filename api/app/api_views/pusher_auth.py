@@ -26,7 +26,6 @@ def api_pusher_auth():
     callsign = None
     country = None
     username = None
-    codepage = 'TODO'
 
     #validate the connection request for autheticated users
     if current_user.is_authenticated:
@@ -59,7 +58,6 @@ def api_pusher_auth():
                     'username': username,
                     'callsign': callsign,
                     'country': country,
-                    'codepage': codepage,
                     'anonymous': anonymous
                     }
                 }

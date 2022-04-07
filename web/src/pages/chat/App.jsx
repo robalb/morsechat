@@ -7,7 +7,7 @@ import {pusherClient} from  '../../utils/apiResolver'
 
 import { useSelector, useDispatch } from 'react-redux'
 
-import { setConnected } from '../../redux/chatSlice'
+import { setConnected, updateOnline } from '../../redux/chatSlice'
 
 function App(props){
 
@@ -63,9 +63,9 @@ function App(props){
     return e =>{
       console.log("+++++ " + type)
       console.log(e)
+      console.log(pusherChannel.current)
     }
   }
-
 
   /**
    * channel connection effect
@@ -78,16 +78,28 @@ function App(props){
       console.log(">> effect: subscribing to channel " + channel)
       pusherChannel.current = pusher.current.subscribe(channel)
       dispatch(setConnected('connecting'))
+
       pusherChannel.current.bind('pusher:subscription_succeeded', e =>{
         dispatch(setConnected('connected'))
-        logTest('pusher:subscription_succeeded')(e)
+        dispatch(updateOnline(JSON.parse(JSON.stringify(e))))
       })
+
       pusherChannel.current.bind('pusher:subscription_error', e =>{
-        dispatch(setConnected( 'connection failed'))
-        logTest('pusher:subscription_error')(e)
+        dispatch(setConnected('connection failed'))
       })
-      pusherChannel.current.bind('pusher:member_added', logTest('pusher:member_added'))
-      pusherChannel.current.bind('pusher:member_removed', logTest('pusher:member_removed'))
+
+      pusherChannel.current.bind('pusher:member_added', e => {
+        dispatch(updateOnline(JSON.parse(JSON.stringify(
+            pusherChannel.current.members
+          ))))
+        })
+
+      pusherChannel.current.bind('pusher:member_removed', e => {
+        dispatch(updateOnline(JSON.parse(JSON.stringify(
+            pusherChannel.current.members
+          ))))
+        })
+
       pusherChannel.current.bind('msg', logTest('msg'))
       pusherChannel.current.bind('typing', logTest('typing'))
       return ()=>{

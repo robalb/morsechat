@@ -11,6 +11,9 @@ export function Online({className = ""}) {
 
     const connectionStatus = useSelector(state => state.chat.connectionStatus)
     const connected = useSelector(state => state.chat.connected)
+    const online = useSelector(state => state.chat.online)
+
+    console.log(online)
 
     //change the animation class when the currentAction text changes
     React.useEffect(() => {
