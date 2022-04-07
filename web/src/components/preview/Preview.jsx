@@ -6,13 +6,14 @@ import styles from './preview.module.css';
 import { useSelector, useDispatch } from 'react-redux'
 import { resetMessage } from "../../redux/chatSlice";
 import getDialect from '../../utils/dialects'
+import {send} from '../../redux/chatSlice'
 
-function PreviewInternal(){
+function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
     let wpm = useSelector(state => state.user.settings.wpm)
     let showReadable = useSelector(state => state.user.settings.show_readable)
-    let dialectName = useSelector(state => state.user.settings.dialect)
     let keyDown = useSelector(state => state.chat.keyDown)
+    let dialectName = useSelector(state => state.user.settings.dialect)
     let dialect = getDialect(dialectName)
 
     let [canTranslateLast, setCanTranslateLast] = React.useState(false)
@@ -88,9 +89,8 @@ function PreviewInternal(){
     return <p>{morseString}</p>
 }
 
-export function Preview({className = ""}) {
+function CountdownPreview({emptyBuffer}){
     const dispatch = useDispatch()
-    let emptyBuffer = useSelector(state => state.chat.messageBuffer.length == 0)
     let keyDown = useSelector(state => state.chat.keyDown)
     let submitDelay = useSelector(state => state.user.settings.submit_delay)
     let bar = React.useRef(null)
@@ -113,6 +113,7 @@ export function Preview({className = ""}) {
         else{
             setWidth(0)
             //dispatch send
+            dispatch(send())
         }
     }
     React.useEffect(()=>{
@@ -130,15 +131,21 @@ export function Preview({className = ""}) {
         }
     }, [keyDown, emptyBuffer])
 
+    return <div className={styles.progress} ref={bar}> </div>
+}
+
+export function Preview({className = ""}) {
+    const dispatch = useDispatch()
+    let emptyBuffer = useSelector(state => state.chat.messageBuffer.length == 0)
+
     function clearHandler(e){
         dispatch(resetMessage())
     }
     return (
         <div className={`${styles.preview} ${className}`}>
-            <div className={styles.progress} ref={bar}>
-            </div>
+            <CountdownPreview emptyBuffer={emptyBuffer} />
             <div className={styles.text}>
-                <PreviewInternal />
+                <TextPreview />
                 <IconButton aria-label="cancel message" onClick={clearHandler}
                 disabled={emptyBuffer}
                 >

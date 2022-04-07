@@ -5,7 +5,7 @@
 .preview .progress{
     height: 2px;
     width: 100%; /* change this with an animation */
-    background-color: var(--blue-2);
+    background-color: var(--gray-95);
     opacity: .8;
     /* background-image: var(--blue-gradient-3); */
 }
