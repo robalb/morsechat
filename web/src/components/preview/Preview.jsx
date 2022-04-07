@@ -47,9 +47,8 @@ function PreviewInternal(){
     function translateToReadable(letter){
         if(dialect.table.hasOwnProperty(letter))
             return dialect.table[letter];
-        return letter;
+        return " " + letter + " ";
     }
-    // console.log(times)
     function bufferedMorseToString(buffer, times){
         let out = ""
         let down = true;
@@ -84,7 +83,7 @@ function PreviewInternal(){
             return out + translateToReadable(letter);
         return out + (showReadable ? " " : "")+ letter
     }
-    let morseString = bufferedMorseToString(buffer, times)
+    let morseString = bufferedMorseToString(buffer, times).replaceAll("-", "_")
 
     return <p>{morseString}</p>
 }
