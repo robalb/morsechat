@@ -1,4 +1,3 @@
-import { SecurityUpdateWarningOutlined } from '@mui/icons-material'
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit'
 
 const initialState = {
@@ -10,7 +9,7 @@ const initialState = {
     ],
     connected: false,
     connectionStatus: "powering on",
-    online: {},
+    onlineUsers: {},
     myID: null,
     chat: [],
     keyDown: false,
@@ -58,8 +57,24 @@ const chatSlice = createSlice({
         state.messageBuffer = []
     },
     updateOnline(state, action){
-        state.online = action.payload.members
+        let onlineUsersWithTypingStatus = {}
+        Object.keys(action.payload.members).map( id=>{
+            let typing = false
+            if(state.onlineUsers[id])[
+                typing = state.onlineUsers[id].typing
+            ]
+            onlineUsersWithTypingStatus[id] = {
+                ...action.payload.members[id],
+                typing
+            }
+        })
+        state.onlineUsers = onlineUsersWithTypingStatus
         state.myID = action.payload.myID
+    },
+    setTyping(state, action){
+        if(state.onlineUsers[action.payload.user]){
+            state.onlineUsers[action.payload.user].typing = action.payload.typing
+        }
     }
   },
   extraReducers(builder) {
@@ -91,7 +106,7 @@ const chatSlice = createSlice({
   }
 })
 
-export const {setChannel, setConnected, resetMessage, updateOnline} = chatSlice.actions
+export const {setChannel, setConnected, resetMessage, updateOnline, setTyping} = chatSlice.actions
 
 export default chatSlice.reducer
 

@@ -11,9 +11,28 @@ export function Online({className = ""}) {
 
     const connectionStatus = useSelector(state => state.chat.connectionStatus)
     const connected = useSelector(state => state.chat.connected)
-    const online = useSelector(state => state.chat.online)
+    const onlineUsers = useSelector(state => state.chat.onlineUsers)
 
-    console.log(online)
+    const onlineRender = Object.keys(onlineUsers).map(id => {
+        let userObj = onlineUsers[id];
+        return (
+            <div key={id}>
+                <div className={styles.left}>
+                    <p>{userObj.callsign}</p>
+                    { 
+                    userObj.typing &&
+                    <div className={styles.typing}>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    }
+                </div>
+                <IconButton aria-label="mute user">
+                    <VolumeOffIcon />
+                </IconButton>
+            </div>
+        )
+    })
 
     //change the animation class when the currentAction text changes
     React.useEffect(() => {
@@ -40,22 +59,7 @@ export function Online({className = ""}) {
             <hr />
             <h2>online users </h2>
             <div className={styles.online}>
-                {
-                    Array(5).fill('ASDASD').concat(['FINAL00']).map((h, i) =>
-                        <div key={i}>
-                            <div className={styles.left}>
-                                <p>{h}</p>
-                                <div className={styles.typing}>
-                                    <div></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                            <IconButton aria-label="mute user">
-                                <VolumeOffIcon />
-                            </IconButton>
-                        </div>
-                    )
-                }
+                { onlineRender }
             </div>
         </div>
     );

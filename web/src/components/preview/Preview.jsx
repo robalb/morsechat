@@ -4,7 +4,7 @@ import * as React from "react";
 
 import styles from './preview.module.css';
 import { useSelector, useDispatch } from 'react-redux'
-import { resetMessage } from "../../redux/chatSlice";
+import { resetMessage, setTyping } from "../../redux/chatSlice";
 import getDialect from '../../utils/dialects'
 import {send} from '../../redux/chatSlice'
 
