@@ -21,6 +21,9 @@ function App(props){
   const pusher = React.useRef(null)
   const pusherChannel = React.useRef(null)
 
+  //TODO: populate this when a message is received
+  const chatDomNode = React.useRef(null)
+
   /*
   TODO: write here all app logic, using the elements exposed by appLayout
   - define settings, and make them available to to layout via contextApi
@@ -59,14 +62,6 @@ function App(props){
   }, [loading]);
 
 
-  function logTest(type){
-    return e =>{
-      console.log("+++++ " + type)
-      console.log(e)
-      console.log(pusherChannel.current)
-    }
-  }
-
   /**
    * channel connection effect
    * - runs on every change of the selected channel, or of the user callsign
@@ -85,10 +80,10 @@ function App(props){
       })
 
       pusherChannel.current.bind('pusher:subscription_error', e =>{
-        dispatch(setConnected('connection failed'))
-        if(e.type === "AuthError"){
+        if(e.type === "AuthError")
           dispatch(setConnected('connection denied'))
-        }
+        else
+          dispatch(setConnected('connection failed'))
         dispatch(updateOnline({members: {}, myID: null}))
       })
 

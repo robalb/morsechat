@@ -112,7 +112,6 @@ function CountdownPreview({emptyBuffer}){
         }
         else{
             setWidth(0)
-            //dispatch send
             dispatch(send())
         }
     }

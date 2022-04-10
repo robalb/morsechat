@@ -26,13 +26,31 @@ export const keyDown = createAction('chat/keyDown', function prepare() {
     },
   }
 })
-export const keyUp = createAction('chat/keyUp', function prepare() {
+export const _keyUp = createAction('chat/keyUp', function prepare() {
   return {
     payload: {
         time: Math.floor(+new Date() / 1)
     },
   }
 })
+
+/**
+ * This thunk dispatches _keyUp
+ * and dispatches a 'typing' api call when the conditions are right
+ */
+export const keyUp = function(typingGuard=10){
+    return (dispatch, getState)=>{
+        //if keyUp was called for the nth time, with n == typingGuard*2
+        //let everyone know we are typing
+        let bufferLength = getState().chat.messageBuffer.length
+        if(bufferLength === typingGuard * 2)
+            dispatch(apiCall({
+                endpoint: "typing"
+            }))
+
+        dispatch(_keyUp())
+    }
+}
 
 
 export const send = createAsyncThunk(
@@ -105,7 +123,7 @@ const chatSlice = createSlice({
             state.keyDown = true
         }
     })
-    builder.addCase(keyUp, (state, action) => {
+    builder.addCase(_keyUp, (state, action) => {
         if(state.keyDown){
             if(state.lastTime > 0){
                 let delta = action.payload.time - state.lastTime
