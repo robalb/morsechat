@@ -20,7 +20,7 @@ import { useSelector } from 'react-redux'
 
 import './appLayout.css'
 
-export function AppLayout(props) {
+export function AppLayout({chatDomNode}) {
     let loading = useSelector(state => state.api.loading)
     let authenticated = useSelector(state => state.user.authenticated)
     let show_popup = useSelector(state => state.user.show_popup)
@@ -120,7 +120,7 @@ export function AppLayout(props) {
                     </div>
                 }
                 <Preview className='grid-preview' />
-                <Chat className='grid-chat' />
+                <Chat className='grid-chat' chatDomNode={chatDomNode}/>
                 <Key className='grid-key'
                     leftButton={
                         tablet ? undefined :

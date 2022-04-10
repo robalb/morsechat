@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { fetchAllData } from '../../redux/apiSlice';
 import { useSnackbar } from 'notistack';
 
-export function Chat({className = ""}) {
+export function Chat({className = "", chatDomNode}) {
     const { enqueueSnackbar } = useSnackbar();
     const dispatch = useDispatch()
     let {loading, error, errorDetails } = useSelector(state => state.api)
@@ -37,25 +37,11 @@ export function Chat({className = ""}) {
         </div>
     }
     else{
-        body = <>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p className={styles.you}><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-            <p><span>IT00HAL</span>: asdasd asd dsad ads</p>
-        </>
+        body = <div ref={chatDomNode}> </div>
     }
 
     return (
-        <div className={`${styles.chat} ${className}`}>
+        <div className={`${styles.chat} ${className}`} >
             {body}
         </div>
     );

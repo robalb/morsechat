@@ -9,6 +9,7 @@ import './base.css'
 import { Provider } from 'react-redux'
 import store from '../redux/store'
 import {fetchAllData} from '../redux/apiSlice'
+import { setChannelByName } from '../redux/chatSlice';
 
 export default function render(App){
 
@@ -16,6 +17,11 @@ export default function render(App){
   //component. Is this okay? it sure looks efficient. react is not rendered yet, and here
   //we are, already fetching the state data
   store.dispatch(fetchAllData())
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlChannel = urlParams.get('channel')
+    if(urlChannel)
+      store.dispatch(setChannelByName(urlChannel))
 
   ReactDOM.render(
     <React.StrictMode>

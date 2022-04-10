@@ -7,9 +7,10 @@ import {pusherClient} from  '../../utils/apiResolver'
 
 import { useSelector, useDispatch } from 'react-redux'
 
-import { setConnected, setTyping, updateOnline } from '../../redux/chatSlice'
+import { selectChannelName, setConnected, setTyping, updateOnline } from '../../redux/chatSlice'
 
 function App(props){
+  console.log("APP RERENDER")
 
   const dispatch = useDispatch()
   let loading = useSelector(state => state.api.loading)
@@ -17,28 +18,42 @@ function App(props){
   let callsign = useSelector(state => state.user.callsign)
   let app = useSelector(state => state.app)
   let channel = useSelector(state => state.chat.channel)
+  let channelName = useSelector(selectChannelName)
 
   const pusher = React.useRef(null)
   const pusherChannel = React.useRef(null)
 
-  //TODO: populate this when a message is received
+  /**
+   * DomNode containing the chat. there is no need to maintain
+   * the chat state or to query it, so this is the most efficient implementation
+   */
   const chatDomNode = React.useRef(null)
 
-  /*
-  TODO: write here all app logic, using the elements exposed by appLayout
-  - define settings, and make them available to to layout via contextApi
-  - decide how the key will send events up here(state? callback?)
-      idea: send events via callback, and have a down property so that it can
-            handle sound and aspect
-  
-  - write sound utility: you define the frequency, and then start/stop. 
-     add security feature: if not stopped after x, stop and log error
-  */
+  //called when a message is received
+  function handleMessage(e){
+    console.log(e)
+    console.log(chatDomNode.current)
+    let chat = chatDomNode.current
+    let message = document.createElement("div")
+    message.innerText = e.id
 
-  /* appstate */
-  console.log("APP RERENDER")
+    chat.insertAdjacentElement("beforeend", message)
+  }
 
-  //TODO: unbind all callbacks and check for mem leaks
+  //sync the selected channel with the query param
+  //look mom! no react router
+  React.useEffect(()=>{
+    let searchParams = new URLSearchParams(window.location.search);
+    searchParams.set("channel", channelName);
+    let newPath = window.location.pathname + '?' + searchParams.toString();
+    history.pushState(null, '', newPath);
+  }, [channel])
+
+  /**
+   * Pusher client initialization effect
+   *
+   * TODO: unbind all callbacks and check for mem leaks
+   */
   React.useEffect(() => {
       if(loading == false){
         if(pusher.current === null){
@@ -100,7 +115,7 @@ function App(props){
         })
 
       pusherChannel.current.bind('message', e=>{
-        console.log(e)
+        handleMessage(e)
         dispatch(setTyping({
           user: e.id,
           typing: false
@@ -126,7 +141,7 @@ function App(props){
 
 
   return(
-    <AppLayout />
+    <AppLayout chatDomNode={chatDomNode} />
   )
 }
 

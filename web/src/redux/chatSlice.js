@@ -35,7 +35,7 @@ export const _keyUp = createAction('chat/keyUp', function prepare() {
 })
 
 /**
- * This thunk dispatches _keyUp
+ * This thunk act as a proxy for _keyUp
  * and dispatches a 'typing' api call when the conditions are right
  */
 export const keyUp = function(typingGuard=10){
@@ -77,6 +77,12 @@ const chatSlice = createSlice({
   reducers: {
     setChannel(state, action){
         state.channel = action.payload
+    },
+    setChannelByName(state, action){
+        let filtered = state.channels.filter(current => current.name === action.payload)
+        if (filtered.length > 0){
+            state.channel = filtered[0].ch
+        }
     },
     setConnected(state, action){
         state.connected = ['connected', 'connecting'].includes(action.payload)
@@ -136,7 +142,17 @@ const chatSlice = createSlice({
   }
 })
 
-export const {setChannel, setConnected, resetMessage, updateOnline, setTyping} = chatSlice.actions
+
+export function selectChannelName(state){
+    let selectedChannel = state.chat.channel
+    let filtered = state.chat.channels.filter(current => current.ch == selectedChannel)
+    if(filtered.length > 0){
+        return filtered[0].name
+    }
+    return undefined
+}
+
+export const {setChannel, setChannelByName, setConnected, resetMessage, updateOnline, setTyping} = chatSlice.actions
 
 export default chatSlice.reducer
 
