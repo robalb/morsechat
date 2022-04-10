@@ -7,31 +7,17 @@ import { useSelector, useDispatch } from 'react-redux'
 import { resetMessage, setTyping } from "../../redux/chatSlice";
 import getDialect from '../../utils/dialects'
 import {send} from '../../redux/chatSlice'
+import { selectMorseTimes } from "../../redux/userSlice";
 
 function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
-    let wpm = useSelector(state => state.user.settings.wpm)
+    let times = useSelector(selectMorseTimes)
     let showReadable = useSelector(state => state.user.settings.show_readable)
     let keyDown = useSelector(state => state.chat.keyDown)
     let dialectName = useSelector(state => state.user.settings.dialect)
     let dialect = getDialect(dialectName)
 
     let [canTranslateLast, setCanTranslateLast] = React.useState(false)
-
-    //TODO: abstract this into some sort of reusable function and put it somewhere else
-    function getTimes(wpm){
-        if(wpm < 1) wpm = 1
-        if(wpm > 200) wpm = 200
-        const dotTime = Math.ceil(1200 / wpm)
-        return {
-            dot: dotTime,
-            dash: dotTime * 3,
-            elementGap: dotTime,
-            letterGap: dotTime * 3,
-            wordGap: dotTime * 7
-        }
-    }
-    let times = getTimes(wpm)
 
     //this hook starts a countdown that is resetted every time the message buffer updates.
     //if the countodwn reaches the end, a flag that allows the translation of the last letter is set to true

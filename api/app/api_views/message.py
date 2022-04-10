@@ -37,8 +37,10 @@ def api_message():
 
     if current_user.is_authenticated:
         uid = current_user.username
+        callsign = current_user.callsign
     elif 'anonymous_callsign' in session:
         uid = session['anonymous_callsign']
+        callsign = uid
     else:
         return error("unauthorized", details="no_valid_session")
 
@@ -47,6 +49,7 @@ def api_message():
          'message',
          {
              'id': uid,
+             'callsign': callsign,
              'message': g.data['message'],
              'dialect': g.data['dialect'],
              'wpm': g.data['wpm']

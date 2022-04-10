@@ -12,7 +12,8 @@ export function Chat({className = "", chatDomNode}) {
     const { enqueueSnackbar } = useSnackbar();
     const dispatch = useDispatch()
     const connectionStatus = useSelector(state => state.chat.connectionStatus)
-    let {loading, error, errorDetails } = useSelector(state => state.api)
+    let showReadable = useSelector(state => state.user.settings.show_readable)
+    let {loading, error} = useSelector(state => state.api)
 
     function reload(){
         dispatch(fetchAllData()).unwrap()
@@ -50,7 +51,8 @@ export function Chat({className = "", chatDomNode}) {
         </>
     }
     else{
-        body = <div ref={chatDomNode}> </div>
+        let showReadableStyle = showReadable ? styles.showText: ""
+        body = <div ref={chatDomNode} className={styles.chatContent + " " + showReadableStyle} > </div>
     }
 
     return (
