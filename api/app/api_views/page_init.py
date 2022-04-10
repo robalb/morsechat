@@ -21,6 +21,10 @@ def api_page_init():
     if not 'show_popup' in session:
         session['show_popup'] = True
 
+    #initialize the user channel
+    if not 'authorized_channel' in session:
+        session['authorized_channel'] = None
+
     #if the user is not authenticated, generate random callsign and get user country
     if not current_user.is_authenticated and 'anonymous_callsign' not in session:
         lang_header = ""

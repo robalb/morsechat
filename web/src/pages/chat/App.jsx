@@ -7,7 +7,7 @@ import {pusherClient} from  '../../utils/apiResolver'
 
 import { useSelector, useDispatch } from 'react-redux'
 
-import { setConnected, updateOnline } from '../../redux/chatSlice'
+import { setConnected, setTyping, updateOnline } from '../../redux/chatSlice'
 
 function App(props){
 
@@ -86,6 +86,10 @@ function App(props){
 
       pusherChannel.current.bind('pusher:subscription_error', e =>{
         dispatch(setConnected('connection failed'))
+        if(e.type === "AuthError"){
+          dispatch(setConnected('connection denied'))
+        }
+        dispatch(updateOnline({members: {}, myID: null}))
       })
 
       pusherChannel.current.bind('pusher:member_added', e => {
@@ -100,8 +104,20 @@ function App(props){
           ))))
         })
 
-      pusherChannel.current.bind('msg', logTest('msg'))
-      pusherChannel.current.bind('typing', logTest('typing'))
+      pusherChannel.current.bind('message', e=>{
+        console.log(e)
+        dispatch(setTyping({
+          user: e.id,
+          typing: false
+        }))
+      })
+      pusherChannel.current.bind('typing', e=>{
+        console.log(e)
+        dispatch(setTyping({
+          user: e.id,
+          typing: true
+        }))
+      })
       return ()=>{
         console.log(">> effect: unsubscribing from channel " + channel);
         pusherChannel.current.unbind()

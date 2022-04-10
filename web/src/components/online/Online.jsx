@@ -12,13 +12,14 @@ export function Online({className = ""}) {
     const connectionStatus = useSelector(state => state.chat.connectionStatus)
     const connected = useSelector(state => state.chat.connected)
     const onlineUsers = useSelector(state => state.chat.onlineUsers)
+    const myID = useSelector(state => state.chat.myID)
 
     const onlineRender = Object.keys(onlineUsers).map(id => {
         let userObj = onlineUsers[id];
         return (
             <div key={id}>
                 <div className={styles.left}>
-                    <p>{userObj.callsign}</p>
+                    <p>{userObj.callsign}{ id==myID ? " (you)" : ""}</p>
                     { 
                     userObj.typing &&
                     <div className={styles.typing}>

@@ -2,7 +2,7 @@
 from flask import g, session
 from flask_expects_json import expects_json
 from flask_login import login_required, current_user
-from app import pusher
+from app import pusher, app
 
 #basic imports
 from . import api
@@ -62,6 +62,10 @@ def api_pusher_auth():
                     }
                 }
             )
+
+    #we track serverside the authorized channel name
+    session['authorized_channel'] = g.data['channel_name']
+
     return success(auth)
 
 

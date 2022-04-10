@@ -87,19 +87,6 @@ function KeyInternal(props){
   let wpm = useSelector(state => state.user.settings.wpm)
   let keyVolume = useSelector(state => state.user.settings.volume_key)
   let leftIsDot = useSelector(state => state.user.settings.left_is_dot)
-  //Apparently by using this & similar tricks we don't need callbacks for the send system:
-  //we can just have a selector countowntime that is zero if we are not countig down,
-  //and > 0 incrementing each tick if we are indeed counting down
-  //no timers means that we can call send message whenever we want, such as here
-  //when we detect settings changes, or directly in redux
-  // let countingDown = useSelector(state => {
-  //   let chat = state.chat
-  //   return chat.lastTime > 0 && 
-  //     chat.keyDown == false &&
-  //     (+new Date() - chat.lastTime) > 100 //calculate from settings
-  // })
-
-  // console.log(countingDown)
 
   //state used by the yambic keyer.
   let [dotDown, setDotDown] = React.useState(false)
@@ -108,29 +95,20 @@ function KeyInternal(props){
   const interval = React.useRef(null);
 
   let [on, off] = useSound(880, keyVolume)
-  //TODO: move this logic in the display component
-  //we can always detect if we are in a countdown state by listening to 
-  //chatslice.keYdown==false && chatSlice.lastTime > X
-  // const sendInterval = React.useRef(null);
 
-  // function cancelSendInterval(){
-  //   clearTimeout(sendInterval.current)
-  //   sendInterval.current = null
-  // }
-  // function startSendInterval(){
-  //   cancelSendInterval()
-  //   sendInterval.current = setTimeout(()=>{
-  //    //dispatch send
-  //}, waitTime)
-  // }
+  function cancelEverything(){
+      //cancel yambicLoop
+      clearTimeout(interval.current)
+      interval.current = null
+      //dispatch up
+      up()
+  }
 
   //stop the yambic loop if there are settings changes
   //while it's running, to avoid bugs
   React.useEffect(()=>{
     if(interval.current){
-      up()
-      clearTimeout(interval.current)
-      interval.current = null
+      cancelEverything()
       console.log("settings changed, releasing key to avoid bugs")
     }
   }, [keyMode, wpm, leftIsDot])
@@ -139,11 +117,8 @@ function KeyInternal(props){
   //handle component leave
   React.useEffect(()=>{
     return function(){
-      //cancel yambicLoop
-      clearTimeout(interval.current)
-      interval.current = null
-      //dispatch up
-      up()
+      cancelEverything()
+      console.log("key is unmounting, releasing key to avoid bugs")
     }
   }, [])
 

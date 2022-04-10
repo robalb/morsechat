@@ -90,5 +90,6 @@ from . import generate_schema
 from . import page_init
 from . import pusher_auth
 from . import update_settings
+from . import message
 
 from . import errors

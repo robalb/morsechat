@@ -38,7 +38,7 @@ function TextPreview(){
     //and a rerender is triggered, causing the translation of the last letter
     React.useEffect(()=>{
         setCanTranslateLast(false)
-        let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap )
+        let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap + 32)
         return () =>{
             clearTimeout(t)
         }

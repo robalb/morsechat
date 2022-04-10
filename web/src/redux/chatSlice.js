@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit'
+import { apiCall, payloadCreatorCreator } from './apiSlice'
 
 const initialState = {
     channel: "presence-ch1",
@@ -36,8 +37,19 @@ export const keyUp = createAction('chat/keyUp', function prepare() {
 
 export const send = createAsyncThunk(
   'chat/send',
-  async (_, {getState, dispatch, rejectWithValue, signal}) => {
+  async (data, {getState, dispatch, rejectWithValue, signal}) => {
+    let s = getState()
+    dispatch(apiCall({
+      endpoint: "message",
+      data: {
+          message: s.chat.messageBuffer,
+          dialect: s.user.settings.dialect,
+          wpm: s.user.settings.wpm
+      }
+    }));
+
     dispatch(chatSlice.actions.resetMessage())
+
   })
 
 
