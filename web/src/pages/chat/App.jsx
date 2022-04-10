@@ -92,10 +92,12 @@ function App(props){
       pusherChannel.current.bind('pusher:subscription_succeeded', e =>{
         dispatch(setConnected('connected'))
         dispatch(updateOnline(JSON.parse(JSON.stringify(e))))
+        if(chatDomNode.current)
+          chatDomNode.current.innerHTML = ""
       })
 
       pusherChannel.current.bind('pusher:subscription_error', e =>{
-        if(e.type === "AuthError")
+        if(e.error === "pusher_auth_denied login_needed")
           dispatch(setConnected('connection denied'))
         else
           dispatch(setConnected('connection failed'))

@@ -43,7 +43,7 @@ def api_pusher_auth():
         country = session['country']
         #test. TODO: remove this part
         if g.data['channel_name'] == 'presence-ch3':
-            return error("test")
+            return error("pusher_auth_denied", details="login_needed", code=403)
 
     #the user is neither logged nor anonymous (probably expired cookies)
     else:
