@@ -3,6 +3,7 @@ import {selectChannelName, setConnected, setTyping, updateOnline} from "../../re
 import {selectMorseTimes} from "../../redux/userSlice";
 import * as React from "react";
 import {pusherClient} from "../../utils/apiResolver";
+import getDialect from '../../utils/dialects'
 
 export function AppLogic({chatDomNode}) {
     const dispatch = useDispatch()
@@ -16,11 +17,26 @@ export function AppLogic({chatDomNode}) {
     const pusher = React.useRef(null)
     const pusherChannel = React.useRef(null)
 
+    let dialectName = useSelector(state => state.user.settings.dialect)
+    let dialect = getDialect(dialectName)
+
+    //TODO
+    //recursive function, it's job is to display received morse code
+    function typer(morse, text, message, wpm, i=0){
+        morse.innerText = message[i]
+        console.log("w")
+        if(i < message.length-1)
+            setTimeout(typer, message[i], morse, text, message, wpm, i+1)
+    }
+    // function translateToReadable(letter){
+    //     if(dialect.table.hasOwnProperty(letter))
+    //         return dialect.table[letter];
+    //     return " " + letter + " ";
+    // }
 
     //called when a message is received
     function handleMessage(e) {
         console.log(e)
-        console.log(chatDomNode.current)
         let chat = chatDomNode.current
         let message = document.createElement("p")
         let label = document.createElement("span") 
@@ -32,6 +48,7 @@ export function AppLogic({chatDomNode}) {
         label.innerText = e.callsign
         morse.innerText = "._.."
         text.innerText = "A"
+        typer(morse, text, e.message, e.wpm)
         chat.insertAdjacentElement("beforeend", message)
     }
 
