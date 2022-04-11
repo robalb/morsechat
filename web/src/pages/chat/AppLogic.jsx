@@ -40,7 +40,7 @@ export function AppLogic({chatDomNode}) {
             if(t < times.dash){
                 letter += "."
             }else{
-                letter += "-"
+                letter += "_"
             }
         }
         //pressed after t millis
@@ -67,6 +67,7 @@ export function AppLogic({chatDomNode}) {
         }
     }
     function translateToReadable(letter){
+        letter = letter.replaceAll("_", "-")
         if(dialect.table.hasOwnProperty(letter))
             return dialect.table[letter];
         return " " + letter + " ";
@@ -78,7 +79,6 @@ export function AppLogic({chatDomNode}) {
      * @param {*} e 
      */
     function handleMessage(e) {
-        console.log(e)
         let chat = chatDomNode.current
         let message = document.createElement("p")
         let label = document.createElement("span") 
@@ -91,6 +91,12 @@ export function AppLogic({chatDomNode}) {
         let times = wpmToMorseTimes(e.wpm)
         typer(morse, text, e.message, times)
         chat.insertAdjacentElement("beforeend", message)
+        //scroll down if the user is not reading old messages
+        let margin = 60 //arbitrary value
+        let scrollDown = (chat.scrollTop > (chat.scrollHeight - chat.clientHeight - margin));
+        if(scrollDown){
+            chat.scrollTop = chat.scrollHeight
+        }
     }
 
     //sync the selected channel with the query param

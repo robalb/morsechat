@@ -39,16 +39,16 @@ export function Chat({className = "", chatDomNode}) {
         </div>
     }
     else if(connectionStatus == "connection denied"){
-        body = <>
+        body = <div className={styles.info}>
             <h2>Connection denied</h2>
             <p>This channel is for logged users only</p>
-        </>
+        </div>
     }
     else if(connectionStatus == "connection failed"){
-        body = <>
+        body = <div className={styles.info}>
             <h2>Connection failed</h2>
             <p>The connection to this channel failed</p>
-        </>
+        </div>
     }
     else{
         let showReadableStyle = showReadable ? styles.showText: ""

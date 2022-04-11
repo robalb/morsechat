@@ -2,11 +2,9 @@
 .chat{
     background-color: var(--gray-70);
     box-shadow: var(--shadow-1);
-    padding: 1rem;
-    overflow-y: auto;
 }
 
-.loading{
+.loading, .info{
     display: flex;
     height: 100%;
     flex-direction: column;
@@ -14,8 +12,13 @@
     justify-content: center;
 }
 
+.chatContent{
+    overflow-y: auto;
+    height: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+}
 .chatContent p{
-    display: flex;
     white-space: pre-wrap;
 }
 

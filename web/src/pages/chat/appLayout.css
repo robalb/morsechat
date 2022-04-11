@@ -21,7 +21,7 @@ main{
 /* mobile or larger*/
 main {
     grid-template-columns: 1fr minmax(auto, 38rem) 1fr;
-    grid-template-rows: 4em 1fr 4em;
+    grid-template-rows: 4em minmax(calc(100vh - 8em - var(--header-height)), 1fr) 4em;
     grid-template-areas: 
         ". preview ."
         ". chat ."
