@@ -16,6 +16,7 @@
     border-radius: 3px;
     cursor: pointer;
     box-shadow: var(--shadow-1);
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 .key_bt:active{
     /* apply programmatically (?) maybe applying manually  from js the property is better */
