@@ -14,8 +14,9 @@
     justify-content: center;
 }
 
-.chatContent div{
+.chatContent p{
     display: flex;
+    white-space: pre-wrap;
 }
 
 .chatContent span:nth-child(1){

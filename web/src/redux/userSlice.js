@@ -135,20 +135,22 @@ const userSlice = createSlice({
 })
 
 
+export const wpmToMorseTimes = wpm => {
+  if (wpm < 1) wpm = 1
+  if (wpm > 200) wpm = 200
+  const dotTime = Math.ceil(1200 / wpm)
+  return {
+    dot: dotTime,
+    dash: dotTime * 3,
+    elementGap: dotTime,
+    letterGap: dotTime * 3,
+    wordGap: dotTime * 7
+  }
+}
+
 export const selectMorseTimes = createSelector(
   state => state.user.settings.wpm,
-  wpm => {
-    if (wpm < 1) wpm = 1
-    if (wpm > 200) wpm = 200
-    const dotTime = Math.ceil(1200 / wpm)
-    return {
-      dot: dotTime,
-      dash: dotTime * 3,
-      elementGap: dotTime,
-      letterGap: dotTime * 3,
-      wordGap: dotTime * 7
-    }
-  }
+  wpmToMorseTimes
 )
 
 export default userSlice.reducer
