@@ -183,7 +183,6 @@ export function AppLogic({chatDomNode}) {
                 }))
             })
             pusherChannel.current.bind('typing', e => {
-                console.log(e)
                 dispatch(setTyping({
                     user: e.id,
                     typing: true
