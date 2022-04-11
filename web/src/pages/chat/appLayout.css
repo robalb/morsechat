@@ -12,7 +12,6 @@
 /* base for every size */
 main{
     height: calc(100% - var(--header-height));
-    width:100%;
     background-color: var(--gray-70);
     overflow: hidden;
     display: grid;
@@ -21,7 +20,7 @@ main{
 /* mobile or larger*/
 main {
     grid-template-columns: 1fr minmax(auto, 38rem) 1fr;
-    grid-template-rows: 4em minmax(calc(100vh - 8em - var(--header-height)), 1fr) 4em;
+    grid-template-rows: 4em minmax(calc(100% - 8em - var(--header-height)), 1fr) 4em;
     grid-template-areas: 
         ". preview ."
         ". chat ."

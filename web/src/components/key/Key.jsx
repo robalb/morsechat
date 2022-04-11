@@ -190,8 +190,16 @@ function KeyInternal(props){
 
   return (
     <button className={styles.key_bt}
-      onTouchStart={down}
-      onTouchEnd={up}
+      onTouchStart={e => {
+        e.stopPropagation();
+        e.preventDefault();
+        down()
+      }}
+      onTouchEnd={e => {
+        e.stopPropagation();
+        e.preventDefault();
+        up()
+      }}
       onMouseDown={mouseDown}
       onMouseUp={mouseUp}
       onContextMenu={e => e.preventDefault()}
