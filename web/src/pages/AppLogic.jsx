@@ -1,9 +1,9 @@
 import {useDispatch, useSelector} from "react-redux";
-import {selectChannelName, setConnected, setTyping, updateOnline} from "../../redux/chatSlice";
-import {wpmToMorseTimes} from "../../redux/userSlice";
+import {selectChannelName, setConnected, setTyping, updateOnline} from "../redux/chatSlice";
+import {wpmToMorseTimes} from "../redux/userSlice";
 import * as React from "react";
-import {pusherClient} from "../../utils/apiResolver";
-import getDialect from '../../utils/dialects'
+import {pusherClient} from "../utils/apiResolver";
+import getDialect from '../utils/dialects'
 
 export function AppLogic({chatDomNode}) {
     const dispatch = useDispatch()

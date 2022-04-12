@@ -1,21 +1,21 @@
 import * as React from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import {Auth} from "../../components/auth/Auth";
+import {Auth} from "../components/auth/Auth";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import {Info} from "../../components/info/Info";
-import {Header} from "../../components/header/Header";
+import {Info} from "../components/info/Info";
+import {Header} from "../components/header/Header";
 import MenuIcon from "@mui/icons-material/Menu";
 import Button from "@mui/material/Button";
 import PeopleIcon from "@mui/icons-material/People";
-import {Online} from "../../components/online/Online";
-import {SideControls} from "../../components/sideControls/SideControls";
-import {Preview} from "../../components/preview/Preview";
-import {Chat} from "../../components/chat/Chat";
-import {Key} from "../../components/key/Key";
+import {Online} from "../components/online/Online";
+import {SideControls} from "../components/sideControls/SideControls";
+import {Preview} from "../components/preview/Preview";
+import {Chat} from "../components/chat/Chat";
+import {Key} from "../components/key/Key";
 import SettingsIcon from "@mui/icons-material/Settings";
-import {Sheet} from "../../components/sheet/Sheet";
+import {Sheet} from "../components/sheet/Sheet";
 import { useSelector } from 'react-redux'
 
 import './appLayout.css'
