@@ -6,10 +6,10 @@ on:
   push:
     branches:
       - master
-   # paths:
-   #   - 'web/**'
-   #   - 'api/**'
-   #   - 'docker/nginx-uwsgi-flask/**'
+    paths:
+      - 'web/**'
+      - 'api/**'
+      - 'docker/nginx-uwsgi-flask/**'
 
 env:
   REGISTRY: ghcr.io
