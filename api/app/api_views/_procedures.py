@@ -20,7 +20,7 @@ def validate_callsign(callsign_data):
 
     Returns
     -------
-    dictionary {'valid':bool 'details':str 'callsign':str }
+    dictionary {'valid':bool 'details':str 'callsign':str 'schemaid':str }
     """
     def validate(value, schema):
         """
@@ -76,7 +76,7 @@ def validate_callsign(callsign_data):
             return { 'valid': False, 'details': 'callsign doesn\'t match the schema' }
 
     callsign = ''.join(callsign_data['value'])
-    return { 'valid': True, 'callsign': callsign}
+    return { 'valid': True, 'callsign': callsign, 'schemaid': code_hash}
 
 # TODO: refactor, move class methods into actual functions, and move those into _schemas
 class Data_modules:

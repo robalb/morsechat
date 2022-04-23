@@ -1,4 +1,5 @@
 #page specific imports
+import mariadb 
 from flask import g, session
 from flask_expects_json import expects_json
 from argon2 import PasswordHasher
@@ -51,6 +52,7 @@ def api_register():
     if not callsign_validation_data['valid']:
         return error("invalid_callsign", details=callsign_validation_data['details'])
     callsign = callsign_validation_data['callsign']
+    callsign_generator = callsign_validation_data['schemaid']
 
     #check if the callsign is in use
     with db_connection.Cursor() as cur:
@@ -72,9 +74,12 @@ def api_register():
     with db_connection.Cursor() as cur:
         try:
             cur.execute("""INSERT INTO users
-                    (username, password, callsign, registrationTimestamp, lastOnlineTimestamp)
-                    VALUES ( ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `ID`=`ID`""", (username, phash, callsign, timestamp, timestamp) )
-        except:
+                    (username, password, callsign, registrationTimestamp, lastOnlineTimestamp, callsign_generator)
+                    VALUES ( ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `ID`=`ID`""", (username, phash, callsign, timestamp, timestamp, callsign_generator) )
+        except mariadb.Error as e:
+            app.logger.info(len(phash))
+            app.logger.info(f'error sql {e}')
+            app.logger.info(callsign_generator)
             return error("server_error", details="database query 1 failed", code=500)
         userId = cur.lastrowid
     app.logger.info(userId)
