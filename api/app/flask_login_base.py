@@ -7,7 +7,10 @@ class User:
         this.id = namedTuple.ID
         this.username = namedTuple.username
         this.callsign = namedTuple.callsign
-        this.last_online = namedTuple.lastOnlineTimestamp
+        this.last_online = namedTuple.last_online_timestamp
+        this.settings = namedTuple.settings
+        this.verified = namedTuple.verified
+        this.banned = namedTuple.banned
 
         #required properties
         this.is_authenticated = True

@@ -52,7 +52,7 @@ def api_register():
     if not callsign_validation_data['valid']:
         return error("invalid_callsign", details=callsign_validation_data['details'])
     callsign = callsign_validation_data['callsign']
-    callsign_generator = callsign_validation_data['schemaid']
+    callsign_schemaid = callsign_validation_data['schemaid']
 
     #check if the callsign is in use
     with db_connection.Cursor() as cur:
@@ -74,12 +74,10 @@ def api_register():
     with db_connection.Cursor() as cur:
         try:
             cur.execute("""INSERT INTO users
-                    (username, password, callsign, registrationTimestamp, lastOnlineTimestamp, callsign_generator)
-                    VALUES ( ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `ID`=`ID`""", (username, phash, callsign, timestamp, timestamp, callsign_generator) )
+                    (username, password, callsign, registration_timestamp, last_online_timestamp, callsign_schema)
+                    VALUES ( ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `ID`=`ID`""", (username, phash, callsign, timestamp, timestamp, callsign_schemaid) )
         except mariadb.Error as e:
-            app.logger.info(len(phash))
-            app.logger.info(f'error sql {e}')
-            app.logger.info(callsign_generator)
+            app.logger.error(f'apiregistration error sql {e}')
             return error("server_error", details="database query 1 failed", code=500)
         userId = cur.lastrowid
     app.logger.info(userId)
