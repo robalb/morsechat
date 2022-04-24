@@ -148,9 +148,12 @@ class Data_modules:
         return ret
 
     def settings(this):
-        if not this.current_user.is_authenticated:
-            return None
-        #TODO
+        if this.current_user.is_authenticated:
+          try:
+            decoded_settings = json.loads(this.current_user.settings)
+            return decoded_settings
+          except:
+            app.logger.error(f"procedures datamodules settings: json loads failed for user id {this.current_user.id}")
         return None
 
 

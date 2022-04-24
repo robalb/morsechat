@@ -1,4 +1,6 @@
 #page specific imports
+import mariadb 
+import json
 from flask import g, session
 from flask_expects_json import expects_json
 from argon2 import PasswordHasher
@@ -40,5 +42,18 @@ schema = {
 @login_required
 @expects_json(schema)
 def api_update_settings():
-    #TODO
-    return success("")
+  """
+  TODO: add ratelimiting, same time as the settings debounce time
+        that is set clientside
+  """
+  with db_connection.Cursor() as cur:
+      settings = json.dumps(g.data)
+      app.logger.info(settings)
+      try:
+          cur.execute("""UPDATE users SET settings = ?
+          WHERE id = ? """, 
+          (settings, current_user.id))
+      except mariadb.Error as e:
+          app.logger.error(f'settingsupdate error sql {e}')
+          return error("server_error", details="database query failed", code=500)
+  return success("")
