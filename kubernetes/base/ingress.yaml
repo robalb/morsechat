@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-flask
+  namespace: testapp
+  annotations:
+    # (Optional): Annotations for the Ingress Controller
+    # Middleware:
+    traefik.ingress.kubernetes.io/router.middlewares: testapp-redirectscheme@kubernetescrd
+spec:
+  rules:
+  - host: "morse.halb.it"
+    http:
+      paths:
+      # Path-based routing settings:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-flask
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - "morse.halb.it"
+    secretName: morse-cert  #name of the tls secret. Make sure this is defined first
+#---
+#apiVersion: traefik.containo.us/v1alpha1
+#kind: Middleware
+#metadata:
+#  name: stripprefix
+#  namespace: testapp
+#spec:
+#  stripPrefix:
+#    prefixes:
+#      - /morsecode
+#
+---
+# Redirect to https
+# https://stackoverflow.com/questions/68575472/k3s-redirect-http-to-https
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirectscheme
+  namespace: testapp
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

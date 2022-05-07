@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-flask
+  namespace: testapp
+  labels:
+    app: nginx-flask
+spec:
+  selector:
+    matchLabels:
+      app: nginx-flask
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-flask
+    spec:
+      # Name of the secret containing the docker creds.
+      # Make sure this is defined first
+      imagePullSecrets:
+      - name: regcred 
+      containers:
+      - name: nginx-flask
+        image: ghcr.io/robalb/morsechat:sha-5c5f34f
+        env:
+        #database configuration
+        - name: MARIADB_HOST
+          # A service called mariadb must exist in this namespace
+          value: mariadb
+
+        - name: MARIADB_USER
+          value: morse_prod
+
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: morse-secrets
+              key: MARIADB_PASSWORD
+
+        - name: MARIADB_DATABASE
+          value: morsechat
+
+        #pusher configuration
+        - name: PUSHER_APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: morse-secrets
+              key: PUSHER_APP_ID
+
+        - name: PUSHER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: morse-secrets
+              key: PUSHER_KEY
+
+        - name: PUSHER_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: morse-secrets
+              key: PUSHER_SECRET
+
+        - name: PUSHER_CLUSTER
+          value: eu
+        # resources:
+        #   limits:
+        #     memory: 512Mi
+        #     cpu: "1"
+        #   requests:
+        #     memory: 256Mi
+        #     cpu: "0.2"
+        ports:
+        - containerPort: 80
