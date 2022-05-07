@@ -50,7 +50,3 @@ The current setup requires a traefik ingress controller, certmanager, and a mysq
 
 The live website on halb.it is built using github workflows, and deployed on a k8s cluster with argoCD
 
-
-## schemas migrations
-
-## Horizontal scaling
