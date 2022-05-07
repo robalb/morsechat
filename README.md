@@ -46,6 +46,7 @@ The easiest way to run the webapp in a production environment is with the provid
 `docker-compose -f docker-compose.prod.yml up --build`
 
 Alternatively, you can deploy the app on a k8s kluster using the provided kompose objects.
+You'll need to provide a certificate provider and a mysql database
 
 The live website on halb.it is built using github workflows, and deployed on a k8s cluster with argoCD
 
