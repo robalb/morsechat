@@ -36,16 +36,19 @@ clone this repository `git clone https://github.com/robalb/morsechat.git`
 
 navigate into the repository `cd morsechat`
 
-start the apis in development mode `docker-compose up`
+start the api server in development mode `docker-compose up`
 
 start vite in development mode `cd /web && npm run dev`
 
 ## production
 
-A production ready image can be generated from the docker-compose.prod,
-It will also handle the website build.
-
+The easiest way to run the webapp in a production environment is with the provided docker-compose.prod,
 `docker-compose -f docker-compose.prod.yml up --build`
+
+Alternatively, you can deploy the app on a k8s kluster using the provided kompose objects.
+
+The live website on halb.it is built using github workflows, and deployed on a k8s cluster with argoCD
+
 
 ## schemas migrations
 
