@@ -53,7 +53,8 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           # https://github.com/docker/metadata-action#typesha
           tags: |
-            type=sha,format=short,prefix=sha-
+            type=sha,priority=100,format=short,prefix=sha-
+            type=raw,priority=200,prefix=sha-,value=${{ github.sha }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc

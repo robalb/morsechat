@@ -2,11 +2,10 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: morse-cert
-  namespace: testapp
+  namespace: morse
 spec:
   secretName: morse-cert #the name of the secret containing the certificate, to be referenced in an ingress in this namespace
   dnsNames:
-  - 'halb.it'
   - 'morse.halb.it'
   issuerRef:
     name: acme-issuer #important, this must be the name of the current clusterissuer

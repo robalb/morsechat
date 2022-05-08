@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nginx-flask
-  namespace: testapp
+  namespace: morse
   annotations:
     # (Optional): Annotations for the Ingress Controller
     # Middleware:
