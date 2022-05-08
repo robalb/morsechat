@@ -78,16 +78,15 @@ jobs:
           value: ghcr.io/robalb/morsechat:sha-${{ github.sha }}
           updateFile: true
           commitChange: false
-          message: "Updated image tags in the app manifests"
-          branch: prod
 
-      - name: Commit files
+      - name: Commit changes
         run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.email "42069+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git commit -m "Add changes" -a
+          git commit -am "Updated image tags in the app manifests"
+
       - name: Push changes
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.PAC_TO_BYPASS_CURSE }}
           branch: ${{ github.ref }}
