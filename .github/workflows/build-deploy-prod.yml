@@ -89,7 +89,7 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PAC_TO_BYPASS_CURSE }}
           branch: ${{ github.ref }}
 
         # This ugly bit is necessary if you don't want your cache to grow forever
