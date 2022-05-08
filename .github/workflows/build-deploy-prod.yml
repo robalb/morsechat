@@ -68,17 +68,17 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache-new
 
       - name: update image tags in k8s manifests
-          uses: fjogeleit/yaml-update-action@v0.9.0
-          with:
-            valueFile: 'kubernetes/base/deployment.yaml'
-            propertyPath: 'spec.template.spec.containers[0].image'
-            value: ghcr.io/robalb/morsechat:sha-${{ github.sha }}
-            updateFile: true
-            commitChange: true
-            message: "Updated image tags in the app manifests"
-            branch: master
-            masterBranchName: master
-            commitUserName: ambrogioCI
+        uses: fjogeleit/yaml-update-action@v0.9.0
+        with:
+          valueFile: 'kubernetes/base/deployment.yaml'
+          propertyPath: 'spec.template.spec.containers[0].image'
+          value: ghcr.io/robalb/morsechat:sha-${{ github.sha }}
+          updateFile: true
+          commitChange: true
+          message: "Updated image tags in the app manifests"
+          branch: master
+          masterBranchName: master
+          commitUserName: ambrogioCI
 
         # This ugly bit is necessary if you don't want your cache to grow forever
         # till it hits GitHub's limit of 5GB.
