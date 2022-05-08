@@ -74,11 +74,15 @@ jobs:
           propertyPath: 'spec.template.spec.containers[0].image'
           value: ghcr.io/robalb/morsechat:sha-${{ github.sha }}
           updateFile: true
-          commitChange: true
-          message: "Updated image tags in the app manifests"
-          branch: master
-          masterBranchName: master
-          commitUserName: ambrogioCI
+          commitChange: false
+
+      - name: Add & Commit updated manifests
+        uses: EndBug/add-and-commit@v9.0.0
+        with:
+          author_name: ambrogioCI
+          author_email: actions@github.com
+          message: 'Updated image tag'
+          add: '*.yaml'
 
         # This ugly bit is necessary if you don't want your cache to grow forever
         # till it hits GitHub's limit of 5GB.
