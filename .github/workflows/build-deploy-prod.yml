@@ -76,7 +76,7 @@ jobs:
           updateFile: true
           commitChange: true
           message: "Updated image tags in the app manifests"
-          branch: master
+          branch: prod
           masterBranchName: master
 
         # This ugly bit is necessary if you don't want your cache to grow forever
