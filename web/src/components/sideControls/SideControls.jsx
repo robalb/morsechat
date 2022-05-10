@@ -1,5 +1,3 @@
-import Button from "@mui/material/Button";
-import SettingsIcon from "@mui/icons-material/Settings";
 import * as React from "react";
 import Slider from '@mui/material/Slider';
 import { useSelector, useDispatch } from 'react-redux'
@@ -25,7 +23,7 @@ const MemoSlider = React.memo(function CustomSlider({value, onChangeCommitted, .
 
 const MemoSwitch = React.memo(Switch)
 
-export function SideControls({className = ""}) {
+export function SideControls({className = "", settingsButton}) {
     const {enqueueSnackbar} = useSnackbar();
     const dispatch = useDispatch()
     let settings = useSelector(state => state.user.settings)
@@ -82,10 +80,7 @@ export function SideControls({className = ""}) {
                 />
             </div>
 
-            <Button size="small" startIcon={<SettingsIcon/>} variant="outlined">
-                Advanced
-            </Button>
-            { /*<p>advanced: morsedialect,keybindings,keymode,dot-dash-ratio</p>*/}
+            { settingsButton }
         </div>
     );
 }
