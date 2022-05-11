@@ -8,52 +8,16 @@ import {useDispatch, useSelector} from 'react-redux'
 import {keyDown, keyUp} from "../../redux/chatSlice";
 import {useSound} from "../../hooks/UseSound";
 
-/**
- * TODO: move to dedicated hooks folder / utils folder
- */
-function useKeyPress(targetKey, callback) {
-  // State for keeping track of whether key is pressed
-  const [keyPressed, setKeyPressed] = React.useState(false);
-  // If pressed key is our target key then set to true
-  function downHandler({ key }) {
-    console.log("keyDOWN")
-    console.log(key)
-    if (key === targetKey) {
-      setKeyPressed(true);
-      callback("down")
-    }
-  }
-  // If released key is our target key then set to false
-  const upHandler = ({ key }) => {
-    if (key === targetKey) {
-      setKeyPressed(false);
-      callback("up")
-    }
-  };
-  // Add event listeners
-  React.useEffect(() => {
-    window.addEventListener("keydown", downHandler);
-    window.addEventListener("keyup", upHandler);
-    // Remove event listeners on cleanup
-    return () => {
-      window.removeEventListener("keydown", downHandler);
-      window.removeEventListener("keyup", upHandler);
-    };
-  }, []); // Empty array ensures that effect is only run on mount and unmount
-  return keyPressed;
-}
-
-
-
 
 function KeyInternal(props){
   const dispatch = useDispatch()
 
-  let keyMode = useSelector(state => state.user.settings.key_mode)
-  let wpm = useSelector(state => state.user.settings.wpm)
-  let keyVolume = useSelector(state => state.user.settings.volume_key)
-  let leftIsDot = useSelector(state => state.user.settings.left_is_dot)
-  let keybinds =  useSelector(state => state.user.settings.keybinds)
+  let settings = useSelector(state => state.user.settings)
+  let keyMode = settings.key_mode
+  let wpm = settings.wpm
+  let keyVolume = settings.volume_key
+  let leftIsDot = settings.left_is_dot
+  let keybinds =  settings.keybinds
 
   //state used by the yambic keyer.
   let [dotDown, setDotDown] = React.useState(false)
@@ -226,30 +190,33 @@ function KeyInternal(props){
 
   function down(e){
     // console.log(">>down")
-    // on()
+    on()
     dispatch(keyDown())
   }
 
   function up(e){
     // console.log(">>up")
-    // off()
+    off()
     dispatch(keyUp() )
   }
 
 
   const keyHandler = (e)=>{
     if(keyMode === "straight"){
-      if(e.event == "up")
-        up()
-      else
-        down()
+      if(e.key == "c" || e.key == " ")
+        if(e.event == "up")
+          up()
+        else
+          down()
     }
     else{
       let isLeft = e.key == keybinds.yambic_left
-      if(e.event == "up")
-        yambicUp(isLeft)
-      else
-        yambicDown(isLeft)
+      let isRight = e.key == keybinds.yambic_right
+      if(isLeft || isRight)
+        if(e.event == "up")
+          yambicUp(isLeft)
+        else
+          yambicDown(isLeft)
     }
   }
 
@@ -265,7 +232,17 @@ function KeyInternal(props){
       event: "up"
     })
   };
-  // Add event listeners
+
+  // add key events event listeners
+  // this is where the code gets ugly:
+  // the listeners, and every other function that is called by them will keep
+  // a binding to the current state at the time of their declaration.
+  // in a react component with many state updates, this is bad because
+  // accessing the state from within one of those functions will return the state
+  // at the time of the addEventListener execution
+  // The naiive solution is to navigate the tree of funcalls that start from
+  // these listeners, and manually add every reactive element to the useEffect dependencies
+  // This is slow, and a sign that a refactor was needed long ago
   React.useEffect(() => {
     window.addEventListener("keydown", downHandler);
     window.addEventListener("keyup", upHandler);
@@ -274,7 +251,7 @@ function KeyInternal(props){
       window.removeEventListener("keydown", downHandler);
       window.removeEventListener("keyup", upHandler);
     };
-  }, [keybinds, keyMode]);
+  }, [settings, up, down]);
 
   return (
     <button className={styles.key_bt}
