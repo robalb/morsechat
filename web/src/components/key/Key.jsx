@@ -27,28 +27,15 @@ function KeyInternal(props){
 
   let [on, off] = useSound(880, keyVolume)
 
-  function cancelEverything(){
+
+  //handle component leave
+  React.useEffect(()=>{
+    return function(){
       //cancel yambicLoop
       clearTimeout(interval.current)
       interval.current = null
       //dispatch up
       up()
-  }
-
-  //stop the yambic loop if there are settings changes
-  //while it's running, to avoid bugs
-  React.useEffect(()=>{
-    if(interval.current){
-      cancelEverything()
-      console.log("settings changed, releasing key to avoid bugs")
-    }
-  }, [keyMode, wpm, leftIsDot])
-
-
-  //handle component leave
-  React.useEffect(()=>{
-    return function(){
-      cancelEverything()
       console.log("key is unmounting, releasing key to avoid bugs")
     }
   }, [])
@@ -203,7 +190,11 @@ function KeyInternal(props){
 
   const keyHandler = (e)=>{
     if(keyMode === "straight"){
-      if(e.key == "c" || e.key == " ")
+      if(
+        e.key == keybinds.straight ||
+        e.key == keybinds.yambic_left ||
+        e.key == keybinds.yambic_right
+      )
         if(e.event == "up")
           up()
         else
