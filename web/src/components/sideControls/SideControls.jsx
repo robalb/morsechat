@@ -119,10 +119,10 @@ export function AdvancedControls({className = ""}) {
             <div>
                 <p>left is dot</p>
                 <MemoSwitch 
-                    checked={settings.left_is_dot}
+                    checked={! settings.left_is_dot}
                     color="primary"
                     onChange={React.useCallback(
-                        (e) => update({ left_is_dot: e.target.checked }),
+                        (e) => update({ left_is_dot: ! e.target.checked }),
                         [])}
                 />
                 <p>right is dot</p>
