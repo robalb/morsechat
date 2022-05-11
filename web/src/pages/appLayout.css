@@ -2,6 +2,7 @@
     height:100%;
     display:flex;
     flex-direction: column;
+    background-color: var(--gray-70);
 }
 
 .header-bt-left{
@@ -108,5 +109,13 @@ main .grid-key{
     main .grid-info{
         grid-area: info;
         z-index: 2;
+    }
+}
+
+/* huge Desktop */
+@media (min-width: 1800px){
+    main{
+        max-width: 1800px;
+        margin: 0 auto;
     }
 }

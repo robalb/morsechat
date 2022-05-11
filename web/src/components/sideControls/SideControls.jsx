@@ -135,7 +135,7 @@ export function KeybindingsControls({className}){
     return (
         <div className={`${styles.controls} ${styles.keybindings} ${className}`}>
             <h2>Keybindings</h2>
-            <p>straight key SPACE</p>
+            <p>straight key SPACE, C</p>
             <p>left paddle Z</p>
             <p>right paddle X</p>
         </div>

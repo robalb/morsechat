@@ -6,14 +6,19 @@ import styles from './info.module.css'
 export function Info({className="", ...props}) {
     return (
         <div className={`${styles.info} ${className}`} >
-            <h1>Morsechat</h1>
-            <p>Welcome to the best internet morse radio. </p>
+            <h3>Morsechat</h3>
+            <p>This is a web-based morsecode radio and chat</p>
+            <p>Press space or the key below to transmit a dot, hold it to
+                transmit a dash
+            </p>
             <p>
-                This webapp is open source! <br/> Join the discord community
-                to get the latest news, and to participate on its development.
+                Join the discord community
+                for help, or to participate on the development.
             </p>
             <h3>What's new</h3>
-            <p>2021-02-10 update notes</p>
+            <p>2022-11-05 update notes:</p>
+            <p>- added yambic mode</p>
+            <p>- added keybinds</p>
             <a href="https://discord.gg/JPzfzNJG6e" title="discord">
                 <img src={discordUrl}/>
             </a><br/>

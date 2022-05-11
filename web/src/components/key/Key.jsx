@@ -191,6 +191,7 @@ function KeyInternal(props){
   const keyHandler = (e)=>{
     if(keyMode === "straight"){
       if(
+        e.key == " " ||
         e.key == keybinds.straight ||
         e.key == keybinds.yambic_left ||
         e.key == keybinds.yambic_right
