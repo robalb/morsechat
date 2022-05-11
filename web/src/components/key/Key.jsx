@@ -8,6 +8,44 @@ import {useDispatch, useSelector} from 'react-redux'
 import {keyDown, keyUp} from "../../redux/chatSlice";
 import {useSound} from "../../hooks/UseSound";
 
+/**
+ * TODO: move to dedicated hooks folder / utils folder
+ */
+function useKeyPress(targetKey, callback) {
+  // State for keeping track of whether key is pressed
+  const [keyPressed, setKeyPressed] = React.useState(false);
+  // If pressed key is our target key then set to true
+  function downHandler({ key }) {
+    console.log("keyDOWN")
+    console.log(key)
+    if (key === targetKey) {
+      setKeyPressed(true);
+      callback("down")
+    }
+  }
+  // If released key is our target key then set to false
+  const upHandler = ({ key }) => {
+    if (key === targetKey) {
+      setKeyPressed(false);
+      callback("up")
+    }
+  };
+  // Add event listeners
+  React.useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
+    };
+  }, []); // Empty array ensures that effect is only run on mount and unmount
+  return keyPressed;
+}
+
+
+
+
 function KeyInternal(props){
   const dispatch = useDispatch()
 
@@ -15,6 +53,7 @@ function KeyInternal(props){
   let wpm = useSelector(state => state.user.settings.wpm)
   let keyVolume = useSelector(state => state.user.settings.volume_key)
   let leftIsDot = useSelector(state => state.user.settings.left_is_dot)
+  let keybinds =  useSelector(state => state.user.settings.keybinds)
 
   //state used by the yambic keyer.
   let [dotDown, setDotDown] = React.useState(false)
@@ -132,7 +171,13 @@ function KeyInternal(props){
     }
   }, [yambicEvent])
 
-  function yambicDown(isDot){
+  /**
+   * yambic paddle interface
+   * 
+   * @param {boolean} isLeft - set the left paddle to down. If false it's the right paddle
+   */
+  function yambicDown(isLeft){
+    let isDot = (isLeft == leftIsDot) //xor logic operation
     // console.log("yambic down")
     if(isDot)
       setDotDown(true)
@@ -140,7 +185,13 @@ function KeyInternal(props){
       setDashDown(true)
   }
 
-  function yambicUp(isDot){
+  /**
+   * yambic paddle interface
+   * 
+   * @param {boolean} isLeft - set the left paddle to up. If false it's the right paddle
+   */
+  function yambicUp(isLeft){
+    let isDot = (isLeft == leftIsDot) //xor logic operation
     // console.log("yambic up")
     if(isDot)
       //idea: set the down state as a integer with 3 values: 0,1,2 isntead of a bool.
@@ -159,8 +210,7 @@ function KeyInternal(props){
     }
     else if(keyMode === "yambic"){
       let isLeft = e.nativeEvent.which == 1
-      let isDot = (isLeft == leftIsDot) //xor logic operation
-      yambicDown(isDot)
+      yambicDown(isLeft)
     }
   }
 
@@ -170,23 +220,61 @@ function KeyInternal(props){
     }
     else if(keyMode === "yambic"){
       let isLeft = e.nativeEvent.which == 1
-      let isDot = (isLeft == leftIsDot) //xor logic operation
-      yambicUp(isDot)
+      yambicUp(isLeft)
     }
   }
 
   function down(e){
     // console.log(">>down")
-    on()
+    // on()
     dispatch(keyDown())
   }
 
   function up(e){
     // console.log(">>up")
-    off()
+    // off()
     dispatch(keyUp() )
   }
 
+
+  const keyHandler = (e)=>{
+    if(keyMode === "straight"){
+      if(e.event == "up")
+        up()
+      else
+        down()
+    }
+    else{
+      let isLeft = e.key == keybinds.yambic_left
+      if(e.event == "up")
+        yambicUp(isLeft)
+      else
+        yambicDown(isLeft)
+    }
+  }
+
+  const downHandler = ({ key }) =>{
+    keyHandler({
+      key,
+      event: "down"
+    })
+  }
+  const upHandler = ({ key }) => {
+    keyHandler({
+      key,
+      event: "up"
+    })
+  };
+  // Add event listeners
+  React.useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
+    };
+  }, [keybinds, keyMode]);
 
   return (
     <button className={styles.key_bt}

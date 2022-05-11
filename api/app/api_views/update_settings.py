@@ -29,11 +29,11 @@ schema = {
             'type': 'object',
             'properties': {
                 'straight': {'type': 'string', 'maxLength':2, 'minLength':1 },
-                'yambic_dot': {'type': 'string', 'maxLength':2, 'minLength':1 },
-                'yambic_dash': {'type': 'string', 'maxLength':2, 'minLength':1 },
+                'yambic_left': {'type': 'string', 'maxLength':2, 'minLength':1 },
+                'yambic_right': {'type': 'string', 'maxLength':2, 'minLength':1 },
                 'cancel_message': {'type': 'string', 'maxLength':2, 'minLength':1 }
             },
-            'required': ['straight', 'yambic_dot', 'yambic_dash', 'cancel_message']
+            'required': ['straight', 'yambic_left', 'yambic_right', 'cancel_message']
         }
     },
     'required': ['dialect', 'key_mode', 'wpm', 'volume_receiver', 'volume_key', 'submit_delay', 'show_readable', 'keybinds' ],

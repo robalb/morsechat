@@ -65,8 +65,8 @@ const initialSettings = {
   submit_delay: 12, //5-50
   keybinds: {
     straight: "c",
-    yambic_dot: "z",
-    yambic_dash: "x",
+    yambic_left: "z",
+    yambic_right: "x",
     cancel_message: "p",
   }
 }

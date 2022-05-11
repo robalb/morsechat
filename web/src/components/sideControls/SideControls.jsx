@@ -136,8 +136,8 @@ export function KeybindingsControls({className}){
         <div className={`${styles.controls} ${styles.keybindings} ${className}`}>
             <h2>Keybindings</h2>
             <p>straight key SPACE</p>
-            <p>yambic dot Z</p>
-            <p>yambic dash X</p>
+            <p>left paddle Z</p>
+            <p>right paddle X</p>
         </div>
     )
 

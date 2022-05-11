@@ -37,7 +37,7 @@ export function AppLayout({chatDomNode}) {
 
     let [sidebarOpen, setSidebarOpen] = React.useState(false);
 
-    let [settingsOpen, setSettingsOpen] = React.useState(true)
+    let [settingsOpen, setSettingsOpen] = React.useState(false)
 
     function closeSidebar(event) {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
