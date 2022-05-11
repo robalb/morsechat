@@ -5,6 +5,8 @@ import * as React from "react";
 import {pusherClient} from "../utils/apiResolver";
 import getDialect from '../utils/dialects'
 
+import ctx from '../utils/soundCtx'
+
 export function AppLogic({chatDomNode}) {
     const dispatch = useDispatch()
     let loading = useSelector(state => state.api.loading)
@@ -135,6 +137,8 @@ export function AppLogic({chatDomNode}) {
         }
     }, [loading]);
 
+    console.log("===== app logic render")
+    console.log(ctx)
 
     /**
      * channel connection effect

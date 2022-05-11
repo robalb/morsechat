@@ -1,6 +1,9 @@
 import * as React from "react";
+import ctx2 from '../utils/soundCtx'
 
 export function useSound(note = 880, volume = 100) {
+    console.log("===== useSound")
+    console.log(ctx2)
     //setting the gain to zero crashes everything, this is a workaround
     const baseVolume = 0.0000001
     if (volume < 0) volume = 0
