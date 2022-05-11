@@ -1,17 +1,21 @@
 
-.sidecontrols{
+.controls{
     padding: 1rem;
 }
-.sidecontrols div{
+.controls div{
     display: flex;
 }
-.sidecontrols p{
+.controls p{
     margin-bottom: 0;
     margin-top: .6rem;
 }
-.sidecontrols h2{
+.controls h2{
     margin-top: 0;
 }
-.sidecontrols button{
+.controls button{
     margin-top: .6rem;
+}
+
+.keybindings{
+
 }

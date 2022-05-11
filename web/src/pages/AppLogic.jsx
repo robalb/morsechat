@@ -20,7 +20,7 @@ export function AppLogic({chatDomNode}) {
     let dialect = getDialect(dialectName)
 
     /**
-     * recursive typer loop. It's job is to type a received message into the chat,
+     * recursive typer loop. Its job is to type a received message into the chat,
      * with the same timings of the sender
      * 
      * @param {DOMElement} morse - the html element where we'll display the raw morse code

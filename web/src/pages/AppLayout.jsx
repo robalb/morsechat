@@ -16,6 +16,7 @@ import {Chat} from "../components/chat/Chat";
 import {Key} from "../components/key/Key";
 import SettingsIcon from "@mui/icons-material/Settings";
 import {Sheet} from "../components/sheet/Sheet";
+import {Settings} from "../components/settings/Settings";
 import { useSelector } from 'react-redux'
 
 import './appLayout.css'
@@ -35,6 +36,8 @@ export function AppLayout({chatDomNode}) {
     let [sheetOpen, setSheetOpen] = React.useState(desktop);
 
     let [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+    let [settingsOpen, setSettingsOpen] = React.useState(false)
 
     function closeSidebar(event) {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -63,6 +66,9 @@ export function AppLayout({chatDomNode}) {
     return (
         <div className="app-container">
             <Auth authState={authState} />
+            <Settings open={settingsOpen} setOpen={setSettingsOpen}
+                mobileView={!tablet}
+            />
             {
                 !desktop &&
                 <Drawer
@@ -113,10 +119,18 @@ export function AppLayout({chatDomNode}) {
                 {
                     tablet &&
                     <div className="grid-side">
-                        <Online 
-                        className='grid-side-online'
+                        <Online
+                            className='grid-side-online'
                         />
-                        <SideControls className='grid-side-sidecontrols' />
+                        <SideControls className='grid-side-sidecontrols'
+                            settingsButton={
+                                <Button size="small" startIcon={<SettingsIcon />}
+                                    onClick={() => setSettingsOpen(t => !t)}
+                                    variant="outlined">
+                                    Advanced
+                                </Button>
+                            }
+                        />
                     </div>
                 }
                 <Preview className='grid-preview' />
@@ -124,7 +138,8 @@ export function AppLayout({chatDomNode}) {
                 <Key className='grid-key'
                     leftButton={
                         tablet ? undefined :
-                            <IconButton aria-label="Settings">
+                            <IconButton aria-label="Settings" 
+                                onClick={()=> setSettingsOpen(t => !t)}>
                                 <SettingsIcon />
                             </IconButton>
                     }

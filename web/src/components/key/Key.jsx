@@ -8,13 +8,16 @@ import {useDispatch, useSelector} from 'react-redux'
 import {keyDown, keyUp} from "../../redux/chatSlice";
 import {useSound} from "../../hooks/UseSound";
 
+
 function KeyInternal(props){
   const dispatch = useDispatch()
 
-  let keyMode = useSelector(state => state.user.settings.key_mode)
-  let wpm = useSelector(state => state.user.settings.wpm)
-  let keyVolume = useSelector(state => state.user.settings.volume_key)
-  let leftIsDot = useSelector(state => state.user.settings.left_is_dot)
+  let settings = useSelector(state => state.user.settings)
+  let keyMode = settings.key_mode
+  let wpm = settings.wpm
+  let keyVolume = settings.volume_key
+  let leftIsDot = settings.left_is_dot
+  let keybinds =  settings.keybinds
 
   //state used by the yambic keyer.
   let [dotDown, setDotDown] = React.useState(false)
@@ -24,28 +27,15 @@ function KeyInternal(props){
 
   let [on, off] = useSound(880, keyVolume)
 
-  function cancelEverything(){
+
+  //handle component leave
+  React.useEffect(()=>{
+    return function(){
       //cancel yambicLoop
       clearTimeout(interval.current)
       interval.current = null
       //dispatch up
       up()
-  }
-
-  //stop the yambic loop if there are settings changes
-  //while it's running, to avoid bugs
-  React.useEffect(()=>{
-    if(interval.current){
-      cancelEverything()
-      console.log("settings changed, releasing key to avoid bugs")
-    }
-  }, [keyMode, wpm, leftIsDot])
-
-
-  //handle component leave
-  React.useEffect(()=>{
-    return function(){
-      cancelEverything()
       console.log("key is unmounting, releasing key to avoid bugs")
     }
   }, [])
@@ -132,7 +122,13 @@ function KeyInternal(props){
     }
   }, [yambicEvent])
 
-  function yambicDown(isDot){
+  /**
+   * yambic paddle interface
+   * 
+   * @param {boolean} isLeft - set the left paddle to down. If false it's the right paddle
+   */
+  function yambicDown(isLeft){
+    let isDot = (isLeft == leftIsDot) //xor logic operation
     // console.log("yambic down")
     if(isDot)
       setDotDown(true)
@@ -140,7 +136,13 @@ function KeyInternal(props){
       setDashDown(true)
   }
 
-  function yambicUp(isDot){
+  /**
+   * yambic paddle interface
+   * 
+   * @param {boolean} isLeft - set the left paddle to up. If false it's the right paddle
+   */
+  function yambicUp(isLeft){
+    let isDot = (isLeft == leftIsDot) //xor logic operation
     // console.log("yambic up")
     if(isDot)
       //idea: set the down state as a integer with 3 values: 0,1,2 isntead of a bool.
@@ -159,8 +161,7 @@ function KeyInternal(props){
     }
     else if(keyMode === "yambic"){
       let isLeft = e.nativeEvent.which == 1
-      let isDot = (isLeft == leftIsDot) //xor logic operation
-      yambicDown(isDot)
+      yambicDown(isLeft)
     }
   }
 
@@ -170,8 +171,7 @@ function KeyInternal(props){
     }
     else if(keyMode === "yambic"){
       let isLeft = e.nativeEvent.which == 1
-      let isDot = (isLeft == leftIsDot) //xor logic operation
-      yambicUp(isDot)
+      yambicUp(isLeft)
     }
   }
 
@@ -187,6 +187,63 @@ function KeyInternal(props){
     dispatch(keyUp() )
   }
 
+
+  const keyHandler = (e)=>{
+    if(keyMode === "straight"){
+      if(
+        e.key == " " ||
+        e.key == keybinds.straight ||
+        e.key == keybinds.yambic_left ||
+        e.key == keybinds.yambic_right
+      )
+        if(e.event == "up")
+          up()
+        else
+          down()
+    }
+    else{
+      let isLeft = e.key == keybinds.yambic_left
+      let isRight = e.key == keybinds.yambic_right
+      if(isLeft || isRight)
+        if(e.event == "up")
+          yambicUp(isLeft)
+        else
+          yambicDown(isLeft)
+    }
+  }
+
+  const downHandler = ({ key }) =>{
+    keyHandler({
+      key,
+      event: "down"
+    })
+  }
+  const upHandler = ({ key }) => {
+    keyHandler({
+      key,
+      event: "up"
+    })
+  };
+
+  // add key events event listeners
+  // this is where the code gets ugly:
+  // the listeners, and every other function that is called by them will keep
+  // a binding to the current state at the time of their declaration.
+  // in a react component with many state updates, this is bad because
+  // accessing the state from within one of those functions will return the state
+  // at the time of the addEventListener execution
+  // The naiive solution is to navigate the tree of funcalls that start from
+  // these listeners, and manually add every reactive element to the useEffect dependencies
+  // This is slow, and a sign that a refactor was needed long ago
+  React.useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
+    };
+  }, [settings, up, down]);
 
   return (
     <button className={styles.key_bt}
