@@ -44,10 +44,11 @@ start vite in development mode `cd /web && npm run dev`
 
 The easiest way to run the webapp in a production environment is with the provided docker-compose.prod,
 `docker-compose -f docker-compose.prod.yml up --build`
+This method will also generate and manage a mariadb image, but you should replace it with something more stable
 
-Alternatively, you can deploy the app on a k8s kluster using the manifests in `kubernetes/base`
-The current setup requires a traefik ingress controller, certmanager, and a mysql database Service
-already running
+
+Alternatively you can deploy the app on a k8s kluster using the manifests in `kubernetes/base` but first you will need to
+setup a traefik ingress controller, certmanager, and a mariadb database Service.
 
 The live website on halb.it is built using github workflows, and deployed on a k8s cluster with argoCD
 
