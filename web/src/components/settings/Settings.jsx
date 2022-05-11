@@ -1,7 +1,16 @@
 import * as React from "react";
+import {SideControls, AdvancedControls, KeybindingsControls} from "../sideControls/SideControls";
+import {Grid, IconButton} from '@mui/material';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import CloseIcon from '@mui/icons-material/Close';
+
 import Dialog from "@mui/material/Dialog";
 
-export function Settings({open, setOpen, fullScreen=true}){
+import styles from './settings.module.css';
+
+
+export function Settings({open, setOpen, mobileView}){
 
     function closeAuth(event) {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -15,11 +24,25 @@ export function Settings({open, setOpen, fullScreen=true}){
             PaperProps={{
               elevation: 1
             }}
-            fullScreen={fullScreen}
+            fullWidth={mobileView}
             open={open}
+            scroll="paper"
             onClose={closeAuth}
         >
-            <p>settings</p>
+             <DialogTitle id="scroll-dialog-title">
+                <IconButton aria-label="close" color="primary" onClick={e => setOpen(false)}>
+                    <CloseIcon />
+                </IconButton>
+             </DialogTitle>
+             <DialogContent dividers={true}>
+
+            <div className={styles.settingsContainer}>
+                { mobileView && <SideControls /> }
+                <AdvancedControls />
+                <KeybindingsControls />
+
+            </div>
+            </DialogContent>
         </Dialog>
     )
 

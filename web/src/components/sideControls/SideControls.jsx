@@ -2,11 +2,20 @@ import * as React from "react";
 import Slider from '@mui/material/Slider';
 import { useSelector, useDispatch } from 'react-redux'
 import { updateSettings } from "../../redux/userSlice";
-import styles from './sideControls.module.css';
+import styles from './controls.module.css';
 import { useSnackbar } from 'notistack';
 
 import { useStateDep } from "../../hooks/useStateDep";
 import { Switch } from "@mui/material";
+
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+/**
+ * TODO: rename this file and its parent folder into controls
+ */
 
 /**
  * this complicated contraption is here to prevent a rerender of every slider
@@ -23,7 +32,7 @@ const MemoSlider = React.memo(function CustomSlider({value, onChangeCommitted, .
 
 const MemoSwitch = React.memo(Switch)
 
-export function SideControls({className = "", settingsButton}) {
+export function SideControls({className = "", settingsButton=""}) {
     const {enqueueSnackbar} = useSnackbar();
     const dispatch = useDispatch()
     let settings = useSelector(state => state.user.settings)
@@ -38,8 +47,8 @@ export function SideControls({className = "", settingsButton}) {
     }
 
     return (
-        <div className={`${styles.sidecontrols} ${className}`}>
-            <h2>controls</h2>
+        <div className={`${styles.controls} ${className}`}>
+            <h2>Controls</h2>
             <p>wpm</p>
             <MemoSlider size="small" value={settings.wpm} aria-label="Default" valueLabelDisplay="auto" 
                 min={5}
@@ -61,14 +70,6 @@ export function SideControls({className = "", settingsButton}) {
                     (e, v) => update({ volume_key: v }),
                     [])}
              />
-            <p>submit delay</p>
-            <MemoSlider size="small" value={settings.submit_delay} aria-label="Default" valueLabelDisplay="auto"
-                min={5}
-                max={50}
-                onChangeCommitted={React.useCallback(
-                    (e, v) => update({ submit_delay: v }),
-                    [])}
-             />
             <div>
                 <p>show letters</p>
                 <MemoSwitch 
@@ -83,4 +84,61 @@ export function SideControls({className = "", settingsButton}) {
             { settingsButton }
         </div>
     );
+}
+
+export function AdvancedControls({className = ""}) {
+
+    const dispatch = useDispatch()
+    let settings = useSelector(state => state.user.settings)
+    function update(data) {
+        dispatch(updateSettings(data))
+    }
+    return (
+        <div className={`${styles.controls} ${className}`}>
+            <h2>Advanced settings</h2>
+            <p>submit delay</p>
+            <MemoSlider size="small" value={settings.submit_delay} aria-label="Default" valueLabelDisplay="auto"
+                min={5}
+                max={50}
+                onChangeCommitted={React.useCallback(
+                    (e, v) => update({ submit_delay: v }),
+                    [])}
+             />
+            <p>key mode</p>
+            <RadioGroup
+                row
+                aria-labelledby="demo-controlled-radio-buttons-group"
+                name="controlled-radio-buttons-group"
+                value={settings.key_mode}
+                onChange={ e => update({ key_mode: e.target.value})}
+            >
+                <FormControlLabel value="straight" control={<Radio />} label="straight" />
+                <FormControlLabel value="yambic" control={<Radio />} label="yambic A" />
+            </RadioGroup>
+            <p style={{marginTop: "1rem"}}>yambic paddle order</p>
+            <div>
+                <p>left is dot</p>
+                <MemoSwitch 
+                    checked={settings.left_is_dot}
+                    color="primary"
+                    onChange={React.useCallback(
+                        (e) => update({ left_is_dot: e.target.checked }),
+                        [])}
+                />
+                <p>right is dot</p>
+            </div>
+        </div>
+    )
+}
+
+export function KeybindingsControls({className}){
+    return (
+        <div className={`${styles.controls} ${styles.keybindings} ${className}`}>
+            <h2>Keybindings</h2>
+            <p>straight key SPACE</p>
+            <p>yambic dot Z</p>
+            <p>yambic dash X</p>
+        </div>
+    )
+
 }

@@ -1,0 +1,11 @@
+.settingsContainer {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media only screen and (min-width: 600px) {
+    .settingsContainer{
+        width: auto;
+        min-width: 500px;
+    }
+}

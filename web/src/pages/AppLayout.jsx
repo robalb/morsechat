@@ -37,7 +37,7 @@ export function AppLayout({chatDomNode}) {
 
     let [sidebarOpen, setSidebarOpen] = React.useState(false);
 
-    let [settingsOpen, setSettingsOpen] = React.useState(false)
+    let [settingsOpen, setSettingsOpen] = React.useState(true)
 
     function closeSidebar(event) {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -66,8 +66,8 @@ export function AppLayout({chatDomNode}) {
     return (
         <div className="app-container">
             <Auth authState={authState} />
-            <Settings open={settingsOpen} setOpen={setSettingsOpen} fullScreen={false} 
-                showAllSettings={!tablet}
+            <Settings open={settingsOpen} setOpen={setSettingsOpen}
+                mobileView={!tablet}
             />
             {
                 !desktop &&
