@@ -24,6 +24,7 @@ function KeyInternal(props){
   let [dashDown, setDashDown] = React.useState(false)
   let [yambicEvent, setYambicEvent] = React.useState(false)
   const interval = React.useRef(null);
+  const dashReleaseTimer = React.useRef(null);
 
   let [on, off] = useSound(880, keyVolume)
 
@@ -176,15 +177,22 @@ function KeyInternal(props){
   }
 
   function down(e){
-    // console.log(">>down")
+    //start key sound
     on()
+    //dispatch keyDown
     dispatch(keyDown())
+    //start up timer, to prevent annoying infinite dashes
+    clearTimeout(dashReleaseTimer.current)
+    dashReleaseTimer.current = setTimeout(up, times[DASH] * 3)
   }
 
   function up(e){
-    // console.log(">>up")
+    //stop key sound
     off()
-    dispatch(keyUp() )
+    //dispatch keyUp
+    dispatch(keyUp())
+    //reset up timer
+    clearTimeout(dashReleaseTimer.current)
   }
 
 
