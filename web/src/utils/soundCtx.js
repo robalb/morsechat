@@ -4,7 +4,6 @@
  * The audiocontext used globally by the app
  */
 let ctx = new AudioContext()
-ctx.suspend()
 
 window.addEventListener('keydown', resumeCtx, {
     once: true,
@@ -21,10 +20,10 @@ window.addEventListener('mousedown', resumeCtx, {
     passive: true
 } )
 
-
 function resumeCtx(){
     // check if context is in suspended state (autoplay policy)
     if (ctx.state === 'suspended') {
+        console.log("global audiocontext resumed")
         ctx.resume();
     }
 }
