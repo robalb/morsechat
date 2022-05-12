@@ -40,6 +40,18 @@
     align-items: center;
     height: 100%;
 }
+
+.online .left button{
+  all: unset;
+  cursor: pointer;
+}
+.online .left button:hover{
+  text-decoration: underline;
+}
+.online .left button:focus-visible p{
+  outline: 1px solid white;
+}
+
 .online .typing {
   margin-left: 1rem;
 }

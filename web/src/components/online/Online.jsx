@@ -29,7 +29,18 @@ export function Online({className = ""}) {
         return (
             <div key={id}>
                 <div className={styles.left}>
-                    <p>{userObj.callsign}{ id==myID ? " (you)" : ""}</p>
+                    <button
+                        onClick={ e => {
+                            alert(
+                                "\n Social features coming soon" +
+                                "\n debug user info: " +
+                                JSON.stringify(userObj)
+                            )
+                        }
+                        }
+                    >
+                        <p>{userObj.callsign}{ id==myID ? " (you)" : ""}</p>
+                    </button>
                     { 
                     userObj.typing &&
                     <div className={styles.typing}>
