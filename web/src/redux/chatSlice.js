@@ -143,6 +143,10 @@ const chatSlice = createSlice({
 })
 
 
+/**
+ * Use as selector for redux useSelector
+ * @returns String - the readable name of the current channel, or undefined
+ */
 export function selectChannelName(state){
     let selectedChannel = state.chat.channel
     let filtered = state.chat.channels.filter(current => current.ch == selectedChannel)

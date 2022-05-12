@@ -76,6 +76,19 @@ export function AppLogic({chatDomNode}) {
     }
 
     /**
+     * scroll to the bottom of the chat, but only if the user is not
+     * reading old messages, - that would be pretty annoying
+     */
+    function scrollDown(){
+        let chat = chatDomNode.current
+        let margin = 60 //arbitrary value
+        let scrollDown = (chat.scrollTop > (chat.scrollHeight - chat.clientHeight - margin));
+        if(scrollDown){
+            chat.scrollTop = chat.scrollHeight
+        }
+    }
+
+    /**
      * Called when a message is received. Initialize the typer loop
      * 
      * @param {*} e 
@@ -94,15 +107,16 @@ export function AppLogic({chatDomNode}) {
         typer(morse, text, e.message, times)
         chat.insertAdjacentElement("beforeend", message)
         //scroll down if the user is not reading old messages
-        let margin = 60 //arbitrary value
-        let scrollDown = (chat.scrollTop > (chat.scrollHeight - chat.clientHeight - margin));
-        if(scrollDown){
-            chat.scrollTop = chat.scrollHeight
-        }
+        scrollDown()
     }
 
     function systemMessage(msg){
-
+        let chat = chatDomNode.current
+        let message = document.createElement("p")
+        message.innerText = msg
+        chat.insertAdjacentElement("beforeend", message)
+        //scroll down if the user is not reading old messages
+        scrollDown()
     }
 
     //sync the selected channel with the query param
@@ -159,8 +173,13 @@ export function AppLogic({chatDomNode}) {
             pusherChannel.current.bind('pusher:subscription_succeeded', e => {
                 dispatch(setConnected('connected'))
                 dispatch(updateOnline(JSON.parse(JSON.stringify(e))))
+                //clear the chat (TODO: this hshould not happen after a simple disconnect)
+                //idea: clear the screen only when the channel is changed from the selector,
+                //maybe adding a connecting.. message
                 if (chatDomNode.current)
                     chatDomNode.current.innerHTML = ""
+                //show successfully connected message
+                systemMessage("connected to " + channelName + " with callsign: " + callsign)
             })
 
             pusherChannel.current.bind('pusher:subscription_error', e => {
