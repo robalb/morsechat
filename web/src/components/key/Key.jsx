@@ -183,7 +183,8 @@ function KeyInternal(props){
     dispatch(keyDown())
     //start up timer, to prevent annoying infinite dashes
     clearTimeout(dashReleaseTimer.current)
-    dashReleaseTimer.current = setTimeout(up, times[DASH] * 3)
+    let maxDashTime = 1500 // 2 seconds, which is times[DASH] * 2 at 5 wpm
+    dashReleaseTimer.current = setTimeout(up, maxDashTime)
   }
 
   function up(e){
