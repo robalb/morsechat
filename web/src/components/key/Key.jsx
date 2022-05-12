@@ -157,6 +157,9 @@ function KeyInternal(props){
   }
 
   function mouseDown(e){
+    //anti-ch3at measure
+    if(!e.isTrusted)
+      return
     if(keyMode === "straight"){
       down()
     }
@@ -167,6 +170,9 @@ function KeyInternal(props){
   }
 
   function mouseUp(e){
+    //anti-ch3at measure
+    if(!e.isTrusted)
+      return
     if(keyMode === "straight"){
       up()
     }
@@ -221,15 +227,21 @@ function KeyInternal(props){
     }
   }
 
-  const downHandler = ({ key }) =>{
+  const downHandler = (e) =>{
+    //anti-ch3at measure
+    if(!e.isTrusted)
+      return
     keyHandler({
-      key,
+      key: e.key,
       event: "down"
     })
   }
-  const upHandler = ({ key }) => {
+  const upHandler = (e) => {
+    //anti-ch3at measure
+    if(!e.isTrusted)
+      return
     keyHandler({
-      key,
+      key: e.key,
       event: "up"
     })
   };

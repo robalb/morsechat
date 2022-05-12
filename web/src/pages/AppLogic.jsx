@@ -101,6 +101,10 @@ export function AppLogic({chatDomNode}) {
         }
     }
 
+    function systemMessage(msg){
+
+    }
+
     //sync the selected channel with the query param
     //look mom! no react router
     React.useEffect(() => {
