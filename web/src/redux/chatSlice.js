@@ -94,14 +94,18 @@ const chatSlice = createSlice({
     },
     updateOnline(state, action){
         let onlineUsersWithTypingStatus = {}
+        //add two extra keys to every user object: typing and allowSound
         Object.keys(action.payload.members).map( id=>{
             let typing = false
-            if(state.onlineUsers[id])[
+            let allowSound = true
+            if(state.onlineUsers[id]){
                 typing = state.onlineUsers[id].typing
-            ]
+                allowSound = state.onlineUsers[id].allowSound
+            }
             onlineUsersWithTypingStatus[id] = {
                 ...action.payload.members[id],
-                typing
+                typing,
+                allowSound
             }
         })
         state.onlineUsers = onlineUsersWithTypingStatus
@@ -110,6 +114,11 @@ const chatSlice = createSlice({
     setTyping(state, action){
         if(state.onlineUsers[action.payload.user]){
             state.onlineUsers[action.payload.user].typing = action.payload.typing
+        }
+    },
+    setAllowSound(state, action){
+        if(state.onlineUsers[action.payload.user]){
+            state.onlineUsers[action.payload.user].allowSound = action.payload.allowSound
         }
     }
   },
@@ -156,7 +165,7 @@ export function selectChannelName(state){
     return undefined
 }
 
-export const {setChannel, setChannelByName, setConnected, resetMessage, updateOnline, setTyping} = chatSlice.actions
+export const {setChannel, setChannelByName, setConnected, resetMessage, updateOnline, setTyping, setAllowSound} = chatSlice.actions
 
 export default chatSlice.reducer
 

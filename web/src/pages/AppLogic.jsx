@@ -77,7 +77,7 @@ export function AppLogic({chatDomNode}) {
 
     /**
      * scroll to the bottom of the chat, but only if the user is not
-     * reading old messages, - that would be pretty annoying
+     * reading old messages
      */
     function scrollDown(){
         let chat = chatDomNode.current
@@ -94,6 +94,7 @@ export function AppLogic({chatDomNode}) {
      * @param {*} e 
      */
     function handleMessage(e) {
+        console.log(e)
         let chat = chatDomNode.current
         let message = document.createElement("p")
         let label = document.createElement("span") 
