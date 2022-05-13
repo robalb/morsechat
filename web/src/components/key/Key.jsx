@@ -24,6 +24,7 @@ function KeyInternal(props){
   let [dashDown, setDashDown] = React.useState(false)
   let [yambicEvent, setYambicEvent] = React.useState(false)
   const interval = React.useRef(null);
+  const dashReleaseTimer = React.useRef(null);
 
   let [on, off] = useSound(880, keyVolume)
 
@@ -156,6 +157,9 @@ function KeyInternal(props){
   }
 
   function mouseDown(e){
+    //anti-ch3at measure
+    if(!e.isTrusted)
+      return
     if(keyMode === "straight"){
       down()
     }
@@ -166,6 +170,9 @@ function KeyInternal(props){
   }
 
   function mouseUp(e){
+    //anti-ch3at measure
+    if(!e.isTrusted)
+      return
     if(keyMode === "straight"){
       up()
     }
@@ -176,15 +183,23 @@ function KeyInternal(props){
   }
 
   function down(e){
-    // console.log(">>down")
+    //start key sound
     on()
+    //dispatch keyDown
     dispatch(keyDown())
+    //start up timer, to prevent annoying infinite dashes
+    clearTimeout(dashReleaseTimer.current)
+    let maxDashTime = 1500 // 2 seconds, which is times[DASH] * 2 at 5 wpm
+    dashReleaseTimer.current = setTimeout(up, maxDashTime)
   }
 
   function up(e){
-    // console.log(">>up")
+    //stop key sound
     off()
-    dispatch(keyUp() )
+    //dispatch keyUp
+    dispatch(keyUp())
+    //reset up timer
+    clearTimeout(dashReleaseTimer.current)
   }
 
 
@@ -212,15 +227,21 @@ function KeyInternal(props){
     }
   }
 
-  const downHandler = ({ key }) =>{
+  const downHandler = (e) =>{
+    //anti-ch3at measure
+    if(!e.isTrusted)
+      return
     keyHandler({
-      key,
+      key: e.key,
       event: "down"
     })
   }
-  const upHandler = ({ key }) => {
+  const upHandler = (e) => {
+    //anti-ch3at measure
+    if(!e.isTrusted)
+      return
     keyHandler({
-      key,
+      key: e.key,
       event: "up"
     })
   };

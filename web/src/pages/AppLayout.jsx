@@ -10,7 +10,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Button from "@mui/material/Button";
 import PeopleIcon from "@mui/icons-material/People";
 import {Online} from "../components/online/Online";
-import {SideControls} from "../components/sideControls/SideControls";
+import {SideControls} from "../components/controls/controls";
 import {Preview} from "../components/preview/Preview";
 import {Chat} from "../components/chat/Chat";
 import {Key} from "../components/key/Key";

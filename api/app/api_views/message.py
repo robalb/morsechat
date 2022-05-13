@@ -44,16 +44,18 @@ def api_message():
     else:
         return error("unauthorized", details="no_valid_session")
 
-    pusher.client.trigger(
-         session['authorized_channel'],
-         'message',
-         {
+    message_data = {
              'id': uid,
              'callsign': callsign,
              'message': g.data['message'],
              'dialect': g.data['dialect'],
              'wpm': g.data['wpm']
          }
+    app.logger.info(message_data)
+    pusher.client.trigger(
+         session['authorized_channel'],
+         'message',
+         message_data
     )
     return success("")
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {SideControls, AdvancedControls, KeybindingsControls} from "../sideControls/SideControls";
+import {SideControls, AdvancedControls, KeybindingsControls} from "../controls/controls";
 import {Grid, IconButton} from '@mui/material';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';

@@ -13,18 +13,21 @@ function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
     let times = useSelector(selectMorseTimes)
     let showReadable = useSelector(state => state.user.settings.show_readable)
-    let keyDown = useSelector(state => state.chat.keyDown)
     let dialectName = useSelector(state => state.user.settings.dialect)
     let dialect = getDialect(dialectName)
 
     let [canTranslateLast, setCanTranslateLast] = React.useState(false)
 
     //this hook starts a countdown that is resetted every time the message buffer updates.
+    //the countdown starts only if the last element is a space
     //if the countodwn reaches the end, a flag that allows the translation of the last letter is set to true
     //and a rerender is triggered, causing the translation of the last letter
     React.useEffect(()=>{
         setCanTranslateLast(false)
-        let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap + 32)
+        let isDown = buffer.length % 2 == 0
+        if(isDown)
+            return
+        let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap )
         return () =>{
             clearTimeout(t)
         }
@@ -66,7 +69,7 @@ function TextPreview(){
             down = !down
         }
         //if there is a letter left, we translate it only if a certain time has passed since the last keypress
-        if(showReadable && canTranslateLast && !keyDown)
+        if(showReadable && canTranslateLast)
             return out + translateToReadable(letter);
         return out + (showReadable ? " " : "")+ letter
     }
