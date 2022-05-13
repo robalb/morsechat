@@ -24,6 +24,14 @@ export function AppLogic({chatDomNode}) {
     let volume = useSelector(state => state.user.settings.volume_receiver)
     let onlineUsers = useSelector(state => state.chat.onlineUsers)
 
+    let [, setLiveVolumeData] = React.useState({})
+    React.useEffect( ()=>{
+        console.log("updating livevolumedata")
+        setLiveVolumeData(d => ({
+            volume,
+            onlineUsers
+        }))
+    }, [volume, onlineUsers])
 
     /**
      * recursive typer loop. Its job is to type a received message into the chat,
@@ -43,18 +51,13 @@ export function AppLogic({chatDomNode}) {
      */
     function typer(morse, morseLetters, message, times, g, i=0, letter="", morseOut="", morseLettersOut=""){
         let t = message[i]
-        //calculate volume
-        //note: this function does not receive ctx,volume and onlineUsers as parameters,
-        //      to avoid binding to outdated values
-        //      off course this makes everything even uglier
-        const baseVolume = 0.0000001
-        if (volume < 0) volume = 0
-        if (volume > 100) volume = 100
-        const highVolume = (volume + baseVolume) / 100
+
 
         //released after t millis
         if(i%2 == 0){
-            g.gain.setValueAtTime(highVolume, ctx.currentTime)
+            //temporary, replace with soundOn()
+            // g.gain.setValueAtTime(volume/100, ctx.currentTime)
+            soundOn(g)
             if(t < times.dash){
                 letter += "."
             }else{
@@ -63,7 +66,9 @@ export function AppLogic({chatDomNode}) {
         }
         //pressed after t millis
         else{
-            g.gain.setValueAtTime(baseVolume, ctx.currentTime)
+            //temporary, replace with soundOff()
+            // g.gain.setValueAtTime(0.0000001, ctx.currentTime)
+            soundOff(g)
             if(t > times.wordGap){
                 morseOut += letter + "   "
                 morseLettersOut += translateToReadable(letter) + "  "
@@ -84,7 +89,6 @@ export function AppLogic({chatDomNode}) {
             //translate what is left
             morseLetters.innerText = morseLettersOut + translateToReadable(letter)
             //stop and remove the audio gain node
-            g.gain.setValueAtTime(baseVolume, ctx.currentTime)
             g.disconnect()
         }
     }
@@ -127,9 +131,9 @@ export function AppLogic({chatDomNode}) {
         //initialize wpm times
         let times = wpmToMorseTimes(e.wpm)
         //initialize sound variables
-        //volume and users won't be called from here to avoid bindings to outdated values
-        //start the typer recursive function
+        //todo: this should be a class, with on, off and disconnect methods
         let g = initSound()
+        //start the typer recursive function
         typer(morse, text, e.message, times, g)
         chat.insertAdjacentElement("beforeend", message)
         //scroll down if the user is not reading old messages
@@ -148,6 +152,21 @@ export function AppLogic({chatDomNode}) {
         g.gain.setValueAtTime(baseVolume, ctx.currentTime)
         o.start()
         return g
+    }
+    function soundOn(g, uid=2){
+        setLiveVolumeData( d =>{
+            let volume = d.volume
+            const baseVolume = 0.0000001
+            if (volume < 0) volume = 0
+            if (volume > 100) volume = 100
+            const highVolume = (volume + baseVolume) / 100
+            g.gain.setValueAtTime(highVolume, ctx.currentTime)
+            return d
+        })
+    }
+    function soundOff(g){
+        const baseVolume = 0.0000001
+        g.gain.setValueAtTime(baseVolume, ctx.currentTime)
     }
 
 
