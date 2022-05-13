@@ -21,6 +21,19 @@ import { useSelector } from 'react-redux'
 
 import './appLayout.css'
 
+function MobileOnlineUsers(){
+    let onlineUsers = useSelector(state => state.chat.onlineUsers)
+    let count = Object.keys(onlineUsers).length
+    return (
+        <Button className="header-bt-left" startIcon={<PeopleIcon />}
+            aria-label="Online users">
+            <output>
+                {count}
+            </output>
+        </Button>
+    )
+}
+
 export function AppLayout({chatDomNode}) {
     let loading = useSelector(state => state.api.loading)
     let authenticated = useSelector(state => state.user.authenticated)
@@ -98,12 +111,7 @@ export function AppLayout({chatDomNode}) {
                         }
                         {
                             !tablet &&
-                            <Button className="header-bt-left" startIcon={<PeopleIcon />}
-                                aria-label="Online users">
-                                <output>
-                                    5
-                                </output>
-                            </Button>
+                            <MobileOnlineUsers />
                         }
                     </>
                 }
