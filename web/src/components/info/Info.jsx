@@ -7,7 +7,7 @@ export function Info({className="", ...props}) {
     return (
         <div className={`${styles.info} ${className}`} >
             <h3>Morsechat</h3>
-            <p>This is a web-based morsecode radio and chat</p>
+            <p>This is a web-based morsecode chat</p>
             <p>Press space or the key below to transmit a dot, hold it to
                 transmit a dash
             </p>
@@ -16,9 +16,9 @@ export function Info({className="", ...props}) {
                 for help, or to participate on the development.
             </p>
             <h3>What's new</h3>
-            <p>2022-11-05 update notes:</p>
-            <p>- added yambic mode</p>
-            <p>- added keybinds</p>
+            <p>2022-13-05 update notes:</p>
+            <p>- performance improvements</p>
+            <p>- now you can mute individual users</p>
             <a href="https://discord.gg/JPzfzNJG6e" title="discord">
                 <img src={discordUrl}/>
             </a><br/>

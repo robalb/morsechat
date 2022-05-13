@@ -115,12 +115,10 @@ export default class ReceiverSound {
         let poolBase = poolAM
         //generate the pool of available frequencies
         let pool = [
-            ...poolBase.slice(2).map(f => f / 2),     //octave 3 
             ...poolBase,                              //octave 4
             ...poolBase.map(f => f * 2),              //octave 5
             ...poolBase.slice(0, 2).map(f => f * 4),  //octave 6
         ]
-        console.log(JSON.stringify(pool))
         // let i = Math.floor(Math.random() * pool.length)
         function hashCode(s) {
             return s.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);

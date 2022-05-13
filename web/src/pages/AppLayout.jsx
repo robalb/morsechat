@@ -101,7 +101,7 @@ export function AppLayout({chatDomNode}) {
                             <Button className="header-bt-left" startIcon={<PeopleIcon />}
                                 aria-label="Online users">
                                 <output>
-                                    2
+                                    5
                                 </output>
                             </Button>
                         }
