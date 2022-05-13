@@ -89,10 +89,43 @@ export default class ReceiverSound {
      * - The goal is to assign a specific frequency to every user, so that
      *   users will be recognizable by frequency
      * 
+     * @todo - the user frequency should be assigned randomly server side at
+     *         the time of the account creation, toghether with the callsign.
+     *         this would also allow the key to have the same freq as the player
      * @returns {integer} - the note frequency that this specific object will use
      */
     #getFrequency(){
-        //TODO
-        return 440
+        //C minor pentathonic scale
+        let poolAm = [
+            220.00, // A3
+            261.63,
+            329.63,
+            392.00,
+            440.00
+        ]
+        //c major pentathonic scale
+        let poolAM = [
+            261.63, // C4
+            293.66,
+            329.63,
+            392.00,
+            440.00,
+        ]
+        //select the penthatonic scale
+        let poolBase = poolAM
+        //generate the pool of available frequencies
+        let pool = [
+            ...poolBase.slice(2).map(f => f / 2),     //octave 3 
+            ...poolBase,                              //octave 4
+            ...poolBase.map(f => f * 2),              //octave 5
+            ...poolBase.slice(0, 2).map(f => f * 4),  //octave 6
+        ]
+        console.log(JSON.stringify(pool))
+        // let i = Math.floor(Math.random() * pool.length)
+        function hashCode(s) {
+            return s.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);
+        }
+        let i = Math.abs(hashCode(this.uid) % pool.length)
+        return pool[i]
     }
 }
