@@ -56,7 +56,7 @@ spec:
               command:
               - curl
               - -X POST
-              - http://localhost/api/v1/page_init
+              - http://localhost/api/v1/page_init?pod-liveness-probe
             timeoutSeconds: 2
             initialDelaySeconds: 5
             periodSeconds: 60
