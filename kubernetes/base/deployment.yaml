@@ -58,5 +58,5 @@ spec:
               httpHeaders:
               - name: Probe-K8s
                 value: livenessProbeCheck
-            initialDelaySeconds: 5
+            initialDelaySeconds: 20
             periodSeconds: 5
