@@ -6,7 +6,9 @@ metadata:
   annotations:
     # (Optional): Annotations for the Ingress Controller
     # Middleware:
-    traefik.ingress.kubernetes.io/router.middlewares: testapp-redirectscheme@kubernetescrd
+    # WARNING: the name of the middleware is namespace-name@kubernetescrd
+    #          so we are forced to hardcode the namespace. helm/kustomize may helm here
+    traefik.ingress.kubernetes.io/router.middlewares: morse-redirectscheme@kubernetescrd
 spec:
   rules:
   - host: "morse.halb.it"
@@ -24,17 +26,6 @@ spec:
   - hosts:
     - "morse.halb.it"
     secretName: morse-cert  #name of the tls secret. Make sure this is defined first
-#---
-#apiVersion: traefik.containo.us/v1alpha1
-#kind: Middleware
-#metadata:
-#  name: stripprefix
-#  namespace: testapp
-#spec:
-#  stripPrefix:
-#    prefixes:
-#      - /morsecode
-#
 ---
 # Redirect to https
 # https://stackoverflow.com/questions/68575472/k3s-redirect-http-to-https
@@ -42,7 +33,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: redirectscheme
-  namespace: testapp
+  namespace: morse
 spec:
   redirectScheme:
     scheme: https
