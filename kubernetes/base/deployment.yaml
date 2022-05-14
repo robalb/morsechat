@@ -10,12 +10,12 @@ spec:
     matchLabels:
       app: nginx-flask
   replicas: 1
+  revisionHistoryLimit: 3
   template:
     metadata:
       labels:
         app: nginx-flask
     spec:
-      revisionHistoryLimit: 3
       imagePullSecrets:
         - name: regcred
       containers:
