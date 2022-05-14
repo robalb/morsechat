@@ -57,7 +57,6 @@ spec:
               command:
               - curl
               - -X POST
-              - --fail
               - http://localhost/api/v1/page_init?k8s-liveness-probe
             timeoutSeconds: 2
             initialDelaySeconds: 5
