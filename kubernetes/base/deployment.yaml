@@ -56,7 +56,7 @@ spec:
               command:
               - curl
               - -X POST
-              - -H "User-Agent: k8s liveness probe"
               - http://localhost/api/v1/page_init
+            timeoutSeconds: 2
             initialDelaySeconds: 5
             periodSeconds: 60
