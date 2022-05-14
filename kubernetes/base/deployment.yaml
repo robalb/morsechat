@@ -52,11 +52,10 @@ spec:
           ports:
             - containerPort: 80
           livenessProbe:
-            httpGet:
-              path: /api/v1/page_init
-              port: 80
-              httpHeaders:
-              - name: Probe-K8s
-                value: livenessProbeCheck
-            initialDelaySeconds: 20
+            exec:
+              command:
+              - curl
+              - -X POST
+              - http://localhost/api/v1/page_init
+            initialDelaySeconds: 5
             periodSeconds: 5
