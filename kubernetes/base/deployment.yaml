@@ -20,7 +20,7 @@ spec:
         - name: regcred
       containers:
         - name: nginx-flask
-          image: ghcr.io/robalb/morsechat:sha-51c0f5d5aca7ec94b1b18458ba39746b68f56074
+          image: ghcr.io/robalb/morsechat:sha-bd08000de367bb8ffa8a4d6a939ca1f20243c530
           env:
             - name: MARIADB_HOST
               value: mariadb
@@ -55,9 +55,9 @@ spec:
           livenessProbe:
             exec:
               command:
-              - curl
-              - -X POST
-              - http://localhost/api/v1/page_init?k8s-liveness-probe
+                - curl
+                - '-X POST'
+                - http://localhost/api/v1/page_init?k8s-liveness-probe
             timeoutSeconds: 2
             initialDelaySeconds: 5
             periodSeconds: 60
