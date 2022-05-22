@@ -11,7 +11,7 @@
 A mobile-friendly morse code web chat designed to learn morse and communicate with friends, without having to buy
 a radio. Inspired by [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
 
-Live demo: [halb.it/morsecode](https://halb.it/morsecode)
+Live website: [morse.halb.it](https://morse.halb.it/)
 
 ## important
 
