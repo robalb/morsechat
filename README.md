@@ -14,7 +14,7 @@ Live at [morse.halb.it](https://morse.halb.it/)
 
 ## screenshots
 <p align="center">
-<img src="./docs/tablet_a.png" width="700px" height="auto" />
+<img src="./docs/tablet_a.png" width="600px" height="auto" />
 <img src="./docs/phone.png" width="190px" height="auto" />
 </p>
 
