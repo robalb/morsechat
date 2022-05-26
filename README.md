@@ -13,6 +13,12 @@ a radio. Inspired by [@bkanker](https://twitter.com/bkanber)'s web app morsecode
 
 Live website: [morse.halb.it](https://morse.halb.it/)
 
+## screenshots
+<p align="center">
+<img src="./docs/tablet_a.png" width="500px" height="auto" />
+<img src="./docs/phone.png" width="300px" height="auto" />
+</p>
+
 ## important
 
 This is a complete rewrite of the old morsechat, written using more modern web technologies.
