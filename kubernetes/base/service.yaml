@@ -4,6 +4,7 @@ metadata:
   name:  nginx-flask
   namespace: morse
 spec:
+  externalTrafficPolicy: Local
   selector:
     app:  nginx-flask
 
