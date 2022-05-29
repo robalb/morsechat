@@ -8,23 +8,20 @@
 
 
 
-A mobile-friendly morse code web chat designed to learn morse and communicate with friends, without having to buy
-a radio. Inspired by [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
+A web-based morse code chat That allows you to learn morse and communicate in real time with friends without having to buy a radio. Inspired by [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
 
-Live website: [morse.halb.it](https://morse.halb.it/)
+Live at [morse.halb.it](https://morse.halb.it/)
 
 ## screenshots
 <p align="center">
-<img src="./docs/tablet_a.png" width="500px" height="auto" />
-<img src="./docs/phone.png" width="300px" height="auto" />
+<img src="./docs/tablet_a.png" width="600px" height="auto" />
+<img src="./docs/phone.png" width="190px" height="auto" />
 </p>
 
-## important
-
-This is a complete rewrite of the old morsechat, written using more modern web technologies.
-The old codebase is archived in the 'legacy_php_morsechat' branch of this repository, and is no longer maintained.
-
-This rewrite is not ready to go live yet, halb.it/morsecode is still serving the old php version
+<!--
+w 600 200
+h 500 400
+-->
 
 ## configuration
 
@@ -32,10 +29,7 @@ Copy the file env.example into .env
 
 in the .env configure your pusher credentials.
 You can generate them from your self-hosted instance of socketi (see socketi.app)
-Or you can use pusher.com (if you are using a free tier acount, make sure to
-disable authorized connections in the pusher app dashboard, as explained here
- https://pusher.com/docs/channels/using_channels/authorized-connections/
- otherwise you will be open to ddos vulnerabilities)
+Or you can use pusher.com
 
 ## development
 
