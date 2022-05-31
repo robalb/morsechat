@@ -49,4 +49,4 @@ spec:
   rateLimit:
     period: 1m
     average: 10
-    burst: 30
+    burst: 20
