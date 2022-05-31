@@ -8,7 +8,7 @@ metadata:
     # Middleware:
     # WARNING: the name of the middleware is namespace-name@kubernetescrd
     #          so we are forced to hardcode the namespace. helm/kustomize may helm here
-    traefik.ingress.kubernetes.io/router.middlewares: morse-redirectscheme@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: morse-redirectscheme@kubernetescrd, morse-ratelimit@kubernetescrd
 spec:
   rules:
   - host: "morse.halb.it"
@@ -38,3 +38,15 @@ spec:
   redirectScheme:
     scheme: https
     permanent: true
+---
+# Basic ratelimit
+# https://github.com/traefik/traefik/issues/4549
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ratelimit
+spec:
+  rateLimit:
+    period: 1m
+    average: 100
+    burst: 50
