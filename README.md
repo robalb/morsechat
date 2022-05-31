@@ -49,7 +49,9 @@ This method will also generate and manage a mariadb image, but you should replac
 
 
 Alternatively you can deploy the app on a k8s kluster using the manifests in `kubernetes/base` but first you will need to
-setup a traefik ingress controller, certmanager, and a mariadb database Service.
+setup on your own a traefik ingress controller, certmanager, and a mariadb database Service.
+The nginx webserver is configured to handle X-Forwarder-For headers coming from an ingress with proxy protocol enabled.
+You can configure it in flaskapp.conf
 
 The live website on halb.it is built using github workflows, and deployed on a k8s cluster with argoCD
 
