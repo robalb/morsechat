@@ -48,5 +48,5 @@ metadata:
 spec:
   rateLimit:
     period: 1m
-    average: 100
+    average: 50
     burst: 50
