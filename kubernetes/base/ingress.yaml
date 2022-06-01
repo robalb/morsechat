@@ -7,7 +7,7 @@ metadata:
     # (Optional): Annotations for the Ingress Controller
     # Middleware:
     # WARNING: the name of the middleware is namespace-name@kubernetescrd
-    #          so we are forced to hardcode the namespace. helm/kustomize may helm here
+    #          so we are forced to hardcode the namespace. The traefik crd makes this easier
     traefik.ingress.kubernetes.io/router.middlewares: morse-redirectscheme@kubernetescrd, morse-ratelimit@kubernetescrd
 spec:
   rules:
@@ -40,13 +40,17 @@ spec:
     permanent: true
 ---
 # Basic ratelimit
-# https://github.com/traefik/traefik/issues/4549
+# Note: The traefik documentation is not very clear on how this works,
+#       see https://github.com/traefik/traefik/issues/4549
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: ratelimit
 spec:
   rateLimit:
+    # -A bucket of 20 allowed requests is issued to every user - based on ip
+    # -Every http request removes one element from the bucket
+    # -The bucket receives one new allowed request every period/average = 60s/10 = 6s
     period: 1m
     average: 10
     burst: 20
