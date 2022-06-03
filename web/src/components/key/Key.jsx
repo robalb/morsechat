@@ -204,7 +204,6 @@ function KeyInternal(props){
 
 
   const keyHandler = (e)=>{
-    console.log(e)
     if(keyMode === "straight"){
       if(
         e.key == " " ||

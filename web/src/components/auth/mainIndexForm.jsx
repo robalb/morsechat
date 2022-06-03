@@ -24,16 +24,16 @@ export const MainIndexForm = ({setPage}) => {
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Typography variant="h5" color="primary">
-                        You are not logged in!
+                        Morsechat
                     </Typography>
-
-                    <p> Login or register to unlock: </p>
-                    <ul>
-                        <li>custom callsigns</li>
-                        <li>private rooms</li>
-                        <li>stats and persisting settings</li>
-                        <li>No antispam restrictions</li>
-                    </ul>
+                    <p>
+                    This is an online morse code chat.<br />
+                    Join to practice and communicate in real time with hundreds of
+                    users from all over the world without having to buy a radio
+                    </p>
+                    <p>
+Press space or the key at the bottom of the page to transmit a dot, hold it to transmit a dash
+                    </p>
                 </Grid>
                 <Grid item xs={12}>
                     <Stack direction="row" sx={{ padding: "10px" }} alignItems="center" spacing={1}>

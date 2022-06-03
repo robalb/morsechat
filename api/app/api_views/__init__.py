@@ -44,6 +44,7 @@ def before_request_func():
       "api.api_page_init",
       "api.api_page_not_found",
       "api.api_nat_test",
+      "api.api_public_stats"
     ]
     if request.endpoint in no_csrf_views or (
             #allow cors preflight requests in development mode
@@ -93,5 +94,6 @@ from . import pusher_auth
 from . import update_settings
 from . import message
 from . import nat_test
+from . import public_stats
 
 from . import errors
