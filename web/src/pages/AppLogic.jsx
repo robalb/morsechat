@@ -4,6 +4,7 @@ import {wpmToMorseTimes} from "../redux/userSlice";
 import * as React from "react";
 import {pusherClient} from "../utils/apiResolver";
 import getDialect from '../utils/dialects'
+import {scrollDown, systemMessage} from '../utils/chatDom'
 
 import ReceiverSound from '../utils/ReceiverSound'
 
@@ -93,19 +94,6 @@ export function AppLogic({chatDomNode}) {
     }
 
     /**
-     * scroll to the bottom of the chat, but only if the user is not
-     * reading old messages
-     */
-    function scrollDown(){
-        let chat = chatDomNode.current
-        let margin = 60 //arbitrary value
-        let scrollDown = (chat.scrollTop > (chat.scrollHeight - chat.clientHeight - margin));
-        if(scrollDown){
-            chat.scrollTop = chat.scrollHeight
-        }
-    }
-
-    /**
      * Called when a message is received. Initialize the typer loop
      * 
      */
@@ -130,16 +118,7 @@ export function AppLogic({chatDomNode}) {
         typer(morse, text, e.message, times, sound)
         chat.insertAdjacentElement("beforeend", message)
         //scroll down if the user is not reading old messages
-        scrollDown()
-    }
-
-    function systemMessage(msg){
-        let chat = chatDomNode.current
-        let message = document.createElement("p")
-        message.innerText = msg
-        chat.insertAdjacentElement("beforeend", message)
-        //scroll down if the user is not reading old messages
-        scrollDown()
+        scrollDown(chatDomNode)
     }
 
     //sync the selected channel with the query param
@@ -199,7 +178,7 @@ export function AppLogic({chatDomNode}) {
                 if (chatDomNode.current)
                     chatDomNode.current.innerHTML = ""
                 //show successfully connected message
-                systemMessage("connected to " + channelName + " with callsign: " + callsign)
+                systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
             })
 
             pusherChannel.current.bind('pusher:subscription_error', e => {

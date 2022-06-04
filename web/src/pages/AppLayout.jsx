@@ -141,7 +141,7 @@ export function AppLayout({chatDomNode}) {
                         />
                     </div>
                 }
-                <Preview className='grid-preview' />
+                <Preview className='grid-preview' chatDomNode={chatDomNode}/>
                 <Chat className='grid-chat' chatDomNode={chatDomNode}/>
                 <Key className='grid-key'
                     leftButton={

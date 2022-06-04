@@ -57,17 +57,15 @@ export const send = createAsyncThunk(
   'chat/send',
   async (data, {getState, dispatch, rejectWithValue, signal}) => {
     let s = getState()
-    dispatch(apiCall({
+    dispatch(chatSlice.actions.resetMessage())
+    return dispatch(apiCall({
       endpoint: "message",
       data: {
           message: s.chat.messageBuffer,
           dialect: s.user.settings.dialect,
           wpm: s.user.settings.wpm
       }
-    }));
-
-    dispatch(chatSlice.actions.resetMessage())
-
+    }))
   })
 
 

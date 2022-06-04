@@ -8,6 +8,7 @@ import { resetMessage, setTyping } from "../../redux/chatSlice";
 import getDialect from '../../utils/dialects'
 import {send} from '../../redux/chatSlice'
 import { selectMorseTimes } from "../../redux/userSlice";
+import {systemMessage} from '../../utils/chatDom'
 
 function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
@@ -78,7 +79,7 @@ function TextPreview(){
     return <p>{morseString}</p>
 }
 
-function CountdownPreview({emptyBuffer}){
+function CountdownPreview({emptyBuffer, chatDomNode}){
     const dispatch = useDispatch()
     let keyDown = useSelector(state => state.chat.keyDown)
     let submitDelay = useSelector(state => state.user.settings.submit_delay)
@@ -91,6 +92,27 @@ function CountdownPreview({emptyBuffer}){
             bar.current.style.width = w + "%"
     }
 
+    async function sendMessage(){
+      const res = await dispatch(send()).unwrap()
+      if(res.error){
+        console.log(res.payload)
+        let err = res.payload
+        let msg = ""
+        //handle error messages
+        if(err.error === "too_many_requests"){
+          msg = "You are sending too many messages, please wait some seconds"
+        }
+        else if(err.error === "invalid_message"){
+          msg = "You may be using an old version of the website. Try refreshing the page"
+        }
+        else if(err.error === "unauthorized"){
+          msg = "Your session may have expired. Try refreshing the page"
+        }
+        systemMessage(chatDomNode, "broadcast failed. " + msg)
+        
+      }
+    }
+
     function progressAnimation(){
         let delta = +new Date() - startTime.current
         let multiplier = 1 / (submitDelay)
@@ -101,7 +123,7 @@ function CountdownPreview({emptyBuffer}){
         }
         else{
             setWidth(0)
-            dispatch(send())
+            sendMessage()
         }
     }
     React.useEffect(()=>{
@@ -121,7 +143,7 @@ function CountdownPreview({emptyBuffer}){
     return <div className={styles.progress} ref={bar}> </div>
 }
 
-export function Preview({className = ""}) {
+export function Preview({className = "", chatDomNode}) {
     const dispatch = useDispatch()
     let emptyBuffer = useSelector(state => state.chat.messageBuffer.length == 0)
 
@@ -130,7 +152,7 @@ export function Preview({className = ""}) {
     }
     return (
         <div className={`${styles.preview} ${className}`}>
-            <CountdownPreview emptyBuffer={emptyBuffer} />
+            <CountdownPreview emptyBuffer={emptyBuffer} chatDomNode={chatDomNode} />
             <div className={styles.text}>
                 <TextPreview />
                 <IconButton aria-label="cancel message" onClick={clearHandler}
