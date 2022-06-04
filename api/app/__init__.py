@@ -12,6 +12,10 @@ development_mode = os.environ['FLASK_ENV'] == 'development'
 # create application instance
 app = Flask(__name__, static_folder="../static")
 
+#App specific configuration
+#ratelimit: minimum seconds between each message sent
+app.config['MESSAGE_COOLDOWN'] = 4
+
 logging.basicConfig(level=logging.DEBUG)
 app.config['SESSION_TYPE'] = 'sqlalchemy'
 app.config['SESSION_COOKIE_NAME'] = 'PHPSESSID'

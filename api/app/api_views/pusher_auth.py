@@ -36,8 +36,8 @@ def api_pusher_auth():
         username = current_user.username
 
     #validate the connection request for anonymous users
-    elif 'anonymous_callsign' in session:
-        uid = session['anonymous_callsign']
+    elif 'anonymous_id' in session:
+        uid = session['anonymous_id']
         anonymous = True
         callsign = session['anonymous_callsign']
         country = session['country']

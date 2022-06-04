@@ -8,10 +8,11 @@ from .. import db_connection
 from .. import flask_login_base
 from .. import app
 from app import pusher
+import time
 
 #basic imports
 from . import api
-from ._utils import success, error
+from ._utils import success, error, process_message
 
 schema = {
     'type': 'object',
@@ -32,22 +33,48 @@ schema = {
 @api.route('/message', methods=['POST'])
 @expects_json(schema)
 def api_message():
+    #make sure the user is connected to a channel
     if session['authorized_channel'] is None:
         return error("no_authorized_channel")
 
     if current_user.is_authenticated:
+        #Set callsign and uid for logged users
         uid = current_user.username
         callsign = current_user.callsign
     elif 'anonymous_callsign' in session:
-        uid = session['anonymous_callsign']
-        callsign = uid
+        #Set callsign and uid for anonymous users
+        uid = session['anonymous_id']
+        callsign = session['anonymous_callsign']
     else:
         return error("unauthorized", details="no_valid_session")
+
+    #validate and get message length in seconds
+    processed = process_message(g.data['message'], g.data['dialect'])
+    #Ratelimiting:
+    #compare the message length with the time passed since the last message received
+    too_soon = False
+    if 'last_message_timestamp' in session:
+      time_delta = time.time() - session['last_message_timestamp']
+      if time_delta < app.config['MESSAGE_COOLDOWN'] or time_delta < processed['length']:
+        too_soon = True
+        app.logger.info("TOOO SOON: " , time_delta)
+    #update the last message timestamp
+    session['last_message_timestamp'] = time.time()
+
+    #anomalies detected in the message
+    if processed['anomalies']:
+      return error("invalid_message")
+    #ratelimiting issues
+    if too_soon:
+      return error("too_many_requests", code=429)
+
+    #log timing stats of valid messages
+    #TODO
 
     message_data = {
              'id': uid,
              'callsign': callsign,
-             'message': g.data['message'],
+             'message': processed['message'],
              'dialect': g.data['dialect'],
              'wpm': g.data['wpm']
          }
@@ -67,8 +94,8 @@ def api_typing():
 
     if current_user.is_authenticated:
         uid = current_user.username
-    elif 'anonymous_callsign' in session:
-        uid = session['anonymous_callsign']
+    elif 'anonymous_id' in session:
+        uid = session['anonymous_id']
     else:
         return error("unauthorized", details="no_valid_session")
 

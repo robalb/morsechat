@@ -2,7 +2,7 @@ from flask import session, request
 from flask_login import current_user
 from . import api
 from .. import app
-from ._utils import success, generate_anonymous_callsign, negotiate_country
+from ._utils import success, generate_anonymous_callsign, negotiate_country, generate_anonymous_id
 from ._procedures import Data_modules
 import secrets
 
@@ -25,13 +25,15 @@ def api_page_init():
     if not 'authorized_channel' in session:
         session['authorized_channel'] = None
 
-    #if the user is not authenticated, generate random callsign and get user country
-    if not current_user.is_authenticated and 'anonymous_callsign' not in session:
+    #if the user is not authenticated, generate random callsign, id, and get user country
+    if not current_user.is_authenticated and 'anonymous_id' not in session:
         lang_header = ""
         if request.headers.get('Accept-Language'):
             lang_header = request.headers['Accept-Language']
         session['country'] = negotiate_country(lang_header)
         session['anonymous_callsign'] = generate_anonymous_callsign(session['country'])
+        #logged users have an unique username. Anonymous users also need an uid
+        session['anonymous_id'] = generate_anonymous_id()
 
     data_modules = Data_modules(current_user, session)
     data = {
