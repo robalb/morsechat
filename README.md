@@ -6,6 +6,8 @@
 ![license](https://img.shields.io/github/license/robalb/morsechat.svg)
 [![Grade](https://img.shields.io/mozilla-observatory/grade/morse.halb.it?publish)](https://observatory.mozilla.org/analyze/morse.halb.it)
 
+[![Discord](https://img.shields.io/discord/842882128555016212?label=Discord%20community)](https://discord.gg/JNwsmHuKwd)
+
 An online morse code chat allowing users from all over the world to practice and communicate in morse code without the need for expensive equipment. Inspired by [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
 
 Live at [morse.halb.it](https://morse.halb.it/)
