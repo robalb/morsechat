@@ -1,6 +1,7 @@
 import secrets
 from app import app
 import uuid
+import math
 
 def error(error, details="", code=200):
     return {
@@ -87,11 +88,9 @@ def _negotiate_country_from_langs_list(parsedList):
     the preferred languages, in order of preference.
     This is clearly a complicated task, that won't always be accurate
     """
-    app.logger.info(parsedList)
     choosen = get_default_country_code()
     #iterate every language option
     for (lan, weight) in parsedList:
-        app.logger.info(lan)
         # Preferred format:
         # xx-YY where YY is a region subtag, in iso 3166-1 format
         if len(lan) > 3 and lan[2] == "-":
@@ -111,11 +110,37 @@ def _negotiate_country_from_langs_list(parsedList):
 def process_message(message, wpm):
   """
   Calculate the length of the message, and sanitize it
-  by truncating the message length and the length of anomalities such as long pauses or dashes
+  by truncating the message length and the length of anomalyes such as long pauses or dashes
   """
-  #TODO
+  #TODO: move this to app.config
+  max_message_duration = 10 #10 seconds 
+  max_beep_duration = 1000 #800 ms - the average dash at 5wpm
+
+  millis_duration = 0 #message duration in milliseconds
+  sanitized_millis_duration = 0
+  sanitized_message = []
+
+  for i in range(len(message)):
+    millis_duration += message[i]
+    #message has not exceeded duration limit
+    if not millis_duration > max_message_duration * 1000:
+      #beeps should not be longer than 2s, cap them if too long.
+      #silences are checked in the json schema, already capped to a reasonable value
+      if i%2 == 0 and int(message[i]) > max_beep_duration:
+        sanitized_message.append(max_beep_duration)
+      else:
+        sanitized_message.append(message[i])
+
+
+  # Remove the last event if the number of events is even,
+  # otherwise the player that reproduces the message
+  # will complete execution with a keyDown, resulting in an infinite dash
+  if (len(sanitized_message) % 2) == 0:
+    app.logger.warn("invalid_msg_length")
+    sanitized_message.pop()
+
+  length = math.ceil(millis_duration / 1000)
   return {
-    "length": 2,
-    "anomalies": False,
-    "message": message
+    "length": length,
+    "message": sanitized_message
   }

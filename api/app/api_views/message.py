@@ -51,16 +51,12 @@ def api_message():
     #validate and get message length in seconds
     processed = process_message(g.data['message'], g.data['dialect'])
 
-    #anomalies detected in the message
-    if processed['anomalies']:
-      return error("invalid_message")
-
     #Ratelimiting:
     #compare the message length with the time passed since the last message received
     if 'last_message_timestamp' in session:
       time_delta = time.time() - session['last_message_timestamp']
       if time_delta < app.config['MESSAGE_COOLDOWN'] or time_delta < processed['length']:
-        app.logger.info("TOOO SOON: " , time_delta)
+        app.logger.info("too_many_requests: " , time_delta)
         return error("too_many_requests", code=429)
 
     #update the last message timestamp
