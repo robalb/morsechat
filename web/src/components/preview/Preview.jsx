@@ -112,7 +112,9 @@ function CountdownPreview({emptyBuffer, chatDomNode}){
           msg = err.error + " " + err.details
         }
         systemMessage(chatDomNode, "broadcast failed. " + msg)
-        
+      }
+      else if(res.training){
+        ////
       }
     }
 

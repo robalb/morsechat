@@ -4,9 +4,16 @@ import { apiCall, payloadCreatorCreator } from './apiSlice'
 const initialState = {
     channel: "presence-ch1",
     channels: [
+        {ch:'presence-training', name:'training'},
         {ch:'presence-ch1', name:'ch1'},
         {ch:'presence-ch2', name:'ch2'},
         {ch:'presence-ch3', name:'ch3'},
+        {ch:'presence-ch4', name:'ch4'},
+        {ch:'presence-ch5', name:'ch5'},
+        {ch:'presence-ch6', name:'ch6'},
+        {ch:'presence-pro-1', name:'pro1'},
+        {ch:'presence-pro-2', name:'pro2'},
+        {ch:'presence-pro-3', name:'pro3'},
     ],
     connected: false,
     connectionStatus: "powering on",
@@ -40,10 +47,12 @@ export const _keyUp = createAction('chat/keyUp', function prepare() {
  */
 export const keyUp = function(typingGuard=10){
     return (dispatch, getState)=>{
+        let s = getState()
+        let trainingChannel = (s.chat.channel == "presence-training")
         //if keyUp was called for the nth time, with n == typingGuard*2
         //let everyone know we are typing
         let bufferLength = getState().chat.messageBuffer.length
-        if(bufferLength === typingGuard * 2)
+        if(bufferLength === typingGuard * 2 && !trainingChannel)
             dispatch(apiCall({
                 endpoint: "typing"
             }))
@@ -58,6 +67,11 @@ export const send = createAsyncThunk(
   async (data, {getState, dispatch, rejectWithValue, signal}) => {
     let s = getState()
     dispatch(chatSlice.actions.resetMessage())
+    if(s.chat.channel == "presence-training"){
+      return {
+        training: true
+      }
+    }
     return dispatch(apiCall({
       endpoint: "message",
       data: {

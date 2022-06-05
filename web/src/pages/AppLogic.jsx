@@ -179,6 +179,9 @@ export function AppLogic({chatDomNode}) {
                     chatDomNode.current.innerHTML = ""
                 //show successfully connected message
                 systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
+                if(channelName == "training"){
+                  systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
+                }
             })
 
             pusherChannel.current.bind('pusher:subscription_error', e => {
