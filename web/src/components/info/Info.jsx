@@ -1,5 +1,7 @@
 import discordUrl from "../../fonts/discord.svg";
 import githubUrl from "../../fonts/github.svg";
+import kofiIcon from "../../fonts/ko-fi-icon.svg";
+
 import * as React from "react";
 import styles from './info.module.css'
 
@@ -15,10 +17,9 @@ export function Info({className="", ...props}) {
                 Join the discord community
                 for help, or to participate on the development.
             </p>
-            <h3>What's new</h3>
-            <p>2022-13-05 update notes:</p>
-            <p>- performance improvements</p>
-            <p>- now you can mute individual users</p>
+            <a href="https://ko-fi.com/robalb" target="_blank">
+                support the project
+            </a><br/>
             <a href="https://discord.gg/JPzfzNJG6e" title="discord">
                 <img src={discordUrl}/>
             </a><br/>
