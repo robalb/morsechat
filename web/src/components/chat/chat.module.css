@@ -21,6 +21,7 @@
 }
 .chatContent p{
     white-space: pre-wrap;
+    color: var(--gray-95);
 }
 
 .chatContent span:nth-child(1){
@@ -30,9 +31,11 @@
 
 .chatContent span:nth-child(2){
     display: inline;
+    color: white;
 }
 .chatContent span:nth-child(3){
     display: none;
+    color: white;
 }
 .chatContent.showText span:nth-child(2){
     display: none;

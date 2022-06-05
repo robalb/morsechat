@@ -108,6 +108,9 @@ function CountdownPreview({emptyBuffer, chatDomNode}){
         else if(err.error === "unauthorized"){
           msg = "Your session may have expired. Try refreshing the page"
         }
+        else{
+          msg = err.error + " " + err.details
+        }
         systemMessage(chatDomNode, "broadcast failed. " + msg)
         
       }

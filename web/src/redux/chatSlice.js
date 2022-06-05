@@ -96,6 +96,7 @@ const chatSlice = createSlice({
         Object.keys(action.payload.members).map( id=>{
             let typing = false
             let allowSound = true
+            if(id == action.payload.myID) allowSound = false
             if(state.onlineUsers[id]){
                 typing = state.onlineUsers[id].typing
                 allowSound = state.onlineUsers[id].allowSound

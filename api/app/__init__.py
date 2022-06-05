@@ -18,6 +18,7 @@ app.config['MESSAGE_COOLDOWN'] = 4
 #this multpiplier will be applied to MESSAGE_COOLDOWN if the user is suspicious
 #Suspicious behaviour include having a wpm > 30
 app.config['SUSPICIOUS_MULPTIPLIER'] = 2
+app.config['MAX_MESSAGE_DURATION'] = 35 # 35 seconds
 
 logging.basicConfig(level=logging.DEBUG)
 app.config['SESSION_TYPE'] = 'sqlalchemy'

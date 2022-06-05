@@ -112,12 +112,11 @@ def process_message(message, wpm):
   Calculate the length of the message, and sanitize it
   by truncating the message length and the length of anomalyes such as long pauses or dashes
   """
+  max_message_duration = app.config['MAX_MESSAGE_DURATION']
   #TODO: move this to app.config
-  max_message_duration = 10 #10 seconds 
   max_beep_duration = 1000 #800 ms - the average dash at 5wpm
 
   millis_duration = 0 #message duration in milliseconds
-  sanitized_millis_duration = 0
   sanitized_message = []
 
   for i in range(len(message)):
@@ -142,5 +141,6 @@ def process_message(message, wpm):
   length = math.ceil(millis_duration / 1000)
   return {
     "length": length,
+    "anomalies": False,
     "message": sanitized_message
   }
