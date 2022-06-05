@@ -8,9 +8,9 @@
 
 [![Discord](https://img.shields.io/discord/842882128555016212?label=Discord%20community)](https://discord.gg/JNwsmHuKwd)
 
-An online morse code chat allowing users from all over the world to practice and communicate in morse code without the need for expensive equipment. Inspired by [@bkanker](https://twitter.com/bkanber)'s web app morsecode.me
+An online morse code chat allowing users from all over the world to practice and communicate in morse code without the need for expensive equipment. Live at [morse.halb.it](https://morse.halb.it/)
 
-Live at [morse.halb.it](https://morse.halb.it/)
+[support the project](https://ko-fi.com/K3K6D3NPD)
 
 ## screenshots
 <p align="center">
