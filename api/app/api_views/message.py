@@ -52,10 +52,15 @@ def api_message():
     processed = process_message(g.data['message'], g.data['dialect'])
 
     #Ratelimiting:
-    #compare the message length with the time passed since the last message received
     if 'last_message_timestamp' in session:
       time_delta = time.time() - session['last_message_timestamp']
-      if time_delta < app.config['MESSAGE_COOLDOWN'] or time_delta < processed['length']:
+      #calculate the cooldown time
+      cooldown_time = app.config['MESSAGE_COOLDOWN']
+      #apply a multiplier in case of suspicious users
+      if g.data['wpm'] > 30:
+        cooldown_time *= app.config['SUSPICIOUS_MULPTIPLIER']
+      #compare the message length with the time passed since the last message received
+      if time_delta < cooldown_time or time_delta < processed['length']:
         app.logger.info("too_many_requests: " , time_delta)
         return error("too_many_requests", code=429)
 
