@@ -151,7 +151,6 @@ export function KeybindingsControls({className}){
 export function DialectControls({className}){
   const dispatch = useDispatch()
   let settings = useSelector(state => state.user.settings)
-  console.log(dialects)
   function update(data) {
     dispatch(updateSettings(data))
   }
@@ -165,8 +164,8 @@ export function DialectControls({className}){
         })}
       >
         {
-        Object.keys(dialects).map( name => 
-          <MenuItem value={name} name={dialects[name].name}>{dialects[name].name}</MenuItem>)
+        Object.keys(dialects).map( (name, i) => 
+          <MenuItem value={name} key={i} name={dialects[name].name}>{dialects[name].name}</MenuItem>)
       }
       </Select>
     </div>

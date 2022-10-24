@@ -4,6 +4,7 @@ import * as React from "react";
 import { Button } from "@mui/material";
 import styles from './sheet.module.css';
 import getDialect from '../../utils/dialects'
+import {dialects} from '../../utils/dialects'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateSettings } from "../../redux/userSlice";
 
@@ -18,8 +19,12 @@ export function Sheet({className = "", closeBtHandler}) {
 
     /* change the current dialect to the next one in the dialects array */
     const rotateDialect = () =>{
+      let dialectNames = Object.keys(dialects)
+      let nextDialectName = dialectNames[
+        ( dialectNames.indexOf(dialectName) + 1 ) % dialectNames.length
+      ]
       dispatch(updateSettings({
-        dialect: "international"
+        dialect: nextDialectName
     }))
     }
 
