@@ -49,7 +49,7 @@ export function AppLogic({chatDomNode}) {
      * @param {*} morseLettersOut - the text content of the morseLetters domElement
      * TODO: remove morseOut and morseLettersOut, use element.insertAdjacentText('beforeend', text)
      */
-    function typer(morse, morseLetters, message, times, sound, i=0, letter="", morseOut="", morseLettersOut=""){
+    function typer(morse, morseLetters, message, times, sound, dialectName, i=0, letter="", morseOut="", morseLettersOut=""){
         let t = message[i]
 
         //released after t millis
@@ -66,28 +66,29 @@ export function AppLogic({chatDomNode}) {
             sound.off()
             if(t > times.wordGap){
                 morseOut += letter + "   "
-                morseLettersOut += translateToReadable(letter) + "  "
+                morseLettersOut += translateToReadable(letter, dialectName) + "  "
                 letter = ""
             }
             else if(t > times.letterGap){
                 morseOut += letter + " "
-                morseLettersOut += translateToReadable(letter)
+                morseLettersOut += translateToReadable(letter, dialectName)
                 letter = ""
             }
         }
         morse.innerText = morseOut + letter
         if(i < message.length){
             morseLetters.innerText = morseLettersOut + " " + letter
-            setTimeout(typer, message[i], morse, morseLetters, message, times, sound, i+1, letter, morseOut, morseLettersOut)
+            setTimeout(typer, message[i], morse, morseLetters, message, times, sound, dialectName, i+1, letter, morseOut, morseLettersOut)
         }
         else{
             //translate what is left
-            morseLetters.innerText = morseLettersOut + translateToReadable(letter)
+            morseLetters.innerText = morseLettersOut + translateToReadable(letter, dialectName)
             //stop and remove the audio gain node
             sound.disconnect()
         }
     }
-    function translateToReadable(letter){
+    function translateToReadable(letter, dialectName){
+        let dialect = getDialect(dialectName)
         letter = letter.replaceAll("_", "-")
         if(dialect.table.hasOwnProperty(letter))
             return dialect.table[letter];
@@ -117,7 +118,7 @@ export function AppLogic({chatDomNode}) {
         //it's more efficient than creating an obj on every message
         let sound = new ReceiverSound(e.id, volumeRef, onlineUsersRef)
         //start the typer recursive function
-        typer(morse, text, e.message, times, sound)
+        typer(morse, text, e.message, times, sound, e.dialect)
         chat.insertAdjacentElement("beforeend", message)
         //scroll down if the user is not reading old messages
         scrollDown(chatDomNode)
