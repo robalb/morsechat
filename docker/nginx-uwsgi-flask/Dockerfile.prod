@@ -50,6 +50,15 @@ COPY docker/nginx-uwsgi-flask/conf/supervisord.conf /etc/supervisor/conf.d/super
 
 # ------> Other stuffs <------ #
 # Install requirements
+
+# fix for mariadb connector issue
+# TODO: burn all of this. never use mariadb ever
+RUN apt install -y curl
+RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+RUN curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | bash
+RUN apt-get update
+RUN apt-get install -y libmariadb3 libmariadb-dev
+
 COPY docker/nginx-uwsgi-flask/requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
