@@ -1,5 +1,7 @@
+import Select from "@mui/material/Select";
 import * as React from "react";
 import Slider from '@mui/material/Slider';
+import MenuItem from '@mui/material/MenuItem';
 import { useSelector, useDispatch } from 'react-redux'
 import { updateSettings } from "../../redux/userSlice";
 import styles from './controls.module.css';
@@ -13,6 +15,8 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+
+import {dialects} from '../../utils/dialects'
 /**
  * TODO: rename this file and its parent folder into controls
  */
@@ -140,5 +144,31 @@ export function KeybindingsControls({className}){
             <p>right paddle X</p>
         </div>
     )
+
+}
+
+
+export function DialectControls({className}){
+  const dispatch = useDispatch()
+  let settings = useSelector(state => state.user.settings)
+  function update(data) {
+    dispatch(updateSettings(data))
+  }
+  return (
+    <div className={`${styles.controls} ${styles.dialects} ${className}`}>
+      <Select
+        id="dialect-select"
+        value={settings.dialect}
+        onChange={e => update({
+          dialect: e.target.value
+        })}
+      >
+        {
+        Object.keys(dialects).map( (name, i) => 
+          <MenuItem value={name} key={i} name={dialects[name].name}>{dialects[name].name}</MenuItem>)
+      }
+      </Select>
+    </div>
+  )
 
 }
