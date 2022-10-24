@@ -4,6 +4,7 @@ import {wpmToMorseTimes} from "../redux/userSlice";
 import * as React from "react";
 import {pusherClient} from "../utils/apiResolver";
 import getDialect from '../utils/dialects'
+import {dialects} from '../utils/dialects'
 import {scrollDown, systemMessage} from '../utils/chatDom'
 
 import ReceiverSound from '../utils/ReceiverSound'
@@ -107,7 +108,8 @@ export function AppLogic({chatDomNode}) {
         message.appendChild(label)
         message.appendChild(morse)
         message.appendChild(text)
-        label.innerText = e.callsign
+        let dialect = e.dialect == "international" ? "" : ` [${dialects[e.dialect].short_name}]`
+        label.innerText = e.callsign + dialect
         //initialize wpm times
         let times = wpmToMorseTimes(e.wpm)
         //initialize the sound class for this specific user

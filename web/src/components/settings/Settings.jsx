@@ -1,5 +1,5 @@
 import * as React from "react";
-import {SideControls, AdvancedControls, KeybindingsControls} from "../controls/controls";
+import {SideControls, DialectControls, AdvancedControls, KeybindingsControls} from "../controls/controls";
 import {Grid, IconButton} from '@mui/material';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -39,10 +39,12 @@ export function Settings({open, setOpen, mobileView}){
             <div className={styles.settingsContainer}>
                 { mobileView && <SideControls /> }
                 <AdvancedControls />
+                <DialectControls />
                 <KeybindingsControls />
 
             </div>
             </DialogContent>
+
         </Dialog>
     )
 
