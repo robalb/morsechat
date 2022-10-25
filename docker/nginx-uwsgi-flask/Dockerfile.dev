@@ -13,6 +13,16 @@ FROM python:3.9-buster
 ADD wait.sh /wait.sh
 RUN chmod +x /wait.sh
 
+# fix for mariadb connector issue
+# TODO: burn all of this. never use mariadb ever
+# https://stackoverflow.com/a/65612501/9169799
+RUN apt update
+RUN apt install -y curl
+RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+RUN curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | bash
+RUN apt-get update
+RUN apt-get install -y libmariadb3 libmariadb-dev
+
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 

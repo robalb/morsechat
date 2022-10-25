@@ -1,7 +1,23 @@
-const international = {
-	name: "international",
-  short_name: "",
-	table: {
+
+/**
+*  https://morsecode.world/international/morse.html 
+**/
+const prosign = {
+  ".-.-.": "[End of message]",
+  ".-.-": "[New line]",
+  ".-...": "[wait]",
+  "-...-.-": "[Break]",
+  "-...-": "[New Paragraph]",
+  "-.-..-..": "[Going off the air]",
+  "-.-.-": "[Start copying]",
+  "-.-.-": "[Starting signal]",
+  "-.--.": "[Please transmit]",
+  "...-.-": "[End of transmission]",
+  "---.-": "[Understood]",
+  "...---...": "[SOS]"
+}
+
+const base = {
 		".-": "a",
 		"-...": "b",
 		"-.-.": "c",
@@ -31,13 +47,17 @@ const international = {
 		".-.-.-": ".",
 		"--..--": ",",
 		"..--..": "?",
-		".----.": "\'",
+		".----.": "'",
+		".-..-.": "\"",
 		"-.-.--": "!",
 		"-..-.": "/",
 		"---...": ":",
 		"-.-.-.": ";",
+		"-.--.": "(",
+		"-.--.-": ")",
 		"-...-": "=",
 		"-....-": "-",
+		"..--.-": "_",
 		".-.-.": "+",
 		".--.-.": "@",
 		".----": "1",
@@ -50,6 +70,13 @@ const international = {
 		"---..": "8",
 		"----.": "9",
 		"-----": "0",
+}
+
+const international = {
+	name: "international",
+  short_name: "",
+	table: {
+    ...base,
 	}
 }
 
@@ -118,9 +145,71 @@ const russian = {
   }
 }
 
+
+/**
+https://morsecode.world/international/morse.html
+À Å 	.--.-
+Ä Ą Æ 	.-.-
+Ć Ĉ Ç 	-.-..
+Ch Ĥ Š 	----
+ĐÉĘ 	..-..
+Ð 	..--.
+È Ł 	.-..-
+Ĝ 	--.-.
+Ĵ 	.---.
+Ń Ñ 	--.--
+Ó Ö Ø 	---.
+Ś 	...-...
+Ŝ 	...-.
+Þ 	.--..
+Ü Ŭ 	..--
+Ź 	--..-.
+Ż 	--..-
+**/
+const extended = {
+	name: "european extended",
+  short_name: "EU",
+	table: {
+    ...base,
+    ".--.-": "[ÀÅ]",
+    ".-.-": "[ÄĄÆ]",
+    "-.-..": "[ĆĈÇ]",
+    "----": "[hĤŠ]",
+    "..-..": "[ĐÉĘ]",
+    "..--.": "Ð",
+    ".-..-": "[ÈŁ]",
+    "--.-.": "Ĝ",
+    ".---.": "Ĵ",
+    "--.--": "[ŃÑ]",
+    "---.": "[ÓÖØ]",
+    "...-...": "Ś",
+    "...-.": "Ŝ",
+    ".--..": "Þ",
+    "..--": "[ÜŬ]",
+    "--..-.": "Ź",
+    "--..-": "Ż",
+	}
+}
+
+/**
+* This is temporary
+*
+* TODO: integrate prosigns in all dialects, with a custom gui.
+* This implementation of prosigns is kinda useless
+**/
+const temp_prosign = {
+	name: "prosign only",
+  short_name: "PRO",
+	table: {
+    ...prosign,
+	}
+}
+
 export const dialects = {
 	international,
-  russian
+  russian,
+  extended,
+  temp_prosign
 }
 
 export default function getDialect(dialect){

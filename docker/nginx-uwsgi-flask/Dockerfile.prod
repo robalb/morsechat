@@ -53,6 +53,7 @@ COPY docker/nginx-uwsgi-flask/conf/supervisord.conf /etc/supervisor/conf.d/super
 
 # fix for mariadb connector issue
 # TODO: burn all of this. never use mariadb ever
+# https://stackoverflow.com/a/65612501/9169799
 RUN apt install -y curl
 RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
 RUN curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | bash
