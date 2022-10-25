@@ -20,7 +20,7 @@ spec:
         - name: regcred
       containers:
         - name: nginx-flask
-          image: ghcr.io/robalb/morsechat:sha-443963bb6d6f64630f7deadb03b3e44bfb7ab948
+          image: ghcr.io/robalb/morsechat:sha-709209e6a33b8e06434ad6e405efc7c659f0e10b
           env:
             - name: MARIADB_HOST
               value: mariadb
