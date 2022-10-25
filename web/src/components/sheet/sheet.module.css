@@ -28,6 +28,6 @@
  .sheet p{
     margin-right: 1rem;
 }
- .sheet p:first-letter{
-    font-size: large;
-}
+/*  .sheet p:first-letter{ */
+/*     font-size: large; */
+/* } */
