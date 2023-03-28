@@ -46,7 +46,7 @@ spec:
           ports:
             - containerPort: 6001
           volumeMounts:
-            - mountPath: /opt/soketi
+            - mountPath: /opt/soketi/
               name: soketi-temp-config
       volumes:
         - name: soketi-temp-config
@@ -63,7 +63,7 @@ kind: ConfigMap
 metadata:
   name: soketi-temp-config
 data:
-  soketi-temp-config.json: |-
+  soketi-temp-config.json: |
     {
     "debug": true,
     "port": 6001,
@@ -77,6 +77,7 @@ data:
         }
     ]
     }
+
 
 ---
 # Service
