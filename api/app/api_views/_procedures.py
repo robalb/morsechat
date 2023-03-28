@@ -135,6 +135,9 @@ class Data_modules:
         if 'PUSHER_HOST' in app.config and 'PUSHER_PORT' in app.config:
             pusher_host = app.config['PUSHER_HOST']
             pusher_port = app.config['PUSHER_PORT']
+        if 'PUSHER_HOST_WEB' in app.config:
+            pusher_host = app.config['PUSHER_HOST_WEB']
+
         ret = {
                 'pusher_key': pusher_key,
                 'pusher_cluster': pusher_cluster,

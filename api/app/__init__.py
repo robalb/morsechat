@@ -46,10 +46,9 @@ app.config['PUSHER_SSL'] = False
 if 'PUSHER_HOST' in os.environ and 'PUSHER_PORT' in os.environ:
   app.config['PUSHER_HOST'] = os.environ['PUSHER_HOST']
   app.config['PUSHER_PORT'] = int(os.environ['PUSHER_PORT'])
-#pusher server internal host location, used for local network installs
-#This has precedence over PUSHER_HOST
-if 'PUSHER_HOST_INTERNAL' in os.environ:
-  app.config['PUSHER_HOST'] = os.environ['PUSHER_HOST_INTERNAL']
+#This has precedence over PUSHER_HOST in the web client
+if 'PUSHER_HOST_WEB' in os.environ:
+  app.config['PUSHER_HOST_WEB'] = os.environ['PUSHER_HOST_WEB']
 
 pusher = Pusher(app)
 

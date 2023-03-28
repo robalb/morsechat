@@ -20,8 +20,8 @@ services:
       PUSHER_APP_ID: ${PUSHER_APP_ID}
       PUSHER_KEY: ${PUSHER_KEY}
       PUSHER_SECRET: ${PUSHER_SECRET}
-      PUSHER_HOST: 127.0.0.1 #TODO: in production this must be halb.it
-      PUSHER_HOST_INTERNAL: soketi #TODO: when self hosting in localost, this is necessary
+      PUSHER_HOST: soketi #when self hosting, this is the internal resource
+      PUSHER_HOST_WEB: 127.0.0.1 #when self hosting, this is the host url
       PUSHER_PORT: 6001
       PUSHER_CLUSTER: ${PUSHER_CLUSTER}
 
@@ -43,7 +43,7 @@ services:
 
   #Soketi service
   soketi:
-    image: "quay.io/soketi/soketi:0.17-16-alpine"
+    image: "quay.io/soketi/soketi:89604f268623cf799573178a7ba56b7491416bde-16-debian"
     ports:
       - "6001:6001"
       - "9601:9601"
