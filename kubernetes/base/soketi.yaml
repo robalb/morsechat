@@ -112,11 +112,12 @@ spec:
   - host: "soketi.halb.it"
     http:
       paths:
-        - backend:
-            service:
-              name: soketi
-              port:
-                number: 80
+      - path: "/"
+        backend:
+          service:
+            name: soketi
+            port:
+              number: 80
   tls:
   - hosts:
     - "soketi.halb.it"
