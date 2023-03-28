@@ -42,6 +42,7 @@ spec:
           env:
             - name: DEBUG
               value: "1"
+          args: ["--config=/opt/soketi/soketi-config.json"]
           ports:
             - containerPort: 6001
           volumeMounts:
