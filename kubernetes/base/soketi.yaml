@@ -45,6 +45,7 @@ spec:
           args: ["--config=/opt/soketi/soketi-temp-config.json"]
           ports:
             - containerPort: 6001
+            - containerPort: 9601
           livenessProbe:
             httpGet:
               path: /
