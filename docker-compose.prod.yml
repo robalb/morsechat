@@ -49,9 +49,6 @@ services:
       - "9601:9601"
     environment:
       DEBUG: 1
-      DEFAULT_APP_ID: ${PUSHER_APP_ID}
-      DEFAULT_APP_KEY: ${PUSHER_KEY}
-      DEFAULT_APP_SECRET: ${PUSHER_SECRET}
 
     volumes:
       - ./soketi-config.json:/opt/soketi/soketi-config.json:ro
