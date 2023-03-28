@@ -5,7 +5,7 @@ from flask_session import Session
 import logging
 import os
 from . import db_connection
-from flask_pusher import Pusher
+import pusher
 
 development_mode = os.environ['FLASK_ENV'] == 'development'
 
@@ -46,15 +46,19 @@ app.config['PUSHER_SSL'] = False
 if 'PUSHER_HOST' in os.environ and 'PUSHER_PORT' in os.environ:
   app.config['PUSHER_HOST'] = os.environ['PUSHER_HOST']
   app.config['PUSHER_PORT'] = int(os.environ['PUSHER_PORT'])
+#This has precedence over PUSHER_HOST in the web client
+if 'PUSHER_HOST_WEB' in os.environ:
+  app.config['PUSHER_HOST_WEB'] = os.environ['PUSHER_HOST_WEB']
 
-pusher = Pusher(app)
-
-#This is here to avoid weird authentication bypasses.
-#TODO: get rid of pusher-flask, use the official python library instead
-@pusher.auth
-def pusher_auth(channel_name, socket_id):
-    return False
-
+pusher = pusher.Pusher(
+    app_id=app.config['PUSHER_APP_ID'],
+    key=app.config['PUSHER_KEY'],
+    secret=app.config['PUSHER_SECRET'],
+    cluster=app.config['PUSHER_CLUSTER'],
+    host=app.config['PUSHER_HOST'],
+    port=app.config['PUSHER_PORT'],
+    ssl=False
+)
 
 # initialize the api blueprint
 from .api_views import api

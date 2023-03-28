@@ -13,7 +13,7 @@
     "@mui/material": "latest",
     "@reduxjs/toolkit": "^1.8.0",
     "notistack": "^2.0.3",
-    "pusher-js": "^7.0.6",
+    "pusher-js": "^8.0.1",
     "react": "latest",
     "react-dom": "latest",
     "react-redux": "^7.2.6"

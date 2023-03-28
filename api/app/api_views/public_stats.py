@@ -10,7 +10,7 @@ def api_public_stats():
   Public statistics about the connected users.
   This endpoint is useful for status badges on github or discord servers.
   """
-  info = pusher.client.channels_info("presence-", ['user_count'])
+  info = pusher.channels_info("presence-", ['user_count'])
   channels = info['channels']
   active_channels = 0
   online_users = 0

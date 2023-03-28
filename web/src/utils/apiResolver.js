@@ -26,6 +26,12 @@ import Pusher from 'pusher-js';
     let pusher = new Pusher(key, {
       cluster: cluster,
       authorizer: authorizer,
+      wsHost: host,
+      wsPort: port,
+      forceTLS: false,
+      encrypted: false,
+      disableStats: true,
+      enabledTransports: ['ws', 'wss']
     });
 
     /**

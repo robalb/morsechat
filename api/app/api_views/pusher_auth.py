@@ -49,7 +49,7 @@ def api_pusher_auth():
     else:
         return error("pusher_auth_denied", code=403)
     
-    auth = pusher.client.authenticate(
+    auth = pusher.authenticate(
             channel=g.data['channel_name'],
             socket_id=g.data['socket_id'],
             custom_data={
