@@ -25,6 +25,8 @@ spec:
           env:
             - name: DEBUG
               value: "1"
+            - name: SOKETI_PORT
+              value: "80"
           args: ["--config=/opt/soketi/soketi-temp-config.json"]
           ports:
             - containerPort: 80
