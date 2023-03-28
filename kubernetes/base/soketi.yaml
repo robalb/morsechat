@@ -1,21 +1,4 @@
 
-  # #Soketi service
-  # soketi:
-  #   image: "quay.io/soketi/soketi:89604f268623cf799573178a7ba56b7491416bde-16-debian"
-  #   ports:
-  #     - "6001:6001"
-  #     - "9601:9601"
-  #   environment:
-  #     DEBUG: 1
-  #     DEFAULT_APP_ID: ${PUSHER_APP_ID}
-  #     DEFAULT_APP_KEY: ${PUSHER_KEY}
-  #     DEFAULT_APP_SECRET: ${PUSHER_SECRET}
-
-  #   volumes:
-  #     - ./soketi-config.json:/opt/soketi/soketi-config.json:ro
-  #   command:
-  #     - "--config=/opt/soketi/soketi-config.json"
-
 
 # Deployment
 apiVersion: apps/v1
@@ -42,6 +25,8 @@ spec:
           env:
             - name: DEBUG
               value: "1"
+            - name: PORT
+              value: "6001"
           args: ["--config=/opt/soketi/soketi-temp-config.json"]
           ports:
             - containerPort: 6001
