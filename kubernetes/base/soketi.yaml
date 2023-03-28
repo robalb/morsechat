@@ -29,12 +29,11 @@ spec:
               value: "6001"
           args: ["--config=/opt/soketi/soketi-temp-config.json"]
           ports:
-            - containerPort: 6001
-            - containerPort: 9601
+            - containerPort: 43225
           livenessProbe:
             httpGet:
               path: /
-              port: 6001
+              port: 43225
               httpHeaders:
                 - name: X-Kube-Healthcheck
                   value: "Yes"
@@ -47,7 +46,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /accept-traffic
-              port: 6001
+              port: 43225
               httpHeaders:
                 - name: X-Kube-Healthcheck
                   value: "Yes"
