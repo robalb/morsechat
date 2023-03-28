@@ -106,7 +106,7 @@ metadata:
     # Middleware:
     # WARNING: the name of the middleware is namespace-name@kubernetescrd
     #          so we are forced to hardcode the namespace. The traefik crd makes this easier
-    traefik.ingress.kubernetes.io/router.middlewares: morse-soketi-redirectscheme@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: morse-soketi-redirectscheme@kubernetescrd, morse-ssl-header@kubernetescrd
 spec:
   rules:
   - host: "soketi.halb.it"
@@ -137,3 +137,15 @@ spec:
   redirectScheme:
     scheme: https
     permanent: true
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ssl-header
+  namespace: morse
+spec:
+  headers:
+    customRequestHeaders:
+      Connection: keep-alive, Upgrade
+      Upgrade: WebSocket
