@@ -45,6 +45,31 @@ spec:
           args: ["--config=/opt/soketi/soketi-temp-config.json"]
           ports:
             - containerPort: 6001
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 6001
+              httpHeaders:
+                - name: X-Kube-Healthcheck
+                  value: "Yes"
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+            # terminationGracePeriodSeconds: 30
+
+          readinessProbe:
+            httpGet:
+              path: /accept-traffic
+              port: 6001
+              httpHeaders:
+                - name: X-Kube-Healthcheck
+                  value: "Yes"
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            failureThreshold: 1
+            successThreshold: 1
+
           volumeMounts:
             - mountPath: /opt/soketi/
               name: soketi-temp-config
