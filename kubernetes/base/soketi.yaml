@@ -91,7 +91,7 @@ spec:
   type: ClusterIP
   ports:
     - name: http
-      port: 80
+      port: 6001
       targetPort: 6001
 
 ---
@@ -118,7 +118,7 @@ spec:
           service:
             name: soketi
             port:
-              number: 80
+              number: 6001
   tls:
   - hosts:
     - "soketi.halb.it"
