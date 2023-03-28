@@ -46,7 +46,7 @@ spec:
             - name: PUSHER_HOST_WEB
               value: "soketi.halb.it" #TODO check
             - name: PUSHER_PORT
-              value: 6001
+              value: "6001"
           ports:
             - containerPort: 80
           livenessProbe:
