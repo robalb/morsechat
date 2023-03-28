@@ -24,7 +24,7 @@ spec:
           image: quay.io/soketi/soketi:89604f268623cf799573178a7ba56b7491416bde-16-debian
           env:
             - name: DEBUG
-              value: "1"
+              value: "0"
             - name: SOKETI_PORT
               value: "80"
           args: ["--config=/opt/soketi/soketi-temp-config.json"]
@@ -76,7 +76,7 @@ metadata:
 data:
   soketi-temp-config.json: |
     {
-    "debug": true,
+    "debug": false,
     "port": "80",
     "appManager.array.apps": [
         {
