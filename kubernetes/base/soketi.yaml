@@ -27,12 +27,12 @@ spec:
               value: "1"
           args: ["--config=/opt/soketi/soketi-temp-config.json"]
           ports:
-            - containerPort: 6001
+            - containerPort: 80
             - containerPort: 9601
           # livenessProbe:
           #   httpGet:
           #     path: /
-          #     port: 6001
+          #     port: 80
           #     httpHeaders:
           #       - name: X-Kube-Healthcheck
           #         value: "Yes"
@@ -45,7 +45,7 @@ spec:
           # readinessProbe:
           #   httpGet:
           #     path: /accept-traffic
-          #     port: 6001
+          #     port: 80
           #     httpHeaders:
           #       - name: X-Kube-Healthcheck
           #         value: "Yes"
@@ -75,7 +75,7 @@ data:
   soketi-temp-config.json: |
     {
     "debug": true,
-    "port": "6001",
+    "port": "80",
     "appManager.array.apps": [
         {
             "id": "123456",
@@ -102,8 +102,8 @@ spec:
   type: ClusterIP
   ports:
     - name: http
-      port: 6001
-      targetPort: 6001
+      port: 80
+      targetPort: 80
 
 ---
 # Ingress
@@ -129,7 +129,7 @@ spec:
           service:
             name: soketi
             port:
-              number: 6001
+              number: 80
   tls:
   - hosts:
     - "soketi.halb.it"
