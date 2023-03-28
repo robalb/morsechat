@@ -160,8 +160,9 @@ spec:
         - name: soketi
           port: 80
   tls:
-    certResolver: default
-    options: {}
+  - hosts:
+    - "soketi.halb.it"
+    secretName: morse-cert  #name of the tls secret. Make sure this is defined first
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
