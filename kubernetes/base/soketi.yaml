@@ -135,7 +135,7 @@ metadata:
   namespace: morse
 spec:
   redirectScheme:
-    scheme: https
+    scheme: wss
     permanent: true
 
 ---
