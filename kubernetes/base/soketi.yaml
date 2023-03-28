@@ -104,7 +104,7 @@ spec:
   ports:
     - name: http
       port: 6001
-      targetPort: 6001
+      targetPort: 43225
 
 ---
 # Ingress
