@@ -95,104 +95,43 @@ spec:
       targetPort: 6001
 
 ---
-# # Ingress
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: soketi
-#   namespace: morse
-#   annotations:
-#     # (Optional): Annotations for the Ingress Controller
-#     # Middleware:
-#     # WARNING: the name of the middleware is namespace-name@kubernetescrd
-#     #          so we are forced to hardcode the namespace. The traefik crd makes this easier
-#     #traefik.ingress.kubernetes.io/router.middlewares: morse-redirectscheme@kubernetescrd, morse-ratelimit@kubernetescrd
-# spec:
-#   rules:
-#   - host: "soketi.halb.it"
-#     http:
-#       paths:
-#       # Path-based routing settings:
-#       - path: "/"
-#         pathType: Prefix
-#         backend:
-#           service:
-#             name: soketi
-#             port:
-#               number: 80
-#   tls:
-#   - hosts:
-#     - "soketi.halb.it"
-#     secretName: morse-cert  #name of the tls secret. Make sure this is defined first
-
-# ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: soketi
   namespace: morse
+  annotations:
+    # (Optional): Annotations for the Ingress Controller
+    # Middleware:
+    # WARNING: the name of the middleware is namespace-name@kubernetescrd
+    #          so we are forced to hardcode the namespace. The traefik crd makes this easier
+    traefik.ingress.kubernetes.io/router.middlewares: morse-soketi-redirectscheme@kubernetescrd
 spec:
-  entryPoints:
-    - web
-  routes:
-    - match: Host(`soketi.halb.it`)
-      middlewares:
-        - name: svc-rancher-redirectscheme-to-https
-      kind: Rule
-      services:
-        - name: soketi
-          port: 80
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  name: soketi-https
-  namespace: morse
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`soketi.halb.it`)
-      middlewares:
-        - name: svc-rancher-headers
-      kind: Rule
-      services:
-        - name: soketi
-          port: 80
+  rules:
+  - host: "soketi.halb.it"
+    http:
+      paths:
+        - backend:
+            service:
+              name: soketi
+              port:
+                number: 80
   tls:
   - hosts:
     - "soketi.halb.it"
     secretName: morse-cert  #name of the tls secret. Make sure this is defined first
+
 ---
+
+# Redirect to https
+# https://stackoverflow.com/questions/68575472/k3s-redirect-http-to-https
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: svc-rancher-redirectscheme-to-https
-  namespace: cattle-system
+  name: soketi-redirectscheme
+  namespace: morse
 spec:
   redirectScheme:
     scheme: https
     permanent: true
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: svc-rancher-headers
-spec:
-  headers:
-    customRequestHeaders:
-      X-Forwarded-Proto: "https"
-
-#---
-#
-# Redirect to https
-# https://stackoverflow.com/questions/68575472/k3s-redirect-http-to-https
-# apiVersion: traefik.containo.us/v1alpha1
-# kind: Middleware
-# metadata:
-#   name: redirectscheme
-#   namespace: morse
-# spec:
-#   redirectScheme:
-#     scheme: https
-#     permanent: true
