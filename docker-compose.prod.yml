@@ -20,8 +20,9 @@ services:
       PUSHER_APP_ID: ${PUSHER_APP_ID}
       PUSHER_KEY: ${PUSHER_KEY}
       PUSHER_SECRET: ${PUSHER_SECRET}
-      #PUSHER_HOST: http://127.0.0.1
-      #PUSHER_PORT: 9090
+      PUSHER_HOST: 127.0.0.1 #TODO: in production this must be halb.it
+      PUSHER_HOST_INTERNAL: soketi #TODO: when self hosting in localost, this is necessary
+      PUSHER_PORT: 6001
       PUSHER_CLUSTER: ${PUSHER_CLUSTER}
 
   #MariaDb Service
@@ -39,6 +40,18 @@ services:
       MARIADB_PORT_NUMBER: 3306
     volumes:
       - morsechatdb:/bitnami/mariadb/data
+
+  #Soketi service
+  soketi:
+    image: "quay.io/soketi/soketi:0.17-16-alpine"
+    ports:
+      - "6001:6001"
+      - "9601:9601"
+    environment:
+      DEBUG: 1
+      DEFAULT_APP_ID: ${PUSHER_APP_ID}
+      DEFAULT_APP_KEY: ${PUSHER_KEY}
+      DEFAULT_APP_SECRET: ${PUSHER_SECRET}
 
 # Volumes
 volumes:
