@@ -14,7 +14,7 @@ app = Flask(__name__, static_folder="../static")
 
 #App specific configuration
 #ratelimit: minimum seconds between each message sent.
-app.config['MESSAGE_COOLDOWN'] = 4
+app.config['MESSAGE_COOLDOWN'] = 10
 #this multpiplier will be applied to MESSAGE_COOLDOWN if the user is suspicious
 #Suspicious behaviour include having a wpm > 30
 app.config['SUSPICIOUS_MULPTIPLIER'] = 2
