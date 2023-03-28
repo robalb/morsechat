@@ -34,22 +34,19 @@ spec:
             - name: MARIADB_DATABASE
               value: morsechat
             - name: PUSHER_APP_ID
-              valueFrom:
-                secretKeyRef:
-                  name: morse-secrets
-                  key: PUSHER_APP_ID
+              value: "123456"
             - name: PUSHER_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: morse-secrets
-                  key: PUSHER_KEY
+              value: "tomanage-key"
             - name: PUSHER_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: morse-secrets
-                  key: PUSHER_SECRET
+              value: "tomanage-secret"
             - name: PUSHER_CLUSTER
               value: eu
+            - name: PUSHER_HOST
+              value: soketi
+            - name: PUSHERT_HOST_WEB
+              value: "soketi.halb.it" #TODO check
+            - name: PUSHER_PORT
+              value: 6001
           ports:
             - containerPort: 80
           livenessProbe:
