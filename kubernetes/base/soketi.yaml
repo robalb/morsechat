@@ -124,15 +124,17 @@ spec:
   - hosts:
     - "soketi.halb.it"
     secretName: morse-cert  #name of the tls secret. Make sure this is defined first
----
+
+#---
+#
 # Redirect to https
 # https://stackoverflow.com/questions/68575472/k3s-redirect-http-to-https
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: redirectscheme
-  namespace: morse
-spec:
-  redirectScheme:
-    scheme: https
-    permanent: true
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: Middleware
+# metadata:
+#   name: redirectscheme
+#   namespace: morse
+# spec:
+#   redirectScheme:
+#     scheme: https
+#     permanent: true
