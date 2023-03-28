@@ -75,7 +75,7 @@ data:
   soketi-temp-config.json: |
     {
     "debug": true,
-    "port": 6001,
+    "port": "6001",
     "appManager.array.apps": [
         {
             "id": "123456",
