@@ -43,7 +43,7 @@ spec:
               value: eu
             - name: PUSHER_HOST
               value: soketi
-            - name: PUSHERT_HOST_WEB
+            - name: PUSHER_HOST_WEB
               value: "soketi.halb.it" #TODO check
             - name: PUSHER_PORT
               value: 6001
