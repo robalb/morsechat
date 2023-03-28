@@ -53,6 +53,12 @@ services:
       DEFAULT_APP_KEY: ${PUSHER_KEY}
       DEFAULT_APP_SECRET: ${PUSHER_SECRET}
 
+    volumes:
+      - ./soketi-config.json:/opt/soketi/soketi-config.json:ro
+    command:
+      - "--config=/opt/soketi/soketi-config.json"
+
+
 # Volumes
 volumes:
   morsechatdb:

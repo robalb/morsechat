@@ -79,7 +79,7 @@ def api_message():
              'wpm': g.data['wpm']
          }
     app.logger.info(message_data)
-    pusher.client.trigger(
+    pusher.trigger(
          session['authorized_channel'],
          'message',
          message_data
@@ -99,7 +99,7 @@ def api_typing():
     else:
         return error("unauthorized", details="no_valid_session")
 
-    pusher.client.trigger(
+    pusher.trigger(
          session['authorized_channel'],
          'typing',
          {
