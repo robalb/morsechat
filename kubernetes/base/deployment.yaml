@@ -20,7 +20,7 @@ spec:
         - name: regcred
       containers:
         - name: nginx-flask
-          image: ghcr.io/robalb/morsechat:sha-5c3913e1e4df0a450a6151aa9e370d763abec47e
+          image: ghcr.io/robalb/morsechat:sha-15db7f2d244f492f4d35a950845b14f981d1f2ab
           env:
             - name: MARIADB_HOST
               value: mariadb
@@ -34,19 +34,19 @@ spec:
             - name: MARIADB_DATABASE
               value: morsechat
             - name: PUSHER_APP_ID
-              value: "123456"
+              value: '123456'
             - name: PUSHER_KEY
-              value: "tomanage-key"
+              value: tomanage-key
             - name: PUSHER_SECRET
-              value: "tomanage-secret"
+              value: tomanage-secret
             - name: PUSHER_CLUSTER
               value: eu
             - name: PUSHER_HOST
               value: soketi
             - name: PUSHER_HOST_WEB
-              value: "soketi.halb.it" #TODO check
+              value: soketi.halb.it
             - name: PUSHER_PORT
-              value: "80"
+              value: '80'
           ports:
             - containerPort: 80
           livenessProbe:
