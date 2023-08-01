@@ -1,0 +1,14 @@
+{
+    "debug": true,
+    "port": 80,
+    "appManager.array.apps": [
+        {
+            "id": "123456",
+            "key": "tomanage-key",
+            "secret": "tomanage-secret",
+            "webhooks": [
+            ]
+        }
+    ]
+}
+

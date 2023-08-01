@@ -1,0 +1,87 @@
+version: '3.9'
+
+volumes:
+  morsechatdb:
+
+networks:
+  traefik-proxy:
+    external: true
+  default:
+
+services:
+  #Flask service
+  flask:
+    image: ghcr.io/robalb/morsechat:sha-7085b3b7d35c97d77e4fff2f4fd1935202beb0ba
+    restart: unless-stopped
+    expose:
+      - '80'
+    depends_on:
+      - mariadb
+    environment:
+      #database configuration
+      MARIADB_HOST: mariadb
+      MARIADB_USER: ${DB_LOWP_USER}
+      MARIADB_PASSWORD: ${DB_LOWP_USER_PASSWORD}
+      MARIADB_DATABASE: ${DB_DBNAME}
+      #pusher configuration
+      PUSHER_APP_ID: ${PUSHER_APP_ID}
+      PUSHER_KEY: ${PUSHER_KEY}
+      PUSHER_SECRET: ${PUSHER_SECRET}
+      PUSHER_HOST: soketi #when self hosting, this is the internal resource
+      PUSHER_HOST_WEB: soketi.halb.it #when self hosting, this is the host url
+      PUSHER_PORT: 6001
+      PUSHER_CLUSTER: ${PUSHER_CLUSTER}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.morse.rule=Host(`morse.halb.it`)
+      - traefik.http.routers.morse.entrypoints=websecure
+      - traefik.http.routers.morse.tls=true
+      - traefik.http.routers.morse.tls.certresolver=myresolver
+    networks:
+      - traefik-proxy
+
+  #MariaDb Service
+  mariadb:
+    image: bitnami/mariadb:latest
+    restart: unless-stopped
+    expose:
+      - '3306'
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_USER: ${DB_LOWP_USER}
+      MARIADB_PASSWORD: ${DB_LOWP_USER_PASSWORD}
+      MARIADB_DATABASE: ${DB_DBNAME}
+      MARIADB_PORT_NUMBER: 3306
+    volumes:
+      - morsechatdb:/bitnami/mariadb/data
+      - ./maria_config.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf
+      - ./create_tables.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - traefik-proxy
+
+  #Soketi service
+  soketi:
+    image: "quay.io/soketi/soketi:89604f268623cf799573178a7ba56b7491416bde-16-debian"
+    restart: unless-stopped
+    expose:
+      - "9601"
+      - "6001"
+    environment:
+      DEBUG: 1
+      DEFAULT_APP_ID: ${PUSHER_APP_ID}
+      DEFAULT_APP_KEY: ${PUSHER_KEY}
+      DEFAULT_APP_SECRET: ${PUSHER_SECRET}
+    networks:
+      - traefik-proxy
+    volumes:
+      - ./soketi-config.json:/opt/soketi/soketi-config.json:ro
+    command:
+      - "--config=/opt/soketi/soketi-config.json"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.soketi.rule=Host(`soketi.halb.it`)
+      - traefik.http.routers.soketi.entrypoints=websecure
+      - traefik.http.services.soketi.loadbalancer.server.port=6001
+      - traefik.http.routers.soketi.tls=true
+      - traefik.http.routers.soketi.tls.certresolver=myresolver
+

@@ -1,0 +1,20 @@
+- name: deploy project to vps
+  hosts: all
+  vars:
+    project_folder: morsechat
+  tasks:
+    - name: Copy docker compose
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/{{ project_folder }}"
+        dest: /home/al/
+    - name: rerun docker compose
+      shell: cd /home/al/{{ project_folder }} && docker compose up -d
+      register: output
+
+    - name: Show stdout
+      ansible.builtin.debug:
+        var: output.stdout_lines
+    - name: Show stderr
+      ansible.builtin.debug:
+        var: output.stderr_lines
+
