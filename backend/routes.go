@@ -10,6 +10,7 @@ import (
 func AddRoutes(
   mux *http.ServeMux,
   logger *log.Logger,
+  config Config,
   hub *Hub,
   /* Put here all the dependencies for middlewares and routers */
 ){

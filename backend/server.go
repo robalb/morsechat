@@ -7,6 +7,7 @@ import (
 
 func newServer(
 	logger *log.Logger,
+  config Config,
   hub *Hub,
   /* Put here all the dependencies for middlewares and routers */
   ) http.Handler{
@@ -15,6 +16,7 @@ func newServer(
   AddRoutes(
     mux,
     logger,
+    config,
     hub,
     /* Put here all the dependencies for middlewares and routers */
     )

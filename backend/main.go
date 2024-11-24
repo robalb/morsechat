@@ -1,10 +1,10 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
+  "net"
 	"time"
   "context"
   "io"
@@ -13,26 +13,35 @@ import (
   "sync"
 )
 
-// var addr = flag.String("addr", ":8080", "http service address")
-
-func run(ctx context.Context, w io.Writer, args []string) error {
+func run(
+  ctx context.Context,
+  stdout io.Writer,
+  stderr io.Writer,
+  args []string,
+  getenv func(string) string,
+) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-  //? logger config?
-	log.Println("starting... ")
-	// flag.Parse()
-
+  //--------------------
+  // Init everything
+  //--------------------
+  // Init logging
+  logger := log.New(stdout, "morse: ", log.Flags())
+	logger.Println("starting... ")
+  // Init config
+  config := MakeConfig(args, getenv)
+  // Init hub
 	hub := newHub()
 	go hub.run()
-
+  // Init Server
   srv := newServer(
-    log.Default(), //TODO: init logger here, using the run func args
+    logger,
+    config,
     hub,
     )
-
   httpServer := &http.Server{
-    Addr:   ":8080", //TODO proper config
+    Addr:   net.JoinHostPort(config.host, config.port),
     Handler: srv,
   }
 
@@ -40,9 +49,9 @@ func run(ctx context.Context, w io.Writer, args []string) error {
   // Start the webserver
   //--------------------
   go func() {
-    log.Printf("listening on %s\n", httpServer.Addr)
+    logger.Printf("listening on %s\n", httpServer.Addr)
     if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-      fmt.Fprintf(os.Stderr, "error listening and serving: %s\n", err)
+      fmt.Fprintf(stderr, "error listening and serving: %s\n", err)
     }
   }()
 
@@ -56,12 +65,12 @@ func run(ctx context.Context, w io.Writer, args []string) error {
   go func() {
     defer wg.Done()
     <-ctx.Done()
-    log.Println("Gracefully shutting down webserver...")
+    logger.Println("Gracefully shutting down webserver...")
     shutdownCtx := context.Background()
     shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10 * time.Second)
     defer cancel()
     if err := httpServer.Shutdown(shutdownCtx); err != nil {
-      fmt.Fprintf(os.Stderr, "error shutting down http server: %s\n", err)
+      fmt.Fprintf(stderr, "error shutting down http server: %s\n", err)
     }
   }()
 
@@ -70,7 +79,7 @@ func run(ctx context.Context, w io.Writer, args []string) error {
   go func() {
     defer wg.Done()
     <-ctx.Done()
-    log.Println("Gracefully shutting down test module...")
+    logger.Println("Gracefully shutting down test module...")
   }()
 
   wg.Wait()
@@ -85,7 +94,7 @@ https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-yea
 */
 func main() {
 	ctx := context.Background()
-	if err := run(ctx, os.Stdout, os.Args); err != nil {
+	if err := run(ctx, os.Stdout, os.Stderr, os.Args, os.Getenv); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
