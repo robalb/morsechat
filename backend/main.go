@@ -73,7 +73,6 @@ func run(
       fmt.Fprintf(stderr, "error shutting down http server: %s\n", err)
     }
   }()
-
   //example graceful shutdown (e.g could be used for a database)
   wg.Add(1)
   go func() {

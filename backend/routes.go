@@ -1,25 +1,44 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-  "fmt"
-  "time"
+	"strings"
+	"time"
 )
 
+/**
+ TODO: improve. this is not a good pattern, handlefunc expects
+  absolute paths, and will redirect accordingly
+*/
+func NestMux(parent *http.ServeMux, path string, child *http.ServeMux){
+  if !strings.HasSuffix(path, "/") && !strings.HasPrefix(path, "/"){
+    panic(fmt.Sprintf("invalid path nesting: %s", path))
+  }
+  prefix := strings.TrimSuffix(path, "/")
+  parent.Handle(path, http.StripPrefix(prefix, child))
+}
+
 func AddRoutes(
-  mux *http.ServeMux,
+  rootMux *http.ServeMux,
   logger *log.Logger,
   config Config,
   hub *Hub,
   /* Put here all the dependencies for middlewares and routers */
 ){
-  mux.HandleFunc("/", serveHome)
-  mux.HandleFunc("/test/", serveTest)
-  mux.HandleFunc("/testctx/", serveTestCtx)
-  mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+
+  //main handlers
+  rootMux.HandleFunc("/", serveHome)
+  rootMux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
     serveWs(hub, w, r)
     })
+
+  testRouter := http.NewServeMux()
+  NestMux(rootMux, "/test/", testRouter)
+  testRouter.HandleFunc("GET /test/ping/", serveTest)
+  testRouter.HandleFunc("GET /test/time/", serveTestCtx)
+
 }
 
 

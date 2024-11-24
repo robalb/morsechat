@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"github.com/robalb/morsechat/middleware"
 )
 
 func newServer(
@@ -20,9 +22,9 @@ func newServer(
     hub,
     /* Put here all the dependencies for middlewares and routers */
     )
-	var handler http.Handler = mux
-  
-  //global middlewares
 
-  return handler
+  middlewares := middleware.CreateStack(
+    middleware.Logging,
+  )
+	return middlewares(mux)
 }
