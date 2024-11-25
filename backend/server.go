@@ -23,8 +23,9 @@ func newServer(
     /* Put here all the dependencies for middlewares and routers */
     )
 
-  middlewares := middleware.CreateStack(
-    middleware.Logging,
-  )
-	return middlewares(mux)
+  logMiddleware := middleware.LoggingMiddleware(logger)
+
+  var handler http.Handler = mux
+  handler = logMiddleware(handler)
+  return handler
 }

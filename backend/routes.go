@@ -12,13 +12,14 @@ import (
  TODO: improve. this is not a good pattern, handlefunc expects
   absolute paths, and will redirect accordingly
 */
-func NestMux(parent *http.ServeMux, path string, child *http.ServeMux){
+func nestMux(parent *http.ServeMux, path string, child *http.ServeMux){
   if !strings.HasSuffix(path, "/") && !strings.HasPrefix(path, "/"){
     panic(fmt.Sprintf("invalid path nesting: %s", path))
   }
   prefix := strings.TrimSuffix(path, "/")
   parent.Handle(path, http.StripPrefix(prefix, child))
 }
+
 
 func AddRoutes(
   rootMux *http.ServeMux,
@@ -35,9 +36,9 @@ func AddRoutes(
     })
 
   testRouter := http.NewServeMux()
-  NestMux(rootMux, "/test/", testRouter)
-  testRouter.HandleFunc("GET /test/ping/", serveTest)
+  rootMux.Handle("/test/", testRouter)
   testRouter.HandleFunc("GET /test/time/", serveTestCtx)
+  testRouter.HandleFunc("GET /test/ping/", serveTest)
 
 }
 

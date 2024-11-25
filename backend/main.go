@@ -27,7 +27,7 @@ func run(
   // Init everything
   //--------------------
   // Init logging
-  logger := log.New(stdout, "morse: ", log.Flags())
+  logger := log.New(stdout, "", log.Flags())
 	logger.Println("starting... ")
   // Init config
   config := MakeConfig(args, getenv)
