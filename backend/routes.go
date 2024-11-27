@@ -4,41 +4,33 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
-)
 
-/**
- TODO: improve. this is not a good pattern, handlefunc expects
-  absolute paths, and will redirect accordingly
-*/
-func nestMux(parent *http.ServeMux, path string, child *http.ServeMux){
-  if !strings.HasSuffix(path, "/") && !strings.HasPrefix(path, "/"){
-    panic(fmt.Sprintf("invalid path nesting: %s", path))
-  }
-  prefix := strings.TrimSuffix(path, "/")
-  parent.Handle(path, http.StripPrefix(prefix, child))
-}
+	"github.com/go-chi/chi/v5"
+)
 
 
 func AddRoutes(
-  rootMux *http.ServeMux,
+  rootMux *chi.Mux,
   logger *log.Logger,
   config Config,
   hub *Hub,
   /* Put here all the dependencies for middlewares and routers */
 ){
 
-  //main handlers
-  rootMux.HandleFunc("/", serveHome)
-  rootMux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+  rootMux.Get("/", serveHome)
+  rootMux.Get("/ws", func(w http.ResponseWriter, r *http.Request) {
     serveWs(hub, w, r)
     })
 
-  testRouter := http.NewServeMux()
-  rootMux.Handle("/test/", testRouter)
-  testRouter.HandleFunc("GET /test/time/", serveTestCtx)
-  testRouter.HandleFunc("GET /test/ping/", serveTest)
+  v1 := chi.NewRouter()
+  rootMux.Mount("/api/v1", v1)
+
+  v1.Route("/test", func(r chi.Router) {
+    //r.Use(middleware.somemiddleware)
+    r.Get("/time", serveTestCtx)
+    r.Get("/ping", serveTest)
+  })
 
 }
 

@@ -4,7 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/robalb/morsechat/middleware"
+  "github.com/go-chi/chi/v5"
+  "github.com/go-chi/chi/v5/middleware"
+	// "github.com/robalb/morsechat/middleware"
+
 )
 
 func newServer(
@@ -14,7 +17,8 @@ func newServer(
   /* Put here all the dependencies for middlewares and routers */
   ) http.Handler{
 
-  mux := http.NewServeMux()
+  mux := chi.NewRouter()
+  mux.Use(middleware.Logger)
   AddRoutes(
     mux,
     logger,
@@ -23,9 +27,5 @@ func newServer(
     /* Put here all the dependencies for middlewares and routers */
     )
 
-  logMiddleware := middleware.LoggingMiddleware(logger)
-
-  var handler http.Handler = mux
-  handler = logMiddleware(handler)
-  return handler
+  return mux
 }
