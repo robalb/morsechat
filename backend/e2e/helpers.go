@@ -60,6 +60,5 @@ func RandomPort() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-  return 8080, nil
 	return int(n.Int64()) + minPort, nil
 }

@@ -30,7 +30,6 @@ func TestHealthEndpoint(t *testing.T) {
 
   args := []string{
     "morsechat",
-    "--server", "/tmp/v1",
     "--port", fmt.Sprintf("%d", port),
   }
   getenv := func(key string) string {
