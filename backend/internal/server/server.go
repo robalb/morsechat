@@ -1,24 +1,25 @@
-package main
+package server
 
 import (
 	"log"
 	"net/http"
 
-  "github.com/go-chi/chi/v5"
-  "github.com/go-chi/chi/v5/middleware"
-  "github.com/go-chi/cors"
-	localmiddleware "github.com/robalb/morsechat/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	"github.com/robalb/morsechat/internal/config"
+	localmiddleware "github.com/robalb/morsechat/internal/middleware"
 )
 
-func newServer(
+func NewServer(
 	logger *log.Logger,
-  config Config,
+  config config.Config,
   hub *Hub,
   /* Put here all the dependencies for middlewares and routers */
   ) http.Handler{
 
   mux := chi.NewRouter()
-  mux.Use(localmiddleware.RealIPFromHeaders("X-Forwarded-For"))
+  mux.Use(localmiddleware.RealIPFromHeaders("X-Forwarded-For")) //TODO: security issue. document
   mux.Use(middleware.Logger)
   mux.Use(middleware.Recoverer)
   mux.Use(middleware.Heartbeat("/health"))

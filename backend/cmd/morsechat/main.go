@@ -1,16 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"log"
+	"net"
 	"net/http"
-  "net"
+	"os"
+	"os/signal"
+	"sync"
 	"time"
-  "context"
-  "io"
-  "os"
-  "os/signal"
-  "sync"
+
+	"github.com/robalb/morsechat/internal/config"
+	"github.com/robalb/morsechat/internal/server"
 )
 
 func run(
@@ -30,18 +33,18 @@ func run(
   logger := log.New(stdout, "", log.Flags())
 	logger.Println("starting... ")
   // Init config
-  config := MakeConfig(args, getenv)
+  config := config.MakeConfig(args, getenv)
   // Init hub
-	hub := newHub()
-	go hub.run()
+	hub := server.NewHub()
+	go hub.Run()
   // Init Server
-  srv := newServer(
+  srv := server.NewServer(
     logger,
     config,
     hub,
     )
   httpServer := &http.Server{
-    Addr:   net.JoinHostPort(config.host, config.port),
+    Addr:   net.JoinHostPort(config.Host, config.Port),
     Handler: srv,
   }
 

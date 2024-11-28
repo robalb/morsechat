@@ -1,9 +1,9 @@
-package main
+package config
 
 
 type Config struct {
-  host string;
-  port string;
+  Host string;
+  Port string;
 }
 
 func MakeConfig(
@@ -13,7 +13,7 @@ func MakeConfig(
   
   
   return Config{
-    host: "",
-    port: "8080",
+    Host: "",
+    Port: "8080",
   }
 }

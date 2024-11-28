@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/robalb/morsechat/internal/config"
 )
 
 
 func AddRoutes(
   rootMux *chi.Mux,
   logger *log.Logger,
-  config Config,
+  config config.Config,
   hub *Hub,
   /* Put here all the dependencies for middlewares and routers */
 ){
