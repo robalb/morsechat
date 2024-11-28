@@ -1,0 +1,83 @@
+package e2e
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"testing"
+	"time"
+
+	"github.com/robalb/morsechat/internal/server"
+)
+
+
+func TestHealthEndpoint(t *testing.T) {
+  if testing.Short() {
+    t.Skip("Skipping E2E tests in short mode.")
+  }
+	ctx := context.Background()
+  ctx, cancel := context.WithTimeout(ctx, 5 * time.Second)
+	t.Cleanup(cancel)
+
+  port, err := RandomPort()
+  if err != nil{
+    t.Fatalf("Could not generate random port")
+  }
+  baseUrl := fmt.Sprintf("http://localhost:%d", port)
+  healthUrl := fmt.Sprintf("%v/health", baseUrl)
+
+
+  args := []string{
+    "morsechat",
+    "--server", "/tmp/v1",
+    "--port", fmt.Sprintf("%d", port),
+  }
+  getenv := func(key string) string {
+    switch key {
+    case "ENV":
+      return "prod"
+    default:
+      return ""
+  }
+  }
+
+  //start the webserver
+  go func (){
+    if err := server.Run(ctx, os.Stdout, os.Stderr, args, getenv); err != nil {
+      t.Fatalf("Failed to start server: %v", err)
+    }
+  }()
+
+  err = WaitForReady(ctx, 2 * time.Second, healthUrl)
+  if err != nil{
+    t.Fatalf("Readiness probe failed: %v", err)
+  }
+
+	// Make a GET request to the /health endpoint
+	resp, err := http.Get(healthUrl)
+	if err != nil {
+		t.Fatalf("Failed to make GET request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Validate response
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 200, got %d", resp.StatusCode)
+	}
+
+	// Make a GET request to the /nonexistent endpoint
+	resp2, err2 := http.Get(fmt.Sprintf("%s/nonexistent", baseUrl))
+	if err2 != nil {
+		t.Fatalf("Failed to make GET request: %v", err)
+	}
+	defer resp2.Body.Close()
+
+	// Validate response
+	if resp2.StatusCode != http.StatusNotFound {
+		t.Errorf("Expected status code 404, got %d", resp.StatusCode)
+	}
+
+
+}
+
