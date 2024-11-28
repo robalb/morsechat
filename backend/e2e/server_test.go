@@ -2,14 +2,25 @@ package test
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
 	"testing"
 	"time"
+
+	main_morsechat "github.com/robalb/morsechat/cmd/morsechat/main"
+	"github.com/robalb/morsechat/internal/server"
 )
 
 func TestHealthEndpoint(t *testing.T) {
+
+	ctx := context.Background()
+	if err := main_morsechat.Run(ctx, os.Stdout, os.Stderr, os.Args, os.Getenv); err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		os.Exit(1)
+	}
 	// Start the server in a goroutine
-	srv := main.NewServer() // Assuming `NewServer` returns your *http.Server
+	srv := server.NewServer() // Assuming `NewServer` returns your *http.Server
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			t.Fatalf("Failed to start server: %v", err)
