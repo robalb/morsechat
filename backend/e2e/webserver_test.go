@@ -13,6 +13,7 @@ import (
 
 
 func TestHealthEndpoint(t *testing.T) {
+  t.Parallel()
   if testing.Short() {
     t.Skip("Skipping E2E tests in short mode.")
   }
