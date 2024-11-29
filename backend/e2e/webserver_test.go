@@ -33,12 +33,7 @@ func TestHealthEndpoint(t *testing.T) {
     "--port", fmt.Sprintf("%d", port),
   }
   getenv := func(key string) string {
-    switch key {
-    case "ENV":
-      return "prod"
-    default:
-      return ""
-  }
+    return ""
   }
 
   //start the webserver
