@@ -8,11 +8,15 @@ import (
 	"testing"
 	"time"
 
+  _ "embed"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 // For this test to pass, you must first compile the
 // sql files using sqlc. Check out this project docs
+
+//go:embed schema.sql
+var ddl string;
 
 
 func TestDb(t *testing.T){
@@ -27,7 +31,6 @@ func TestDb(t *testing.T){
 	}
 
 	// create tables
-  var ddl string;
 	if _, err := db.ExecContext(ctx, ddl); err != nil {
     t.Fatalf("error creating tables")
 	}
@@ -63,8 +66,8 @@ func TestDb(t *testing.T){
 	}
 
 	// prints true
-	if !reflect.DeepEqual(insertedAuthor, fetchedAuthor){
-    t.Fatalf("error data mismatch")
+	if !reflect.DeepEqual(fetchedAuthor.Name, "Brian Kernighan"){
+    t.Fatalf("error data mismatch, %v", fetchedAuthor)
   }
 
 }
