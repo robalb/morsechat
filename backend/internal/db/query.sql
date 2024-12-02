@@ -20,3 +20,15 @@ INSERT INTO users (
 /* name: DeleteUser :exec */
 DELETE FROM users
 WHERE username = ?;
+
+
+/* name: CreateReport :execresult */
+INSERT INTO report_action (
+  reporter_user_id,
+  reporter_session,
+  baduser_session,
+  badmessage_transcript,
+  badmessage_recording
+) VALUES (
+  ?, ?, ?, ?, ?
+);

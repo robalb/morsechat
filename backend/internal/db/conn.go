@@ -9,7 +9,10 @@ import (
 //go:embed schema.sql
 var initscript string;
 
-// Temprary solution. We don't actually have migrations right now.
+//global, hardcoded sqlite config
+var sqliteConfig string = "?_foreign_keys=true";
+
+// Temporary solution. We don't actually have migrations right now.
 // We just execute the content of schema.sql every time
 func applyMigrations(db *sql.DB, ctx context.Context) error{
 	_, err := db.ExecContext(ctx, initscript)
@@ -18,7 +21,7 @@ func applyMigrations(db *sql.DB, ctx context.Context) error{
 
 // Open an sqlite db connection, and apply migrations if necessary
 func NewConn(sqlitePath string, ctx context.Context) (*sql.DB, error){
-	db, err := sql.Open("sqlite3", sqlitePath)
+	db, err := sql.Open("sqlite3", sqlitePath + sqliteConfig)
   if err != nil{
     return nil, err
   }

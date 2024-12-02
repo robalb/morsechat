@@ -18,7 +18,9 @@ type BanAction struct {
 
 type ReportAction struct {
 	ID                   int64
-	ReporterUserID       interface{}
+	ReporterUserID       int64
+	ReporterSession      string
+	EventTimestamp       int64
 	BaduserID            sql.NullInt64
 	BaduserSession       string
 	Reason               interface{}

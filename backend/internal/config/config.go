@@ -7,7 +7,6 @@ type Config struct {
   Host string;
   Port string;
   SqlitePath string;
-  SqliteConfig string;
 }
 
 func defaultConfig() Config{
@@ -15,7 +14,6 @@ func defaultConfig() Config{
     Host: "",
     Port: "8080",
     SqlitePath: "db.sqlite",
-    SqliteConfig: "?_foreign_keys=true",
   }
 }
 

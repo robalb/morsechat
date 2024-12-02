@@ -10,6 +10,36 @@ import (
 	"database/sql"
 )
 
+const createReport = `-- name: CreateReport :execresult
+INSERT INTO report_action (
+  reporter_user_id,
+  reporter_session,
+  baduser_session,
+  badmessage_transcript,
+  badmessage_recording
+) VALUES (
+  ?, ?, ?, ?, ?
+)
+`
+
+type CreateReportParams struct {
+	ReporterUserID       int64
+	ReporterSession      string
+	BaduserSession       string
+	BadmessageTranscript string
+	BadmessageRecording  string
+}
+
+func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createReport,
+		arg.ReporterUserID,
+		arg.ReporterSession,
+		arg.BaduserSession,
+		arg.BadmessageTranscript,
+		arg.BadmessageRecording,
+	)
+}
+
 const createUser = `-- name: CreateUser :execresult
 INSERT INTO users (
   username, callsign, registration_session

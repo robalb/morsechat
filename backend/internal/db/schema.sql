@@ -28,7 +28,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_registration_session
 
 CREATE TABLE IF NOT EXISTS report_action(
   id                     INTEGER PRIMARY KEY,
-  reporter_user_id       INTEGER NOT NULL REFERENCES users(id)
+  reporter_user_id       INTEGER NOT NULL REFERENCES users(id),
+  reporter_session       TEXT NOT NULL,
   event_timestamp        INTEGER NOT NULL DEFAULT (unixepoch()),
   baduser_id             INTEGER REFERENCES users(id),
   baduser_session        TEXT NOT NULL,
@@ -38,6 +39,8 @@ CREATE TABLE IF NOT EXISTS report_action(
 ) STRICT;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_report_action_reporter_user_id
   ON report_action (reporter_user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_report_action_reporter_session
+  ON report_action (reporter_session);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_report_action_baduser_id
   ON report_action (baduser_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_report_action_baduser_session
