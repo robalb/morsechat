@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -62,3 +63,22 @@ func RandomPort() (int, error) {
 	}
 	return int(n.Int64()) + minPort, nil
 }
+
+
+// Create on-disk a new sqlite file, and return its name
+// whith a cleanup function that deletes it.
+// TODO: use, test
+func NewVolatileSqliteFile() (path string, cleanup func(), err error){
+  tmp, err := os.CreateTemp("", "as")
+  if err != nil{
+    return "", nil, err
+  }
+  path = tmp.Name()
+  cleanup = func(){
+    if _, err := os.Stat(path); err == nil {
+      os.Remove(path)
+    }
+  }
+  return
+}
+

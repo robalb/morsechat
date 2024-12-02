@@ -8,36 +8,20 @@ import (
 	"testing"
 	"time"
 
-  _ "embed"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// For this test to pass, you must first compile the
-// sql files using sqlc. Check out this project docs
-
-//go:embed schema.sql
-var ddl string;
-
-
-func TestDb(t *testing.T){
+func TestConn(t *testing.T){
 	ctx := context.Background()
   ctx, cancel := context.WithTimeout(ctx, 2 * time.Second)
 	t.Cleanup(cancel)
 
-
-	db, err := sql.Open("sqlite3", ":memory:")
+  db, err := NewConn(":memory:", ctx)
 	if err != nil {
-    t.Fatalf("error opening db")
+    t.Fatalf("error opening db: %v", err)
 	}
-
-	// create tables
-	if _, err := db.ExecContext(ctx, ddl); err != nil {
-    t.Fatalf("error creating tables")
-	}
-
 
 	queries := New(db)
-
 
 	// list all authors
 	authors, err := queries.ListAuthors(ctx)

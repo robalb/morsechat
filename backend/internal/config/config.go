@@ -6,12 +6,14 @@ import "flag"
 type Config struct {
   Host string;
   Port string;
+  SqlitePath string;
 }
 
 func defaultConfig() Config{
   return Config{
     Host: "",
     Port: "8080",
+    SqlitePath: "db.sqlite",
   }
 }
 
@@ -33,10 +35,14 @@ func MakeConfig(
 	if portEnv := getenv("PORT"); portEnv != "" {
 		c.Port = portEnv
 	}
+	if sqlitePath := getenv("SQLITE_PATH"); sqlitePath != "" {
+		c.SqlitePath = sqlitePath
+	}
 
 	fs := flag.NewFlagSet("config", flag.ContinueOnError)
 	host := fs.String("host", c.Host, "Set the host")
 	port := fs.String("port", c.Port, "Set the port")
+	sqlitePath := fs.String("sqlite_path", c.SqlitePath, "Set the sqlite database path")
 	_ = fs.Parse(args[1:])
 
 	// Override config with command-line arguments if provided
@@ -45,6 +51,9 @@ func MakeConfig(
 	}
 	if *port != "" {
 		c.Port = *port
+	}
+	if *sqlitePath != "" {
+		c.SqlitePath = *sqlitePath
 	}
 
 	return c
