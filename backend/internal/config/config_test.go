@@ -35,6 +35,7 @@ func TestConfigOrder(t *testing.T){
     "morsechat",
     "--host", "0.0.0.0",
     "--port", "42",
+    "--sqlite_path", "name.sqlite",
 
   }
   getenv := func(key string) string {
@@ -53,6 +54,9 @@ func TestConfigOrder(t *testing.T){
   }
   if c.Host != "0.0.0.0"{
     t.Fatal("Test override host")
+  }
+  if c.SqlitePath != "name.sqlite"{
+    t.Fatal("Test set sqlite path")
   }
 
 }

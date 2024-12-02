@@ -10,60 +10,106 @@ import (
 	"database/sql"
 )
 
-const createAuthor = `-- name: CreateAuthor :execresult
-INSERT INTO authors (
-  name, bio
+const createUser = `-- name: CreateUser :execresult
+INSERT INTO users (
+  username, callsign, registration_session
 ) VALUES (
-  ?, ? 
+  ?, ?, ?
 )
 `
 
-type CreateAuthorParams struct {
-	Name string
-	Bio  sql.NullString
+type CreateUserParams struct {
+	Username            string
+	Callsign            string
+	RegistrationSession string
 }
 
-func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createAuthor, arg.Name, arg.Bio)
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createUser, arg.Username, arg.Callsign, arg.RegistrationSession)
 }
 
-const deleteAuthor = `-- name: DeleteAuthor :exec
-DELETE FROM authors
-WHERE id = ?
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE username = ?
 `
 
-func (q *Queries) DeleteAuthor(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteAuthor, id)
+func (q *Queries) DeleteUser(ctx context.Context, username string) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, username)
 	return err
 }
 
-const getAuthor = `-- name: GetAuthor :one
-SELECT id, name, bio FROM authors
-WHERE id = ? LIMIT 1
+const getUser = `-- name: GetUser :one
+SELECT id, username, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+WHERE username = ? LIMIT 1
 `
 
-func (q *Queries) GetAuthor(ctx context.Context, id int64) (Author, error) {
-	row := q.db.QueryRowContext(ctx, getAuthor, id)
-	var i Author
-	err := row.Scan(&i.ID, &i.Name, &i.Bio)
+func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Callsign,
+		&i.Settings,
+		&i.IsBanned,
+		&i.IsVerified,
+		&i.IsModerator,
+		&i.RegistrationSession,
+		&i.RegistrationTimestamp,
+		&i.LastOnlineTimestamp,
+	)
 	return i, err
 }
 
-const listAuthors = `-- name: ListAuthors :many
-SELECT id, name, bio FROM authors
-ORDER BY name
+const getUserFromId = `-- name: GetUserFromId :one
+SELECT id, username, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+WHERE id = ? LIMIT 1
 `
 
-func (q *Queries) ListAuthors(ctx context.Context) ([]Author, error) {
-	rows, err := q.db.QueryContext(ctx, listAuthors)
+func (q *Queries) GetUserFromId(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserFromId, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Callsign,
+		&i.Settings,
+		&i.IsBanned,
+		&i.IsVerified,
+		&i.IsModerator,
+		&i.RegistrationSession,
+		&i.RegistrationTimestamp,
+		&i.LastOnlineTimestamp,
+	)
+	return i, err
+}
+
+const listModerators = `-- name: ListModerators :many
+SELECT id, username, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+WHERE is_moderator == 1
+`
+
+func (q *Queries) ListModerators(ctx context.Context) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listModerators)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Author
+	var items []User
 	for rows.Next() {
-		var i Author
-		if err := rows.Scan(&i.ID, &i.Name, &i.Bio); err != nil {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.Callsign,
+			&i.Settings,
+			&i.IsBanned,
+			&i.IsVerified,
+			&i.IsModerator,
+			&i.RegistrationSession,
+			&i.RegistrationTimestamp,
+			&i.LastOnlineTimestamp,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

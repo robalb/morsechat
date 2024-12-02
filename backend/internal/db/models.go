@@ -8,8 +8,33 @@ import (
 	"database/sql"
 )
 
-type Author struct {
-	ID   int64
-	Name string
-	Bio  sql.NullString
+type BanAction struct {
+	ID          int64
+	ModeratorID interface{}
+	BaduserID   interface{}
+	Reason      interface{}
+	IsBanRevert int64
+}
+
+type ReportAction struct {
+	ID                   int64
+	ReporterUserID       interface{}
+	BaduserID            sql.NullInt64
+	BaduserSession       string
+	Reason               interface{}
+	BadmessageTranscript string
+	BadmessageRecording  string
+}
+
+type User struct {
+	ID                    int64
+	Username              string
+	Callsign              string
+	Settings              interface{}
+	IsBanned              int64
+	IsVerified            int64
+	IsModerator           int64
+	RegistrationSession   string
+	RegistrationTimestamp int64
+	LastOnlineTimestamp   int64
 }

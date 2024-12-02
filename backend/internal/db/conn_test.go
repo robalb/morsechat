@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"reflect"
 	"testing"
@@ -24,35 +23,42 @@ func TestConn(t *testing.T){
 	queries := New(db)
 
 	// list all authors
-	authors, err := queries.ListAuthors(ctx)
+	authors, err := queries.ListModerators(ctx)
 	if err != nil {
     t.Fatalf("error query db: %v", err)
 	}
 	fmt.Println(authors)
 
 	// create an author
-	insertedAuthor, err := queries.CreateAuthor(ctx, CreateAuthorParams{
-		Name: "Brian Kernighan",
-		Bio:  sql.NullString{String: "Co-author of The C Programming Language and The Go Programming Language", Valid: true},
+	insertedUser, err := queries.CreateUser(ctx, CreateUserParams{
+		Username: "lorem",
+    Callsign: "US121X",
+    RegistrationSession: "afakeuuidv4",
 	})
 	if err != nil {
     t.Fatalf("error inserting into db")
 	}
 
-  id, err := insertedAuthor.LastInsertId()
+  id, err := insertedUser.LastInsertId()
 	if err != nil {
     t.Fatalf("error getting inserted id ")
 	}
 	// get the author we just inserted
-	fetchedAuthor, err := queries.GetAuthor(ctx, id)
+	fetchedUser, err := queries.GetUserFromId(ctx, id)
 	if err != nil {
     t.Fatalf("error selecting data from db")
 	}
 
-	// prints true
-	if !reflect.DeepEqual(fetchedAuthor.Name, "Brian Kernighan"){
-    t.Fatalf("error data mismatch, %v", fetchedAuthor)
+	if !reflect.DeepEqual(fetchedUser.Username, "lorem"){
+    t.Fatalf("error data mismatch, %v", fetchedUser)
   }
+  if(fetchedUser.IsBanned != 0){
+    t.Fatalf("error data mismatch, %v", fetchedUser)
+  }
+  if delta := time.Since(time.Unix(fetchedUser.RegistrationTimestamp, 0)); delta > 2*time.Second {
+    t.Fatalf("error timing in basic query, %v", delta)
+  }
+
 
 }
 

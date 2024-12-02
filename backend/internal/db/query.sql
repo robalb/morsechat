@@ -1,18 +1,22 @@
-/* name: GetAuthor :one */
-SELECT * FROM authors
+/* name: GetUser :one */
+SELECT * FROM users
+WHERE username = ? LIMIT 1;
+
+/* name: GetUserFromId :one */
+SELECT * FROM users
 WHERE id = ? LIMIT 1;
 
-/* name: ListAuthors :many */
-SELECT * FROM authors
-ORDER BY name;
+/* name: ListModerators :many */
+SELECT * FROM users
+WHERE is_moderator == 1;
 
-/* name: CreateAuthor :execresult */
-INSERT INTO authors (
-  name, bio
+/* name: CreateUser :execresult */
+INSERT INTO users (
+  username, callsign, registration_session
 ) VALUES (
-  ?, ? 
+  ?, ?, ?
 );
 
-/* name: DeleteAuthor :exec */
-DELETE FROM authors
-WHERE id = ?;
+/* name: DeleteUser :exec */
+DELETE FROM users
+WHERE username = ?;
