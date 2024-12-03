@@ -4,7 +4,7 @@
 -- a session is tied to a speicific timeline, and
 -- browsing metadata like the user ip.
 -- Everywhere auditing features are required, we log
--- session ids, even when we have an username.
+-- session ids. Even when we have an username.
 
 CREATE TABLE IF NOT EXISTS users (
   id                     INTEGER PRIMARY KEY,

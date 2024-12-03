@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/robalb/morsechat/internal/config"
+	"github.com/robalb/morsechat/internal/handlers"
 )
 
 
@@ -20,6 +21,7 @@ func AddRoutes(
 ){
 
   rootMux.Get("/", serveHome)
+  rootMux.Post("/dbhealth", handlers.ServeDbHealth(1337))
   rootMux.Get("/ws", func(w http.ResponseWriter, r *http.Request) {
     serveWs(hub, w, r)
     })
@@ -31,6 +33,7 @@ func AddRoutes(
     //r.Use(middleware.somemiddleware)
     r.Get("/time", serveTestCtx)
     r.Get("/ping", serveTest)
+    r.Post("/validator", serveValidator)
   })
 
 }
@@ -83,3 +86,6 @@ func serveTestCtx(w http.ResponseWriter, r *http.Request) {
 
 }
 
+
+func serveValidator(w http.ResponseWriter, r *http.Request) {
+}
