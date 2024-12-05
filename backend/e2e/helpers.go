@@ -14,17 +14,17 @@ import (
 // response or until the context is cancelled or the timeout is
 // reached.
 func WaitForReady(
-	ctx context.Context, 
-	timeout time.Duration, 
+	ctx context.Context,
+	timeout time.Duration,
 	endpoint string,
 ) error {
 	client := http.Client{}
 	startTime := time.Now()
 	for {
 		req, err := http.NewRequestWithContext(
-			ctx, 
-			http.MethodGet, 
-			endpoint, 
+			ctx,
+			http.MethodGet,
+			endpoint,
 			nil,
 		)
 		if err != nil {
@@ -46,7 +46,7 @@ func WaitForReady(
 		default:
 			if time.Since(startTime) >= timeout {
 				return fmt.Errorf("timeout reached while waiting for endpoint")
-      }
+			}
 			// wait a little while between checks
 			time.Sleep(500 * time.Millisecond)
 		}
@@ -64,21 +64,19 @@ func RandomPort() (int, error) {
 	return int(n.Int64()) + minPort, nil
 }
 
-
 // Create on-disk a new sqlite file, and return its name
 // whith a cleanup function that deletes it.
 // TODO: use, test
-func NewVolatileSqliteFile() (path string, cleanup func(), err error){
-  tmp, err := os.CreateTemp("", "as")
-  if err != nil{
-    return "", nil, err
-  }
-  path = tmp.Name()
-  cleanup = func(){
-    if _, err := os.Stat(path); err == nil {
-      os.Remove(path)
-    }
-  }
-  return
+func NewVolatileSqliteFile() (path string, cleanup func(), err error) {
+	tmp, err := os.CreateTemp("", "as")
+	if err != nil {
+		return "", nil, err
+	}
+	path = tmp.Name()
+	cleanup = func() {
+		if _, err := os.Stat(path); err == nil {
+			os.Remove(path)
+		}
+	}
+	return
 }
-

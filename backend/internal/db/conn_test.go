@@ -10,14 +10,14 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestConn(t *testing.T){
+func TestConn(t *testing.T) {
 	ctx := context.Background()
-  ctx, cancel := context.WithTimeout(ctx, 2 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	t.Cleanup(cancel)
 
-  db, err := NewConn(":memory:", ctx)
+	db, err := NewConn(":memory:", ctx)
 	if err != nil {
-    t.Fatalf("error opening db: %v", err)
+		t.Fatalf("error opening db: %v", err)
 	}
 
 	queries := New(db)
@@ -25,41 +25,38 @@ func TestConn(t *testing.T){
 	// list all authors
 	authors, err := queries.ListModerators(ctx)
 	if err != nil {
-    t.Fatalf("error query db: %v", err)
+		t.Fatalf("error query db: %v", err)
 	}
 	fmt.Println(authors)
 
 	// create an author
 	insertedUser, err := queries.CreateUser(ctx, CreateUserParams{
-		Username: "lorem",
-    Callsign: "US121X",
-    RegistrationSession: "afakeuuidv4",
+		Username:            "lorem",
+		Callsign:            "US121X",
+		RegistrationSession: "afakeuuidv4",
 	})
 	if err != nil {
-    t.Fatalf("error inserting into db")
+		t.Fatalf("error inserting into db")
 	}
 
-  id, err := insertedUser.LastInsertId()
+	id, err := insertedUser.LastInsertId()
 	if err != nil {
-    t.Fatalf("error getting inserted id ")
+		t.Fatalf("error getting inserted id ")
 	}
 	// get the author we just inserted
 	fetchedUser, err := queries.GetUserFromId(ctx, id)
 	if err != nil {
-    t.Fatalf("error selecting data from db")
+		t.Fatalf("error selecting data from db")
 	}
 
-	if !reflect.DeepEqual(fetchedUser.Username, "lorem"){
-    t.Fatalf("error data mismatch, %v", fetchedUser)
-  }
-  if(fetchedUser.IsBanned != 0){
-    t.Fatalf("error data mismatch, %v", fetchedUser)
-  }
-  if delta := time.Since(time.Unix(fetchedUser.RegistrationTimestamp, 0)); delta > 2*time.Second {
-    t.Fatalf("error timing in basic query, %v", delta)
-  }
-
+	if !reflect.DeepEqual(fetchedUser.Username, "lorem") {
+		t.Fatalf("error data mismatch, %v", fetchedUser)
+	}
+	if fetchedUser.IsBanned != 0 {
+		t.Fatalf("error data mismatch, %v", fetchedUser)
+	}
+	if delta := time.Since(time.Unix(fetchedUser.RegistrationTimestamp, 0)); delta > 2*time.Second {
+		t.Fatalf("error timing in basic query, %v", delta)
+	}
 
 }
-
-

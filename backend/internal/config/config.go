@@ -2,19 +2,18 @@ package config
 
 import "flag"
 
-
 type Config struct {
-  Host string;
-  Port string;
-  SqlitePath string;
+	Host       string
+	Port       string
+	SqlitePath string
 }
 
-func defaultConfig() Config{
-  return Config{
-    Host: "",
-    Port: "8080",
-    SqlitePath: "db.sqlite",
-  }
+func defaultConfig() Config {
+	return Config{
+		Host:       "",
+		Port:       "8080",
+		SqlitePath: "db.sqlite",
+	}
 }
 
 // Load Configuration for the whole app, using command line args or
@@ -23,9 +22,9 @@ func defaultConfig() Config{
 // - What you set via command line will override the default value
 //   or what you set via env var.
 func MakeConfig(
-  args []string,
-  getenv func(string) string,
-) Config{
+	args []string,
+	getenv func(string) string,
+) Config {
 
 	c := defaultConfig()
 

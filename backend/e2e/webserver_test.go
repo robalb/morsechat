@@ -11,43 +11,41 @@ import (
 	"github.com/robalb/morsechat/internal/server"
 )
 
-
 func TestHealthEndpoint(t *testing.T) {
-  t.Parallel()
-  if testing.Short() {
-    t.Skip("Skipping E2E tests in short mode.")
-  }
+	t.Parallel()
+	if testing.Short() {
+		t.Skip("Skipping E2E tests in short mode.")
+	}
 	ctx := context.Background()
-  ctx, cancel := context.WithTimeout(ctx, 5 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	t.Cleanup(cancel)
 
-  port, err := RandomPort()
-  if err != nil{
-    t.Fatalf("Could not generate random port")
-  }
-  baseUrl := fmt.Sprintf("http://localhost:%d", port)
-  healthUrl := fmt.Sprintf("%v/health", baseUrl)
+	port, err := RandomPort()
+	if err != nil {
+		t.Fatalf("Could not generate random port")
+	}
+	baseUrl := fmt.Sprintf("http://localhost:%d", port)
+	healthUrl := fmt.Sprintf("%v/health", baseUrl)
 
+	args := []string{
+		"morsechat",
+		"--port", fmt.Sprintf("%d", port),
+	}
+	getenv := func(key string) string {
+		return ""
+	}
 
-  args := []string{
-    "morsechat",
-    "--port", fmt.Sprintf("%d", port),
-  }
-  getenv := func(key string) string {
-    return ""
-  }
+	//start the webserver
+	go func() {
+		if err := server.Run(ctx, os.Stdout, os.Stderr, args, getenv); err != nil {
+			t.Fatalf("Failed to start server: %v", err)
+		}
+	}()
 
-  //start the webserver
-  go func (){
-    if err := server.Run(ctx, os.Stdout, os.Stderr, args, getenv); err != nil {
-      t.Fatalf("Failed to start server: %v", err)
-    }
-  }()
-
-  err = WaitForReady(ctx, 2 * time.Second, healthUrl)
-  if err != nil{
-    t.Fatalf("Readiness probe failed: %v", err)
-  }
+	err = WaitForReady(ctx, 2*time.Second, healthUrl)
+	if err != nil {
+		t.Fatalf("Readiness probe failed: %v", err)
+	}
 
 	// Make a GET request to the /health endpoint
 	resp, err := http.Get(healthUrl)
@@ -73,6 +71,4 @@ func TestHealthEndpoint(t *testing.T) {
 		t.Errorf("Expected status code 404, got %d", resp.StatusCode)
 	}
 
-
 }
-

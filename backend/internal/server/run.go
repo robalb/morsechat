@@ -14,80 +14,96 @@ import (
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/config"
+	"github.com/robalb/morsechat/internal/db"
 )
 
 func Run(
-  ctx context.Context,
-  stdout io.Writer,
-  stderr io.Writer,
-  args []string,
-  getenv func(string) string,
+	ctx context.Context,
+	stdout io.Writer,
+	stderr io.Writer,
+	args []string,
+	getenv func(string) string,
 ) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-  //--------------------
-  // Init everything
-  //--------------------
-  //TODO: temporary init. Danger: unsafe
-  tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
-  // Init logging
-  logger := log.New(stdout, "", log.Flags())
+	//--------------------
+	// Init everything
+	//--------------------
+	//TODO: temporary init. Danger: unsafe
+	tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
+	// Init logging
+	logger := log.New(stdout, "", log.Flags())
 	logger.Println("starting... ")
-  // Init config
-  config := config.MakeConfig(args, getenv)
-  // Init hub
+	// Init config
+	config := config.MakeConfig(args, getenv)
+  // Init db
+  //TODO: force graceful shutdown on fail
+  dbReadPool, err := db.NewReadPool(config.SqlitePath, ctx)
+  if err != nil{
+    logger.Printf("Failed to init database read pool")
+  }
+  dbWritePool, err := db.NewWritePool(config.SqlitePath, ctx)
+  if err != nil{
+    logger.Printf("Failed to init database write pool")
+  }
+  err = db.ApplyMigrations(dbWritePool, ctx)
+  if err != nil{
+    logger.Printf("Failed to apply database migrations")
+  }
+	// Init hub
 	hub := NewHub()
 	go hub.Run()
-  // Init Server
-  srv := NewServer(
-    logger,
-    config,
-    hub,
-    tokenAuth,
-    )
-  httpServer := &http.Server{
-    Addr:   net.JoinHostPort(config.Host, config.Port),
-    Handler: srv,
-  }
+	// Init Server
+	srv := NewServer(
+		logger,
+		config,
+		hub,
+		tokenAuth,
+    dbReadPool,
+    dbWritePool,
+	)
+	httpServer := &http.Server{
+		Addr:    net.JoinHostPort(config.Host, config.Port),
+		Handler: srv,
+	}
 
-  //--------------------
-  // Start the webserver
-  //--------------------
-  go func() {
-    logger.Printf("listening on %s\n", httpServer.Addr)
-    if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-      fmt.Fprintf(stderr, "error listening and serving: %s\n", err)
-    }
-  }()
+	//--------------------
+	// Start the webserver
+	//--------------------
+	go func() {
+		logger.Printf("listening on %s\n", httpServer.Addr)
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			fmt.Fprintf(stderr, "error listening and serving: %s\n", err)
+		}
+	}()
 
-  //--------------------
-  // Graceful shutdown
-  //--------------------
-  var wg sync.WaitGroup
-  // Webserver graceful shutdown
-  //TODO: close websockets. Shutdown does not close websckets
-  wg.Add(1)
-  go func() {
-    defer wg.Done()
-    <-ctx.Done()
-    logger.Println("Gracefully shutting down webserver...")
-    shutdownCtx := context.Background()
-    shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10 * time.Second)
-    defer cancel()
-    if err := httpServer.Shutdown(shutdownCtx); err != nil {
-      fmt.Fprintf(stderr, "error shutting down http server: %s\n", err)
-    }
-  }()
-  //example graceful shutdown (e.g could be used for a database)
-  wg.Add(1)
-  go func() {
-    defer wg.Done()
-    <-ctx.Done()
-    logger.Println("Gracefully shutting down test module...")
-  }()
+	//--------------------
+	// Graceful shutdown
+	//--------------------
+	var wg sync.WaitGroup
+	// Webserver graceful shutdown
+	//TODO: close websockets. Shutdown does not close websckets
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-ctx.Done()
+		logger.Println("Gracefully shutting down webserver...")
+		shutdownCtx := context.Background()
+		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
+		defer cancel()
+		if err := httpServer.Shutdown(shutdownCtx); err != nil {
+			fmt.Fprintf(stderr, "error shutting down http server: %s\n", err)
+		}
+	}()
+	//example graceful shutdown (e.g could be used for a database)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-ctx.Done()
+		logger.Println("Gracefully shutting down test module...")
+	}()
 
-  wg.Wait()
-  return nil
+	wg.Wait()
+	return nil
 }
-
