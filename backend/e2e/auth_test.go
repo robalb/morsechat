@@ -60,7 +60,7 @@ func TestAuth(t *testing.T) {
 	}
 
   //--------------------
-  // logged endpoint, without cookie
+  // call logged endpoint, without cookie
   //--------------------
 
 	resp, err := http.Get(baseUrl + "/api/v1/user/me/")
@@ -143,6 +143,47 @@ func TestAuth(t *testing.T) {
 		t.Errorf("User info does not match. Got %+v", userInfo)
 	}
 
+  //--------------------
+  //attempt to call an ADMIN only endpoint with a valid, but non-amin cookie
+  //--------------------
+
+	// Step 1: Attempt to access /api/v1/admin/... with an invalid JWT.
+	req, err = http.NewRequest("POST", baseUrl+"/api/v1/admin/set_moderator", nil)
+	if err != nil {
+		t.Fatalf("Failed to create GET request for /api/v1/user/me: %v", err)
+	}
+	// Add the valid cookie to the request
+	req.AddCookie(cookie)
+
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Fatalf("Failed to make GET request with invalid JWT: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Step 2: Validate the response.
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Errorf("Expected status code 401 for invalid JWT, got %d", resp.StatusCode)
+	}
+
+	// Check for an error message in the response body.
+  {
+    var errorResponse struct {
+      Error string `json:"error"`
+      Details string `json:"details"`
+    }
+    err = json.NewDecoder(resp.Body).Decode(&errorResponse)
+    if err != nil {
+      t.Fatalf("Failed to decode JSON error response: %v", err)
+    }
+
+    fmt.Printf("------ %v", errorResponse)
+    expectedMessage := "Not an admin"
+    if errorResponse.Details != expectedMessage {
+      t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
+    }
+  }
+
 
   //--------------------
   //attempt to call an auth-required endpoint after a user registration,
@@ -183,7 +224,7 @@ func TestAuth(t *testing.T) {
 		t.Fatalf("Failed to decode JSON error response: %v", err)
 	}
 
-	expectedMessage := "Unauthorized"
+  expectedMessage := "Unauthorized"
 	if errorResponse.Error != expectedMessage {
 		t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
 	}
