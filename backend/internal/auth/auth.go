@@ -35,9 +35,9 @@ func GetJwtData(ctx context.Context) (jwtData JwtData, err error){
   return
 }
 
-func EncodeJwt(tokenAuth *jwtauth.JWTAuth, data JwtData, expiration time.Duration) (tokenString string, err error){
+func EncodeJwt(tokenAuth *jwtauth.JWTAuth, data JwtData, expiration time.Time) (tokenString string, err error){
   claims :=map[string]interface{}{JWtDataVersion: data} 
-  jwtauth.SetExpiryIn(claims, expiration)
+  jwtauth.SetExpiry(claims, expiration)
   jwtauth.SetIssuedNow(claims)
     _, tokenString, err = tokenAuth.Encode(claims)
   return

@@ -8,8 +8,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/robalb/morsechat/internal/auth"
 	"github.com/robalb/morsechat/internal/config"
+	"github.com/robalb/morsechat/internal/handlers"
 	"github.com/robalb/morsechat/internal/middleware"
 )
 
@@ -38,8 +38,8 @@ func AddRoutes(
   //Non authenticated routes
   v1.Group(func(r chi.Router){
     r.Post("/register", serveTODO)
-    r.Post("/login", serveLoginTest(tokenAuth))
-    r.Post("/sess_init", serveTODO) //the first api call. will set a session jwt with anonymous data.
+    r.Post("/login", handlers.ServeLogin(logger, tokenAuth))
+    r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth)) 
     r.Post("/validate_callsign", serveTODO)
   })
 
@@ -69,7 +69,6 @@ func AddRoutes(
   //TODO remove
   v1.Route("/test", func(r chi.Router) {
     r.Get("/time", serveTestCtx)
-    r.Get("/ping", serveTest)
   })
 
 }
@@ -78,28 +77,6 @@ func AddRoutes(
 
 //TODO: move to dedicated file anything below this line
 //---------
-
-func serveLoginTest(tokenAuth *jwtauth.JWTAuth) func(w http.ResponseWriter, r *http.Request){
-  return func(w http.ResponseWriter, r *http.Request){
-    _, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": 123})
-    jwtData := auth.JwtData{
-      UserId: 0, 
-      IsAnonymous: true,
-      IsAdmin:false,
-      IsModerator:false,
-      Username: "foo",
-      Callsign: "US000X",
-    }
-    expiration := time.Hour * 24 * 30
-    tokenString, err := auth.EncodeJwt(tokenAuth, jwtData, expiration)
-    if err != nil {
-    fmt.Printf("err: %v", err.Error())
-      
-    }
-    fmt.Printf("token: %v |", tokenString)
-  }
-}
-
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL)
@@ -114,24 +91,8 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "home.html")
 }
 
-func serveTest(w http.ResponseWriter, r *http.Request) {
-	tr := &http.Transport{
-		IdleConnTimeout:    1 * time.Second,
-		DisableCompression: true,
-	}
-	client := &http.Client{Transport: tr}
-	resp, err := client.Get("https://halb.it")
-	if err != nil {
-		log.Println("err")
-		log.Println(err)
-	} else {
-		log.Println(resp)
-	}
-}
-
 func serveTestCtx(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
 	select {
 	case <-ctx.Done():
     log.Println("ctx done, abrupt end. reason:")
