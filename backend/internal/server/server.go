@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/config"
 	localmiddleware "github.com/robalb/morsechat/internal/middleware"
 )
@@ -15,6 +16,7 @@ func NewServer(
 	logger *log.Logger,
   config config.Config,
   hub *Hub,
+  tokenAuth *jwtauth.JWTAuth,
   /* Put here all the dependencies for middlewares and routers */
   ) http.Handler{
 
@@ -33,12 +35,14 @@ func NewServer(
     AllowCredentials: false,
     MaxAge:           300, // Maximum value not ignored by any of major browsers
   }))
+  mux.Use(jwtauth.Verifier(tokenAuth))
 
   AddRoutes(
     mux,
     logger,
     config,
     hub,
+    tokenAuth,
     /* Put here all the dependencies for middlewares and routers */
     )
 

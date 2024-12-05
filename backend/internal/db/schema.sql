@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   id                     INTEGER PRIMARY KEY,
   username               TEXT NOT NULL,
   callsign               TEXT NOT NULL,
-  settings               TEXT NOT NULL DEFAULT "",
+  settings               TEXT NOT NULL DEFAULT "",   -- JSON
   is_banned              INTEGER NOT NULL DEFAULT 0, -- BOOLEAN
   is_verified            INTEGER NOT NULL DEFAULT 0, -- BOOLEAN
   is_moderator           INTEGER NOT NULL DEFAULT 0, -- BOOLEAN

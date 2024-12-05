@@ -16,10 +16,7 @@ import (
 func Bind(w http.ResponseWriter, r *http.Request, field interface{}) (err error) {
   err = ShouldBind(r, field)
   if err != nil{
-		w.WriteHeader(http.StatusBadRequest)
-    w.Header().Add("Content-type", "application/json")
-		response := map[string]string{"error": "Validation failed", "details": err.Error()}
-		json.NewEncoder(w).Encode(response)
+    JSONError(w, "Validation failed", err.Error(), http.StatusBadRequest)
   }
   return
 }

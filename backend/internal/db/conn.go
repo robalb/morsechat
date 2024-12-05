@@ -20,6 +20,8 @@ func applyMigrations(db *sql.DB, ctx context.Context) error{
 }
 
 // Open an sqlite db connection, and apply migrations if necessary
+// TODO: runtime pragmas, as seen here
+// https://github.com/mtlynch/picoshare/blob/master/store/sqlite/sqlite.go
 func NewConn(sqlitePath string, ctx context.Context) (*sql.DB, error){
 	db, err := sql.Open("sqlite3", sqlitePath + sqliteConfig)
   if err != nil{

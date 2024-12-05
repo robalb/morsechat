@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/config"
 )
 
@@ -28,6 +29,8 @@ func Run(
   //--------------------
   // Init everything
   //--------------------
+  //TODO: temporary init. Danger: unsafe
+  tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
   // Init logging
   logger := log.New(stdout, "", log.Flags())
 	logger.Println("starting... ")
@@ -41,6 +44,7 @@ func Run(
     logger,
     config,
     hub,
+    tokenAuth,
     )
   httpServer := &http.Server{
     Addr:   net.JoinHostPort(config.Host, config.Port),
