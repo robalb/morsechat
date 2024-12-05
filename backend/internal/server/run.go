@@ -15,6 +15,8 @@ import (
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func Run(
@@ -38,18 +40,20 @@ func Run(
 	// Init config
 	config := config.MakeConfig(args, getenv)
   // Init db
-  //TODO: force graceful shutdown on fail
   dbReadPool, err := db.NewReadPool(config.SqlitePath, ctx)
   if err != nil{
-    logger.Printf("Failed to init database read pool")
+    logger.Printf("Failed to init database read pool: %v", err.Error())
+    return err
   }
   dbWritePool, err := db.NewWritePool(config.SqlitePath, ctx)
   if err != nil{
-    logger.Printf("Failed to init database write pool")
+    logger.Printf("Failed to init database write pool: %v", err.Error())
+    return err
   }
   err = db.ApplyMigrations(dbWritePool, ctx)
   if err != nil{
-    logger.Printf("Failed to apply database migrations")
+    logger.Printf("Failed to apply database migrations: %v", err.Error())
+    return err
   }
 	// Init hub
 	hub := NewHub()

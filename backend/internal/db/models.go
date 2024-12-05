@@ -9,11 +9,14 @@ import (
 )
 
 type BanAction struct {
-	ID          int64
-	ModeratorID interface{}
-	BaduserID   interface{}
-	Reason      interface{}
-	IsBanRevert int64
+	ID             int64
+	ModeratorID    int64
+	EventTimestamp int64
+	BaduserID      sql.NullInt64
+	BaduserSession string
+	ModeratorNotes interface{}
+	Reason         interface{}
+	IsBanRevert    int64
 }
 
 type ReportAction struct {

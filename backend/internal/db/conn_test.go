@@ -15,7 +15,7 @@ func TestConn(t *testing.T) {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	t.Cleanup(cancel)
 
-	db, err := NewConn(":memory:", ctx)
+	db, err := NewTestConn(":memory:", ctx)
 	if err != nil {
 		t.Fatalf("error opening db: %v", err)
 	}

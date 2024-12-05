@@ -50,10 +50,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_report_action_baduser_session
 
 CREATE TABLE IF NOT EXISTS ban_action(
   id               INTEGER PRIMARY KEY,
-  moderator_id     INTEGER NOT NULL REFERENCES USERS(id)
+  moderator_id     INTEGER NOT NULL REFERENCES USERS(id),
   event_timestamp  INTEGER NOT NULL DEFAULT (unixepoch()),
-  baduser_id       INTEGER REFERENCES USERS(id)
-  baduser_session  TEXT NOT NULL
+  baduser_id       INTEGER REFERENCES USERS(id),
+  baduser_session  TEXT NOT NULL,
   moderator_notes  TEXT NOT NULL DEFAULT "",
   reason           TEXT NOT NULL DEFAULT "",
   is_ban_revert    INTEGER NOT NULL DEFAULT 0

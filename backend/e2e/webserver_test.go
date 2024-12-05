@@ -38,6 +38,7 @@ func TestHealthEndpoint(t *testing.T) {
 	//start the webserver
 	go func() {
 		if err := server.Run(ctx, os.Stdout, os.Stderr, args, getenv); err != nil {
+      cancel()
 			t.Fatalf("Failed to start server: %v", err)
 		}
 	}()
