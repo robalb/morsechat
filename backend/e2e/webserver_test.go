@@ -20,6 +20,12 @@ func TestHealthEndpoint(t *testing.T) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	t.Cleanup(cancel)
 
+  tempdb, cleandb, err := NewVolatileSqliteFile()
+	if err != nil {
+		t.Fatalf("Could not generate temporary db file")
+	}
+  t.Cleanup(cleandb)
+
 	port, err := RandomPort()
 	if err != nil {
 		t.Fatalf("Could not generate random port")
@@ -30,7 +36,9 @@ func TestHealthEndpoint(t *testing.T) {
 	args := []string{
 		"morsechat",
 		"--port", fmt.Sprintf("%d", port),
+    "--sqlite_path", tempdb,
 	}
+  fmt.Printf("aaaa %v", tempdb)
 	getenv := func(key string) string {
 		return ""
 	}

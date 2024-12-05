@@ -48,7 +48,7 @@ func WaitForReady(
 				return fmt.Errorf("timeout reached while waiting for endpoint")
 			}
 			// wait a little while between checks
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(200 * time.Millisecond)
 		}
 	}
 }
@@ -66,9 +66,8 @@ func RandomPort() (int, error) {
 
 // Create on-disk a new sqlite file, and return its name
 // whith a cleanup function that deletes it.
-// TODO: use, test
 func NewVolatileSqliteFile() (path string, cleanup func(), err error) {
-	tmp, err := os.CreateTemp("", "as")
+	tmp, err := os.CreateTemp("", "morsechatdbtest")
 	if err != nil {
 		return "", nil, err
 	}
