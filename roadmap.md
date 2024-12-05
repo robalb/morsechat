@@ -2,6 +2,7 @@
 features
 
 - nationality negotiation
+- move to paseto
 
 Api endpoints
 

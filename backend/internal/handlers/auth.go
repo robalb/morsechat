@@ -73,6 +73,7 @@ func ServeRegister(
 		logger.Printf("token: %v ", tokenString)
 		cookie := http.Cookie{Name: "jwt", Value: tokenString, Expires: expiration}
 		http.SetCookie(w, &cookie)
+    validation.RespondOk(w, "Ok")
 	}
 }
 

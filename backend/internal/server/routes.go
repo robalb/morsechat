@@ -47,7 +47,7 @@ func AddRoutes(
 
 	//Authenticated routes
 	v1.Group(func(r chi.Router) {
-		r.Use(middleware.RequireValidSession(tokenAuth))
+		r.Use(middleware.RequireAuthenticated(tokenAuth))
 
 		r.Route("/moderator", func(r chi.Router) {
 			r.Use(middleware.RequireModerator(tokenAuth))
@@ -67,7 +67,7 @@ func AddRoutes(
 			r.Post("/report", serveTODO)
 		})
 		r.Route("/user", func(r chi.Router) {
-			r.Get("/info", handlers.ServeUserInfo(logger, dbReadPool))
+			r.Post("/info", handlers.ServeUserInfo(logger, dbReadPool))
 			r.Get("/me", handlers.ServeMe(logger, dbReadPool))
 		})
 

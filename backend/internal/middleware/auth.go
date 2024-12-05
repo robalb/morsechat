@@ -30,6 +30,28 @@ func RequireValidSession(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 	}
 }
 
+func RequireAuthenticated(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		hfn := func(w http.ResponseWriter, r *http.Request) {
+			jwtData, err := auth.GetJwtData(r.Context())
+
+			if err != nil {
+				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), err.Error(), http.StatusUnauthorized)
+				return
+			}
+
+			if jwtData.IsAnonymous  || jwtData.UserId == 0 {
+				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), "Not Logged", http.StatusUnauthorized)
+			}
+
+			// Token is authenticated, pass it through
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(hfn)
+	}
+}
+
+
 func RequireModerator(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		hfn := func(w http.ResponseWriter, r *http.Request) {
