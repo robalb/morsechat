@@ -42,20 +42,26 @@ func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (sql
 
 const createUser = `-- name: CreateUser :execresult
 INSERT INTO users (
-  username, callsign, registration_session
+  username, password, callsign, registration_session
 ) VALUES (
-  ?, ?, ?
+  ?, ?, ?, ?
 )
 `
 
 type CreateUserParams struct {
 	Username            string
+	Password            string
 	Callsign            string
 	RegistrationSession string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createUser, arg.Username, arg.Callsign, arg.RegistrationSession)
+	return q.db.ExecContext(ctx, createUser,
+		arg.Username,
+		arg.Password,
+		arg.Callsign,
+		arg.RegistrationSession,
+	)
 }
 
 const deleteUser = `-- name: DeleteUser :exec
@@ -69,7 +75,7 @@ func (q *Queries) DeleteUser(ctx context.Context, username string) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE username = ? LIMIT 1
 `
 
@@ -79,6 +85,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.Password,
 		&i.Callsign,
 		&i.Settings,
 		&i.IsBanned,
@@ -92,7 +99,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 }
 
 const getUserFromId = `-- name: GetUserFromId :one
-SELECT id, username, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE id = ? LIMIT 1
 `
 
@@ -102,6 +109,7 @@ func (q *Queries) GetUserFromId(ctx context.Context, id int64) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.Password,
 		&i.Callsign,
 		&i.Settings,
 		&i.IsBanned,
@@ -115,7 +123,7 @@ func (q *Queries) GetUserFromId(ctx context.Context, id int64) (User, error) {
 }
 
 const listModerators = `-- name: ListModerators :many
-SELECT id, username, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE is_moderator == 1
 `
 
@@ -131,6 +139,7 @@ func (q *Queries) ListModerators(ctx context.Context) ([]User, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Username,
+			&i.Password,
 			&i.Callsign,
 			&i.Settings,
 			&i.IsBanned,

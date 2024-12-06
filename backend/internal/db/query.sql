@@ -12,9 +12,9 @@ WHERE is_moderator == 1;
 
 /* name: CreateUser :execresult */
 INSERT INTO users (
-  username, callsign, registration_session
+  username, password, callsign, registration_session
 ) VALUES (
-  ?, ?, ?
+  ?, ?, ?, ?
 );
 
 /* name: DeleteUser :exec */

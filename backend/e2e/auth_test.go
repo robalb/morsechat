@@ -78,7 +78,6 @@ func TestAuth(t *testing.T) {
 	// Step 1: Register a new user (also acts as login).
 	registerData := map[string]string{
 		"username": "testuser",
-		"email":    "testuser@example.com",
 		"password": "securepassword123",
 		"callsign": "testcall",
 	}

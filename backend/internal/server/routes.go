@@ -40,7 +40,7 @@ func AddRoutes(
 	//Non authenticated routes
 	v1.Group(func(r chi.Router) {
 		r.Post("/register", handlers.ServeRegister(logger, tokenAuth, dbReadPool, dbWritePool))
-		r.Post("/login", handlers.ServeLogin(logger, tokenAuth))
+		r.Post("/login", handlers.ServeLogin(logger, tokenAuth, dbReadPool, dbWritePool))
 		r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth))
 		r.Post("/validate_callsign", serveTODO)
 	})

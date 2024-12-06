@@ -34,6 +34,7 @@ type ReportAction struct {
 type User struct {
 	ID                    int64
 	Username              string
+	Password              string
 	Callsign              string
 	Settings              interface{}
 	IsBanned              int64

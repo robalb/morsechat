@@ -9,6 +9,7 @@
 CREATE TABLE IF NOT EXISTS users (
   id                     INTEGER PRIMARY KEY,
   username               TEXT NOT NULL,
+  password               TEXT NOT NULL,
   callsign               TEXT NOT NULL,
   settings               TEXT NOT NULL DEFAULT "",   -- JSON
   is_banned              INTEGER NOT NULL DEFAULT 0, -- BOOLEAN
