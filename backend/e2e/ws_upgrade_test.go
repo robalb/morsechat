@@ -41,7 +41,6 @@ func TestWsUpgradeEndpoint(t *testing.T) {
 		"--port", fmt.Sprintf("%d", port),
 		"--sqlite_path", tempdb,
 	}
-	fmt.Printf("aaaa %v", tempdb)
 	getenv := func(key string) string {
 		return ""
 	}
