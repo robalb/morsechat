@@ -58,35 +58,42 @@ func TestAuthPasswords(t *testing.T) {
 		t.Fatalf("Readiness probe failed: %v", err)
 	}
 
-	//--------------------
+	// --------------------
 	// call logged endpoint, without cookie
-	//--------------------
+	// --------------------
+  {
+    resp, err := http.Get(baseUrl + "/api/v1/user/me/")
+    if err != nil {
+      t.Fatalf("Failed to make GET request: %v", err)
+    }
+    if resp.StatusCode != 401 {
+      t.Errorf("Expected status code 401, got %d", resp.StatusCode)
+    }
 
-	resp, err := http.Get(baseUrl + "/api/v1/user/me/")
-	if err != nil {
-		t.Fatalf("Failed to make GET request: %v", err)
-	}
-	if resp.StatusCode != 401 {
-		t.Errorf("Expected status code 401, got %d", resp.StatusCode)
-	}
+  }
 
-	//--------------------
-	// register an user, then login, then call logged endpoint with cookie
-	//--------------------
-
-	// Step 1: Register a new user (also acts as login, but we'll discard the cookie).
+	// --------------------
+  // Story: register an user, then login, then
+  // call logged-only endpoints with a valid cookie
+	// --------------------
+  //global data used in this story:
 	registerData := map[string]string{
 		"username": "testuser",
 		"password": "securepassword123",
 		"callsign": "testcall",
 	}
+	var cookie *http.Cookie
+
+	// --------------------
+	// Step 1: Register a new user (also acts as login, but we'll discard the cookie).
+	// --------------------
 	{
 		registerDataJSON, err := json.Marshal(registerData)
 		if err != nil {
 			t.Fatalf("Failed to marshal registration data: %v", err)
 		}
 
-		resp, err = http.Post(baseUrl+"/api/v1/register", "application/json", bytes.NewBuffer(registerDataJSON))
+    resp, err := http.Post(baseUrl+"/api/v1/register", "application/json", bytes.NewBuffer(registerDataJSON))
 		if err != nil {
 			t.Fatalf("Failed to make POST request to register: %v", err)
 		}
@@ -97,9 +104,9 @@ func TestAuthPasswords(t *testing.T) {
 		}
 	}
 
+	// --------------------
 	//step 2: Login
-	// This is the cookie we want to save from the response, and reuse in the future
-	var cookie *http.Cookie
+	// --------------------
 	{
 		reqData := map[string]string{
 			"username": "testuser",
@@ -110,7 +117,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to marshal registration data: %v", err)
 		}
 
-		resp, err = http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
+    resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
 		if err != nil {
 			t.Fatalf("Failed to make POST request to register: %v", err)
 		}
@@ -132,7 +139,9 @@ func TestAuthPasswords(t *testing.T) {
 		}
 	}
 
-	//step 2.a Login with invalid password
+	// --------------------
+	// Step 2.a Login with invalid password
+	// --------------------
 	{
 		reqData := map[string]string{
 			"username": "testuser",
@@ -143,7 +152,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to marshal registration data: %v", err)
 		}
 
-		resp, err = http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
+    resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
 		if err != nil {
 			t.Fatalf("Failed to make POST request to register: %v", err)
 		}
@@ -173,7 +182,9 @@ func TestAuthPasswords(t *testing.T) {
 		}
 	}
 
+	// --------------------
 	//step 2.b Login with invalid username
+	// --------------------
 	{
 		reqData := map[string]string{
 			"username": "*%' -- -",
@@ -184,7 +195,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to marshal registration data: %v", err)
 		}
 
-		resp, err = http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
+    resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
 		if err != nil {
 			t.Fatalf("Failed to make POST request to register: %v", err)
 		}
@@ -214,7 +225,9 @@ func TestAuthPasswords(t *testing.T) {
 		}
 	}
 
+	// --------------------
 	// Step 3: Access /api/v1/user/me using the cookie to verify successful login.
+	// --------------------
 	{
 		client := &http.Client{}
 		req, err := http.NewRequest("GET", baseUrl+"/api/v1/user/me", nil)
@@ -223,7 +236,7 @@ func TestAuthPasswords(t *testing.T) {
 		}
 
 		req.AddCookie(cookie)
-		resp, err = client.Do(req)
+    resp, err := client.Do(req)
 		if err != nil {
 			t.Fatalf("Failed to make authenticated GET request to /api/v1/user/me: %v", err)
 		}
@@ -250,7 +263,9 @@ func TestAuthPasswords(t *testing.T) {
 		}
 	}
 
+	// --------------------
 	// Step 4: Access /api/v1/sess_init using the cookie.
+	// --------------------
 	// we expect to see no new cookies set, and our sess info in the response
 	{
 		client := &http.Client{}
@@ -260,7 +275,7 @@ func TestAuthPasswords(t *testing.T) {
 		}
 
 		req.AddCookie(cookie)
-		resp, err = client.Do(req)
+    resp, err := client.Do(req)
 		if err != nil {
 			t.Fatalf("Failed to make authenticated POST request to /api/v1/sess_init: %v", err)
 		}
@@ -291,11 +306,9 @@ func TestAuthPasswords(t *testing.T) {
 		}
 	}
 
-	//--------------------
-	//attempt to call an ADMIN only endpoint with a valid, but non-amin cookie
-	//--------------------
-
-	// Step 1: Attempt to access /api/v1/admin/... with an invalid JWT.
+	// --------------------
+	// Attempt to call an ADMIN only endpoint with a valid, but non-amin cookie
+	// --------------------
 	{
 		client := &http.Client{}
 		req, err := http.NewRequest("POST", baseUrl+"/api/v1/admin/set_moderator", nil)
@@ -305,7 +318,7 @@ func TestAuthPasswords(t *testing.T) {
 		// Add the valid cookie to the request
 		req.AddCookie(cookie)
 
-		resp, err = client.Do(req)
+    resp, err := client.Do(req)
 		if err != nil {
 			t.Fatalf("Failed to make GET request with invalid JWT: %v", err)
 		}
