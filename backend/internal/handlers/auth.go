@@ -105,9 +105,9 @@ func ServeRegister(
 }
 
 /*
- If the user is not logged this endpoints acts as a sort of
- anonymous login, setting a cookie with limited credentials
- that will allows a connection to the websocket
+If the user is not logged this endpoints acts as a sort of
+anonymous login, setting a cookie with limited credentials
+that will allows a connection to the websocket
 */
 func ServeSessInit(
 	logger *log.Logger,
@@ -115,8 +115,8 @@ func ServeSessInit(
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-    //If the user already has a session, just return the session data,
-    //But don't set any jwt cokie.
+		//If the user already has a session, just return the session data,
+		//But don't set any jwt cokie.
 		currentJwtData, err := auth.GetJwtData(r.Context())
 		if err == nil {
 			validation.RespondOk(w, AuthResponse{
