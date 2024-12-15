@@ -11,7 +11,7 @@ import (
 	"github.com/robalb/morsechat/internal/server"
 )
 
-func TestHealthEndpoint(t *testing.T) {
+func TestWsUpgradeEndpoint(t *testing.T) {
 	t.Parallel()
 	if testing.Short() {
 		t.Skip("Skipping E2E tests in short mode.")
@@ -85,5 +85,5 @@ func TestHealthEndpoint(t *testing.T) {
       t.Errorf("Expected status code 404, got %d", resp.StatusCode)
     }
   }
-
 }
+

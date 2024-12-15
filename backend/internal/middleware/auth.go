@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/jwtauth/v5"
@@ -11,17 +12,13 @@ import (
 func RequireValidSession(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		hfn := func(w http.ResponseWriter, r *http.Request) {
-			token, _, err := jwtauth.FromContext(r.Context())
+			_, err := auth.GetJwtData(r.Context())
 
 			if err != nil {
+        fmt.Printf("--------------- %v, ", err.Error())
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), err.Error(), http.StatusUnauthorized)
-				return
 			}
-
-			if token == nil {
-				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), "", http.StatusUnauthorized)
-				return
-			}
+      fmt.Printf("no error --------")
 
 			// Token is authenticated, pass it through
 			next.ServeHTTP(w, r)
@@ -86,7 +83,6 @@ func RequireAdmin(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 
 			if !jwtData.IsAdmin {
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), "Not an admin", http.StatusUnauthorized)
-        return
 			}
 
 			// Token is authenticated, pass it through

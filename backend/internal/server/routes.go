@@ -30,6 +30,8 @@ func AddRoutes(
 	rootMux.Mount("/ws", ws)
 	ws.Use(middleware.RequireValidSession(tokenAuth))
 	ws.Get("/init", func(w http.ResponseWriter, r *http.Request) {
+    token, claims, err := jwtauth.FromContext(r.Context())
+    logger.Printf("token: %v, claims: %v, err: %v", token, claims, err)
 		//This is the only handler that accepts session jwts with anonymous data
 		serveWs(hub, w, r)
 	})

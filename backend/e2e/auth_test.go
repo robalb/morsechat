@@ -58,10 +58,10 @@ func TestAuth(t *testing.T) {
 		t.Fatalf("Readiness probe failed: %v", err)
 	}
 
-	//--------------------
+  // --------------------
 	// call logged endpoint, without cookie
-	//--------------------
-
+  // --------------------
+  
 	resp, err := http.Get(baseUrl + "/api/v1/user/me/")
 	if err != nil {
 		t.Fatalf("Failed to make GET request: %v", err)
@@ -70,9 +70,9 @@ func TestAuth(t *testing.T) {
 		t.Errorf("Expected status code 401, got %d", resp.StatusCode)
 	}
 
-	//--------------------
+	// --------------------
 	// register an user, then call logged endpoint with cookie
-	//--------------------
+	// --------------------
 
 	// Step 1: Register a new user (also acts as login).
 	registerData := map[string]string{
@@ -192,6 +192,10 @@ func TestAuth(t *testing.T) {
     req, err = http.NewRequest("GET", baseUrl+"/api/v1/user/me", nil)
     if err != nil {
       t.Fatalf("Failed to create GET request for /api/v1/user/me: %v", err)
+    }
+    resp, err = client.Do(req)
+    if err != nil {
+      t.Fatalf("Failed to make GET request to /api/v1/user/me: %v", err)
     }
     // Check for an error message in the response body.
     var errorResponse struct {
