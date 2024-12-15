@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/jwtauth/v5"
@@ -15,12 +14,9 @@ func RequireValidSession(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 			_, err := auth.GetJwtData(r.Context())
 
 			if err != nil {
-        fmt.Printf("--------------- %v, ", err.Error())
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), err.Error(), http.StatusUnauthorized)
         return
 			}
-      fmt.Printf("no error --------")
-
 			// Token is authenticated, pass it through
 			next.ServeHTTP(w, r)
 		}

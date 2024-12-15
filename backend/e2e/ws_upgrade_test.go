@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/robalb/morsechat/internal/server"
 )
 
@@ -117,26 +118,26 @@ func TestWsUpgradeEndpoint(t *testing.T) {
   }
 
   // --------------------
-  // Step 2: Access /ws/init using the cookie, but without a proper ws handshake
+  // Step 2: Access /ws/init using the cookie and a proper websocket dialer
   // --------------------
   {
-    client := &http.Client{}
-    req, err := http.NewRequest("GET", baseUrl+"/ws/init", nil)
-    if err != nil {
-      t.Fatalf("Failed to create GET request for /ws/init: %v", err)
-    }
+    dialer := websocket.Dialer{}
 
-    req.AddCookie(cookie)
-    resp, err := client.Do(req)
-    if err != nil {
-      t.Fatalf("Failed to make authenticated GET request to /ws/init: %v", err)
-    }
-    defer resp.Body.Close()
+    headers := http.Header{}
+    headers.Add("Cookie", cookie.Name+"="+cookie.Value)
 
-    if resp.StatusCode != 400 {
-      t.Fatalf("Expected status code 400 for authenticated request to /ws/init, got %d", resp.StatusCode)
+	  wsURL := fmt.Sprintf("ws://localhost:%d/ws/init", port)
+    conn, resp, err := dialer.Dial(wsURL, headers)
+    if err != nil {
+      t.Fatalf("Failed to connect to WebSocket endpoint: %v", err)
+    }
+    defer conn.Close()
+
+    if resp.StatusCode != http.StatusSwitchingProtocols {
+      t.Fatalf("Unexpected status code: %d", resp.StatusCode)
     }
   }
+
 
 }
 

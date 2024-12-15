@@ -40,7 +40,6 @@ func TestAuth(t *testing.T) {
 		"--port", fmt.Sprintf("%d", port),
 		"--sqlite_path", tempdb,
 	}
-	fmt.Printf("aaaa %v", tempdb)
 	getenv := func(key string) string {
 		return ""
 	}
@@ -186,7 +185,6 @@ func TestAuth(t *testing.T) {
         t.Fatalf("Failed to decode JSON error response: %v", err)
       }
 
-      fmt.Printf("------ %v", errorResponse)
       expectedMessage := "Not an admin"
       if errorResponse.Details != expectedMessage {
         t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
