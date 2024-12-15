@@ -42,6 +42,7 @@ func RequireAuthenticated(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 
 			if jwtData.IsAnonymous || jwtData.UserId == 0 {
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), "Not Logged", http.StatusUnauthorized)
+        return
 			}
 
 			// Token is authenticated, pass it through
@@ -63,6 +64,7 @@ func RequireModerator(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 
 			if !jwtData.IsModerator {
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), "Not a moderator", http.StatusUnauthorized)
+        return
 			}
 
 			// Token is authenticated, pass it through
@@ -84,6 +86,7 @@ func RequireAdmin(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 
 			if !jwtData.IsAdmin {
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), "Not an admin", http.StatusUnauthorized)
+        return
 			}
 
 			// Token is authenticated, pass it through

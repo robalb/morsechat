@@ -38,6 +38,7 @@ func ServeUserInfo(
 		if err != nil {
 			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
 			logger.Printf("ServeRegister: query error: %v", err.Error())
+      return
 		}
 
 		resp := ServeUserInfo_ok{
@@ -60,6 +61,7 @@ func ServeMe(
 		if err != nil {
 			validation.RespondError(w, "session error", "", http.StatusInternalServerError)
 			logger.Printf("ServeRegister: jwt data error: %v", err.Error())
+      return
 		}
 
 		queries := db.New(dbReadPool)
@@ -68,6 +70,7 @@ func ServeMe(
 		if err != nil {
 			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
 			logger.Printf("ServeRegister: query error: %v", err.Error())
+      return
 		}
 
 		resp := ServeUserInfo_ok{

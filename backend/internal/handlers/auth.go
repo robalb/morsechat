@@ -188,6 +188,7 @@ func ServeLogin(
 		res, err := queries.GetUser(r.Context(), reqData.Username)
 		if err == sql.ErrNoRows {
 			validation.RespondError(w, "Invalid Username or Password", "", http.StatusBadRequest)
+      return
 		} else if err != nil {
 			validation.RespondError(w, "User login failed", "", http.StatusBadRequest)
 			logger.Printf("ServeLogin: query error: %v", err.Error())

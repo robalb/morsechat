@@ -187,11 +187,28 @@ func TestAuth(t *testing.T) {
 	//but without a valid cookie
 	//--------------------
 
-	// Step 1: Attempt to access /api/v1/user/me with an invalid JWT.
-	req, err = http.NewRequest("GET", baseUrl+"/api/v1/user/me", nil)
-	if err != nil {
-		t.Fatalf("Failed to create GET request for /api/v1/user/me: %v", err)
-	}
+  {
+    // Step 1: Attempt to access /api/v1/user/me with an invalid JWT.
+    req, err = http.NewRequest("GET", baseUrl+"/api/v1/user/me", nil)
+    if err != nil {
+      t.Fatalf("Failed to create GET request for /api/v1/user/me: %v", err)
+    }
+    // Check for an error message in the response body.
+    var errorResponse struct {
+      Error   string `json:"error"`
+      Details string `json:"details"`
+    }
+    err = json.NewDecoder(resp.Body).Decode(&errorResponse)
+    if err != nil {
+      t.Fatalf("Failed to decode JSON error response: %v", err)
+    }
+
+    expectedMessage := "Unauthorized"
+    if errorResponse.Error != expectedMessage {
+      t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
+    }
+  }
+
 
 	// Add an invalid JWT cookie.
 	invalidCookie := &http.Cookie{
