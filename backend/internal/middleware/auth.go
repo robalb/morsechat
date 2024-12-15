@@ -17,6 +17,7 @@ func RequireValidSession(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 			if err != nil {
         fmt.Printf("--------------- %v, ", err.Error())
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), err.Error(), http.StatusUnauthorized)
+        return
 			}
       fmt.Printf("no error --------")
 
@@ -83,6 +84,7 @@ func RequireAdmin(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 
 			if !jwtData.IsAdmin {
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), "Not an admin", http.StatusUnauthorized)
+        return
 			}
 
 			// Token is authenticated, pass it through

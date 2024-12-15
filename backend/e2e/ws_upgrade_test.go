@@ -1,7 +1,9 @@
 package e2e
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -57,33 +59,84 @@ func TestWsUpgradeEndpoint(t *testing.T) {
 	}
 
   // --------------------
-	// Make a GET request to the /health endpoint
+	// Make a GET request to the ws endpoint without a jwt
   // --------------------
   {
-    resp, err := http.Get(healthUrl)
+    resp, err := http.Get(baseUrl + "/ws/init")
     if err != nil {
       t.Fatalf("Failed to make GET request: %v", err)
     }
     defer resp.Body.Close()
     // Validate response
+    if resp.StatusCode != 401 {
+      t.Errorf("Expected status code 401, got %d", resp.StatusCode)
+    }
+  }
+
+	// --------------------
+  // Story: register an user, then call the ws endpoint with a logged jwt
+  // a valid cookie
+	// --------------------
+  //global data used in this story:
+  registerData := map[string]string{
+    "username": "testuser",
+    "password": "securepassword123",
+    "callsign": "testcall",
+  }
+  var cookie *http.Cookie
+
+  // --------------------
+  // Step 1: Register a new user (also acts as login).
+  // --------------------
+  {
+    registerDataJSON, err := json.Marshal(registerData)
+    if err != nil {
+      t.Fatalf("Failed to marshal registration data: %v", err)
+    }
+
+    resp, err := http.Post(baseUrl+"/api/v1/register", "application/json", bytes.NewBuffer(registerDataJSON))
+    if err != nil {
+      t.Fatalf("Failed to make POST request to register: %v", err)
+    }
+    defer resp.Body.Close()
+
     if resp.StatusCode != http.StatusOK {
-      t.Errorf("Expected status code 200, got %d", resp.StatusCode)
+      t.Fatalf("Expected status code 200 for registration, got %d", resp.StatusCode)
+    }
+
+    // Extract the cookie from the response.
+    for _, c := range resp.Cookies() {
+      if c.Name == "jwt" {
+        cookie = c
+        break
+      }
+    }
+    if cookie == nil {
+      t.Fatalf("Expected 'jwt' cookie to be set after registration, but it was not.")
     }
   }
 
   // --------------------
-	// Make a GET request to the /nonexistent endpoint
+  // Step 2: Access /ws/init using the cookie, but without a proper ws handshake
   // --------------------
   {
-    resp, err := http.Get(fmt.Sprintf("%s/nonexistent", baseUrl))
+    client := &http.Client{}
+    req, err := http.NewRequest("GET", baseUrl+"/ws/init", nil)
     if err != nil {
-      t.Fatalf("Failed to make GET request: %v", err)
+      t.Fatalf("Failed to create GET request for /ws/init: %v", err)
+    }
+
+    req.AddCookie(cookie)
+    resp, err := client.Do(req)
+    if err != nil {
+      t.Fatalf("Failed to make authenticated GET request to /ws/init: %v", err)
     }
     defer resp.Body.Close()
-    // Validate response
-    if resp.StatusCode != http.StatusNotFound {
-      t.Errorf("Expected status code 404, got %d", resp.StatusCode)
+
+    if resp.StatusCode != 400 {
+      t.Fatalf("Expected status code 400 for authenticated request to /ws/init, got %d", resp.StatusCode)
     }
   }
+
 }
 
