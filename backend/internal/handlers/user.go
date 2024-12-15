@@ -10,20 +10,19 @@ import (
 	"github.com/robalb/morsechat/internal/validation"
 )
 
-
-type ServeUserInfo_req struct{
-  Username string
+type ServeUserInfo_req struct {
+	Username string
 }
-type ServeUserInfo_ok struct{
-  Username string
-  Callsign string
-  LastOnlineTimestamp int64
-  RegistrationTimestamp int64
+type ServeUserInfo_ok struct {
+	Username              string
+	Callsign              string
+	LastOnlineTimestamp   int64
+	RegistrationTimestamp int64
 }
 
 func ServeUserInfo(
 	logger *log.Logger,
-  dbReadPool *sql.DB,
+	dbReadPool *sql.DB,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -33,55 +32,50 @@ func ServeUserInfo(
 			return
 		}
 
-    queries := db.New(dbReadPool)
-    res, err := queries.GetUser(r.Context(), req.Username)
+		queries := db.New(dbReadPool)
+		res, err := queries.GetUser(r.Context(), req.Username)
 
-    if err != nil{
-      validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
-      logger.Printf("ServeRegister: query error: %v", err.Error())
-    }
+		if err != nil {
+			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
+			logger.Printf("ServeRegister: query error: %v", err.Error())
+		}
 
-    resp := ServeUserInfo_ok{
-      Username: res.Username,
-      Callsign: res.Callsign,
-      LastOnlineTimestamp: res.LastOnlineTimestamp,
-      RegistrationTimestamp: res.RegistrationTimestamp,
-    }
-    validation.RespondOk(w, resp)
+		resp := ServeUserInfo_ok{
+			Username:              res.Username,
+			Callsign:              res.Callsign,
+			LastOnlineTimestamp:   res.LastOnlineTimestamp,
+			RegistrationTimestamp: res.RegistrationTimestamp,
+		}
+		validation.RespondOk(w, resp)
 	}
 }
-
-
 
 func ServeMe(
 	logger *log.Logger,
-  dbReadPool *sql.DB,
+	dbReadPool *sql.DB,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-    jwtData, err := auth.GetJwtData(r.Context())
-    if err != nil{
-      validation.RespondError(w, "session error", "", http.StatusInternalServerError)
-      logger.Printf("ServeRegister: jwt data error: %v", err.Error())
-    }
+		jwtData, err := auth.GetJwtData(r.Context())
+		if err != nil {
+			validation.RespondError(w, "session error", "", http.StatusInternalServerError)
+			logger.Printf("ServeRegister: jwt data error: %v", err.Error())
+		}
 
-    queries := db.New(dbReadPool)
-    res, err := queries.GetUserFromId(r.Context(), jwtData.UserId)
+		queries := db.New(dbReadPool)
+		res, err := queries.GetUserFromId(r.Context(), jwtData.UserId)
 
-    if err != nil{
-      validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
-      logger.Printf("ServeRegister: query error: %v", err.Error())
-    }
+		if err != nil {
+			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
+			logger.Printf("ServeRegister: query error: %v", err.Error())
+		}
 
-    resp := ServeUserInfo_ok{
-      Username: res.Username,
-      Callsign: res.Callsign,
-      LastOnlineTimestamp: res.LastOnlineTimestamp,
-      RegistrationTimestamp: res.RegistrationTimestamp,
-    }
-    validation.RespondOk(w, resp)
+		resp := ServeUserInfo_ok{
+			Username:              res.Username,
+			Callsign:              res.Callsign,
+			LastOnlineTimestamp:   res.LastOnlineTimestamp,
+			RegistrationTimestamp: res.RegistrationTimestamp,
+		}
+		validation.RespondOk(w, resp)
 	}
 }
-
-
-

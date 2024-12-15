@@ -9,7 +9,7 @@ import (
 //go:embed schema.sql
 var initscript string
 
-//global, hardcoded sqlite config
+// global, hardcoded sqlite config
 var sqliteConfig string = "?_foreign_keys=true"
 
 // Temporary solution. We don't actually have migrations right now.
@@ -19,7 +19,7 @@ func ApplyMigrations(db *sql.DB, ctx context.Context) error {
 	return err
 }
 
-//TODO: remove; use read and write pool instead, as detailed here
+// TODO: remove; use read and write pool instead, as detailed here
 // https://github.com/mattn/go-sqlite3/issues/1022#issuecomment-1067353980
 //
 // Open an sqlite db connection, and apply migrations if necessary
@@ -36,7 +36,7 @@ func NewTestConn(sqlitePath string, ctx context.Context) (*sql.DB, error) {
 
 // Return a readonly connection to the sqlite database
 // TODO: proper config
-//TODO: ping()
+// TODO: ping()
 func NewReadPool(sqlitePath string, ctx context.Context) (*sql.DB, error) {
 	return sql.Open("sqlite3", sqlitePath+sqliteConfig)
 }
@@ -45,10 +45,10 @@ func NewReadPool(sqlitePath string, ctx context.Context) (*sql.DB, error) {
 // TODO: proper config
 func NewWritePool(sqlitePath string, ctx context.Context) (conn *sql.DB, err error) {
 	conn, err = sql.Open("sqlite3", sqlitePath+sqliteConfig)
-  //sqlite does not support cuncurrent write
-  //TODO: test performance implications
-  // conn.SetMaxOpenConns(1)
-  return
+	//sqlite does not support cuncurrent write
+	//TODO: test performance implications
+	// conn.SetMaxOpenConns(1)
+	return
 }
 
 // func SQLite(t *testing.T, migrations []string) (*sql.DB, func()) {

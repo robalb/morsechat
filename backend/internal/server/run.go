@@ -39,22 +39,22 @@ func Run(
 	logger.Println("starting... ")
 	// Init config
 	config := config.MakeConfig(args, getenv)
-  // Init db
-  dbReadPool, err := db.NewReadPool(config.SqlitePath, ctx)
-  if err != nil{
-    logger.Printf("Failed to init database read pool: %v", err.Error())
-    return err
-  }
-  dbWritePool, err := db.NewWritePool(config.SqlitePath, ctx)
-  if err != nil{
-    logger.Printf("Failed to init database write pool: %v", err.Error())
-    return err
-  }
-  err = db.ApplyMigrations(dbWritePool, ctx)
-  if err != nil{
-    logger.Printf("Failed to apply database migrations: %v", err.Error())
-    return err
-  }
+	// Init db
+	dbReadPool, err := db.NewReadPool(config.SqlitePath, ctx)
+	if err != nil {
+		logger.Printf("Failed to init database read pool: %v", err.Error())
+		return err
+	}
+	dbWritePool, err := db.NewWritePool(config.SqlitePath, ctx)
+	if err != nil {
+		logger.Printf("Failed to init database write pool: %v", err.Error())
+		return err
+	}
+	err = db.ApplyMigrations(dbWritePool, ctx)
+	if err != nil {
+		logger.Printf("Failed to apply database migrations: %v", err.Error())
+		return err
+	}
 	// Init hub
 	hub := NewHub()
 	go hub.Run()
@@ -64,8 +64,8 @@ func Run(
 		config,
 		hub,
 		tokenAuth,
-    dbReadPool,
-    dbWritePool,
+		dbReadPool,
+		dbWritePool,
 	)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(config.Host, config.Port),

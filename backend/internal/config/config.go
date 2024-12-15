@@ -18,9 +18,9 @@ func defaultConfig() Config {
 
 // Load Configuration for the whole app, using command line args or
 // env vars as a source.
-// - what you set via env var will override the default value.
-// - What you set via command line will override the default value
-//   or what you set via env var.
+//   - what you set via env var will override the default value.
+//   - What you set via command line will override the default value
+//     or what you set via env var.
 func MakeConfig(
 	args []string,
 	getenv func(string) string,

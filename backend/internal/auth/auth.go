@@ -29,20 +29,20 @@ func GetJwtData(ctx context.Context) (jwtData JwtData, err error) {
 	if token == nil {
 		err = errors.New("Nil jwt token")
 	}
-  currentVersion, ok := claims[JWtDataVersion].(string)
-  if !ok{
+	currentVersion, ok := claims[JWtDataVersion].(string)
+	if !ok {
 		err = errors.New("Failed struct data extraction. Version mismatch")
-    return
-  }
-  err = json.Unmarshal([]byte(currentVersion), &jwtData)
+		return
+	}
+	err = json.Unmarshal([]byte(currentVersion), &jwtData)
 	return
 }
 
 func EncodeJwt(tokenAuth *jwtauth.JWTAuth, data JwtData, expiration time.Time) (tokenString string, err error) {
-  encoded, err := json.Marshal(data)
-  if err != nil{
-    return
-  }
+	encoded, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
 	claims := map[string]interface{}{JWtDataVersion: string(encoded)}
 	jwtauth.SetExpiry(claims, expiration)
 	jwtauth.SetIssuedNow(claims)

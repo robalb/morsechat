@@ -18,8 +18,8 @@ func NewServer(
 	config config.Config,
 	hub *Hub,
 	tokenAuth *jwtauth.JWTAuth,
-  dbReadPool *sql.DB,
-  dbWritePool *sql.DB,
+	dbReadPool *sql.DB,
+	dbWritePool *sql.DB,
 	/* Put here all the dependencies for middlewares and routers */
 ) http.Handler {
 
@@ -46,8 +46,8 @@ func NewServer(
 		config,
 		hub,
 		tokenAuth,
-    dbReadPool,
-    dbWritePool,
+		dbReadPool,
+		dbWritePool,
 	/* Put here all the dependencies for middlewares and routers */
 	)
 

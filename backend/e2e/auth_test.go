@@ -13,7 +13,6 @@ import (
 	"github.com/robalb/morsechat/internal/server"
 )
 
-
 func TestAuth(t *testing.T) {
 	t.Parallel()
 	if testing.Short() {
@@ -23,11 +22,11 @@ func TestAuth(t *testing.T) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	t.Cleanup(cancel)
 
-  tempdb, cleandb, err := NewVolatileSqliteFile()
+	tempdb, cleandb, err := NewVolatileSqliteFile()
 	if err != nil {
 		t.Fatalf("Could not generate temporary db file")
 	}
-  t.Cleanup(cleandb)
+	t.Cleanup(cleandb)
 
 	port, err := RandomPort()
 	if err != nil {
@@ -39,9 +38,9 @@ func TestAuth(t *testing.T) {
 	args := []string{
 		"morsechat",
 		"--port", fmt.Sprintf("%d", port),
-    "--sqlite_path", tempdb,
+		"--sqlite_path", tempdb,
 	}
-  fmt.Printf("aaaa %v", tempdb)
+	fmt.Printf("aaaa %v", tempdb)
 	getenv := func(key string) string {
 		return ""
 	}
@@ -49,7 +48,7 @@ func TestAuth(t *testing.T) {
 	//start the webserver
 	go func() {
 		if err := server.Run(ctx, os.Stdout, os.Stderr, args, getenv); err != nil {
-      cancel()
+			cancel()
 			t.Errorf("Failed to start server: %v", err)
 		}
 	}()
@@ -59,9 +58,9 @@ func TestAuth(t *testing.T) {
 		t.Fatalf("Readiness probe failed: %v", err)
 	}
 
-  //--------------------
-  // call logged endpoint, without cookie
-  //--------------------
+	//--------------------
+	// call logged endpoint, without cookie
+	//--------------------
 
 	resp, err := http.Get(baseUrl + "/api/v1/user/me/")
 	if err != nil {
@@ -71,9 +70,9 @@ func TestAuth(t *testing.T) {
 		t.Errorf("Expected status code 401, got %d", resp.StatusCode)
 	}
 
-  //--------------------
-  // register an user, then call logged endpoint with cookie
-  //--------------------
+	//--------------------
+	// register an user, then call logged endpoint with cookie
+	//--------------------
 
 	// Step 1: Register a new user (also acts as login).
 	registerData := map[string]string{
@@ -142,9 +141,9 @@ func TestAuth(t *testing.T) {
 		t.Errorf("User info does not match. Got %+v", userInfo)
 	}
 
-  //--------------------
-  //attempt to call an ADMIN only endpoint with a valid, but non-amin cookie
-  //--------------------
+	//--------------------
+	//attempt to call an ADMIN only endpoint with a valid, but non-amin cookie
+	//--------------------
 
 	// Step 1: Attempt to access /api/v1/admin/... with an invalid JWT.
 	req, err = http.NewRequest("POST", baseUrl+"/api/v1/admin/set_moderator", nil)
@@ -166,28 +165,27 @@ func TestAuth(t *testing.T) {
 	}
 
 	// Check for an error message in the response body.
-  {
-    var errorResponse struct {
-      Error string `json:"error"`
-      Details string `json:"details"`
-    }
-    err = json.NewDecoder(resp.Body).Decode(&errorResponse)
-    if err != nil {
-      t.Fatalf("Failed to decode JSON error response: %v", err)
-    }
+	{
+		var errorResponse struct {
+			Error   string `json:"error"`
+			Details string `json:"details"`
+		}
+		err = json.NewDecoder(resp.Body).Decode(&errorResponse)
+		if err != nil {
+			t.Fatalf("Failed to decode JSON error response: %v", err)
+		}
 
-    fmt.Printf("------ %v", errorResponse)
-    expectedMessage := "Not an admin"
-    if errorResponse.Details != expectedMessage {
-      t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
-    }
-  }
+		fmt.Printf("------ %v", errorResponse)
+		expectedMessage := "Not an admin"
+		if errorResponse.Details != expectedMessage {
+			t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
+		}
+	}
 
-
-  //--------------------
-  //attempt to call an auth-required endpoint after a user registration,
-  //but without a valid cookie
-  //--------------------
+	//--------------------
+	//attempt to call an auth-required endpoint after a user registration,
+	//but without a valid cookie
+	//--------------------
 
 	// Step 1: Attempt to access /api/v1/user/me with an invalid JWT.
 	req, err = http.NewRequest("GET", baseUrl+"/api/v1/user/me", nil)
@@ -215,15 +213,15 @@ func TestAuth(t *testing.T) {
 
 	// Check for an error message in the response body.
 	var errorResponse struct {
-		Error string `json:"error"`
-    Details string `json:"details"`
+		Error   string `json:"error"`
+		Details string `json:"details"`
 	}
 	err = json.NewDecoder(resp.Body).Decode(&errorResponse)
 	if err != nil {
 		t.Fatalf("Failed to decode JSON error response: %v", err)
 	}
 
-  expectedMessage := "Unauthorized"
+	expectedMessage := "Unauthorized"
 	if errorResponse.Error != expectedMessage {
 		t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
 	}

@@ -20,8 +20,8 @@ func AddRoutes(
 	config config.Config,
 	hub *Hub,
 	tokenAuth *jwtauth.JWTAuth,
-  dbReadPool *sql.DB,
-  dbWritePool *sql.DB,
+	dbReadPool *sql.DB,
+	dbWritePool *sql.DB,
 	/* Put here all the dependencies for middlewares and routers */
 ) {
 	rootMux.Get("/", serveHome)

@@ -13,7 +13,7 @@ func RespondError(w http.ResponseWriter, err string, details string, code int) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func RespondOk(w http.ResponseWriter, data interface{}){
+func RespondOk(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(http.StatusOK)

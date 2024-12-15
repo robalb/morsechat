@@ -40,7 +40,7 @@ func RequireAuthenticated(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 				return
 			}
 
-			if jwtData.IsAnonymous  || jwtData.UserId == 0 {
+			if jwtData.IsAnonymous || jwtData.UserId == 0 {
 				validation.RespondError(w, http.StatusText(http.StatusUnauthorized), "Not Logged", http.StatusUnauthorized)
 			}
 
@@ -50,7 +50,6 @@ func RequireAuthenticated(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 		return http.HandlerFunc(hfn)
 	}
 }
-
 
 func RequireModerator(ja *jwtauth.JWTAuth) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

@@ -11,8 +11,9 @@ import (
 
 // Bind function inspired by gin's Model Binding
 // There is also this interesting project:
-//   https://pkg.go.dev/gitea.com/go-chi/binding#section-readme
-//   https://gitea.com/go-chi/binding/src/commit/39a851e106ed/binding.go#L170
+//
+//	https://pkg.go.dev/gitea.com/go-chi/binding#section-readme
+//	https://gitea.com/go-chi/binding/src/commit/39a851e106ed/binding.go#L170
 func Bind(w http.ResponseWriter, r *http.Request, field interface{}) (err error) {
 	err = ShouldBind(r, field)
 	if err != nil {

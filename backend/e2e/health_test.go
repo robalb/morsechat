@@ -20,11 +20,11 @@ func TestHealthEndpoint(t *testing.T) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	t.Cleanup(cancel)
 
-  tempdb, cleandb, err := NewVolatileSqliteFile()
+	tempdb, cleandb, err := NewVolatileSqliteFile()
 	if err != nil {
 		t.Fatalf("Could not generate temporary db file")
 	}
-  t.Cleanup(cleandb)
+	t.Cleanup(cleandb)
 
 	port, err := RandomPort()
 	if err != nil {
@@ -36,9 +36,9 @@ func TestHealthEndpoint(t *testing.T) {
 	args := []string{
 		"morsechat",
 		"--port", fmt.Sprintf("%d", port),
-    "--sqlite_path", tempdb,
+		"--sqlite_path", tempdb,
 	}
-  fmt.Printf("aaaa %v", tempdb)
+	fmt.Printf("aaaa %v", tempdb)
 	getenv := func(key string) string {
 		return ""
 	}
@@ -46,7 +46,7 @@ func TestHealthEndpoint(t *testing.T) {
 	//start the webserver
 	go func() {
 		if err := server.Run(ctx, os.Stdout, os.Stderr, args, getenv); err != nil {
-      cancel()
+			cancel()
 			t.Errorf("Failed to start server: %v", err)
 		}
 	}()
@@ -81,5 +81,3 @@ func TestHealthEndpoint(t *testing.T) {
 	}
 
 }
-
-

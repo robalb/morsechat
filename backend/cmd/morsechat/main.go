@@ -8,7 +8,8 @@ import (
 	"github.com/robalb/morsechat/internal/server"
 )
 
-/**
+/*
+*
 The entry point for our webserver.
 All code is organized for maximal
 testability, according to the sacred scriptures:

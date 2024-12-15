@@ -23,7 +23,7 @@ func TestForeignKey(t *testing.T) {
 	// create a user
 	insertedUser, err := queries.CreateUser(ctx, CreateUserParams{
 		Username:            "lorem",
-    Password:            "fake_passwordhash",
+		Password:            "fake_passwordhash",
 		Callsign:            "US121X",
 		RegistrationSession: "afakeuuidv4",
 	})
