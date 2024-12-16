@@ -75,7 +75,6 @@ func TestWsUpgradeEndpoint(t *testing.T) {
 
 	// --------------------
   // Story: register an user, then call the ws endpoint with a logged jwt
-  // a valid cookie
 	// --------------------
   //global data used in this story:
   registerData := map[string]string{
@@ -137,6 +136,63 @@ func TestWsUpgradeEndpoint(t *testing.T) {
     }
   }
 
+	// --------------------
+  // Story: register as an anonymous user, then call the ws endpoint with the anon cookie
+	// --------------------
+   cookie = nil
+
+  // --------------------
+  // Step 1: Register as an anon user
+  // --------------------
+  {
+    registerData := map[string]string{ }
+    registerDataJSON, err := json.Marshal(registerData)
+    if err != nil {
+      t.Fatalf("Failed to marshal registration data: %v", err)
+    }
+
+    resp, err := http.Post(baseUrl+"/api/v1/sess_init", "application/json", bytes.NewBuffer(registerDataJSON))
+    if err != nil {
+      t.Fatalf("Failed to make POST request to register: %v", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+      t.Fatalf("Expected status code 200 for registration, got %d", resp.StatusCode)
+    }
+
+    // Extract the cookie from the response.
+    for _, c := range resp.Cookies() {
+      if c.Name == "jwt" {
+        cookie = c
+        break
+      }
+    }
+    if cookie == nil {
+      t.Fatalf("Expected 'jwt' cookie to be set after registration, but it was not.")
+    }
+  }
+
+  // --------------------
+  // Step 2: Access /ws/init using the cookie and a proper websocket dialer
+  // --------------------
+  {
+    dialer := websocket.Dialer{}
+
+    headers := http.Header{}
+    headers.Add("Cookie", cookie.Name+"="+cookie.Value)
+
+	  wsURL := fmt.Sprintf("ws://localhost:%d/ws/init", port)
+    conn, resp, err := dialer.Dial(wsURL, headers)
+    if err != nil {
+      t.Fatalf("Failed to connect to WebSocket endpoint: %v", err)
+    }
+    defer conn.Close()
+
+    if resp.StatusCode != http.StatusSwitchingProtocols {
+      t.Fatalf("Unexpected status code: %d", resp.StatusCode)
+    }
+  }
 
 }
 

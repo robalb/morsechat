@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"time"
-
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/argon2id"
 	"github.com/robalb/morsechat/internal/auth"
@@ -83,17 +81,12 @@ func ServeRegister(
 			Username:    regData.Username,
 			Callsign:    regData.Callsign,
 		}
-		expiration := time.Now().Add(365 * 24 * time.Hour)
-		tokenString, err := auth.EncodeJwt(tokenAuth, jwtData, expiration)
+    err = auth.SetJwtCookie(w, tokenAuth, jwtData)
 		if err != nil {
-			validation.RespondError(w, "Cookie set error", "", http.StatusInternalServerError)
+			validation.RespondError(w, "Session creation error", "", http.StatusInternalServerError)
 			logger.Printf("ServeRegister: Jwt creation error: %v", err.Error())
 			return
-		}
-		//TODO: remove WARNING: unsafe to keep this here
-		logger.Printf("token: %v ", tokenString)
-		cookie := http.Cookie{Name: "jwt", Value: tokenString, Expires: expiration}
-		http.SetCookie(w, &cookie)
+    }
 		validation.RespondOk(w, AuthResponse{
 			IsAnonymous: jwtData.IsAnonymous,
 			IsAdmin:     jwtData.IsAdmin,
@@ -138,16 +131,12 @@ func ServeSessInit(
 			Username:    "",
 			Callsign:    "US000X",
 		}
-		expiration := time.Now().Add(365 * 24 * time.Hour)
-		tokenString, err := auth.EncodeJwt(tokenAuth, jwtData, expiration)
+    err = auth.SetJwtCookie(w, tokenAuth, jwtData)
 		if err != nil {
-			validation.RespondError(w, "Cookie set error", "", http.StatusInternalServerError)
+			validation.RespondError(w, "Session creation error", "", http.StatusInternalServerError)
 			logger.Printf("ServeRegister: Jwt creation error: %v", err.Error())
 			return
-		}
-		logger.Printf("token: %v |", tokenString)
-		cookie := http.Cookie{Name: "jwt", Value: tokenString, Expires: expiration}
-		http.SetCookie(w, &cookie)
+    }
 		validation.RespondOk(w, AuthResponse{
 			IsAnonymous: jwtData.IsAnonymous,
 			IsAdmin:     jwtData.IsAdmin,
@@ -214,15 +203,12 @@ func ServeLogin(
 			Username:    res.Username,
 			Callsign:    res.Callsign,
 		}
-		expiration := time.Now().Add(365 * 24 * time.Hour)
-		tokenString, err := auth.EncodeJwt(tokenAuth, jwtData, expiration)
+    err = auth.SetJwtCookie(w, tokenAuth, jwtData)
 		if err != nil {
-			validation.RespondError(w, "Cookie set error", "", http.StatusInternalServerError)
+			validation.RespondError(w, "Session creation error", "", http.StatusInternalServerError)
 			logger.Printf("ServeRegister: Jwt creation error: %v", err.Error())
 			return
-		}
-		cookie := http.Cookie{Name: "jwt", Value: tokenString, Expires: expiration}
-		http.SetCookie(w, &cookie)
+    }
 		validation.RespondOk(w, AuthResponse{
 			IsAnonymous: jwtData.IsAnonymous,
 			IsAdmin:     jwtData.IsAdmin,

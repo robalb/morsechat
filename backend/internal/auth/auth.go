@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/go-chi/jwtauth/v5"
@@ -48,4 +49,22 @@ func EncodeJwt(tokenAuth *jwtauth.JWTAuth, data JwtData, expiration time.Time) (
 	jwtauth.SetIssuedNow(claims)
 	_, tokenString, err = tokenAuth.Encode(claims)
 	return
+}
+
+
+func SetJwtCookie(w http.ResponseWriter, tokenAuth *jwtauth.JWTAuth, jwtData JwtData) (err error){
+		expiration := time.Now().Add(365 * 24 * time.Hour)
+		tokenString, err := EncodeJwt(tokenAuth, jwtData, expiration)
+		if err != nil {
+      return
+		}
+		// logger.Printf("token: %v |", tokenString)
+		cookie := http.Cookie{
+      Name: "jwt",
+      Value: tokenString,
+      Expires: expiration, 
+      Path: "/",
+    }
+		http.SetCookie(w, &cookie)
+    return
 }
