@@ -9,7 +9,7 @@ import Pusher from 'pusher-js';
    */
   export const baseApiUrl = IS_PRODUCTION ?
     '/api/v1/' :
-    'http://localhost:5000/api/v1/'
+    'http://localhost:8080/api/v1/'
 
   /**
    * pusher authentication endpoint url

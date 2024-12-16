@@ -10,7 +10,7 @@ import {request, baseApiUrl} from '../utils/apiResolver'
 * thunk via an extrareducer
 */
 export const fetchAllData = createAsyncThunk(
-  'api/fetchAllData',
+  'sess_init',
   payloadCreatorCreator("page_init")
   )
 

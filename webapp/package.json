@@ -1,6 +1,6 @@
 {
   "engines": {
-    "npm": "10.2.4",
+    "npm": "~10.2.4",
     "node": "~20.11.1",
   },
   "name": "morsechat-webapp",
