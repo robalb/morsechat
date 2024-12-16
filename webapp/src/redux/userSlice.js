@@ -7,18 +7,18 @@ import { apiCall, payloadCreatorCreator } from './apiSlice'
 import { fetchAllData } from './apiSlice'
 
 export const loginUser = createAsyncThunk(
-  'user/login',
+  '/login',
   payloadCreatorCreator("login")
   )
 
 export const registerUser = createAsyncThunk(
-  'user/register',
+  '/register',
   payloadCreatorCreator("register")
   )
 
 
 export const logoutUser = createAsyncThunk(
-  'user/logout',
+  '/logout',
   payloadCreatorCreator("logout")
   )
 
