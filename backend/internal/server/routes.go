@@ -28,7 +28,7 @@ func AddRoutes(
 
 	ws := chi.NewRouter()
 	rootMux.Mount("/ws", ws)
-	ws.Use(middleware.RequireValidSession(tokenAuth))
+	// ws.Use(middleware.RequireValidSession(tokenAuth))
 	ws.Get("/init", func(w http.ResponseWriter, r *http.Request) {
     token, claims, err := jwtauth.FromContext(r.Context())
     logger.Printf("token: %v, claims: %v, err: %v", token, claims, err)
