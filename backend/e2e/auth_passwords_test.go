@@ -170,7 +170,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to decode JSON error response: %v", err)
 		}
 
-		expectedMessage := "Invalid Username or Password"
+		expectedMessage := "invalid_credentials"
 		if errorResponse.Error != expectedMessage {
 			t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
 		}
@@ -213,7 +213,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to decode JSON error response: %v", err)
 		}
 
-		expectedMessage := "Invalid Username or Password"
+		expectedMessage := "invalid_credentials"
 		if errorResponse.Error != expectedMessage {
 			t.Errorf("Expected error message '%s', got '%s'", expectedMessage, errorResponse.Error)
 		}

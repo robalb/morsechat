@@ -177,6 +177,43 @@ func ServeSessInit(
 	}
 }
 
+// Similar to serveSessInit, this endpoit
+// will overwrite the current jwt with an anonymous jwt
+func ServeLogout(
+	logger *log.Logger,
+	tokenAuth *jwtauth.JWTAuth,
+) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		//TODO: content negotiation
+		jwtData := auth.JwtData{
+			UserId:      0,
+			IsAnonymous: true,
+			IsAdmin:     false,
+			IsModerator: false,
+			Username:    "",
+			Callsign:    "US000X",
+		}
+    err := auth.SetJwtCookie(w, tokenAuth, jwtData)
+		if err != nil {
+			validation.RespondError(w, "Session creation error", "", http.StatusInternalServerError)
+			logger.Printf("ServeRegister: Jwt creation error: %v", err.Error())
+			return
+    }
+		validation.RespondOk(w, AuthResponse{
+			IsAnonymous: jwtData.IsAnonymous,
+			IsAdmin:     jwtData.IsAdmin,
+			IsModerator: jwtData.IsModerator,
+			Username:    jwtData.Username,
+			Callsign:    jwtData.Callsign,
+      Country:     "US", //TODO
+      Settings:    "",   //TODO
+		})
+	}
+}
+
+
+
 type LoginData struct {
 	Username string `json:"username" validate:"required,min=3,max=20"`
 	Password string `json:"password" validate:"required,min=8,max=255"`
@@ -206,7 +243,7 @@ func ServeLogin(
 		queries := db.New(dbReadPool)
 		res, err := queries.GetUser(r.Context(), reqData.Username)
 		if err == sql.ErrNoRows {
-			validation.RespondError(w, "Invalid Username or Password", "", http.StatusBadRequest)
+			validation.RespondError(w, "invalid_credentials", "", http.StatusBadRequest)
       return
 		} else if err != nil {
 			validation.RespondError(w, "User login failed", "", http.StatusBadRequest)
@@ -221,7 +258,7 @@ func ServeLogin(
 			return
 		}
 		if !match {
-			validation.RespondError(w, "Invalid Username or Password", "", http.StatusBadRequest)
+			validation.RespondError(w, "invalid_credentials", "", http.StatusBadRequest)
 			return
 		}
 
