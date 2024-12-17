@@ -80,7 +80,7 @@ func TestWsUpgradeEndpoint(t *testing.T) {
   registerData := map[string]string{
     "username": "testuser",
     "password": "securepassword123",
-    "callsign": "testcall",
+    "callsign": "US00ABC",
   }
   var cookie *http.Cookie
 

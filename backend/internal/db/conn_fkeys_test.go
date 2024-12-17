@@ -25,6 +25,7 @@ func TestForeignKey(t *testing.T) {
 		Username:            "lorem",
 		Password:            "fake_passwordhash",
 		Callsign:            "US121X",
+    Country:             "US",
 		RegistrationSession: "afakeuuidv4",
 	})
 	if err != nil {

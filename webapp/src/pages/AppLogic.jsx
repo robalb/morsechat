@@ -14,7 +14,6 @@ export function AppLogic({chatDomNode}) {
     let loading = useSelector(state => state.api.loading)
     let csrf = useSelector(state => state.api.csrf)
     let callsign = useSelector(state => state.user.callsign)
-    let app = useSelector(state => state.app)
     let channel = useSelector(state => state.chat.channel)
     let channelName = useSelector(selectChannelName)
     const pusher = React.useRef(null)
@@ -140,14 +139,10 @@ export function AppLogic({chatDomNode}) {
      */
     React.useEffect(() => {
         if (loading == false) {
-            if (pusher.current === null) {
+            if (pusher.current === null && false) {
                 //initialize the pusher client
                 pusher.current = pusherClient(
                     csrf,
-                    app.pusher_key,
-                    app.pusher_host,
-                    app.pusher_port,
-                    app.pusher_cluster
                 )
                 //update pusher server connection status
                 //this is not related to the channel subscription

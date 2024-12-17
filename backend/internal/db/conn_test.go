@@ -33,6 +33,7 @@ func TestConn(t *testing.T) {
 	insertedUser, err := queries.CreateUser(ctx, CreateUserParams{
 		Username:            "lorem",
 		Callsign:            "US121X",
+    Country:             "US",
 		RegistrationSession: "afakeuuidv4",
 	})
 	if err != nil {

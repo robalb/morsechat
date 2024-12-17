@@ -36,6 +36,7 @@ type User struct {
 	Username              string
 	Password              string
 	Callsign              string
+	Country               interface{}
 	Settings              interface{}
 	IsBanned              int64
 	IsVerified            int64

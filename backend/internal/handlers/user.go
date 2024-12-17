@@ -37,7 +37,7 @@ func ServeUserInfo(
 
 		if err != nil {
 			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
-			logger.Printf("ServeRegister: query error: %v", err.Error())
+			logger.Printf("ServeUserInfo: query error: %v", err.Error())
       return
 		}
 

@@ -10,7 +10,6 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/mattn/go-sqlite3 v1.14.24
 	golang.org/x/crypto v0.21.0
-	golang.org/x/tools v0.6.0
 )
 
 require (
@@ -27,7 +26,6 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.0.20 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
-	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect

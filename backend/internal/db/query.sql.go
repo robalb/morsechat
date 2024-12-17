@@ -42,9 +42,9 @@ func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (sql
 
 const createUser = `-- name: CreateUser :execresult
 INSERT INTO users (
-  username, password, callsign, registration_session
+  username, password, callsign, country, registration_session
 ) VALUES (
-  ?, ?, ?, ?
+  ?, ?, ?, ?, ?
 )
 `
 
@@ -52,6 +52,7 @@ type CreateUserParams struct {
 	Username            string
 	Password            string
 	Callsign            string
+	Country             interface{}
 	RegistrationSession string
 }
 
@@ -60,6 +61,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 		arg.Username,
 		arg.Password,
 		arg.Callsign,
+		arg.Country,
 		arg.RegistrationSession,
 	)
 }
@@ -74,8 +76,19 @@ func (q *Queries) DeleteUser(ctx context.Context, username string) error {
 	return err
 }
 
+const getCallsign = `-- name: GetCallsign :one
+SELECT callsign FROM users
+WHERE callsign = ? LIMIT 1
+`
+
+func (q *Queries) GetCallsign(ctx context.Context, callsign string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getCallsign, callsign)
+	err := row.Scan(&callsign)
+	return callsign, err
+}
+
 const getUser = `-- name: GetUser :one
-SELECT id, username, password, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE username = ? LIMIT 1
 `
 
@@ -87,6 +100,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 		&i.Username,
 		&i.Password,
 		&i.Callsign,
+		&i.Country,
 		&i.Settings,
 		&i.IsBanned,
 		&i.IsVerified,
@@ -99,7 +113,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 }
 
 const getUserFromId = `-- name: GetUserFromId :one
-SELECT id, username, password, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE id = ? LIMIT 1
 `
 
@@ -111,6 +125,7 @@ func (q *Queries) GetUserFromId(ctx context.Context, id int64) (User, error) {
 		&i.Username,
 		&i.Password,
 		&i.Callsign,
+		&i.Country,
 		&i.Settings,
 		&i.IsBanned,
 		&i.IsVerified,
@@ -123,7 +138,7 @@ func (q *Queries) GetUserFromId(ctx context.Context, id int64) (User, error) {
 }
 
 const listModerators = `-- name: ListModerators :many
-SELECT id, username, password, callsign, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE is_moderator == 1
 `
 
@@ -141,6 +156,7 @@ func (q *Queries) ListModerators(ctx context.Context) ([]User, error) {
 			&i.Username,
 			&i.Password,
 			&i.Callsign,
+			&i.Country,
 			&i.Settings,
 			&i.IsBanned,
 			&i.IsVerified,

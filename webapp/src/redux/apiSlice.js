@@ -10,8 +10,8 @@ import {request, baseApiUrl} from '../utils/apiResolver'
 * thunk via an extrareducer
 */
 export const fetchAllData = createAsyncThunk(
-  'sess_init',
-  payloadCreatorCreator("page_init")
+  'api/fetchAllData',
+  payloadCreatorCreator("sess_init")
   )
 
 
@@ -26,14 +26,16 @@ export function payloadCreatorCreator(endpoint, beforeRequest=null){
   return async (data={}, {getState, rejectWithValue, signal}) => {
     if(beforeRequest)
       beforeRequest(data)
-    const csrf = getState().api.csrf
+    const csrf = false
     const response = await request(baseApiUrl + endpoint, data, csrf, signal)
-    if(response.success)
-      return response.data;
-    return rejectWithValue({
-      error: response.error,
-      details: response.details
-    })
+    if(response.error){
+      return rejectWithValue({
+        error: response.error,
+        details: response.details
+      })
+    }else{
+      return response;
+    }
   }
 }
 
@@ -42,6 +44,7 @@ export function payloadCreatorCreator(endpoint, beforeRequest=null){
  * Makes an authenticated api call
  * Usage example:
  * <code>
+      return response.data;
  * dispatch(apiCall({
  *  endpoint: "asd",
  *  data: {}
@@ -55,17 +58,19 @@ export const apiCall = createAsyncThunk(
   async ({endpoint, data={}}, {getState, rejectWithValue, signal}) => {
     const csrf = getState().api.csrf
     const response = await request(baseApiUrl + endpoint, data, csrf, signal)
-    if(response.success)
-      return response.data;
-    return rejectWithValue({
-      error: response.error,
-      details: response.details
-    })
+    if(response.error){
+      console.log("AAAAAAAAAAA error")
+      return rejectWithValue({
+        error: response.error,
+        details: response.details
+      })
+    }else{
+      return response;
+    }
 })
 
 
 const initialState = {
-  csrf: null,
   loading: true,
   error: "",
   errorDetails: ""
@@ -77,7 +82,6 @@ const apiSlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder.addCase(fetchAllData.fulfilled, (state, action) => {
-      state.csrf = action.payload.session.csrf
       state.loading = false
       state.error = ""
       state.errorDetails = ""

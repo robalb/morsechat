@@ -4,10 +4,14 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strings"
+
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/mattn/go-sqlite3"
 	"github.com/robalb/morsechat/internal/argon2id"
 	"github.com/robalb/morsechat/internal/auth"
 	"github.com/robalb/morsechat/internal/db"
+	"github.com/robalb/morsechat/internal/morse"
 	"github.com/robalb/morsechat/internal/validation"
 )
 
@@ -18,6 +22,8 @@ type AuthResponse struct {
 	IsModerator bool   `json:"is_moderator"`
 	Username    string `json:"username"`
 	Callsign    string `json:"callsign"`
+	Country     string `json:"country"`
+  Settings    string `json:"settings"`
 }
 
 type RegisterData struct {
@@ -40,6 +46,12 @@ func ServeRegister(
 			return
 		}
 
+    countryCode, ok := morse.ParseCallsign(regData.Callsign)
+    if (!ok){
+			validation.RespondError(w, "Invalid callsign", "", http.StatusBadRequest)
+			return
+    }
+
 		//fail if already logged
 		currentJwtData, err := auth.GetJwtData(r.Context())
 		if err == nil && !currentJwtData.IsAnonymous && currentJwtData.UserId != 0 {
@@ -59,8 +71,20 @@ func ServeRegister(
 			Username:            regData.Username,
 			Password:            hash,
 			Callsign:            regData.Callsign,
+      Country:             countryCode,
 			RegistrationSession: "",
 		})
+    if sqliteErr, ok := err.(sqlite3.Error); ok {
+      if sqliteErr.Code == sqlite3.ErrConstraint {
+        if strings.Contains(sqliteErr.Error(), "username"){
+          validation.RespondError(w, "username_taken", "", http.StatusBadRequest)
+          return
+        }else if strings.Contains(sqliteErr.Error(), "callsign"){
+          validation.RespondError(w, "callsign_taken", "", http.StatusBadRequest)
+          return
+        }
+      }
+    }
 		if err != nil {
 			validation.RespondError(w, "User registration failed", "", http.StatusBadRequest)
 			logger.Printf("ServeRegister: query error: %v", err.Error())
@@ -93,6 +117,8 @@ func ServeRegister(
 			IsModerator: jwtData.IsModerator,
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
+      Country:     countryCode,
+      Settings:    "",
 		})
 	}
 }
@@ -118,6 +144,8 @@ func ServeSessInit(
 				IsModerator: currentJwtData.IsModerator,
 				Username:    currentJwtData.Username,
 				Callsign:    currentJwtData.Callsign,
+        Country:     "US", //TODO
+        Settings:    "",   //TODO
 			})
 			return
 		}
@@ -143,6 +171,8 @@ func ServeSessInit(
 			IsModerator: jwtData.IsModerator,
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
+      Country:     "US", //TODO
+      Settings:    "",   //TODO
 		})
 	}
 }
@@ -215,6 +245,54 @@ func ServeLogin(
 			IsModerator: jwtData.IsModerator,
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
+      Country:     res.Callsign,
+      Settings:    "", //TODO
 		})
+	}
+}
+
+
+type CallsignData struct {
+	Callsign string `json:"callsign" validate:"required,min=3,max=20"`
+}
+type CallsignOk struct {
+  Ok string `json:"ok"`
+}
+
+func ServeValidateCallsign(
+	logger *log.Logger,
+	dbReadPool *sql.DB,
+) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var reqData CallsignData
+		if err := validation.Bind(w, r, &reqData); err != nil {
+			//Error response is already set by Bind
+			return
+		}
+
+    _, ok := morse.ParseCallsign(reqData.Callsign)
+    if (!ok){
+			validation.RespondError(w, "invalid_callsign", "", http.StatusBadRequest)
+			return
+    }
+
+		queries := db.New(dbReadPool)
+		res, err := queries.GetCallsign(r.Context(), reqData.Callsign)
+
+    logger.Printf("res: %v", res)
+    if err == sql.ErrNoRows {
+      resp := CallsignOk{
+        Ok: "ok",
+      }
+      validation.RespondOk(w, resp)
+      return
+    }else if err != nil {
+			validation.RespondError(w, "query_failed", "", http.StatusInternalServerError)
+			logger.Printf("ServeRegister: query error: %v", err.Error())
+      return
+		}
+    validation.RespondError(w, "already_taken", "", http.StatusBadRequest)
+    return
 	}
 }

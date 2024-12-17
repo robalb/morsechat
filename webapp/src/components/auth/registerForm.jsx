@@ -13,7 +13,7 @@ const RegisterForm = ({setPage}) =>{
   let [form, setForm] = React.useState({
     username: '',
     password: '',
-    callsign: undefined
+    callsign: ''
   })
 
   const initialError = {
@@ -96,9 +96,9 @@ const RegisterForm = ({setPage}) =>{
     catch(res){
       if(res.error == "invalid_username")
         setError('username', 'invalid username')
-      else if(res.error == "username_exist")
+      else if(res.error == "username_taken")
         setError('username', 'username already registered')
-      else if(res.error == "callsign_exist")
+      else if(res.error == "callsign_taken")
         enqueueSnackbar('callsign already taken', {variant: "error", preventDuplicate:true})
       else
         enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, {variant: "error", preventDuplicate:true})

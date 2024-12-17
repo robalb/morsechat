@@ -44,7 +44,7 @@ func AddRoutes(
 		r.Post("/register", handlers.ServeRegister(logger, tokenAuth, dbReadPool, dbWritePool))
 		r.Post("/login", handlers.ServeLogin(logger, tokenAuth, dbReadPool, dbWritePool))
 		r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth))
-		r.Post("/validate_callsign", serveTODO)
+		r.Post("/validate_callsign", handlers.ServeValidateCallsign(logger, dbReadPool))
 	})
 
 	//Authenticated routes

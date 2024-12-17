@@ -72,14 +72,12 @@ const initialSettings = {
 }
 const initialState = {
   authenticated: null,
-  show_popup: null,
   callsign: null,
   country: null,
   //can remain empty after api initialization
   settings: initialSettings,
   id: null,
   username: null,
-  last_online: null
 }
 
 const userSlice = createSlice({
@@ -100,31 +98,35 @@ const userSlice = createSlice({
   extraReducers(builder) {
     //initial page load
     builder.addCase(fetchAllData.fulfilled, (state, action) => {
-      let toRet = action.payload.user
-      if(!toRet.settings)
-        toRet.settings = initialSettings
-      return toRet
+      let apidata = action.payload
+      state.authenticated = !apidata.is_anonymous
+      state.callsign = apidata.callsign
+      state.country = apidata.country
+      state.username = apidata.username
     })
     //user logged in
     builder.addCase(loginUser.fulfilled, (state, action) => {
-      let toRet = action.payload.user
-      if(!toRet.settings)
-        toRet.settings = initialSettings
-      return toRet
+      let apidata = action.payload
+      state.authenticated = !apidata.is_anonymous
+      state.callsign = apidata.callsign
+      state.country = apidata.country
+      state.username = apidata.username
     })
     //user registered
     builder.addCase(registerUser.fulfilled, (state, action) => {
-      let toRet = action.payload.user
-      if(!toRet.settings)
-        toRet.settings = initialSettings
-      return toRet
+      let apidata = action.payload
+      state.authenticated = !apidata.is_anonymous
+      state.callsign = apidata.callsign
+      state.country = apidata.country
+      state.username = apidata.username
     })
     //user logout
     builder.addCase(logoutUser.fulfilled, (state, action) => {
-      let toRet = action.payload.user
-      if(!toRet.settings)
-        toRet.settings = initialSettings
-      return toRet
+      let apidata = action.payload
+      state.authenticated = !apidata.is_anonymous
+      state.callsign = apidata.callsign
+      state.country = apidata.country
+      state.username = apidata.username
     })
     //..
     //logout

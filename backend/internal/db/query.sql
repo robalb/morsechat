@@ -12,14 +12,18 @@ WHERE is_moderator == 1;
 
 /* name: CreateUser :execresult */
 INSERT INTO users (
-  username, password, callsign, registration_session
+  username, password, callsign, country, registration_session
 ) VALUES (
-  ?, ?, ?, ?
+  ?, ?, ?, ?, ?
 );
 
 /* name: DeleteUser :exec */
 DELETE FROM users
 WHERE username = ?;
+
+/* name: GetCallsign :one */
+SELECT callsign FROM users
+WHERE callsign = ? LIMIT 1;
 
 
 /* name: CreateReport :execresult */

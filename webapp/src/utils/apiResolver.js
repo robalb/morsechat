@@ -120,23 +120,24 @@ import Pusher from 'pusher-js';
         details: e.message
       }
     }
-    //handle responses with a status different from 200
-    if(response.status != 200){
-      return {
-        success: false,
-        error: 'server_error',
-        details: "server returned status code: " + response.status
-      }
-    }
     //attempt to decode the api response into an object
     try{
       response = await response.json(); // parses JSON response into native JavaScript objects
     }
     catch(e){
-      return {
-        success: false,
-        error: 'server_error',
-        details: "server status is 200, but json parse failed"
+      //handle responses with a status different from 200
+      if(response.status != 200){
+        return {
+          success: false,
+          error: 'server_error',
+          details: "server returned status code: " + response.status
+        }
+      }else{
+        return {
+          success: false,
+          error: 'server_error',
+          details: "server status is 200, but json parse failed"
+        }
       }
     }
     //TODO: validate the decoded object content, ex: must contain success key

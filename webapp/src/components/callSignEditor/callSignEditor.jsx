@@ -35,12 +35,12 @@ function SimpleEditor(props){
       return true
     })
     if(allValid){
-      //pass the value of this component to the parent(this component is used in forms or similar)
-      props.setData( modulesData.map(m => m.value))
-      //set the state to loading, then start the online validation
-      setValidationState(validationStates.LOADING)
       //prepare the data for the api request
       let callsign = modulesData.map(m => m.value).join("")
+      //pass the value of this component to the parent(this component is used in forms or similar)
+      props.setData(callsign)
+      //set the state to loading, then start the online validation
+      setValidationState(validationStates.LOADING)
       //start the api request
       const livePromise = dispatch(apiCall({
         endpoint: "validate_callsign",
@@ -159,10 +159,7 @@ const CallSignEditor = (props) =>{
   const [schemaCode,  setSchemaCode] = React.useState("mrse_default")
 
   function handleSetData(data){
-    props.setData({
-      value: data,
-      code: schemaCode
-    })
+    props.setData(data)
   }
 
  return (
