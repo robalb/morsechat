@@ -103,6 +103,8 @@ const userSlice = createSlice({
       state.callsign = apidata.callsign
       state.country = apidata.country
       state.username = apidata.username
+      if(apidata.settings)
+        state.settings = apidata.settings
     })
     //user logged in
     builder.addCase(loginUser.fulfilled, (state, action) => {
@@ -111,6 +113,8 @@ const userSlice = createSlice({
       state.callsign = apidata.callsign
       state.country = apidata.country
       state.username = apidata.username
+      if(apidata.settings)
+        state.settings = apidata.settings
     })
     //user registered
     builder.addCase(registerUser.fulfilled, (state, action) => {

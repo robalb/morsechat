@@ -43,7 +43,7 @@ func AddRoutes(
 	v1.Group(func(r chi.Router) {
 		r.Post("/register", handlers.ServeRegister(logger, tokenAuth, dbReadPool, dbWritePool))
 		r.Post("/login", handlers.ServeLogin(logger, tokenAuth, dbReadPool, dbWritePool))
-		r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth))
+		r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth, dbReadPool))
 		r.Post("/validate_callsign", handlers.ServeValidateCallsign(logger, dbReadPool))
 	})
 

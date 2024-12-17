@@ -28,7 +28,7 @@ type AuthResponse struct {
 	Username    string `json:"username"`
 	Callsign    string `json:"callsign"`
 	Country     string `json:"country"`
-  Settings    []Settings
+  Settings    *Settings `json:"settings"`
 }
 
 type OkResponse struct {

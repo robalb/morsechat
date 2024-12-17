@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
@@ -121,6 +122,7 @@ that will allows a connection to the websocket
 func ServeSessInit(
 	logger *log.Logger,
 	tokenAuth *jwtauth.JWTAuth,
+	dbReadPool *sql.DB,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -128,18 +130,44 @@ func ServeSessInit(
 		//But don't set any jwt cokie.
 		currentJwtData, err := auth.GetJwtData(r.Context())
 		if err == nil {
+      var responseSettings *Settings = nil
+      responseCountry := "us"
+      //get user settings and country from the db if the user is not anonymous
+      if !currentJwtData.IsAnonymous{
+        queries := db.New(dbReadPool)
+        res, err := queries.GetUserFromId(r.Context(), currentJwtData.UserId)
+        if err != nil {
+          validation.RespondError(w, "Data query error", "", http.StatusBadRequest)
+          logger.Printf("ServeSessInit: data query error: %v", err.Error())
+          return
+        }
+        responseCountry = res.Country.(string)
+        //parse json field
+        var userSettings Settings
+        userSettingsStr, ok := res.Settings.(string)
+        if !ok{
+          logger.Printf("ServeLogin: json settings type assert faied: %v", ok)
+        } else if err := json.Unmarshal([]byte(userSettingsStr), &userSettings); err != nil{
+          logger.Printf("ServeLogin: json settings unmarshall faied: %v", err.Error())
+        }else{
+          responseSettings = &userSettings
+        }
+      }
+
 			validation.RespondOk(w, AuthResponse{
 				IsAnonymous: currentJwtData.IsAnonymous,
 				IsAdmin:     currentJwtData.IsAdmin,
 				IsModerator: currentJwtData.IsModerator,
 				Username:    currentJwtData.Username,
 				Callsign:    currentJwtData.Callsign,
-        Country:     "US", //TODO
-        Settings:    nil,   //TODO
+        Country:     responseCountry,
+        Settings:    responseSettings,
 			})
 			return
 		}
 
+
+    //create an anonymous session
 		//TODO: content negotiation
 		jwtData := auth.JwtData{
 			UserId:      0,
@@ -162,12 +190,12 @@ func ServeSessInit(
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
       Country:     "US", //TODO
-      Settings:    nil,   //TODO
+      Settings:    nil,
 		})
 	}
 }
 
-// Similar to serveSessInit, this endpoit
+// Similar to serveSessInit, this endpoint
 // will overwrite the current jwt with an anonymous jwt
 func ServeLogout(
 	logger *log.Logger,
@@ -197,7 +225,7 @@ func ServeLogout(
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
       Country:     "US", //TODO
-      Settings:    nil,   //TODO
+      Settings:    nil,
 		})
 	}
 }
@@ -252,6 +280,17 @@ func ServeLogin(
 			return
 		}
 
+    var userSettings Settings
+    var responseSettings *Settings = nil
+    userSettingsStr, ok := res.Settings.(string)
+    if !ok{
+			logger.Printf("ServeLogin: json settings type assert faied: %v", ok)
+    } else if err := json.Unmarshal([]byte(userSettingsStr), &userSettings); err != nil{
+			logger.Printf("ServeLogin: json settings unmarshall faied: %v", err.Error())
+    }else{
+      responseSettings = &userSettings
+    }
+
 		jwtData := auth.JwtData{
 			UserId:      res.ID,
 			IsAnonymous: false,
@@ -273,7 +312,7 @@ func ServeLogin(
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
       Country:     res.Callsign,
-      Settings:    nil, //TODO
+      Settings:    responseSettings,
 		})
 	}
 }
