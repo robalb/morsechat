@@ -1,0 +1,21 @@
+meta {
+  name: validate_callsign
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/api/v1/validate_callsign
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+  "callsign": "US00ABC"
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}

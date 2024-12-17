@@ -1,0 +1,28 @@
+meta {
+  name: update_settings
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{host}}/api/v1/update_settings
+  body: json
+  auth: none
+}
+
+body:json {
+  {"wpm":12,
+   "volume_receiver":50,
+   "volume_key":50,
+   "dialect":"russian",
+   "key_mode":"straight",
+   "show_readable":false,
+   "left_is_dot":true,
+   "submit_delay":12,
+   "keybinds":
+   {"straight":"c","yambic_left":"z","yambic_right":"x","cancel_message":"p"}}
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}

@@ -1,0 +1,21 @@
+meta {
+  name: sess_init
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/api/v1/sess_init
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+  
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}

@@ -12,7 +12,6 @@ import ReceiverSound from '../utils/ReceiverSound'
 export function AppLogic({chatDomNode}) {
     const dispatch = useDispatch()
     let loading = useSelector(state => state.api.loading)
-    let csrf = useSelector(state => state.api.csrf)
     let callsign = useSelector(state => state.user.callsign)
     let channel = useSelector(state => state.chat.channel)
     let channelName = useSelector(selectChannelName)
@@ -142,7 +141,6 @@ export function AppLogic({chatDomNode}) {
             if (pusher.current === null && false) {
                 //initialize the pusher client
                 pusher.current = pusherClient(
-                    csrf,
                 )
                 //update pusher server connection status
                 //this is not related to the channel subscription
