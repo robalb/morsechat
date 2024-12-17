@@ -59,7 +59,6 @@ export const apiCall = createAsyncThunk(
     const csrf = getState().api.csrf
     const response = await request(baseApiUrl + endpoint, data, csrf, signal)
     if(response.error){
-      console.log("AAAAAAAAAAA error")
       return rejectWithValue({
         error: response.error,
         details: response.details

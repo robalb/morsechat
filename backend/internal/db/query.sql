@@ -36,3 +36,8 @@ INSERT INTO report_action (
 ) VALUES (
   ?, ?, ?, ?, ?
 );
+
+
+/* name: UpdateSettings :execresult */
+UPDATE users SET settings = ? WHERE id = ?;
+

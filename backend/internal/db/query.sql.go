@@ -177,3 +177,16 @@ func (q *Queries) ListModerators(ctx context.Context) ([]User, error) {
 	}
 	return items, nil
 }
+
+const updateSettings = `-- name: UpdateSettings :execresult
+UPDATE users SET settings = ? WHERE id = ?
+`
+
+type UpdateSettingsParams struct {
+	Settings interface{}
+	ID       int64
+}
+
+func (q *Queries) UpdateSettings(ctx context.Context, arg UpdateSettingsParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateSettings, arg.Settings, arg.ID)
+}

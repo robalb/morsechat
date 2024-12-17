@@ -51,6 +51,7 @@ func AddRoutes(
 	v1.Group(func(r chi.Router) {
 		r.Use(middleware.RequireAuthenticated(tokenAuth))
     r.Post("/logout", handlers.ServeLogout(logger, tokenAuth))
+    r.Post("/update_settings", handlers.ServeUpdateSettings(logger, dbReadPool, dbWritePool))
 
 		r.Route("/moderator", func(r chi.Router) {
 			r.Use(middleware.RequireModerator(tokenAuth))

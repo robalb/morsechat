@@ -15,16 +15,6 @@ import (
 	"github.com/robalb/morsechat/internal/validation"
 )
 
-// response object used by both login, register, and sess_init
-type AuthResponse struct {
-	IsAnonymous bool   `json:"is_anonymous"`
-	IsAdmin     bool   `json:"is_admin"`
-	IsModerator bool   `json:"is_moderator"`
-	Username    string `json:"username"`
-	Callsign    string `json:"callsign"`
-	Country     string `json:"country"`
-  Settings    string `json:"settings"`
-}
 
 type RegisterData struct {
 	Username string `json:"username" validate:"required,min=3,max=20"`
@@ -118,7 +108,7 @@ func ServeRegister(
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
       Country:     countryCode,
-      Settings:    "",
+      Settings:    nil,
 		})
 	}
 }
@@ -145,7 +135,7 @@ func ServeSessInit(
 				Username:    currentJwtData.Username,
 				Callsign:    currentJwtData.Callsign,
         Country:     "US", //TODO
-        Settings:    "",   //TODO
+        Settings:    nil,   //TODO
 			})
 			return
 		}
@@ -172,7 +162,7 @@ func ServeSessInit(
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
       Country:     "US", //TODO
-      Settings:    "",   //TODO
+      Settings:    nil,   //TODO
 		})
 	}
 }
@@ -207,7 +197,7 @@ func ServeLogout(
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
       Country:     "US", //TODO
-      Settings:    "",   //TODO
+      Settings:    nil,   //TODO
 		})
 	}
 }
@@ -283,7 +273,7 @@ func ServeLogin(
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
       Country:     res.Callsign,
-      Settings:    "", //TODO
+      Settings:    nil, //TODO
 		})
 	}
 }
@@ -292,10 +282,6 @@ func ServeLogin(
 type CallsignData struct {
 	Callsign string `json:"callsign" validate:"required,min=3,max=20"`
 }
-type CallsignOk struct {
-  Ok string `json:"ok"`
-}
-
 func ServeValidateCallsign(
 	logger *log.Logger,
 	dbReadPool *sql.DB,
@@ -319,7 +305,7 @@ func ServeValidateCallsign(
 
     logger.Printf("res: %v", res)
     if err == sql.ErrNoRows {
-      resp := CallsignOk{
+      resp := OkResponse{
         Ok: "ok",
       }
       validation.RespondOk(w, resp)

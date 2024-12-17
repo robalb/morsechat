@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -69,7 +70,7 @@ func ServeMe(
 
 		if err != nil {
 			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
-			logger.Printf("ServeRegister: query error: %v", err.Error())
+			logger.Printf("ServeMe: query error: %v", err.Error())
       return
 		}
 
@@ -81,4 +82,43 @@ func ServeMe(
 		}
 		validation.RespondOk(w, resp)
 	}
+}
+
+
+func ServeUpdateSettings(
+	logger *log.Logger,
+	dbReadPool *sql.DB,
+	dbWritePool *sql.DB,
+) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var reqData Settings
+		if err := validation.Bind(w, r, &reqData); err != nil {
+			//Error response is already set by Bind
+			return
+		}
+
+    encodedConfig, _ := json.Marshal(reqData)
+
+		currentJwtData, err := auth.GetJwtData(r.Context())
+		if err != nil{
+			logger.Printf("ServeUpdateSettings: session error: %v", err.Error())
+			validation.RespondError(w, "Session error", "", http.StatusInternalServerError)
+			return
+    }
+    
+		queries := db.New(dbWritePool)
+		_, err = queries.UpdateSettings(r.Context(), db.UpdateSettingsParams{
+      ID: currentJwtData.UserId,
+      Settings: string(encodedConfig),
+    })
+		if err != nil {
+			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
+			logger.Printf("ServeUpdateSettings: query error: %v", err.Error())
+      return
+		}
+      resp := OkResponse{
+        Ok: "ok",
+      }
+      validation.RespondOk(w, resp)
+  }
 }
