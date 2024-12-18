@@ -1,8 +1,21 @@
 package morse
 
 import (
+	"crypto/rand"
+	"fmt"
 	"unicode"
 )
+
+func GenerateAnonCallsign(country string) (callsign string, err error){
+	// Create a slice that holds 3 random bytes
+	bytes := make([]byte, 3)
+	_, err = rand.Read(bytes)
+	if err != nil {
+		return 
+	}
+  callsign = fmt.Sprintf("%s%X", country, bytes)
+  return
+}
 
 // receives a callsign, and parses it.
 // If it's in a valid format, returns ok and the associated country code.

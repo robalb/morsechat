@@ -136,11 +136,6 @@ const chatSlice = createSlice({
     }
   },
   extraReducers(builder) {
-    // initial page load
-    // builder.addCase(fetchAllData.fulfilled, (state, action) => {
-    //   let toRet = action.payload.app
-    //   return toRet
-    // })
     builder.addCase(keyDown, (state, action) => {
         if(!state.keyDown){
             if(state.lastTime > 0){

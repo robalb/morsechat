@@ -168,19 +168,25 @@ func ServeSessInit(
 
 
     //create an anonymous session
-		//TODO: content negotiation
+    country := morse.GetVisitorCountry(r)
+    callsign, err := morse.GenerateAnonCallsign(country)
+    if err != nil{
+			validation.RespondError(w, "Random user creation error", "", http.StatusInternalServerError)
+			logger.Printf("ServeSessInit: Random user creation error: %v", err.Error())
+			return
+    }
 		jwtData := auth.JwtData{
 			UserId:      0,
 			IsAnonymous: true,
 			IsAdmin:     false,
 			IsModerator: false,
 			Username:    "",
-			Callsign:    "US000X",
+			Callsign:    callsign,
 		}
     err = auth.SetJwtCookie(w, tokenAuth, jwtData)
 		if err != nil {
 			validation.RespondError(w, "Session creation error", "", http.StatusInternalServerError)
-			logger.Printf("ServeRegister: Jwt creation error: %v", err.Error())
+			logger.Printf("ServeSessInit: Jwt creation error: %v", err.Error())
 			return
     }
 		validation.RespondOk(w, AuthResponse{
@@ -189,7 +195,7 @@ func ServeSessInit(
 			IsModerator: jwtData.IsModerator,
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
-      Country:     "US", //TODO
+      Country:     country,
       Settings:    nil,
 		})
 	}
@@ -203,19 +209,25 @@ func ServeLogout(
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		//TODO: content negotiation
+    country := morse.GetVisitorCountry(r)
+    callsign, err := morse.GenerateAnonCallsign(country)
+    if err != nil{
+			validation.RespondError(w, "Random user creation error", "", http.StatusInternalServerError)
+			logger.Printf("ServeLogout: Random user creation error: %v", err.Error())
+			return
+    }
 		jwtData := auth.JwtData{
 			UserId:      0,
 			IsAnonymous: true,
 			IsAdmin:     false,
 			IsModerator: false,
 			Username:    "",
-			Callsign:    "US000X",
+			Callsign:    callsign,
 		}
-    err := auth.SetJwtCookie(w, tokenAuth, jwtData)
+    err = auth.SetJwtCookie(w, tokenAuth, jwtData)
 		if err != nil {
 			validation.RespondError(w, "Session creation error", "", http.StatusInternalServerError)
-			logger.Printf("ServeRegister: Jwt creation error: %v", err.Error())
+			logger.Printf("ServeLogout: Jwt creation error: %v", err.Error())
 			return
     }
 		validation.RespondOk(w, AuthResponse{
@@ -224,7 +236,7 @@ func ServeLogout(
 			IsModerator: jwtData.IsModerator,
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
-      Country:     "US", //TODO
+      Country:     country,
       Settings:    nil,
 		})
 	}
