@@ -1,12 +1,13 @@
-package server
+package wsserver
 
 import (
 	"bytes"
 	"log"
 	"net/http"
 	"time"
-
 	"github.com/gorilla/websocket"
+	"github.com/robalb/morsechat/internal/auth"
+	"github.com/robalb/morsechat/internal/validation"
 )
 
 const (
@@ -124,18 +125,34 @@ func (c *Client) writePump() {
 	}
 }
 
-// serveWs handles websocket requests from the peer.
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-	client.hub.register <- client
+// This is a special webserver Route handler that upgrades
+// user connections to a websocket.
+func ServeWsInit(
+	logger *log.Logger,
+  hub       *Hub,
+) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+    //retrieve the user data, which can be either anonymous or connected
+		//This is the only handler that accepts session jwts with anonymous data
+    jwtData, err := auth.GetJwtData(r.Context())
+    if err != nil{
+      validation.RespondError(w, "HandleWsInit: invalid jwtData: "+ err.Error(), "", http.StatusBadRequest)
+      return
+    }
+    logger.Printf("ServeWsInit: Connecting user with data: %v ", jwtData)
 
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
-	go client.writePump()
-	go client.readPump()
+    conn, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+      log.Println(err)
+      return
+    }
+    client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+    client.hub.register <- client
+
+    // Allow collection of memory referenced by the caller by doing all work in
+    // new goroutines.
+    go client.writePump()
+    go client.readPump()
+  }
 }
+

@@ -11,12 +11,13 @@ import (
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/config"
 	localmiddleware "github.com/robalb/morsechat/internal/middleware"
+	"github.com/robalb/morsechat/internal/wsserver"
 )
 
 func NewServer(
 	logger *log.Logger,
 	config config.Config,
-	hub *Hub,
+	hub *wsserver.Hub,
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,

@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
+	"github.com/robalb/morsechat/internal/wsserver"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -56,7 +57,7 @@ func Run(
 		return err
 	}
 	// Init hub
-	hub := NewHub()
+	hub := wsserver.NewHub()
 	go hub.Run()
 	// Init Server
 	srv := NewServer(

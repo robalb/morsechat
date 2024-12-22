@@ -12,13 +12,14 @@ import (
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/handlers"
 	"github.com/robalb/morsechat/internal/middleware"
+	"github.com/robalb/morsechat/internal/wsserver"
 )
 
 func AddRoutes(
 	rootMux *chi.Mux,
 	logger *log.Logger,
 	config config.Config,
-	hub *Hub,
+	hub *wsserver.Hub,
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
@@ -29,12 +30,7 @@ func AddRoutes(
 	ws := chi.NewRouter()
 	rootMux.Mount("/ws", ws)
 	ws.Use(middleware.RequireValidSession(tokenAuth))
-	ws.Get("/init", func(w http.ResponseWriter, r *http.Request) {
-    token, claims, err := jwtauth.FromContext(r.Context())
-    logger.Printf("token: %v, claims: %v, err: %v", token, claims, err)
-		//This is the only handler that accepts session jwts with anonymous data
-		serveWs(hub, w, r)
-	})
+	ws.Get("/init", wsserver.ServeWsInit(logger, hub))
 
 	v1 := chi.NewRouter()
 	rootMux.Mount("/api/v1", v1)
