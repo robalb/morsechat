@@ -1,15 +1,23 @@
 
+# week2
+
+- working basics of websockets
+- morse decoding in the backend
+
+
+# backlog 
+
 features
 
-- nationality negotiation
+-[x] nationality negotiation
 - move to paseto
 
 Api endpoints
 
-- register
-- login
-- sess init
-- report
+-[x] register
+-[x] login
+-[x] sess init
+-[x] report
 
 Crud Api endpoints
 

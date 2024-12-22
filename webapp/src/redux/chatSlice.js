@@ -97,7 +97,8 @@ const chatSlice = createSlice({
         }
     },
     setConnected(state, action){
-        state.connected = ['connected', 'connecting'].includes(action.payload)
+        console.log("setconnected slice: ", action)
+        state.connected = ['connected', /*'connecting'*/].includes(action.payload)
         state.connectionStatus = action.payload
     },
     resetMessage(state, action){

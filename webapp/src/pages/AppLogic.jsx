@@ -2,7 +2,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {selectChannelName, setConnected, setTyping, updateOnline} from "../redux/chatSlice";
 import {wpmToMorseTimes} from "../redux/userSlice";
 import * as React from "react";
-import {pusherClient} from "../utils/apiResolver";
+import {SocketClient} from "../socket/client";
 import getDialect from '../utils/dialects'
 import {dialects} from '../utils/dialects'
 import {scrollDown, systemMessage} from '../utils/chatDom'
@@ -138,15 +138,15 @@ export function AppLogic({chatDomNode}) {
      */
     React.useEffect(() => {
         if (loading == false) {
-            if (pusher.current === null && false) {
-                //initialize the pusher client
-                pusher.current = pusherClient(
-                )
+            if (pusher.current === null) {
+                //initialize the socket client
+                pusher.current = new SocketClient()
                 //update pusher server connection status
                 //this is not related to the channel subscription
-                pusher.current.connection.bind('state_change', (states) => {
-                    dispatch(setConnected(states.current))
-                })
+                pusher.current.stateChange = (states) => {
+                    console.log("statechange hook: ", states)
+                    dispatch(setConnected(states))
+                }
             } else {
                 console.warn("reinitializing pusher ref")
             }
@@ -165,58 +165,57 @@ export function AppLogic({chatDomNode}) {
             pusherChannel.current = pusher.current.subscribe(channel)
             dispatch(setConnected('connecting'))
 
-            pusherChannel.current.bind('pusher:subscription_succeeded', e => {
-                dispatch(setConnected('connected'))
-                dispatch(updateOnline(JSON.parse(JSON.stringify(e))))
-                //clear the chat (TODO: this hshould not happen after a simple disconnect)
-                //idea: clear the screen only when the channel is changed from the selector,
-                //maybe adding a connecting.. message
-                if (chatDomNode.current)
-                    chatDomNode.current.innerHTML = ""
-                //show successfully connected message
-                systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
-                if(channelName == "training"){
-                  systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
-                }
-            })
+            // pusherChannel.current.bind('pusher:subscription_succeeded', e => {
+            //     dispatch(setConnected('connected'))
+            //     dispatch(updateOnline(JSON.parse(JSON.stringify(e))))
+            //     //clear the chat (TODO: this hshould not happen after a simple disconnect)
+            //     //idea: clear the screen only when the channel is changed from the selector,
+            //     //maybe adding a connecting.. message
+            //     if (chatDomNode.current)
+            //         chatDomNode.current.innerHTML = ""
+            //     //show successfully connected message
+            //     systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
+            //     if(channelName == "training"){
+            //       systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
+            //     }
+            // })
 
-            pusherChannel.current.bind('pusher:subscription_error', e => {
-                if (e.error === "pusher_auth_denied login_needed")
-                    dispatch(setConnected('connection denied'))
-                else
-                    dispatch(setConnected('connection failed'))
-                dispatch(updateOnline({members: {}, myID: null}))
-            })
+            // pusherChannel.current.bind('pusher:subscription_error', e => {
+            //     if (e.error === "pusher_auth_denied login_needed")
+            //         dispatch(setConnected('connection denied'))
+            //     else
+            //         dispatch(setConnected('connection failed'))
+            //     dispatch(updateOnline({members: {}, myID: null}))
+            // })
 
-            pusherChannel.current.bind('pusher:member_added', e => {
-                dispatch(updateOnline(JSON.parse(JSON.stringify(
-                    pusherChannel.current.members
-                ))))
-            })
+            // pusherChannel.current.bind('pusher:member_added', e => {
+            //     dispatch(updateOnline(JSON.parse(JSON.stringify(
+            //         pusherChannel.current.members
+            //     ))))
+            // })
 
-            pusherChannel.current.bind('pusher:member_removed', e => {
-                dispatch(updateOnline(JSON.parse(JSON.stringify(
-                    pusherChannel.current.members
-                ))))
-            })
+            // pusherChannel.current.bind('pusher:member_removed', e => {
+            //     dispatch(updateOnline(JSON.parse(JSON.stringify(
+            //         pusherChannel.current.members
+            //     ))))
+            // })
 
-            pusherChannel.current.bind('message', e => {
-                handleMessage(e)
-                dispatch(setTyping({
-                    user: e.id,
-                    typing: false
-                }))
-            })
-            pusherChannel.current.bind('typing', e => {
-                dispatch(setTyping({
-                    user: e.id,
-                    typing: true
-                }))
-            })
+            // pusherChannel.current.bind('message', e => {
+            //     handleMessage(e)
+            //     dispatch(setTyping({
+            //         user: e.id,
+            //         typing: false
+            //     }))
+            // })
+            // pusherChannel.current.bind('typing', e => {
+            //     dispatch(setTyping({
+            //         user: e.id,
+            //         typing: true
+            //     }))
+            // })
             return () => {
                 console.log(">> effect: unsubscribing from channel " + channel);
-                pusherChannel.current.unbind()
-                pusher.current.unsubscribe(channel)
+                pusherChannel.current.unsubscribe()
             }
         } else {
             console.log(">> effect: subscribing to channel [NO PUSHER YET] " + channel)

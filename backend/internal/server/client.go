@@ -31,6 +31,14 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+  CheckOrigin: func(r *http.Request) bool {
+    // We don't need this check: It's not particularly
+    // clear what security issue it's supposed to solve
+    // since Origin headers can easily be forged,
+    // and browser requests that cannot forge Origin headers
+    // are already limited by the browser CORS system
+    return true
+  },
 }
 
 // Client is a middleman between the websocket connection and the hub.

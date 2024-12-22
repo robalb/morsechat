@@ -1,4 +1,3 @@
-import Pusher from 'pusher-js';
 
   //This is a VITE env variable
   // https://vitejs.dev/guide/env-and-mode.html
@@ -12,55 +11,12 @@ import Pusher from 'pusher-js';
     'http://localhost:8080/api/v1/'
 
   /**
-   * pusher authentication endpoint url
+   * websocket url
    */
-  const pusherAuthUrl = baseApiUrl + 'pusher_auth'
+  export const wsUrl = IS_PRODUCTION ?
+    `wss://${window.location.host}/ws/init` :
+    'http://localhost:8080/ws/init'
 
-  /**
-  * Pusher client generator
-  */
-  export function pusherClient(csrf, key, host, port, cluster){
-    if(!IS_PRODUCTION)
-      Pusher.logToConsole = true;
-
-    let pusher = new Pusher(key, {
-      cluster: cluster,
-      authorizer: authorizer,
-      wsHost: host,
-      wsPort: port,
-      forceTLS: false,
-      encrypted: false,
-      disableStats: true,
-      enabledTransports: ['ws', 'wss']
-    });
-
-    /**
-     * Pusher custom authorizer function,
-     * replaces the pusher internal fetch function with the request function
-     * used for api requests in this app
-     * https://github.com/pusher/pusher-js#authorizer-function 
-     *
-     */
-    function authorizer (channel, options) {
-        return {
-          authorize: async function (socketId, callback) {
-            let body = {
-              socket_id: socketId,
-              channel_name: channel.name
-            }
-            let res = await request(pusherAuthUrl, body, csrf)
-            if (res.success) {
-              callback(null, res.data);
-            }
-            else {
-              callback(new Error(res.error + " " + res.details), { auth: "" });
-            }
-          }
-      };
-    }
-
-    return pusher;
-  }
 
   /**
    * Internal request method.
