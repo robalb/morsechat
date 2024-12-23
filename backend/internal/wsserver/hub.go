@@ -126,32 +126,37 @@ func clientRequestMux(
   case "join":
     handleJoinCommand(
       cmd.Body,
+      message.client,
       ctx,
       logger,
-      h,
       dbReadPool,
       dbWritePool,
       )
   case "typing":
     handleTypingCommand(
       cmd.Body,
+      message.client,
       ctx,
       logger,
-      h,
       dbReadPool,
       dbWritePool,
       )
   case "message":
     handleMorseCommand(
       cmd.Body,
+      message.client,
       ctx,
       logger,
-      h,
       dbReadPool,
       dbWritePool,
       )
   default:
-    logger.Printf("WsclientWsRequestMux: unknown cmd type: %s. message: %v", cmd.Type, message.bytes)
+    logger.Printf(
+      "WsclientWsRequestMux: client %v: unknown cmd type: %s. message: %v",
+      message.client.userInfo.Callsign,
+      cmd.Type,
+      message.bytes,
+      )
   }
 
   //TODO: remove
@@ -172,9 +177,9 @@ func clientRequestMux(
 
 func handleJoinCommand(
   rawCmd json.RawMessage,
+  client *Client,
   ctx context.Context,
 	logger *log.Logger,
-	h *Hub,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ){
@@ -183,12 +188,13 @@ func handleJoinCommand(
     logger.Printf("HandleJoinCommand: Failed to parse json: %v\n", err)
     return
   }
+  logger.Printf("join: %v", cmd.Name)
 }
 func handleTypingCommand(
   rawCmd json.RawMessage,
+  client *Client,
   ctx context.Context,
 	logger *log.Logger,
-	h *Hub,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ){
@@ -202,9 +208,9 @@ func handleTypingCommand(
 
 func handleMorseCommand(
   rawCmd json.RawMessage,
+  client *Client,
   ctx context.Context,
 	logger *log.Logger,
-	h *Hub,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ){

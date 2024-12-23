@@ -2,10 +2,11 @@ import {wsUrl} from '../utils/apiResolver.js'
 import {ReconnectingWebSocket} from './reconnectingwebsocket.js'
 
 export class SocketClient {
-  constructor() {
+  constructor(initialChannel) {
     this.url = wsUrl;
     this.ws = null;
     this._state = "initialized"; // Initial state
+    this.channel = initialChannel
 
     // Callback placeholders
     this.onSubscriptionSuccess = null;
@@ -34,6 +35,9 @@ export class SocketClient {
     // Handle WebSocket open
     this.ws.onopen = () => {
       this._updateState("connected");
+      if(this.channel){
+        this.subscribe(this.channel)
+      }
     };
 
     // Handle incoming messages
@@ -88,10 +92,13 @@ export class SocketClient {
       console.error("WebSocket is not open. Cannot subscribe.");
       return;
     }
+    this.channel = channel
 
     const message = {
-      type: 'subscribe',
-      channel
+      type: 'join',
+      body: {
+        name: channel
+      }
     };
     this.ws.send(JSON.stringify(message));
   }
@@ -102,14 +109,17 @@ export class SocketClient {
       console.error("WebSocket is not open. Cannot subscribe.");
       return;
     }
-
+    this.channel = ""
     const message = {
-      type: 'unsubscribe',
+      type: 'join',
+      body: {
+        name: ""
+      }
     };
     this.ws.send(JSON.stringify(message));
   }
 
-  // Send a message
+  // Send a morse message
   sendMessage(messageContent) {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       console.error("WebSocket is not open. Cannot send message.");
@@ -118,7 +128,9 @@ export class SocketClient {
 
     const message = {
       type: 'message',
-      content: messageContent
+      body: {
+        messageContent
+      }
     };
     this.ws.send(JSON.stringify(message));
   }
@@ -132,8 +144,20 @@ export class SocketClient {
 
     const message = {
       type: 'typing',
-      status
+      body: {
+        typing: status
+      }
     };
+    this.ws.send(JSON.stringify(message));
+  }
+
+  // Send a raw message
+  sendRawMessage(message) {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      console.error("WebSocket is not open. Cannot send message.");
+      return;
+    }
+
     this.ws.send(JSON.stringify(message));
   }
 

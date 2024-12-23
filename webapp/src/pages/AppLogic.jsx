@@ -140,7 +140,7 @@ export function AppLogic({chatDomNode}) {
         if (loading == false) {
             if (pusher.current === null) {
                 //initialize the socket client
-                pusher.current = new SocketClient()
+                pusher.current = new SocketClient(channel)
                 //update pusher server connection status
                 //this is not related to the channel subscription
                 pusher.current.stateChange = (states) => {
