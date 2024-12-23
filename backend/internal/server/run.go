@@ -57,7 +57,7 @@ func Run(
 		return err
 	}
 	// Init websocket hub
-	hub := wsserver.NewHub()
+	hub := wsserver.New()
 	go hub.Run(
     ctx,
     logger,

@@ -3,6 +3,7 @@ package wsserver
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"log"
 
 	"github.com/gorilla/websocket"
@@ -13,6 +14,25 @@ type ClientRequest struct{
   bytes []byte
   client *Client
 }
+
+type ClientRequestCommand struct{
+  Type string `json:"type"`
+  Body json.RawMessage `json:"body"`
+}
+
+type CommandJoinRoom struct{
+  Name string `json:"name"`
+}
+type CommandTying struct{
+  Typing bool `json:"typing"`
+}
+type CommandMorse struct{
+  Dialect string `json:"dialect"`
+  Wpm int `json:"wpm"`
+  Message []int `json:"message"`
+}
+
+
 
 type Client struct {
 	hub *Hub
@@ -28,7 +48,7 @@ type Client struct {
   // User info
   userInfo auth.JwtData
 
-  //the channel the uesr is connected to
+  //the channel the user is connected to
   channel string
 }
 
@@ -48,7 +68,7 @@ type Hub struct {
 	unregister chan *Client
 }
 
-func NewHub() *Hub {
+func New() *Hub {
 	return &Hub{
 		broadcast:  make(chan ClientRequest),
 		register:   make(chan *Client),
@@ -93,7 +113,48 @@ func clientRequestMux(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ){
-  logger.Printf("clientWsRequestMux: message: %v", message.bytes)
+  //TODO: remove
+  logger.Printf("WsclientWsRequestMux: message: %v", message.bytes)
+
+	var cmd ClientRequestCommand
+	if err := json.Unmarshal(message.bytes, &cmd); err != nil {
+    logger.Printf("WsClientRequestMux: Failed to parse json: %v\n", err)
+		return
+	}
+
+  switch cmd.Type{
+  case "join":
+    handleJoinCommand(
+      cmd.Body,
+      ctx,
+      logger,
+      h,
+      dbReadPool,
+      dbWritePool,
+      )
+  case "typing":
+    handleTypingCommand(
+      cmd.Body,
+      ctx,
+      logger,
+      h,
+      dbReadPool,
+      dbWritePool,
+      )
+  case "message":
+    handleMorseCommand(
+      cmd.Body,
+      ctx,
+      logger,
+      h,
+      dbReadPool,
+      dbWritePool,
+      )
+  default:
+    logger.Printf("WsclientWsRequestMux: unknown cmd type: %s. message: %v", cmd.Type, message.bytes)
+  }
+
+  //TODO: remove
   //broadcast action
   for client := range h.clients {
     select {
@@ -104,3 +165,53 @@ func clientRequestMux(
     }
   }
 }
+
+//------------------------
+//  ws command handlers
+//------------------------
+
+func handleJoinCommand(
+  rawCmd json.RawMessage,
+  ctx context.Context,
+	logger *log.Logger,
+	h *Hub,
+	dbReadPool *sql.DB,
+	dbWritePool *sql.DB,
+){
+  var cmd CommandJoinRoom
+  if err := json.Unmarshal(rawCmd, &cmd); err != nil {
+    logger.Printf("HandleJoinCommand: Failed to parse json: %v\n", err)
+    return
+  }
+}
+func handleTypingCommand(
+  rawCmd json.RawMessage,
+  ctx context.Context,
+	logger *log.Logger,
+	h *Hub,
+	dbReadPool *sql.DB,
+	dbWritePool *sql.DB,
+){
+  var cmd CommandTying
+  if err := json.Unmarshal(rawCmd, &cmd); err != nil {
+    logger.Printf("HandleTypingCommand: Failed to parse json: %v\n", err)
+    return
+  }
+}
+
+
+func handleMorseCommand(
+  rawCmd json.RawMessage,
+  ctx context.Context,
+	logger *log.Logger,
+	h *Hub,
+	dbReadPool *sql.DB,
+	dbWritePool *sql.DB,
+){
+  var cmd CommandMorse
+  if err := json.Unmarshal(rawCmd, &cmd); err != nil {
+    logger.Printf("HandleMorseCommand: Failed to parse json: %v\n", err)
+    return
+  }
+}
+
