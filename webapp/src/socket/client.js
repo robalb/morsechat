@@ -78,7 +78,7 @@ export class SocketClient {
     // Handle WebSocket closure
     this.ws.onclose = () => {
       this._updateState("disconnected");
-      this.ws = null; // Reset WebSocket instance
+      // this.ws = null; // Reset WebSocket instance
     };
   }
 

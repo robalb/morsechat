@@ -147,6 +147,11 @@ export function AppLogic({chatDomNode}) {
                     console.log("statechange hook: ", states)
                     dispatch(setConnected(states))
                 }
+                pusher.current.message = (message) =>{
+                  console.log("message received: ", message)
+                }
+                window["p"] = pusher.current
+                
             } else {
                 console.warn("reinitializing pusher ref")
             }

@@ -56,9 +56,14 @@ func Run(
 		logger.Printf("Failed to apply database migrations: %v", err.Error())
 		return err
 	}
-	// Init hub
+	// Init websocket hub
 	hub := wsserver.NewHub()
-	go hub.Run()
+	go hub.Run(
+    ctx,
+    logger,
+    dbReadPool,
+    dbWritePool,
+  )
 	// Init Server
 	srv := NewServer(
 		logger,

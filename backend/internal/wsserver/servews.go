@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+
 	"github.com/gorilla/websocket"
 	"github.com/robalb/morsechat/internal/auth"
 	"github.com/robalb/morsechat/internal/validation"
@@ -42,16 +43,6 @@ var upgrader = websocket.Upgrader{
   },
 }
 
-// Client is a middleman between the websocket connection and the hub.
-type Client struct {
-	hub *Hub
-
-	// The websocket connection.
-	conn *websocket.Conn
-
-	// Buffered channel of outbound messages.
-	send chan []byte
-}
 
 // readPump pumps messages from the websocket connection to the hub.
 //
@@ -70,14 +61,19 @@ func (c *Client) readPump() {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				// log.Printf("error: %v", err)
 			}
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- message
+    clientRequest := ClientRequest{
+      bytes: message,
+      client: c,
+    }
+		c.hub.broadcast <- clientRequest
 	}
 }
+
 
 // writePump pumps messages from the hub to the websocket connection.
 //
@@ -125,6 +121,7 @@ func (c *Client) writePump() {
 	}
 }
 
+
 // This is a special webserver Route handler that upgrades
 // user connections to a websocket.
 func ServeWsInit(
@@ -146,7 +143,13 @@ func ServeWsInit(
       log.Println(err)
       return
     }
-    client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+    client := &Client{
+      hub: hub,
+      conn: conn,
+      send: make(chan []byte, 256),
+      userInfo: jwtData,
+      channel: "",
+    }
     client.hub.register <- client
 
     // Allow collection of memory referenced by the caller by doing all work in
