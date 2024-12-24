@@ -228,6 +228,16 @@ export function AppLogic({chatDomNode}) {
               systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
             }
           }
+
+          pusher.current.subscriptionError = (message) => {
+            console.log("TODO: subscriptionError : "+ message+ channelName)
+            if (message.error === "invalid_credentials")
+                dispatch(setConnected('connection denied'))
+            else
+                dispatch(setConnected('connection failed'))
+            // dispatch(updateOnline({members: {}, myID: null}))
+          }
+
             // console.log(">> effect: subscribing to channel " + channel)
             // pusherChannel.current = pusher.current.subscribe(channel)
             // dispatch(setConnected('connecting'))

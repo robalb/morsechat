@@ -47,6 +47,13 @@ type MessageLeave struct{
   Left WsUser  `json:"left"`
 }
 
+// {type="joinerror" ...}
+type MessageJoinError struct{
+  Type string            `json:"type"`
+  RejectedChannel string `json:"rejected_channel"`
+  Error string           `json:"error"`
+}
+
 // {type="typing" ...}
 type MessageTyping struct{
   Type string      `json:"type"`

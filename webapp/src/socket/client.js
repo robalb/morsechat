@@ -77,6 +77,10 @@ export class SocketClient {
             if (this.onMemberAdded) this.onMemberAdded(data);
           }
           break;
+
+        case 'joinerror':
+          if (this.onSubscriptionError) this.onSubscriptionError(data);
+          break;
         case 'leave':
           if (this.onMemberRemoved) this.onMemberRemoved(data);
           break;
@@ -297,7 +301,14 @@ export class SocketClient {
     this.onSubscriptionSuccess = callback;
   }
 
-  // Setter for subscription error callback
+  /**
+  * Setter for subscription error callback
+  *  parameters:
+  *   callback: Function(message Object{
+  *      rejected_channel string
+  *      error string
+  *    })
+  */
   set subscriptionError(callback) {
     this.onSubscriptionError = callback;
   }

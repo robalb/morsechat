@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"log"
+	"strings"
 
 	"github.com/gorilla/websocket"
 	"github.com/robalb/morsechat/internal/auth"
@@ -147,6 +148,7 @@ func (h *Hub) BroadcastAll(message []byte){
     select {
     case client.send <- message:
     default:
+      //TODO: investigate this part
       close(client.send)
       delete(h.clients, client)
     }
@@ -160,6 +162,7 @@ func (h *Hub) BroadcastChannel(message []byte, channel string){
       select {
       case client.send <- message:
       default:
+        //TODO: investigate this part
         close(client.send)
         delete(h.clients, client)
       }
@@ -168,14 +171,31 @@ func (h *Hub) BroadcastChannel(message []byte, channel string){
 
 }
 
-func (h *Hub) MessageUser(){
-  //TODO
+//send a "join error" message to a specific user
+func MessageUserJoinerror(client *Client, logger *log.Logger, error string, channel string){
+  msg := MessageJoinError{
+    Type: "joinerror",
+    RejectedChannel: channel,
+    Error: error,
+  }
+  msgBytes, err := json.Marshal(msg)
+  if err != nil{
+    logger.Printf("MessageUserJoinError: msg json marshal error: %v", err.Error())
+  }
+  MessageUser(client, msgBytes)
 }
 
-func (h *Hub) RemoveUser(){
-  //TODO
-}
 
+//send message bytes to a specific user
+func MessageUser(client *Client, message []byte){
+  select {
+  case client.send <- message:
+  default:
+    //TODO: investigate this part
+    close(client.send)
+    delete(client.hub.clients, client)
+  }
+}
 
 // Broadcast a  message to every user connected to the given channel,
 // notifying that the given user has left the channel
@@ -242,8 +262,15 @@ func handleJoinCommand(
   }
   if _, ok := channels[cmd.Name]; !ok {
     logger.Printf("HandleJoinCommand: invalid channel name: %v", cmd.Name)
+    MessageUserJoinerror(client, logger, "invalid channel name", cmd.Name)
     return
   }
+
+  if strings.Contains(cmd.Name, "pro") && client.userInfo.IsAnonymous{
+    MessageUserJoinerror(client, logger, "invalid_credentials", cmd.Name)
+    return
+  }
+
   //TODO: remove
   logger.Printf("HandleJoinCommand: join: %v", cmd.Name)
   //TODO: is this thread safe?
