@@ -28,6 +28,7 @@ const initialState = {
     */
     onlineUsers: {},
     chat: [],
+    myID: "",
     keyDown: false,
     lastTime: 0,
     currentLetter:[],
@@ -114,20 +115,23 @@ const chatSlice = createSlice({
     },
     updateOnline(state, action){
         let onlineUsersWithSoundStatus = {}
-        //add two extra keys to every user object: typing and allowSound
-        Object.keys(action.payload).map( id=>{
-            let allowSound = true
-            // TODO
-            // if(id == action.payload.myID) allowSound = false
-            if(state.onlineUsers[id]){
-                allowSound = state.onlineUsers[id].allowSound
-            }
-            onlineUsersWithSoundStatus[id] = {
-                ...action.payload[id],
-                allowSound
-            }
+        action.payload.users.forEach(u =>{
+          //configure sound
+          let allowSound = true
+          if(u.callsign == action.payload.me){
+            allowSound = false
+          }
+          if(state.onlineUsers[u.callsign]){
+              allowSound = state.onlineUsers[u.callsign].allowSound
+          }
+          //add users as key value object
+          onlineUsersWithSoundStatus[u.callsign] = {
+              ...u,
+              allowSound
+          }
         })
         state.onlineUsers = onlineUsersWithSoundStatus
+        state.myID = action.payload.me
     },
     setTyping(state, action){
         if(state.onlineUsers[action.payload.user]){

@@ -174,11 +174,17 @@ export function AppLogic({chatDomNode}) {
           }
           pusher.current.memberAdded = (message) => {
             console.log("TODO: memberadded : ", message)
-            dispatch(updateOnline(message.users))
+            dispatch(updateOnline({
+              me: callsign,
+              users: message.users
+            }))
           }
           pusher.current.memberRemoved = (message) => {
             console.log("TODO: memberremoved : ", message)
-            dispatch(updateOnline(message.users))
+            dispatch(updateOnline({
+              me: callsign,
+              users: message.users
+            }))
           }
 
           pusher.current.subscriptionError = (message) => {
@@ -187,7 +193,10 @@ export function AppLogic({chatDomNode}) {
                 dispatch(setConnected('connection denied'))
             else
                 dispatch(setConnected('connection failed'))
-            dispatch(updateOnline({}))
+            dispatch(updateOnline({
+              me: callsign,
+              users: []
+            }))
           }
           
           //debugging feature TODO: remove
@@ -219,7 +228,10 @@ export function AppLogic({chatDomNode}) {
           pusher.current.subscriptionSuccess = (message) => {
             console.log("TODO: subscriptionSuccess : "+ message+ channelName)
             dispatch(setConnected('connected'))
-            dispatch(updateOnline(message.users))
+            dispatch(updateOnline({
+              me: callsign,
+              users: message.users
+            }))
             //clear the chat (TODO: this hshould not happen after a simple disconnect)
             //idea: clear the screen only when the channel is changed from the selector,
             //maybe adding a connecting.. message
