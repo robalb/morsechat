@@ -1,5 +1,30 @@
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit'
 import { apiCall, payloadCreatorCreator } from './apiSlice'
+import {getInstance} from '../socket/global.js'
+
+
+const morseCall = createAsyncThunk(
+  'api/morsecall',
+  async ({data={}}, {getState, rejectWithValue, signal}) => {
+    if(getInstance()){
+      getInstance().sendMessage(data)
+    }
+    //TODO: register callback
+    // if(response.error){
+    //   return rejectWithValue({
+    //     error: response.error,
+    //     details: response.details
+    //   })
+    // }else{
+    //   return response;
+    // }
+    return rejectWithValue({
+      error: "temporary error",
+      details: "details"
+    })
+})
+
+
 
 const initialState = {
     channel: "presence-ch1",
@@ -27,6 +52,7 @@ const initialState = {
     * }
     */
     onlineUsers: {},
+    socketRef: null,
     chat: [],
     myID: "",
     keyDown: false,
@@ -62,10 +88,9 @@ export const keyUp = function(typingGuard=10){
         //let everyone know we are typing
         let bufferLength = getState().chat.messageBuffer.length
         if(bufferLength === typingGuard * 2 && !trainingChannel)
-            dispatch(apiCall({
-                endpoint: "typing"
-            }))
-
+        //perform ws api call
+        if(getInstance())
+          getInstance().sendTyping(true)
         dispatch(_keyUp())
     }
 }
@@ -81,8 +106,7 @@ export const send = createAsyncThunk(
         training: true
       }
     }
-    return dispatch(apiCall({
-      endpoint: "message",
+    return dispatch(morseCall({
       data: {
           message: s.chat.messageBuffer,
           dialect: s.user.settings.dialect,
@@ -96,6 +120,9 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
+    setSocketRef(state, action){
+        state.socketRef = action.payload
+    },
     setChannel(state, action){
         state.channel = action.payload
     },
@@ -182,7 +209,7 @@ export function selectChannelName(state){
     return undefined
 }
 
-export const {setChannel, setChannelByName, setConnected, resetMessage, updateOnline, setTyping, setAllowSound} = chatSlice.actions
+export const {setSocketRef, setChannel, setChannelByName, setConnected, resetMessage, updateOnline, setTyping, setAllowSound} = chatSlice.actions
 
 export default chatSlice.reducer
 

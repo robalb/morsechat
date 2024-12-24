@@ -155,9 +155,7 @@ export class SocketClient {
 
     const message = {
       type: 'message',
-      body: {
-        messageContent
-      }
+      body: messageContent
     };
     this.ws.send(JSON.stringify(message));
   }

@@ -68,6 +68,21 @@ export const apiCall = createAsyncThunk(
     }
 })
 
+export const morseCall = createAsyncThunk(
+  'api/morsecall',
+  async ({endpoint, data={}}, {getState, rejectWithValue, signal}) => {
+    const csrf = getState().api.csrf
+    const response = await request(baseApiUrl + endpoint, data, csrf, signal)
+    if(response.error){
+      return rejectWithValue({
+        error: response.error,
+        details: response.details
+      })
+    }else{
+      return response;
+    }
+})
+
 
 const initialState = {
   loading: true,

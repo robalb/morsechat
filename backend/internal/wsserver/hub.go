@@ -353,5 +353,19 @@ func handleMorseCommand(
     logger.Printf("HandleMorseCommand: Failed to parse json: %v\n", err)
     return
   }
+
+  msg := MessageMorse{
+    Type: "message",
+    Callsign: client.userInfo.Callsign,
+    Dialect: cmd.Dialect,
+    Wpm: cmd.Wpm,
+    Message: cmd.Message,
+  }
+  msgBytes, err := json.Marshal(msg)
+  if err != nil{
+    logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
+  }
+  //TODO: all kinds of validations
+  client.hub.BroadcastChannel(msgBytes, client.channel)
 }
 

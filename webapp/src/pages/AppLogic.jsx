@@ -6,6 +6,7 @@ import {SocketClient} from "../socket/client";
 import getDialect from '../utils/dialects'
 import {dialects} from '../utils/dialects'
 import {scrollDown, systemMessage} from '../utils/chatDom'
+import {setInstance, getInstance} from '../socket/global.js'
 
 import ReceiverSound from '../utils/ReceiverSound'
 
@@ -151,6 +152,9 @@ export function AppLogic({chatDomNode}) {
           console.log(">> effect: initializing ws")
           //initialize the socket client
           pusher.current = new SocketClient(channel)
+          setInstance(pusher.current)
+          //debugging feature TODO: remove
+          // window["p"] = pusher.current
           //update pusher server connection status
           //this is not related to the channel subscription
           pusher.current.stateChange = (states) => {
@@ -169,7 +173,7 @@ export function AppLogic({chatDomNode}) {
             console.log("TODO: typing : ", message)
             dispatch(setTyping({
                 user: message.callsign,
-                typing: message.is_typing
+                typing: message.typing
             }))
           }
           pusher.current.memberAdded = (message) => {
@@ -198,10 +202,6 @@ export function AppLogic({chatDomNode}) {
               users: []
             }))
           }
-          
-          //debugging feature TODO: remove
-          window["p"] = pusher.current
-
         }
       }
     }, [loading, callsign]);
