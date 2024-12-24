@@ -69,3 +69,12 @@ type MessageMorse struct{
   Wpm int `json:"wpm"`
   Message []int `json:"message"`
 }
+
+// {type="messagestatus" }
+type MessageMorseStatus struct{
+  Type string      `json:"type"`
+  Ok bool      `json:"ok"`
+  Error string `json:"error"`
+  Details string `json:"details"`
+}
+

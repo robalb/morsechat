@@ -9,7 +9,7 @@ const morseCall = createAsyncThunk(
     if(getInstance()){
       getInstance().sendMessage(data)
     }
-    //TODO: register callback
+    //TODO: register callback for errors
     // if(response.error){
     //   return rejectWithValue({
     //     error: response.error,
@@ -18,10 +18,7 @@ const morseCall = createAsyncThunk(
     // }else{
     //   return response;
     // }
-    return rejectWithValue({
-      error: "temporary error",
-      details: "details"
-    })
+    return {}
 })
 
 

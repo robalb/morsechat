@@ -1,8 +1,15 @@
 
+
 # week2
 
 - working basics of websockets
+  - [x] fix delimiters issue in ws client
+  - [] stress test ws
+  - [] add morse message response status, both backend and frontend
+  - [] test multiple connections
 - morse decoding in the backend
+  - [] translate, then filter for bad words.
+  - [] add ratelimiting based on cumulative time
 
 
 # backlog 
