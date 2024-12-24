@@ -132,31 +132,30 @@ export function AppLogic({chatDomNode}) {
     }, [channel])
 
     /**
-     * Pusher client initialization effect
-     *
-     * TODO: unbind all callbacks and check for mem leaks
+     * Pusher client initialization effect.
+     * A new reconnection triggers on every callsing change
      */
     React.useEffect(() => {
-        if (loading == false) {
-            if (pusher.current === null) {
-                //initialize the socket client
-                pusher.current = new SocketClient(channel)
-                //update pusher server connection status
-                //this is not related to the channel subscription
-                pusher.current.stateChange = (states) => {
-                    console.log("statechange hook: ", states)
-                    dispatch(setConnected(states))
-                }
-                pusher.current.message = (message) =>{
-                  console.log("message received: ", message)
-                }
-                window["p"] = pusher.current
-                
-            } else {
-                console.warn("reinitializing pusher ref")
-            }
+      if (loading == false) {
+        if (pusher.current === null) {
+        } else {
+          console.warn("reinitializing pusher ref")
         }
-    }, [loading]);
+        //initialize the socket client
+        pusher.current = new SocketClient(channel)
+        //update pusher server connection status
+        //this is not related to the channel subscription
+        pusher.current.stateChange = (states) => {
+          console.log("statechange hook: ", states)
+          dispatch(setConnected(states))
+        }
+        pusher.current.message = (message) =>{
+          console.log("message received: ", message)
+        }
+        //debugging feature TODO: remove
+        window["p"] = pusher.current
+      }
+    }, [loading, callsign]);
 
     /**
      * channel connection effect
@@ -165,10 +164,17 @@ export function AppLogic({chatDomNode}) {
      * - connects to the new channel, updating the bindings
      */
     React.useEffect(() => {
+      if (pusher.current) {
+        console.log(">> effect: subscribing to channel " + channel)
+        pusher.current.subscribe(channel)
+      }
+    }, [channel])
+
+    React.useEffect(() => {
         if (pusher.current) {
-            console.log(">> effect: subscribing to channel " + channel)
-            pusherChannel.current = pusher.current.subscribe(channel)
-            dispatch(setConnected('connecting'))
+            // console.log(">> effect: subscribing to channel " + channel)
+            // pusherChannel.current = pusher.current.subscribe(channel)
+            // dispatch(setConnected('connecting'))
 
             // pusherChannel.current.bind('pusher:subscription_succeeded', e => {
             //     dispatch(setConnected('connected'))
@@ -219,11 +225,11 @@ export function AppLogic({chatDomNode}) {
             //     }))
             // })
             return () => {
-                console.log(">> effect: unsubscribing from channel " + channel);
-                pusherChannel.current.unsubscribe()
+                // console.log(">> effect: unsubscribing from channel " + channel);
+                // pusherChannel.current.unsubscribe()
             }
         } else {
-            console.log(">> effect: subscribing to channel [NO PUSHER YET] " + channel)
+            // console.log(">> effect: subscribing to channel [NO PUSHER YET] " + channel)
         }
     }, [channel, callsign])
 

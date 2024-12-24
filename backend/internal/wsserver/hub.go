@@ -14,24 +14,10 @@ type ClientRequest struct{
   bytes []byte
   client *Client
 }
-
 type ClientRequestCommand struct{
   Type string `json:"type"`
   Body json.RawMessage `json:"body"`
 }
-
-type CommandJoinRoom struct{
-  Name string `json:"name"`
-}
-type CommandTying struct{
-  Typing bool `json:"typing"`
-}
-type CommandMorse struct{
-  Dialect string `json:"dialect"`
-  Wpm int `json:"wpm"`
-  Message []int `json:"message"`
-}
-
 
 
 type Client struct {
@@ -89,6 +75,9 @@ func (h *Hub) Run(
 			h.clients[client] = true
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
+        if client.channel != ""{
+          BroadcastUserLeft(client.channel, client, logger)
+        }
 				delete(h.clients, client)
 				close(client.send)
 			}
@@ -97,7 +86,6 @@ func (h *Hub) Run(
         &message,
         ctx,
         logger,
-        h,
         dbReadPool,
         dbWritePool,
       )
@@ -109,13 +97,9 @@ func clientRequestMux(
   message *ClientRequest,
   ctx context.Context,
 	logger *log.Logger,
-	h *Hub,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ){
-  //TODO: remove
-  logger.Printf("WsclientWsRequestMux: message: %v", message.bytes)
-
 	var cmd ClientRequestCommand
 	if err := json.Unmarshal(message.bytes, &cmd); err != nil {
     logger.Printf("WsClientRequestMux: Failed to parse json: %v\n", err)
@@ -159,16 +143,76 @@ func clientRequestMux(
       )
   }
 
-  //TODO: remove
-  //broadcast action
+}
+
+// Broadcast a raw message to every connected user, in every channel
+func (h *Hub) BroadcastAll(message []byte){
   for client := range h.clients {
     select {
-    case client.send <- message.bytes:
+    case client.send <- message:
     default:
       close(client.send)
       delete(h.clients, client)
     }
   }
+}
+
+// Broadcast a raw message to every user connected to the given channel
+func (h *Hub) BroadcastChannel(message []byte, channel string){
+  for client := range h.clients {
+    if client.channel == channel {
+      select {
+      case client.send <- message:
+      default:
+        close(client.send)
+        delete(h.clients, client)
+      }
+    }
+  }
+
+}
+
+func (h *Hub) MessageUser(){
+  //TODO
+}
+
+func (h *Hub) RemoveUser(){
+  //TODO
+}
+
+
+// Broadcast a  message to every user connected to the given channel,
+// notifying that the given user has left the channel
+// note: This function will not remove the given user
+func BroadcastUserLeft(channel string, client *Client, logger *log.Logger){
+  msg := MessageLeave{
+    Channel: channel,
+    Users: []MessageUser{},
+    Left: MessageUser{
+      IsAnonymous: client.userInfo.IsAnonymous,
+      Callsign: client.userInfo.Callsign,
+      Username: client.userInfo.Username,
+    },
+  }
+  for c := range client.hub.clients {
+    if c.channel != channel{
+      continue
+    }
+    if c == client || c.userInfo.Callsign == client.userInfo.Callsign{
+      continue
+    }
+    userInfo := c.userInfo
+    msg.Users = append(msg.Users, MessageUser{
+      IsAnonymous: userInfo.IsAnonymous,
+      Callsign:    userInfo.Callsign,
+      Username:    userInfo.Username,
+    })
+  }
+  msgBytes, err := json.Marshal(msg)
+  if err != nil{
+    logger.Printf("BroadcastUserLeft: msg json marshal error: %v", err.Error())
+  }
+  client.hub.BroadcastChannel(msgBytes, channel)
 }
 
 //------------------------
@@ -188,8 +232,61 @@ func handleJoinCommand(
     logger.Printf("HandleJoinCommand: Failed to parse json: %v\n", err)
     return
   }
-  logger.Printf("join: %v", cmd.Name)
+  channels := map[string]bool{
+      "presence-ch1": true,
+      "presence-ch2": true,
+      "presence-ch3": true,
+      "presence-ch4": true,
+      "presence-ch5": true,
+      "presence-ch6": true,
+      "presence-pro-1": true,
+      "presence-pro-2": true,
+      "presence-pro-3": true,
+  }
+  if _, ok := channels[cmd.Name]; !ok {
+    logger.Printf("HandleJoinCommand: invalid channel name: %v", cmd.Name)
+    return
+  }
+  //TODO: remove
+  logger.Printf("HandleJoinCommand: join: %v", cmd.Name)
+  //TODO: is this thread safe?
+  oldChannel := client.channel
+  client.channel = cmd.Name
+
+  // If the user is leaving a channel:
+  // notify the old channel that they left
+  if oldChannel != "" && oldChannel != cmd.Name{
+    BroadcastUserLeft(oldChannel, client, logger)
+  }
+  // BroadcastUserJoined:
+  // Notify the new channel that a new user just joined
+  msg := MessageJoin{
+    Channel: client.channel,
+    Users: []MessageUser{},
+    Newuser: MessageUser{
+      IsAnonymous: client.userInfo.IsAnonymous,
+      Callsign: client.userInfo.Callsign,
+      Username: client.userInfo.Username,
+    },
+  }
+  for c := range client.hub.clients {
+    if c.channel != cmd.Name{
+      continue
+    }
+    userInfo := c.userInfo
+    msg.Users = append(msg.Users, MessageUser{
+      IsAnonymous: userInfo.IsAnonymous,
+      Callsign:    userInfo.Callsign,
+      Username:    userInfo.Username,
+    })
+  }
+  msgBytes, err := json.Marshal(msg)
+  if err != nil{
+    logger.Printf("HandleJoinCommand: msg json marshal error: %v", err.Error())
+  }
+  client.hub.BroadcastChannel(msgBytes, client.channel)
 }
+
 func handleTypingCommand(
   rawCmd json.RawMessage,
   client *Client,
