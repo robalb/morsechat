@@ -36,6 +36,8 @@ type Client struct {
 
   //the channel the user is connected to
   channel string
+
+  isTyping bool
 }
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -111,19 +113,13 @@ func clientRequestMux(
     handleJoinCommand(
       cmd.Body,
       message.client,
-      ctx,
       logger,
-      dbReadPool,
-      dbWritePool,
       )
   case "typing":
     handleTypingCommand(
       cmd.Body,
       message.client,
-      ctx,
       logger,
-      dbReadPool,
-      dbWritePool,
       )
   case "message":
     handleMorseCommand(
@@ -186,12 +182,14 @@ func (h *Hub) RemoveUser(){
 // note: This function will not remove the given user
 func BroadcastUserLeft(channel string, client *Client, logger *log.Logger){
   msg := MessageLeave{
+    Type: "leave",
     Channel: channel,
-    Users: []MessageUser{},
-    Left: MessageUser{
+    Users: []WsUser{},
+    Left: WsUser{
       IsAnonymous: client.userInfo.IsAnonymous,
       Callsign: client.userInfo.Callsign,
       Username: client.userInfo.Username,
+      IsTyping: client.isTyping,
     },
   }
   for c := range client.hub.clients {
@@ -202,10 +200,11 @@ func BroadcastUserLeft(channel string, client *Client, logger *log.Logger){
       continue
     }
     userInfo := c.userInfo
-    msg.Users = append(msg.Users, MessageUser{
+    msg.Users = append(msg.Users, WsUser{
       IsAnonymous: userInfo.IsAnonymous,
       Callsign:    userInfo.Callsign,
       Username:    userInfo.Username,
+      IsTyping: client.isTyping,
     })
   }
   msgBytes, err := json.Marshal(msg)
@@ -222,10 +221,7 @@ func BroadcastUserLeft(channel string, client *Client, logger *log.Logger){
 func handleJoinCommand(
   rawCmd json.RawMessage,
   client *Client,
-  ctx context.Context,
 	logger *log.Logger,
-	dbReadPool *sql.DB,
-	dbWritePool *sql.DB,
 ){
   var cmd CommandJoinRoom
   if err := json.Unmarshal(rawCmd, &cmd); err != nil {
@@ -261,12 +257,14 @@ func handleJoinCommand(
   // BroadcastUserJoined:
   // Notify the new channel that a new user just joined
   msg := MessageJoin{
+    Type: "join",
     Channel: client.channel,
-    Users: []MessageUser{},
-    Newuser: MessageUser{
+    Users: []WsUser{},
+    Newuser: WsUser{
       IsAnonymous: client.userInfo.IsAnonymous,
       Callsign: client.userInfo.Callsign,
       Username: client.userInfo.Username,
+      IsTyping: client.isTyping,
     },
   }
   for c := range client.hub.clients {
@@ -274,10 +272,11 @@ func handleJoinCommand(
       continue
     }
     userInfo := c.userInfo
-    msg.Users = append(msg.Users, MessageUser{
+    msg.Users = append(msg.Users, WsUser{
       IsAnonymous: userInfo.IsAnonymous,
       Callsign:    userInfo.Callsign,
       Username:    userInfo.Username,
+      IsTyping: client.isTyping,
     })
   }
   msgBytes, err := json.Marshal(msg)
@@ -290,15 +289,25 @@ func handleJoinCommand(
 func handleTypingCommand(
   rawCmd json.RawMessage,
   client *Client,
-  ctx context.Context,
 	logger *log.Logger,
-	dbReadPool *sql.DB,
-	dbWritePool *sql.DB,
 ){
   var cmd CommandTying
   if err := json.Unmarshal(rawCmd, &cmd); err != nil {
     logger.Printf("HandleTypingCommand: Failed to parse json: %v\n", err)
     return
+  }
+  client.isTyping = cmd.Typing
+  if client.channel != "" {
+    msg := MessageTyping{
+      Type: "typing",
+      Typing: cmd.Typing,
+      Callsign: client.userInfo.Callsign,
+    }
+    msgBytes, err := json.Marshal(msg)
+    if err != nil{
+      logger.Printf("HandleTypingCommand: msg json marshal error: %v", err.Error())
+    }
+    client.hub.BroadcastChannel(msgBytes, client.channel)
   }
 }
 

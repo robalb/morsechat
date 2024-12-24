@@ -149,6 +149,7 @@ func ServeWsInit(
       send: make(chan []byte, 256),
       userInfo: jwtData,
       channel: "",
+      isTyping: false,
     }
     client.hub.register <- client
 

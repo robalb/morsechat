@@ -137,23 +137,27 @@ export function AppLogic({chatDomNode}) {
      */
     React.useEffect(() => {
       if (loading == false) {
-        if (pusher.current === null) {
-        } else {
-          console.warn("reinitializing pusher ref")
+        if (pusher.current != null) {
+          console.log("reinitializing pusher ref")
+          pusher.current.refresh()
         }
-        //initialize the socket client
-        pusher.current = new SocketClient(channel)
-        //update pusher server connection status
-        //this is not related to the channel subscription
-        pusher.current.stateChange = (states) => {
-          console.log("statechange hook: ", states)
-          dispatch(setConnected(states))
+        else{
+          console.log("initializing pusher ref")
+          //initialize the socket client
+          pusher.current = new SocketClient(channel)
+          //update pusher server connection status
+          //this is not related to the channel subscription
+          pusher.current.stateChange = (states) => {
+            console.log("statechange hook: ", states)
+            dispatch(setConnected(states))
+          }
+          pusher.current.message = (message) =>{
+            console.log("message received: ", message)
+          }
+          //debugging feature TODO: remove
+          window["p"] = pusher.current
+
         }
-        pusher.current.message = (message) =>{
-          console.log("message received: ", message)
-        }
-        //debugging feature TODO: remove
-        window["p"] = pusher.current
       }
     }, [loading, callsign]);
 

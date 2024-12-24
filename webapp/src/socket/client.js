@@ -9,8 +9,6 @@ export class SocketClient {
     this.channel = initialChannel
 
     // Callback placeholders
-    this.onSubscriptionSuccess = null;
-    this.onSubscriptionError = null;
     this.onMessage = null;
     this.onTyping = null;
     this.onMemberAdded = null;
@@ -51,22 +49,16 @@ export class SocketClient {
       }
 
       switch (data.type) {
-        case 'subscription-success':
-          if (this.onSubscriptionSuccess) this.onSubscriptionSuccess(data);
-          break;
-        case 'subscription-error':
-          if (this.onSubscriptionError) this.onSubscriptionError(data);
-          break;
         case 'message':
           if (this.onMessage) this.onMessage(data);
           break;
         case 'typing':
           if (this.onTyping) this.onTyping(data);
           break;
-        case 'member-added':
+        case 'join':
           if (this.onMemberAdded) this.onMemberAdded(data);
           break;
-        case 'member-removed':
+        case 'leave':
           if (this.onMemberRemoved) this.onMemberRemoved(data);
           break;
         default:
@@ -85,6 +77,17 @@ export class SocketClient {
       // this.ws = null; // Reset WebSocket instance
     };
   }
+
+  //close the websocket forever
+  close(){
+    this.ws.close()
+  }
+  //refresh the websocket 
+  refresh(){
+    this.ws.refresh()
+  }
+
+
 
   // Subscribe to a channel or resource
   subscribe(channel) {
@@ -167,16 +170,6 @@ export class SocketClient {
       this._state = newState;
       if (this.onStateChange) this.onStateChange(this._state);
     }
-  }
-
-  // Setter for subscriptionSuccess callback
-  set subscriptionSuccess(callback) {
-    this.onSubscriptionSuccess = callback;
-  }
-
-  // Setter for subscriptionError callback
-  set subscriptionError(callback) {
-    this.onSubscriptionError = callback;
   }
 
   // Setter for message callback
