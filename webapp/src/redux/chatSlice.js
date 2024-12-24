@@ -17,7 +17,13 @@ const initialState = {
     ],
     connected: false,
     connectionStatus: "powering on",
-    onlineUsers: {},
+    onlineUsers: {
+      /*
+      * 
+      *   
+      *   
+      */
+    },
     myID: null,
     chat: [],
     keyDown: false,
@@ -98,7 +104,7 @@ const chatSlice = createSlice({
     },
     setConnected(state, action){
         console.log("setconnected slice: ", action)
-        state.connected = ['connected', /*'connecting'*/].includes(action.payload)
+        state.connected = ['connected', 'connecting'].includes(action.payload)
         state.connectionStatus = action.payload
     },
     resetMessage(state, action){

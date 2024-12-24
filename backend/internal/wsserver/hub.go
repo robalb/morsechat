@@ -229,6 +229,7 @@ func handleJoinCommand(
     return
   }
   channels := map[string]bool{
+      "presence-training": true,
       "presence-ch1": true,
       "presence-ch2": true,
       "presence-ch3": true,

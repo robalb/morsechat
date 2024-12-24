@@ -95,7 +95,13 @@ export function AppLogic({chatDomNode}) {
 
     /**
      * Called when a message is received. Initialize the typer loop
-     * 
+     * parameters:
+     * e: Object{
+     *   callsign string,
+     *   wpm integer,
+     *   dialect string,
+     *   message []integer
+     * }
      */
     function handleMessage(e) {
         //initialize DOM nodes
@@ -114,7 +120,7 @@ export function AppLogic({chatDomNode}) {
         //initialize the sound class for this specific user
         //todo: there should be a sound object associated to every online user,
         //it's more efficient than creating an obj on every message
-        let sound = new ReceiverSound(e.id, volumeRef, onlineUsersRef)
+        let sound = new ReceiverSound(e.callsign, volumeRef, onlineUsersRef)
         //start the typer recursive function
         typer(morse, text, e.message, times, sound, e.dialect)
         chat.insertAdjacentElement("beforeend", message)
@@ -138,22 +144,47 @@ export function AppLogic({chatDomNode}) {
     React.useEffect(() => {
       if (loading == false) {
         if (pusher.current != null) {
-          console.log("reinitializing pusher ref")
+          console.log(">> effect: refreshing ws connection")
           pusher.current.refresh()
         }
         else{
-          console.log("initializing pusher ref")
+          console.log(">> effect: initializing ws")
           //initialize the socket client
           pusher.current = new SocketClient(channel)
           //update pusher server connection status
           //this is not related to the channel subscription
           pusher.current.stateChange = (states) => {
-            console.log("statechange hook: ", states)
+            console.log("TODO: statechange : ", states)
             dispatch(setConnected(states))
           }
           pusher.current.message = (message) =>{
-            console.log("message received: ", message)
+            console.log("TODO: message : ", message)
+            handleMessage(message)
+            dispatch(setTyping({
+                user: message.callsign,
+                typing: false
+            }))
           }
+          pusher.current.typing = (message) => {
+            console.log("TODO: typing : ", message)
+            dispatch(setTyping({
+                user: message.callsign,
+                typing: message.typing
+            }))
+          }
+          pusher.current.memberAdded = (message) => {
+            console.log("TODO: memberadded : ", message)
+            //     dispatch(updateOnline(JSON.parse(JSON.stringify(
+            //         puerChannel.current.members
+            //     ))))
+          }
+          pusher.current.memberRemoved = (message) => {
+            console.log("TODO: memberremoved : ", message)
+            //     dispatch(updateOnline(JSON.parse(JSON.stringify(
+            //         pusherChannel.current.members
+            //     ))))
+          }
+          
           //debugging feature TODO: remove
           window["p"] = pusher.current
 
@@ -171,11 +202,32 @@ export function AppLogic({chatDomNode}) {
       if (pusher.current) {
         console.log(">> effect: subscribing to channel " + channel)
         pusher.current.subscribe(channel)
+
       }
     }, [channel])
 
+    /**
+    * Register all the pusher listeners that have dependencies on the state
+    */
     React.useEffect(() => {
         if (pusher.current) {
+
+          pusher.current.subscriptionSuccess = (message) => {
+            console.log("TODO: subscriptionSuccess : "+ message+ channelName)
+            dispatch(setConnected('connected'))
+
+            //     dispatch(updateOnline(JSON.parse(JSON.stringify(e))))
+            //clear the chat (TODO: this hshould not happen after a simple disconnect)
+            //idea: clear the screen only when the channel is changed from the selector,
+            //maybe adding a connecting.. message
+            if (chatDomNode.current)
+                chatDomNode.current.innerHTML = ""
+            //show successfully connected message
+            systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
+            if(channelName == "training"){
+              systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
+            }
+          }
             // console.log(">> effect: subscribing to channel " + channel)
             // pusherChannel.current = pusher.current.subscribe(channel)
             // dispatch(setConnected('connecting'))
