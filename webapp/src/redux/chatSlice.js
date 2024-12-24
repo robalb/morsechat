@@ -17,14 +17,16 @@ const initialState = {
     ],
     connected: false,
     connectionStatus: "powering on",
-    onlineUsers: {
-      /*
-      * 
-      *   
-      *   
-      */
-    },
-    myID: null,
+    /*
+    * { [callsign key: string ] : {
+    *   is_anonymous bool
+    *   typing bool
+    *   allowSound bool
+    *   username string (can be an empty string if the user is anonymous)
+    *   callsign string (acts as an identifier for the iser)
+    * }
+    */
+    onlineUsers: {},
     chat: [],
     keyDown: false,
     lastTime: 0,
@@ -103,7 +105,6 @@ const chatSlice = createSlice({
         }
     },
     setConnected(state, action){
-        console.log("setconnected slice: ", action)
         state.connected = ['connected', 'connecting'].includes(action.payload)
         state.connectionStatus = action.payload
     },
@@ -112,24 +113,21 @@ const chatSlice = createSlice({
         state.messageBuffer = []
     },
     updateOnline(state, action){
-        let onlineUsersWithTypingStatus = {}
+        let onlineUsersWithSoundStatus = {}
         //add two extra keys to every user object: typing and allowSound
-        Object.keys(action.payload.members).map( id=>{
-            let typing = false
+        Object.keys(action.payload).map( id=>{
             let allowSound = true
-            if(id == action.payload.myID) allowSound = false
+            // TODO
+            // if(id == action.payload.myID) allowSound = false
             if(state.onlineUsers[id]){
-                typing = state.onlineUsers[id].typing
                 allowSound = state.onlineUsers[id].allowSound
             }
-            onlineUsersWithTypingStatus[id] = {
-                ...action.payload.members[id],
-                typing,
+            onlineUsersWithSoundStatus[id] = {
+                ...action.payload[id],
                 allowSound
             }
         })
-        state.onlineUsers = onlineUsersWithTypingStatus
-        state.myID = action.payload.myID
+        state.onlineUsers = onlineUsersWithSoundStatus
     },
     setTyping(state, action){
         if(state.onlineUsers[action.payload.user]){

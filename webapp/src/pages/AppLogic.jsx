@@ -169,20 +169,25 @@ export function AppLogic({chatDomNode}) {
             console.log("TODO: typing : ", message)
             dispatch(setTyping({
                 user: message.callsign,
-                typing: message.typing
+                typing: message.is_typing
             }))
           }
           pusher.current.memberAdded = (message) => {
             console.log("TODO: memberadded : ", message)
-            //     dispatch(updateOnline(JSON.parse(JSON.stringify(
-            //         puerChannel.current.members
-            //     ))))
+            dispatch(updateOnline(message.users))
           }
           pusher.current.memberRemoved = (message) => {
             console.log("TODO: memberremoved : ", message)
-            //     dispatch(updateOnline(JSON.parse(JSON.stringify(
-            //         pusherChannel.current.members
-            //     ))))
+            dispatch(updateOnline(message.users))
+          }
+
+          pusher.current.subscriptionError = (message) => {
+            console.log("TODO: subscriptionError : "+ message+ channelName)
+            if (message.error === "invalid_credentials")
+                dispatch(setConnected('connection denied'))
+            else
+                dispatch(setConnected('connection failed'))
+            dispatch(updateOnline({}))
           }
           
           //debugging feature TODO: remove
@@ -211,12 +216,10 @@ export function AppLogic({chatDomNode}) {
     */
     React.useEffect(() => {
         if (pusher.current) {
-
           pusher.current.subscriptionSuccess = (message) => {
             console.log("TODO: subscriptionSuccess : "+ message+ channelName)
             dispatch(setConnected('connected'))
-
-            //     dispatch(updateOnline(JSON.parse(JSON.stringify(e))))
+            dispatch(updateOnline(message.users))
             //clear the chat (TODO: this hshould not happen after a simple disconnect)
             //idea: clear the screen only when the channel is changed from the selector,
             //maybe adding a connecting.. message
@@ -228,77 +231,8 @@ export function AppLogic({chatDomNode}) {
               systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
             }
           }
-
-          pusher.current.subscriptionError = (message) => {
-            console.log("TODO: subscriptionError : "+ message+ channelName)
-            if (message.error === "invalid_credentials")
-                dispatch(setConnected('connection denied'))
-            else
-                dispatch(setConnected('connection failed'))
-            // dispatch(updateOnline({members: {}, myID: null}))
-          }
-
-            // console.log(">> effect: subscribing to channel " + channel)
-            // pusherChannel.current = pusher.current.subscribe(channel)
-            // dispatch(setConnected('connecting'))
-
-            // pusherChannel.current.bind('pusher:subscription_succeeded', e => {
-            //     dispatch(setConnected('connected'))
-            //     dispatch(updateOnline(JSON.parse(JSON.stringify(e))))
-            //     //clear the chat (TODO: this hshould not happen after a simple disconnect)
-            //     //idea: clear the screen only when the channel is changed from the selector,
-            //     //maybe adding a connecting.. message
-            //     if (chatDomNode.current)
-            //         chatDomNode.current.innerHTML = ""
-            //     //show successfully connected message
-            //     systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
-            //     if(channelName == "training"){
-            //       systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
-            //     }
-            // })
-
-            // pusherChannel.current.bind('pusher:subscription_error', e => {
-            //     if (e.error === "pusher_auth_denied login_needed")
-            //         dispatch(setConnected('connection denied'))
-            //     else
-            //         dispatch(setConnected('connection failed'))
-            //     dispatch(updateOnline({members: {}, myID: null}))
-            // })
-
-            // pusherChannel.current.bind('pusher:member_added', e => {
-            //     dispatch(updateOnline(JSON.parse(JSON.stringify(
-            //         pusherChannel.current.members
-            //     ))))
-            // })
-
-            // pusherChannel.current.bind('pusher:member_removed', e => {
-            //     dispatch(updateOnline(JSON.parse(JSON.stringify(
-            //         pusherChannel.current.members
-            //     ))))
-            // })
-
-            // pusherChannel.current.bind('message', e => {
-            //     handleMessage(e)
-            //     dispatch(setTyping({
-            //         user: e.id,
-            //         typing: false
-            //     }))
-            // })
-            // pusherChannel.current.bind('typing', e => {
-            //     dispatch(setTyping({
-            //         user: e.id,
-            //         typing: true
-            //     }))
-            // })
-            return () => {
-                // console.log(">> effect: unsubscribing from channel " + channel);
-                // pusherChannel.current.unsubscribe()
-            }
-        } else {
-            // console.log(">> effect: subscribing to channel [NO PUSHER YET] " + channel)
         }
-    }, [channel, callsign])
+  }, [channel, callsign])
 
-
-    return null
+  return null
 }
