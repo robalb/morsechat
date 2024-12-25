@@ -369,16 +369,16 @@ func handleMorseCommand(
   //TODO: fix websocket delimiter error.
   client.hub.BroadcastChannel(msgBytes, client.channel)
   // //notify the user that the message was sent
-  // {
-  //   msg := MessageMorseStatus{
-  //     Type: "messagestatus",
-  //     Ok: true,
-  //   }
-  //   msgBytes, err := json.Marshal(msg)
-  //   if err != nil{
-  //     logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
-  //   }
-  //   MessageUser(client, msgBytes)
-  // }
+  {
+    msg := MessageMorseStatus{
+      Type: "messagestatus",
+      Ok: true,
+    }
+    msgBytes, err := json.Marshal(msg)
+    if err != nil{
+      logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
+    }
+    MessageUser(client, msgBytes)
+  }
 }
 

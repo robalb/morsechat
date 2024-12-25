@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit'
-import { apiCall, payloadCreatorCreator } from './apiSlice'
 import {getInstance} from '../socket/global.js'
 
 
@@ -8,6 +7,11 @@ const morseCall = createAsyncThunk(
   async ({data={}}, {getState, rejectWithValue, signal}) => {
     if(getInstance()){
       getInstance().sendMessage(data)
+    }
+    //TODO: use a promise here
+    getInstance().messageStatus = (data) =>{
+      getInstance().messageStatus = null
+      console.log("+++++ morse message status: ", data)
     }
     //TODO: register callback for errors
     // if(response.error){

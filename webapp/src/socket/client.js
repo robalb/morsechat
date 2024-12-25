@@ -22,6 +22,7 @@ export class SocketClient {
 
     // Callback placeholders
     this.onMessage = null;
+    this.onMessageStatus = null;
     this.onTyping = null;
     this.onSubscriptionSuccess = null;
     this.onSubscriptionError = null;
@@ -65,6 +66,9 @@ export class SocketClient {
       switch (data.type) {
         case 'message':
           if (this.onMessage) this.onMessage(data);
+          break;
+        case 'messagestatus':
+          if (this.onMessageStatus) this.onMessageStatus(data);
           break;
         case 'typing':
           if (this.onTyping) this.onTyping(data);
@@ -215,6 +219,19 @@ export class SocketClient {
   */
   set message(callback) {
     this.onMessage = callback;
+  }
+
+  /**
+  * Setter for morse message response status callback
+  *  parameters:
+  *   callback: Function(message Object{
+  *      ok bool
+  *      error string
+  *      status string
+  *    })
+  */
+  set messageStatus(callback) {
+    this.onMessageStatus = callback;
   }
 
 
