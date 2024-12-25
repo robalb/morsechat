@@ -5,7 +5,7 @@
 - working basics of websockets
   - [x] fix delimiters issue in ws client
   - [] stress test ws
-  - [] add morse message response status, both backend and frontend
+  - [x] add morse message response status, both backend and frontend
   - [] test multiple connections
 - morse decoding in the backend
   - [] translate, then filter for bad words.

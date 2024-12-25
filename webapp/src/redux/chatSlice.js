@@ -8,21 +8,22 @@ const morseCall = createAsyncThunk(
     if(getInstance()){
       getInstance().sendMessage(data)
     }
-    //TODO: use a promise here
-    getInstance().messageStatus = (data) =>{
-      getInstance().messageStatus = null
-      console.log("+++++ morse message status: ", data)
+    let response = await new Promise((resolve, reject)=>{
+      getInstance().messageStatus = (data) =>{
+        getInstance().messageStatus = null
+        resolve(data)
+      }
+    })
+
+    if(!response.ok){
+      return rejectWithValue({
+        error: response.error,
+        details: response.details
+      })
     }
-    //TODO: register callback for errors
-    // if(response.error){
-    //   return rejectWithValue({
-    //     error: response.error,
-    //     details: response.details
-    //   })
-    // }else{
-    //   return response;
-    // }
-    return {}
+    else{
+      return response
+    }
 })
 
 
