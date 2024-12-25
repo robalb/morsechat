@@ -82,7 +82,7 @@ export const _keyUp = createAction('chat/keyUp', function prepare() {
  * This thunk act as a proxy for _keyUp
  * and dispatches a 'typing' api call when the conditions are right
  */
-export const keyUp = function(typingGuard=10){
+export const keyUp = function(typingGuard=3){
     return (dispatch, getState)=>{
         let s = getState()
         let trainingChannel = (s.chat.channel == "presence-training")

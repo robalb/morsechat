@@ -4,6 +4,7 @@ import * as React from "react";
 import { useDispatch, useSelector } from 'react-redux'
 import { setAllowSound } from '../../redux/chatSlice'
 
+import { User } from "../user/User"; 
 import styles from './online.module.css';
 import { VolumeUp } from "@mui/icons-material";
 
@@ -11,11 +12,23 @@ export function Online({className = ""}) {
     const dispatch = useDispatch()
     const [animationClass, setAnimationClass] = React.useState(true);
     const [firstRender, setFirstRender] = React.useState(true);
+    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [selectedUser, setSelectedUser] = React.useState(null);
 
     const connectionStatus = useSelector(state => state.chat.connectionStatus)
     const connected = useSelector(state => state.chat.connected)
     const onlineUsers = useSelector(state => state.chat.onlineUsers)
     const myID = useSelector(state => state.chat.myID)
+
+    const handleDialogOpen = (user) => {
+      setSelectedUser(user);
+      setDialogOpen(true);
+    };
+
+    const handleDialogClose = () => {
+      setDialogOpen(false);
+      setSelectedUser(null);
+    };
 
     const onlineRender = Object.keys(onlineUsers).map(id => {
         let userObj = onlineUsers[id];
@@ -29,16 +42,7 @@ export function Online({className = ""}) {
         return (
             <div key={id}>
                 <div className={styles.left}>
-                    <button
-                        onClick={ e => {
-                            alert(
-                                "\n Social features coming soon" +
-                                "\n debug user info: " +
-                                JSON.stringify(userObj)
-                            )
-                        }
-                        }
-                    >
+                    <button onClick={() => handleDialogOpen(userObj)} >
                         <p>{userObj.callsign}{ id==myID ? " (you)" : ""}</p>
                     </button>
                     { 
@@ -87,6 +91,7 @@ export function Online({className = ""}) {
             <div className={styles.online}>
                 { onlineRender }
             </div>
+            <User open={dialogOpen} onClose={handleDialogClose} user={selectedUser} />
         </div>
     );
 }
