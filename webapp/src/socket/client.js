@@ -215,6 +215,7 @@ export class SocketClient {
   *      wpm integer,
   *      dialect string,
   *      message []integer
+  *      signature string
   *    })
   */
   set message(callback) {

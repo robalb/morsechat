@@ -23,6 +23,11 @@
     white-space: pre-wrap;
     color: var(--gray-95);
 }
+.chatContent p[data-signature]:hover{
+  text-decoration:underline;
+  text-decoration-color:white;
+  cursor: pointer;
+}
 
 .chatContent span:nth-child(1){
     margin-right: 1rem;

@@ -103,6 +103,7 @@ export function AppLogic({chatDomNode}) {
      *   wpm integer,
      *   dialect string,
      *   message []integer
+     *   signature string
      * }
      */
     function handleMessage(e) {
@@ -115,6 +116,7 @@ export function AppLogic({chatDomNode}) {
         message.appendChild(label)
         message.appendChild(morse)
         message.appendChild(text)
+        message.setAttribute("data-signature", e.signature)
         let dialect = e.dialect == "international" ? "" : ` [${dialects[e.dialect].short_name}]`
         label.innerText = e.callsign + dialect
         //initialize wpm times
@@ -243,12 +245,6 @@ export function AppLogic({chatDomNode}) {
               me: callsign,
               users: message.users
             }))
-            //clear the chat (TODO: this hshould not happen after a simple disconnect)
-            //idea: clear the screen only when the channel is changed from the selector,
-            //maybe adding a connecting.. message
-            // if (chatDomNode.current){
-            //     chatDomNode.current.innerHTML = ""
-            // }
             //show successfully connected message
             console.log(chatDomNode.current)
             let last = chatDomNode.current.lastChild

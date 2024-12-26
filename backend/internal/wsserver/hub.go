@@ -360,6 +360,7 @@ func handleMorseCommand(
     Dialect: cmd.Dialect,
     Wpm: cmd.Wpm,
     Message: cmd.Message,
+    Signature: "TODO",
   }
   msgBytes, err := json.Marshal(msg)
   if err != nil{
