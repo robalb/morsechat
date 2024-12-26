@@ -5,6 +5,12 @@ import {getInstance} from '../socket/global.js'
 const morseCall = createAsyncThunk(
   'api/morsecall',
   async ({data={}}, {getState, rejectWithValue, signal}) => {
+    if(getState().chat.connectionStatus != "connected"){
+      return rejectWithValue({
+        error: "Failed to reach the server, trying to reconnect...",
+        details: ""
+      })
+    }
     if(getInstance()){
       getInstance().sendMessage(data)
     }

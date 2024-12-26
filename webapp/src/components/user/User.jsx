@@ -37,7 +37,8 @@ export function User({ open, onClose, user }) {
         </div>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">Close</Button>
+        <Button onClick={onClose} color="error" variant="contained">Report</Button>
+        <Button onClick={onClose} color="error" variant="contained">! Ban !</Button>
       </DialogActions>
     </Dialog>
   );

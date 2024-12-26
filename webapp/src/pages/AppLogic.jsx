@@ -18,6 +18,7 @@ export function AppLogic({chatDomNode}) {
     let channelName = useSelector(selectChannelName)
     const pusher = React.useRef(null)
     const pusherChannel = React.useRef(null)
+    const chatHistory = React.useRef({})
 
     let dialectName = useSelector(state => state.user.settings.dialect)
     let dialect = getDialect(dialectName)
@@ -215,6 +216,16 @@ export function AppLogic({chatDomNode}) {
     React.useEffect(() => {
       if (pusher.current) {
         console.log(">> effect: subscribing to channel " + channel)
+        //save / restore the chat state
+        if (chatDomNode.current){
+          let oldChannel = pusher.current.channel
+          chatHistory.current[oldChannel] = chatDomNode.current.innerHTML
+          if(chatHistory.current[channel] && channel != "presence-training"){
+            chatDomNode.current.innerHTML = chatHistory.current[channel]
+          }else{
+            chatDomNode.current.innerHTML = ""
+          }
+        }
         pusher.current.subscribe(channel)
 
       }
@@ -235,12 +246,19 @@ export function AppLogic({chatDomNode}) {
             //clear the chat (TODO: this hshould not happen after a simple disconnect)
             //idea: clear the screen only when the channel is changed from the selector,
             //maybe adding a connecting.. message
-            if (chatDomNode.current)
-                chatDomNode.current.innerHTML = ""
+            // if (chatDomNode.current){
+            //     chatDomNode.current.innerHTML = ""
+            // }
             //show successfully connected message
-            systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
+            console.log(chatDomNode.current)
+            let last = chatDomNode.current.lastChild
+            console.log(last)
             if(channelName == "training"){
-              systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
+                systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
+                systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")
+            }else{
+              if(chatDomNode.current.childElementCount == 0)
+                systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
             }
           }
         }
