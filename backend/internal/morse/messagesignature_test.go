@@ -1,59 +1,119 @@
 package morse
 
 import (
+	"encoding/base64"
 	"testing"
 )
 
-func TestSign(t *testing.T) {
-	secret := "test-secret-key"
-	message := "test-message"
+// TestEncryptMessage tests the encryption of the SignedMessage struct
+func TestEncryptMessage(t *testing.T) {
+	secretKey := []byte("examplekey123456") // Secret key (16 bytes)
+	msg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
 
-	// Generate a signature
-	signature := Sign(message, secret)
-
-	// Ensure the signature is not empty
-	if signature == "" {
-		t.Error("Expected signature to be non-empty")
+	encryptedMessage, err := EncryptMessage(msg, secretKey)
+	if err != nil {
+		t.Fatalf("EncryptMessage failed: %v", err)
 	}
 
-	// Verify the signature is consistent
-	expectedSignature := Sign(message, secret)
-	if signature != expectedSignature {
-		t.Errorf("Expected signature %s, but got %s", expectedSignature, signature)
+	// Check that the encrypted message is a valid base64 string
+	if _, err := base64.StdEncoding.DecodeString(encryptedMessage); err != nil {
+		t.Fatalf("encryptedMessage is not valid base64: %v", err)
+	}
+
+	if len(encryptedMessage) == 0 {
+		t.Fatalf("encryptedMessage is empty")
 	}
 }
 
-func TestVerify(t *testing.T) {
-	secret := "test-secret-key"
-	message := "test-message"
+// TestDecryptMessage tests the decryption of an encrypted message
+func TestDecryptMessage(t *testing.T) {
+	secretKey := []byte("examplekey123456") // Secret key (16 bytes)
+	originalMsg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
 
-	// Generate a valid signature
-	validSignature := Sign(message, secret)
-
-	// Test valid signature
-	err := Verify(message, secret, validSignature)
+	encryptedMessage, err := EncryptMessage(originalMsg, secretKey)
 	if err != nil {
-		t.Errorf("Expected verification to succeed, but got error: %v", err)
+		t.Fatalf("EncryptMessage failed: %v", err)
 	}
 
-	// Test invalid signature
-	invalidSignature := "invalid-signature"
-	err = Verify(message, secret, invalidSignature)
-	if err == nil {
-		t.Error("Expected verification to fail for invalid signature, but it succeeded")
+	// Decrypt the message
+	decryptedMessage, err := DecryptMessage(encryptedMessage, secretKey)
+	if err != nil {
+		t.Fatalf("DecryptMessage failed: %v", err)
 	}
 
-	// Test tampered message
-	tamperedMessage := "tampered-message"
-	err = Verify(tamperedMessage, secret, validSignature)
-	if err == nil {
-		t.Error("Expected verification to fail for tampered message, but it succeeded")
+	// Compare the decrypted message with the original
+	if decryptedMessage != originalMsg {
+		t.Fatalf("decrypted message does not match the original. Got %+v, expected %+v", decryptedMessage, originalMsg)
+	}
+}
+
+// TestInvalidKey tests decryption with an invalid key
+func TestInvalidKey(t *testing.T) {
+	secretKey := []byte("examplekey123456")      // Valid key
+	invalidKey := []byte("invalidkey123456")     // Different key
+	msg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
+
+	encryptedMessage, err := EncryptMessage(msg, secretKey)
+	if err != nil {
+		t.Fatalf("EncryptMessage failed: %v", err)
 	}
 
-	// Test tampered secret
-	tamperedSecret := "tampered-secret-key"
-	err = Verify(message, tamperedSecret, validSignature)
+	// Attempt to decrypt with an invalid key
+	_, err = DecryptMessage(encryptedMessage, invalidKey)
 	if err == nil {
-		t.Error("Expected verification to fail for tampered secret, but it succeeded")
+		t.Fatalf("DecryptMessage should have failed with an invalid key")
+	}
+}
+
+// TestTamperedCiphertext tests decryption with a tampered ciphertext
+func TestTamperedCiphertext(t *testing.T) {
+	secretKey := []byte("examplekey123456") // Secret key (16 bytes)
+	msg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
+
+	encryptedMessage, err := EncryptMessage(msg, secretKey)
+	if err != nil {
+		t.Fatalf("EncryptMessage failed: %v", err)
+	}
+
+	// Tamper with the ciphertext (change a byte)
+	tamperedCiphertext := []byte(encryptedMessage)
+	tamperedCiphertext[len(tamperedCiphertext)-1] ^= 1 // Flip the last byte
+
+	// Attempt to decrypt the tampered ciphertext
+	_, err = DecryptMessage(string(tamperedCiphertext), secretKey)
+	if err == nil {
+		t.Fatalf("DecryptMessage should have failed with tampered ciphertext")
+	}
+}
+
+// TestEmptyMessage tests encryption and decryption of an empty SignedMessage struct
+func TestEmptyMessage(t *testing.T) {
+	secretKey := []byte("examplekey123456") // Secret key (16 bytes)
+	emptyMsg := SignedMessage{}
+
+	encryptedMessage, err := EncryptMessage(emptyMsg, secretKey)
+	if err != nil {
+		t.Fatalf("EncryptMessage failed: %v", err)
+	}
+
+	decryptedMessage, err := DecryptMessage(encryptedMessage, secretKey)
+	if err != nil {
+		t.Fatalf("DecryptMessage failed: %v", err)
+	}
+
+	// Compare the decrypted message with the original empty message
+	if decryptedMessage != emptyMsg {
+		t.Fatalf("decrypted empty message does not match the original. Got %+v, expected %+v", decryptedMessage, emptyMsg)
+	}
+}
+
+// TestInvalidKeyLength tests encryption with an invalid key length
+func TestInvalidKeyLength(t *testing.T) {
+	invalidKey := []byte("shortkey") // Invalid key length
+	msg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
+
+	_, err := EncryptMessage(msg, invalidKey)
+	if err == nil {
+		t.Fatalf("EncryptMessage should have failed with an invalid key length")
 	}
 }

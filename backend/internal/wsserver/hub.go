@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/robalb/morsechat/internal/auth"
+	"github.com/robalb/morsechat/internal/morse"
 )
 
 type ClientRequest struct{
@@ -353,6 +354,17 @@ func handleMorseCommand(
     logger.Printf("HandleMorseCommand: Failed to parse json: %v\n", err)
     return
   }
+	plainText := morse.Translate(cmd.Message, cmd.Wpm)
+  logger.Printf("Morse message: %s", plainText)
+  signatureData := morse.SignedMessage{
+    Session: "TODOuuidv4", //This is the critical element we need to ban an user
+    PlainText: plainText,
+    Username: client.userInfo.Username,
+    Callsign: client.userInfo.Callsign,
+  }
+
+  secretKey := []byte("examplekey123456") // TODO: use real key from config
+  signature, err := morse.EncryptMessage(signatureData, secretKey)
 
   msg := MessageMorse{
     Type: "message",
@@ -360,7 +372,7 @@ func handleMorseCommand(
     Dialect: cmd.Dialect,
     Wpm: cmd.Wpm,
     Message: cmd.Message,
-    Signature: "TODO",
+    Signature: signature,
   }
   msgBytes, err := json.Marshal(msg)
   if err != nil{
