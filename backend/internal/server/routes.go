@@ -41,6 +41,10 @@ func AddRoutes(
 		r.Post("/login", handlers.ServeLogin(logger, tokenAuth, dbReadPool, dbWritePool))
 		r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth, dbReadPool))
 		r.Post("/validate_callsign", handlers.ServeValidateCallsign(logger, dbReadPool))
+
+		r.Route("/chat", func(r chi.Router) {
+			r.Post("/report", handlers.ServeReport(logger, dbReadPool, dbWritePool))
+		})
 	})
 
 	//Authenticated routes
@@ -63,9 +67,6 @@ func AddRoutes(
 			r.Get("/list_ban_activity", serveTODO)
 		})
 
-		r.Route("/chat", func(r chi.Router) {
-			r.Post("/report", serveTODO)
-		})
 		r.Route("/user", func(r chi.Router) {
 			r.Post("/info", handlers.ServeUserInfo(logger, dbReadPool))
 			r.Get("/me", handlers.ServeMe(logger, dbReadPool))
