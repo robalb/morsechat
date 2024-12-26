@@ -6,11 +6,14 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import {Typography, Grid, TextField, Link, Stack, IconButton} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { useDispatch, useSelector} from 'react-redux'
 
 
 import styles from './user.module.css';
 
 export function User({ open, onClose, user }) {
+  let ismoderator = useSelector(state => state.user.ismoderator)
+  let isadmin = useSelector(state => state.user.isadmin)
   return (
     <Dialog
       PaperProps={{
@@ -37,8 +40,9 @@ export function User({ open, onClose, user }) {
         </div>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="error" variant="contained">Report</Button>
-        <Button onClick={onClose} color="error" variant="contained">! Ban !</Button>
+        {(ismoderator || isadmin) && (
+          <Button onClick={onClose} color="error" variant="contained">Ban</Button>
+        )}
       </DialogActions>
     </Dialog>
   );

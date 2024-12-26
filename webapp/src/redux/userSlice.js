@@ -72,6 +72,8 @@ const initialSettings = {
 }
 const initialState = {
   authenticated: null,
+  isadmin: false,
+  ismoderator: false,
   callsign: null,
   country: null,
   //can remain empty after api initialization
@@ -102,6 +104,8 @@ const userSlice = createSlice({
       state.authenticated = !apidata.is_anonymous
       state.callsign = apidata.callsign
       state.country = apidata.country
+      state.isadmin = apidata.is_admin
+      state.ismoderator = apidata.is_moderator
       state.username = apidata.username
       if(apidata.settings)
         state.settings = apidata.settings
