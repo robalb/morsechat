@@ -17,7 +17,7 @@ func TestSetViaEnv(t *testing.T) {
 			return ""
 		}
 	}
-	c := MakeConfig(args, getenv)
+	c, _ := MakeConfig(args, getenv)
 	if c.Port != "4321" {
 		t.Fatal("Test set port via env")
 	}
@@ -45,7 +45,7 @@ func TestConfigOrder(t *testing.T) {
 			return ""
 		}
 	}
-	c := MakeConfig(args, getenv)
+	c, _ := MakeConfig(args, getenv)
 	if c.Port != "42" {
 		t.Fatal("Test override port")
 	}

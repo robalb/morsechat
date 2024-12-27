@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/robalb/morsechat/internal/auth"
+	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/morse"
 )
 
@@ -70,6 +71,7 @@ func New() *Hub {
 func (h *Hub) Run(
   ctx context.Context,
 	logger *log.Logger,
+	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ){
@@ -90,6 +92,7 @@ func (h *Hub) Run(
         &message,
         ctx,
         logger,
+        config,
         dbReadPool,
         dbWritePool,
       )
@@ -101,6 +104,7 @@ func clientRequestMux(
   message *ClientRequest,
   ctx context.Context,
 	logger *log.Logger,
+	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ){
@@ -129,6 +133,7 @@ func clientRequestMux(
       message.client,
       ctx,
       logger,
+      config,
       dbReadPool,
       dbWritePool,
       )
@@ -346,6 +351,7 @@ func handleMorseCommand(
   client *Client,
   ctx context.Context,
 	logger *log.Logger,
+	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ){
@@ -362,9 +368,7 @@ func handleMorseCommand(
     Username: client.userInfo.Username,
     Callsign: client.userInfo.Callsign,
   }
-
-  secretKey := []byte("examplekey123456") // TODO: use real key from config
-  signature, err := morse.EncryptMessage(signatureData, secretKey)
+  signature, err := morse.EncryptMessage(signatureData, config.SecretBytes)
 
   msg := MessageMorse{
     Type: "message",

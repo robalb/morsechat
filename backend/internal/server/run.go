@@ -33,13 +33,17 @@ func Run(
 	//--------------------
 	// Init everything
 	//--------------------
-	//TODO: temporary init. Danger: unsafe
-	tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
 	// Init logging
 	logger := log.New(stdout, "", log.Flags())
 	logger.Println("starting... ")
 	// Init config
-	config := config.MakeConfig(args, getenv)
+	config, err := config.MakeConfig(args, getenv)
+  if err != nil {
+		logger.Printf("Failed to init app config: %v", err.Error())
+		return err
+  }
+	// Init JWT auth
+	tokenAuth := jwtauth.New("HS256", config.SecretBytes, nil)
 	// Init db
 	dbReadPool, err := db.NewReadPool(config.SqlitePath, ctx)
 	if err != nil {
@@ -61,6 +65,7 @@ func Run(
 	go hub.Run(
     ctx,
     logger,
+    &config,
     dbReadPool,
     dbWritePool,
   )

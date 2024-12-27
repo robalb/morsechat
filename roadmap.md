@@ -2,6 +2,7 @@
 
 # week2
 
+- [] remove console logs in frontend
 - working basics of websockets
   - [x] fix delimiters issue in ws client
   - [x] add morse message response status, both backend and frontend
