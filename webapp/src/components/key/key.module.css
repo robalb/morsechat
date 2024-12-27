@@ -17,6 +17,8 @@
     cursor: pointer;
     box-shadow: var(--shadow-1);
     -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-user-select: none; /* Safari */
+    user-select: none;
 }
 .key_bt:active{
     /* apply programmatically (?) maybe applying manually  from js the property is better */

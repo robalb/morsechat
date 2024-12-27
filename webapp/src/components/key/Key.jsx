@@ -281,7 +281,7 @@ function KeyInternal(props){
       onMouseDown={mouseDown}
       onMouseUp={mouseUp}
       onContextMenu={e => e.preventDefault()}
-    >-</button>
+    ></button>
   )
 
 }
