@@ -137,6 +137,7 @@ func ServeWsInit(
     jwtData, err := auth.GetJwtData(r.Context())
     if err != nil{
       validation.RespondError(w, "HandleWsInit: invalid jwtData: "+ err.Error(), "", http.StatusBadRequest)
+      logger.Printf("ServeWsInit: Invalid jwt data : %v ", err.Error())
       return
     }
     logger.Printf("ServeWsInit: Connecting user with data: %v ", jwtData)

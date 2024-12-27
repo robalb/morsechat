@@ -18,7 +18,7 @@ import (
 func AddRoutes(
 	rootMux *chi.Mux,
 	logger *log.Logger,
-	config config.Config,
+	config *config.Config,
 	hub *wsserver.Hub,
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
@@ -43,7 +43,7 @@ func AddRoutes(
 		r.Post("/validate_callsign", handlers.ServeValidateCallsign(logger, dbReadPool))
 
 		r.Route("/chat", func(r chi.Router) {
-			r.Post("/report", handlers.ServeReport(logger, dbReadPool, dbWritePool))
+			r.Post("/report", handlers.ServeReport(logger, config, dbReadPool, dbWritePool))
 		})
 	})
 

@@ -16,7 +16,7 @@ import (
 
 func NewServer(
 	logger *log.Logger,
-	config config.Config,
+	config *config.Config,
 	hub *wsserver.Hub,
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,

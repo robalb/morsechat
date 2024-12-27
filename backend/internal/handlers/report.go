@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/robalb/morsechat/internal/config"
+	"github.com/robalb/morsechat/internal/morse"
 	"github.com/robalb/morsechat/internal/validation"
 )
 
@@ -14,6 +16,7 @@ type ServeReport_req struct {
 }
 func ServeReport(
 	logger *log.Logger,
+  config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ) func(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +26,13 @@ func ServeReport(
 			//Error response is already set by Bind
 			return
 		}
-
+    signedMessage, err := morse.DecryptMessage(req.Signature, config.SecretBytes)
+    if err != nil{
+			validation.RespondError(w, "Processing failed", "", http.StatusInternalServerError)
+			logger.Printf("ServeReport: signature decryption failed : %v", err.Error())
+      return
+    }
+    logger.Printf("ServeReport: reported : %v", signedMessage)
     validation.RespondOk(w, OkResponse{Ok: "ok"})
   }
 }

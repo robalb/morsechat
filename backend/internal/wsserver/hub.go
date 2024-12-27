@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/robalb/morsechat/internal/auth"
@@ -367,6 +368,7 @@ func handleMorseCommand(
     PlainText: plainText,
     Username: client.userInfo.Username,
     Callsign: client.userInfo.Callsign,
+    Timestamp: time.Now().Unix(),
   }
   signature, err := morse.EncryptMessage(signatureData, config.SecretBytes)
 

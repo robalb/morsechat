@@ -72,7 +72,7 @@ func Run(
 	// Init Server
 	srv := NewServer(
 		logger,
-		config,
+		&config,
 		hub,
 		tokenAuth,
 		dbReadPool,

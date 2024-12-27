@@ -9,6 +9,7 @@ import {scrollDown, systemMessage} from '../utils/chatDom'
 import {setInstance, getInstance} from '../socket/global.js'
 
 import ReceiverSound from '../utils/ReceiverSound'
+import { fetchAllData } from "../redux/apiSlice";
 
 export function AppLogic({chatDomNode}) {
     const dispatch = useDispatch()
@@ -163,6 +164,12 @@ export function AppLogic({chatDomNode}) {
           pusher.current.stateChange = (states) => {
             console.log("TODO: statechange : ", states)
             dispatch(setConnected(states))
+            if(states == "unavailable"){
+              //this state is reached when the webserver is offline
+              //or the auth was reject. If it was an auth rejection, call the init
+              //endpoint again to fetch new credentials
+              dispatch(fetchAllData())
+            }
           }
           pusher.current.message = (message) =>{
             console.log("TODO: message : ", message)
@@ -205,6 +212,7 @@ export function AppLogic({chatDomNode}) {
               users: []
             }))
           }
+
         }
       }
     }, [loading, callsign]);

@@ -16,6 +16,11 @@ type SignedMessage struct {
 	PlainText string    `json:"p"`
 	Username string    `json:"u"`
 	Callsign string    `json:"c"`
+  //Note: javascript does not handle int values > 2^32 when decoding json
+  //We can safely json encode this int64 only because it is never
+  //parsed by javascript. The json blobs generated from here will only
+  //be decoded by golang code.
+  Timestamp int64      `json:"t"`
 }
 
 // encryptMessage encrypts the SignedMessage struct with the given secret key
