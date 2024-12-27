@@ -9,8 +9,8 @@
   - [] stress test ws
   - [] test multiple connections
 - morse decoding in the backend
-  - [] translate, then filter for bad words.
-  - [] add ratelimiting based on cumulative time
+  - [x] translate, then filter for bad words.
+  - [x] add ratelimiting based on cumulative time
 - reporting feature
   - [x] make frontend chat clickable, and embed msg signature in every chat domnode
   - [x] when an user clicks the report button on a message, make an api request with

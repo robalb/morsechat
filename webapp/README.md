@@ -3,7 +3,7 @@
 ## Development
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 

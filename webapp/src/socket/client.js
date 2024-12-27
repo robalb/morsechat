@@ -191,7 +191,6 @@ export class SocketClient {
   }
 
   _updateState(newState) {
-    console.log("socket client.js: updateState: ", newState)
     if (this._state !== newState) {
       this._state = newState;
       if (this.onStateChange) this.onStateChange(this._state);

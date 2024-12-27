@@ -50,7 +50,7 @@ func normalize(input string) string {
 // return true if the input string contains spam or inappropirate language
 func ContainsBadLanguage(input string) bool {
   if len(input) < 3{
-    return true
+    return false
   }
 	// Replacement regex to normalize the input
 	replacementPattern := regexp.MustCompile(`[ .\-_]+`)

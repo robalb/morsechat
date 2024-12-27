@@ -12,6 +12,8 @@ func TestContainsHateSpeech(t *testing.T) {
 		{"normal text with no bad words or spam", false},
 		{"e e eee t h sos", false},
 		{"sos", false},
+		{"e", false},
+		{"t", false},
 		{"hi hello h i goodbye goodbie", false},
 		{"where are u from? i'm from italy", false},
 		{"shllo w rld ", false},

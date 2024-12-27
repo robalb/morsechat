@@ -162,7 +162,6 @@ export function AppLogic({chatDomNode}) {
           //update pusher server connection status
           //this is not related to the channel subscription
           pusher.current.stateChange = (states) => {
-            console.log("TODO: statechange : ", states)
             dispatch(setConnected(states))
             if(states == "unavailable"){
               //this state is reached when the webserver is offline
@@ -172,7 +171,6 @@ export function AppLogic({chatDomNode}) {
             }
           }
           pusher.current.message = (message) =>{
-            console.log("TODO: message : ", message)
             handleMessage(message)
             dispatch(setTyping({
                 user: message.callsign,
@@ -180,21 +178,18 @@ export function AppLogic({chatDomNode}) {
             }))
           }
           pusher.current.typing = (message) => {
-            console.log("TODO: typing : ", message)
             dispatch(setTyping({
                 user: message.callsign,
                 typing: message.typing
             }))
           }
           pusher.current.memberAdded = (message) => {
-            console.log("TODO: memberadded : ", message)
             dispatch(updateOnline({
               me: callsign,
               users: message.users
             }))
           }
           pusher.current.memberRemoved = (message) => {
-            console.log("TODO: memberremoved : ", message)
             dispatch(updateOnline({
               me: callsign,
               users: message.users
@@ -202,7 +197,6 @@ export function AppLogic({chatDomNode}) {
           }
 
           pusher.current.subscriptionError = (message) => {
-            console.log("TODO: subscriptionError : "+ message+ channelName)
             if (message.error === "invalid_credentials")
                 dispatch(setConnected('connection denied'))
             else
@@ -247,16 +241,13 @@ export function AppLogic({chatDomNode}) {
     React.useEffect(() => {
         if (pusher.current) {
           pusher.current.subscriptionSuccess = (message) => {
-            console.log("TODO: subscriptionSuccess : "+ message+ channelName)
             dispatch(setConnected('connected'))
             dispatch(updateOnline({
               me: callsign,
               users: message.users
             }))
             //show successfully connected message
-            console.log(chatDomNode.current)
             let last = chatDomNode.current.lastChild
-            console.log(last)
             if(channelName == "training"){
                 systemMessage(chatDomNode, "connected to " + channelName + " with callsign: " + callsign)
                 systemMessage(chatDomNode, "This is a training channel. The messages that you type won't be broadcasted")

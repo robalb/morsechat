@@ -42,6 +42,9 @@ type Client struct {
   channel string
 
   isTyping bool
+
+  //the last time the user sent a message
+  lastMessageTimestamp time.Time
 }
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -376,25 +379,41 @@ func handleMorseCommand(
     logger.Printf("HandleMorseCommand: Failed to parse json: %v\n", err)
     return
   }
-	plainText, timeLength, malformed := morse.Translate(cmd.Message, cmd.Wpm)
-  if malformed {
+	messageText, messageDuration, isMalformed := morse.Translate(cmd.Message, cmd.Wpm)
+  if isMalformed {
     //TODO; metrics
     logger.Printf("HandleMorseCommand: malformed message:\n")
     MessageUserMorseStatusError(client, logger, "Malformed message", "")
     return
   }
-  badLanguage := morse.ContainsBadLanguage(plainText)
-  if badLanguage{
+  isBadLanguage := morse.ContainsBadLanguage(messageText)
+  if isBadLanguage{
     //TODO; metrics
-    logger.Printf("HandleMorseCommand: bad language: %v\n", plainText)
+    logger.Printf("HandleMorseCommand: bad language: %v\n", messageText)
   }
 
-
-  logger.Printf("Morse message: %s, %v", plainText, timeLength)
+  //ratelimiting logic
+  //minimum seconds between each message sent 
+  cooldownTime := 10 * time.Second
+  if cmd.Wpm > 30 {
+    //double the cooldown time if the user is suspiciously fast
+    cooldownTime += cooldownTime
+  }
+  lastTime := client.lastMessageTimestamp
+  if !lastTime.IsZero(){
+    delta := time.Now().Sub(lastTime)
+    // logger.Printf("DEBUG time delta: %v messageDuration: %v", delta, time.Duration(messageDuration)*time.Millisecond)
+    if delta < cooldownTime || delta < time.Duration(messageDuration)*time.Millisecond{
+      //TODO: metrics
+      MessageUserMorseStatusError(client, logger, "You are sending too many messages, please wait some seconds", "")
+      return
+    }
+  }
+  client.lastMessageTimestamp = time.Now()
 
   signatureData := morse.SignedMessage{
     Session: "TODOuuidv4", //This is the critical element we need to ban an user
-    PlainText: plainText,
+    PlainText: messageText,
     Username: client.userInfo.Username,
     Callsign: client.userInfo.Callsign,
     Timestamp: time.Now().Unix(),
@@ -414,7 +433,7 @@ func handleMorseCommand(
     logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
   }
 
-  if badLanguage{
+  if isBadLanguage{
     MessageUser(client, msgBytes)
   } else{
     client.hub.BroadcastChannel(msgBytes, client.channel)
