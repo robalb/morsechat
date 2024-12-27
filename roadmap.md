@@ -3,13 +3,6 @@
 # week2
 
 - [] remove console logs in frontend
-- [] prometheus metrics: 
-   - rejections (for all kinds of rejections provided by the auth middlewares)
-   - logins
-   - messages
-   - chambered messages
-   - reports
-   - ws connections gauge
 - working basics of websockets
   - [x] fix delimiters issue in ws client
   - [x] add morse message response status, both backend and frontend
@@ -24,6 +17,13 @@
        the mesage signature
   - [x] modify backend and ws api to associate an encrpyted blob signature to each message
        that is broadcasted (blocking: need server side morse translation)
+- [] prometheus metrics: 
+   - rejections (for all kinds of rejections provided by the auth middlewares)
+   - logins
+   - messages
+   - chambered messages
+   - reports
+   - ws connections gauge
 
 # backlog 
 

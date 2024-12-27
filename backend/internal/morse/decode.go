@@ -61,18 +61,33 @@ var morseCodeMap = map[string]string{
 }
 
 // Translate decodes Morse code timings into text
-func Translate(keyTimes []int, wpm int) string {
+func Translate(keyTimes []int, wpm int) (decodedMessage string, timeLength int, malformed bool) {
 	// Calculate timing thresholds
 	unit := 1200 / wpm // Length of a dot in milliseconds
 	shortSilence := unit    // Inter-element space
 	mediumSilence := 3 * unit // Inter-letter space
 	longSilence := 7 * unit  // Inter-word space
 
+  //the max duration (in milliseconds) of a message, after which it gets truncated
+  //an estimate of message length is this:
+  //  ----------- ----------- ----------- ----------- 10s segments
+  // "the quick brown fox jumps over the lazy dog"    40s
+  maxTime := 60 * 1000
+  //
+
 	var decoded strings.Builder
 	var currentSymbol strings.Builder
 
 	for i, time := range keyTimes {
+    if time <= 0 || time > 6000 {
+      //The message is malformed, no reason to keep parsing
+      return "", timeLength, true
+    }
+    timeLength += time
 		if i%2 == 0 { // Sound segment
+      if timeLength > maxTime {
+        break
+      }
 			if time < unit*3 {
 				currentSymbol.WriteByte('.')
 			} else {
@@ -98,6 +113,6 @@ func Translate(keyTimes []int, wpm int) string {
 		decoded.WriteString(morseCodeMap[currentSymbol.String()])
 	}
 
-	return decoded.String()
+	return decoded.String(), timeLength, false
 }
 

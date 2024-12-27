@@ -53,7 +53,7 @@ func TestTranslate(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result := Translate(test.keyTimes, test.wpm)
+			result, _, _ := Translate(test.keyTimes, test.wpm)
 			if result != test.expected {
 				t.Errorf("expected %q, got %q", test.expected, result)
 			}

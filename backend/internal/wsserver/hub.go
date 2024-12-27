@@ -192,6 +192,21 @@ func MessageUserJoinerror(client *Client, logger *log.Logger, error string, chan
   MessageUser(client, msgBytes)
 }
 
+//send a "morse message broadcast error" to a specific user
+func MessageUserMorseStatusError(client *Client, logger *log.Logger, error string, details string){
+  msg := MessageMorseStatus{
+    Type: "messagestatus",
+    Ok: false,
+    Error: error,
+    Details: details,
+  }
+  msgBytes, err := json.Marshal(msg)
+  if err != nil{
+    logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
+  }
+  MessageUser(client, msgBytes)
+}
+
 
 //send message bytes to a specific user
 func MessageUser(client *Client, message []byte){
@@ -361,8 +376,22 @@ func handleMorseCommand(
     logger.Printf("HandleMorseCommand: Failed to parse json: %v\n", err)
     return
   }
-	plainText := morse.Translate(cmd.Message, cmd.Wpm)
-  logger.Printf("Morse message: %s", plainText)
+	plainText, timeLength, malformed := morse.Translate(cmd.Message, cmd.Wpm)
+  if malformed {
+    //TODO; metrics
+    logger.Printf("HandleMorseCommand: malformed message:\n")
+    MessageUserMorseStatusError(client, logger, "Malformed message", "")
+    return
+  }
+  badLanguage := morse.ContainsBadLanguage(plainText)
+  if badLanguage{
+    //TODO; metrics
+    logger.Printf("HandleMorseCommand: bad language: %v\n", plainText)
+  }
+
+
+  logger.Printf("Morse message: %s, %v", plainText, timeLength)
+
   signatureData := morse.SignedMessage{
     Session: "TODOuuidv4", //This is the critical element we need to ban an user
     PlainText: plainText,
@@ -384,9 +413,12 @@ func handleMorseCommand(
   if err != nil{
     logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
   }
-  //TODO: all kinds of validations
-  //TODO: fix websocket delimiter error.
-  client.hub.BroadcastChannel(msgBytes, client.channel)
+
+  if badLanguage{
+    MessageUser(client, msgBytes)
+  } else{
+    client.hub.BroadcastChannel(msgBytes, client.channel)
+  }
   // //notify the user that the message was sent
   {
     msg := MessageMorseStatus{
