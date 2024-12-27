@@ -1,3 +1,4 @@
+// vendored from: https://github.com/joewalnes/reconnecting-websocket
 // MIT License:
 //
 // Copyright (c) 2010-2012, Joe Walnes
