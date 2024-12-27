@@ -2,7 +2,6 @@ package morse
 
 import (
 	_ "embed"
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -61,7 +60,6 @@ func ContainsBadLanguage(input string) bool {
 	for _, badWord := range badList {
     normalized := normalize(badWord)
     if len(normalized) > 1 && strings.Contains(input, normalized) {
-      fmt.Printf("badword: %s -> %s", badWord, normalized)
       return true
     }
 	}
