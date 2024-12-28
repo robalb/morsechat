@@ -296,8 +296,8 @@ func handleJoinCommand(
     return
   }
 
-  //TODO: remove
-  logger.Printf("HandleJoinCommand: join: %v", cmd.Name)
+  //TODO: prometheus gauge of online users for every room
+
   //TODO: is this thread safe?
   oldChannel := client.channel
   client.channel = cmd.Name
@@ -393,10 +393,10 @@ func handleMorseCommand(
   }
 
   //ratelimiting logic
-  //minimum seconds between each message sent 
+  //minimum seconds between each message sent, which double
+  //if the user is suspiciously fast
   cooldownTime := 10 * time.Second
   if cmd.Wpm > 30 {
-    //double the cooldown time if the user is suspiciously fast
     cooldownTime += cooldownTime
   }
   lastTime := client.lastMessageTimestamp
