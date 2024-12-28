@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "morse_golang",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

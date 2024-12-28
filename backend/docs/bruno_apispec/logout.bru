@@ -1,0 +1,21 @@
+meta {
+  name: logout
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/api/v1/logout
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+  
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}

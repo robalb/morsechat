@@ -1,0 +1,20 @@
+meta {
+  name: report
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{host}}/api/v1/chat/report
+  body: json
+  auth: none
+}
+
+body:json {
+  {"signature": "aaaxxxaa",
+  "text": "aaxxxxxaa"}
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}

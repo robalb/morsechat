@@ -1,0 +1,21 @@
+meta {
+  name: ws init
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{host}}/ws/init
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+  
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}

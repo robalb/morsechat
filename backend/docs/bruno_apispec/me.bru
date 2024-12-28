@@ -1,0 +1,21 @@
+meta {
+  name: me
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/api/v1/user/me
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+  
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}
