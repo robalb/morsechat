@@ -1,16 +1,17 @@
 services:
   #nginx-golang webapp
-  flask:
+  morse:
     build:
       context: .
     volumes:
-      - morsechatdb:/backend/db
+      - morsechatdb:/app/backend/db
     ports:
       - 5000:80
-    restart: unless-stopped
+    # restart: unless-stopped
+    restart: no
     environment:
-      PORT: 80
-      SQLITEPATH: backend/db/master.sqlite
+      PORT: 8080
+      SQLITEPATH: app/backend/db/master.sqlite
       SECRET: ${SECRET}
 # Volumes
 volumes:
