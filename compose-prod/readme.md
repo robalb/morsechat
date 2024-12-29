@@ -8,6 +8,6 @@ deploy steps:
 - copy all the .example files into real files, and configure the variables
 - run the deploy command
 
-  ```
-  ansible-playbook -i vps, ansible-deploy.yml
-  ```
+```
+ansible-playbook -i vps, ansible-deploy.yml
+```
