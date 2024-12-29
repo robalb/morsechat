@@ -23,9 +23,9 @@ services:
       - morsechatgodb:/app/backend/db
     labels:
       - traefik.enable=true
-      - traefik.http.routers.morse.rule=Host(`morse-dev.halb.it`)
-      - traefik.http.routers.morse.entrypoints=websecure
-      - traefik.http.routers.morse.tls=true
-      - traefik.http.routers.morse.tls.certresolver=myresolver
+      - traefik.http.routers.morsego.rule=Host(`morse-dev.halb.it`)
+      - traefik.http.routers.morsego.entrypoints=websecure
+      - traefik.http.routers.morsego.tls=true
+      - traefik.http.routers.morsego.tls.certresolver=myresolver
     networks:
       - traefik-proxy
