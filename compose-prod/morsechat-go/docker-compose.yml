@@ -29,3 +29,8 @@ services:
       - traefik.http.routers.morsego.tls.certresolver=myresolver
     networks:
       - traefik-proxy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
