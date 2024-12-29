@@ -9,5 +9,5 @@ deploy steps:
 - run the deploy command
 
   ```
-  ansible-playbook -i halb.it, -e "ansible_port=6477" -u al ansible-deploy.yml
+  ansible-playbook -i vps, ansible-deploy.yml
   ```
