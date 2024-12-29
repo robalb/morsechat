@@ -1,7 +1,7 @@
 
 # Volumes
 volumes:
-  morsechatdb:
+  morsechatgodb:
 
 networks:
   traefik-proxy:
@@ -20,7 +20,7 @@ services:
       SQLITEPATH: app/backend/db/master.sqlite
       SECRET: ${SECRET}
     volumes:
-      - morsechatdb:/app/backend/db
+      - morsechatgodb:/app/backend/db
     labels:
       - traefik.enable=true
       - traefik.http.routers.morse.rule=Host(`morse-dev.halb.it`)

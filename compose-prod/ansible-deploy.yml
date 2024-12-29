@@ -1,7 +1,7 @@
 - name: deploy project to vps
   hosts: all
   vars:
-    project_folder: morsechat
+    project_folder: morsechat-go
   tasks:
     - name: Copy docker compose
       ansible.posix.synchronize:
