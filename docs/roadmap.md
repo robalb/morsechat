@@ -1,4 +1,15 @@
 
+# week 3
+- [] clean files: add .dockerignore, and remove home.html
+- [] create docker container
+- [] create build pipeline with github actions
+- [] deploy test version under test domain
+- [] db migration, launch to prod
+- [] integrate ip-only fingerprint
+- [] add ip-only fingerprint to ws client struct, use it for 
+     a better chamber functionality
+- [] prometheus metrics
+- [] stress test
 
 # week2
 

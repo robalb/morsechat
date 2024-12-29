@@ -29,3 +29,9 @@ sqlc generate
 This is a webserver that implements a rest api, a websocket endpoint, and interacts with a sqlite database.
 The entry point to understand the codebase is in `cmd/morsechat/main.go`. The whole repository is organized for maximal testability, following the wise advices in this article: https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/
 
+## production build
+
+https://github.com/golang/go/issues/26492
+
+    go build -tags 'osusergo,netgo,static,' -ldflags '-extldflags "-static"' cmd/morsechat/main.go
+

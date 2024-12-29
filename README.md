@@ -10,8 +10,6 @@
 
 An online morse code chat, allowing users from all over the world to practice and communicate in morse code without the need for expensive equipment. Live at [morse.halb.it](https://morse.halb.it/)
 
-[support the project](https://ko-fi.com/K3K6D3NPD)
-
 ## screenshots
 <p align="center">
 <img src="./docs/tablet_a.png" width="600px" height="auto" />
