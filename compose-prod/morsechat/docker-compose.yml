@@ -1,10 +1,19 @@
+
+# Volumes
+volumes:
+  morsechatdb:
+
+networks:
+  traefik-proxy:
+    external: true
+  default:
+
 services:
   #nginx-golang webapp
   morse:
     image: ghcr.io/robalb/morsechat:sha-9e1cad7bf222a1cc537d971d91afc330b174e085
     expose:
       - '80'
-    # restart: unless-stopped
     restart: unless-stopped
     environment:
       PORT: 8080
@@ -20,6 +29,3 @@ services:
       - traefik.http.routers.morse.tls.certresolver=myresolver
     networks:
       - traefik-proxy
-# Volumes
-volumes:
-  morsechatdb:
