@@ -14,7 +14,7 @@
    * websocket url
    */
   export const wsUrl = IS_PRODUCTION ?
-    `ws://${window.location.host}/ws/init` :
+    `wss://${window.location.host}/ws/init` :
     'http://localhost:8080/ws/init'
 
 
