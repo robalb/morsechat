@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
     environment:
       PORT: 8080
-      SQLITEPATH: app/backend/db/master.sqlite
+      SQLITE_PATH: app/backend/db/master.sqlite
       SECRET: ${SECRET}
     volumes:
       - morsechatgodb:/app/backend/db
