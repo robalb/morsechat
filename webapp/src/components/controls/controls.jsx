@@ -119,7 +119,7 @@ export function AdvancedControls({className = ""}) {
                 <FormControlLabel value="straight" control={<Radio />} label="straight" />
                 <FormControlLabel value="yambic" control={<Radio />} label="yambic A" />
             </RadioGroup>
-            <p style={{marginTop: "1rem"}}>yambic paddle order</p>
+            <p style={{marginTop: "1rem"}}>iambic paddle order</p>
             <div>
                 <p>left is dot</p>
                 <MemoSwitch 
