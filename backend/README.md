@@ -31,7 +31,6 @@ The entry point to understand the codebase is in `cmd/morsechat/main.go`. The wh
 
 ## production build
 
-
 https://github.com/golang/go/issues/26492
 
     go build -tags 'osusergo,netgo,static,' -ldflags '-extldflags "-static"' cmd/morsechat/main.go
