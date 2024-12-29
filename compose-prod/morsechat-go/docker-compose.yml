@@ -11,7 +11,7 @@ networks:
 services:
   #nginx-golang webapp
   morse:
-    image: ghcr.io/robalb/morsechat:sha-907023816512f0c470550ec0c41960649ead8f61
+    image: ghcr.io/robalb/morsechat:sha-860ce5b090e7638d17a3818473c47b6120e840a6
     expose:
       - '80'
     restart: unless-stopped
