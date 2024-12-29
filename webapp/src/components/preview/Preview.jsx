@@ -9,6 +9,7 @@ import getDialect from '../../utils/dialects'
 import {send} from '../../redux/chatSlice'
 import { selectMorseTimes } from "../../redux/userSlice";
 import {systemMessage} from '../../utils/chatDom'
+import {getInstance} from '../../socket/global.js'
 
 function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
@@ -154,6 +155,8 @@ export function Preview({className = "", chatDomNode}) {
 
     function clearHandler(e){
         dispatch(resetMessage())
+        if(getInstance())
+          getInstance().sendTyping(false)
     }
     return (
         <div className={`${styles.preview} ${className}`}>
