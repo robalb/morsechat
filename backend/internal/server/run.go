@@ -51,14 +51,14 @@ func Run(
 	// Init JWT auth
 	tokenAuth := jwtauth.New("HS256", config.SecretBytes, nil)
 	// Init db
-	dbReadPool, err := db.NewReadPool(config.SqlitePath, ctx)
-	if err != nil {
-		logger.Printf("Failed to init database read pool: %v", err.Error())
-		return err
-	}
 	dbWritePool, err := db.NewWritePool(config.SqlitePath, ctx)
 	if err != nil {
 		logger.Printf("Failed to init database write pool: %v", err.Error())
+		return err
+	}
+	dbReadPool, err := db.NewReadPool(config.SqlitePath, ctx)
+	if err != nil {
+		logger.Printf("Failed to init database read pool: %v", err.Error())
 		return err
 	}
 	err = db.ApplyMigrations(dbWritePool, ctx)

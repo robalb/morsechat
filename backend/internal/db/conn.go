@@ -4,13 +4,12 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"fmt"
+	"strings"
 )
 
 //go:embed schema.sql
 var initscript string
-
-// global, hardcoded sqlite config
-var sqliteConfig string = "?_foreign_keys=true"
 
 // Temporary solution. We don't actually have migrations right now.
 // We just execute the content of schema.sql every time
@@ -26,6 +25,8 @@ func ApplyMigrations(db *sql.DB, ctx context.Context) error {
 // TODO: runtime pragmas, as seen here
 // https://github.com/mtlynch/picoshare/blob/master/store/sqlite/sqlite.go
 func NewTestConn(sqlitePath string, ctx context.Context) (*sql.DB, error) {
+  // global, hardcoded sqlite config
+  var sqliteConfig string = "?_foreign_keys=true"
 	db, err := sql.Open("sqlite3", sqlitePath+sqliteConfig)
 	if err != nil {
 		return nil, err
@@ -35,58 +36,35 @@ func NewTestConn(sqlitePath string, ctx context.Context) (*sql.DB, error) {
 }
 
 // Return a readonly connection to the sqlite database
-// TODO: proper config
 // TODO: ping()
 func NewReadPool(sqlitePath string, ctx context.Context) (*sql.DB, error) {
-	return sql.Open("sqlite3", sqlitePath+sqliteConfig)
+  // https://github.com/mattn/go-sqlite3/issues/1022#issuecomment-1067353980
+  // https://github.com/mattn/go-sqlite3?tab=readme-ov-file#connection-string
+  options := []string{
+    "_foreign_keys=true",
+    "_journal_mode=wal",
+    "_busy_timeout=5000",
+    "mode=ro",
+  }
+  connString := fmt.Sprintf("file:%s?%s", sqlitePath, strings.Join(options, "&"))
+	return sql.Open("sqlite3", connString)
 }
 
 // Return a read+write connection to the sqlite database
-// TODO: proper config
 func NewWritePool(sqlitePath string, ctx context.Context) (conn *sql.DB, err error) {
-	conn, err = sql.Open("sqlite3", sqlitePath+sqliteConfig)
+  // https://github.com/mattn/go-sqlite3/issues/1022#issuecomment-1067353980
+  // https://github.com/mattn/go-sqlite3?tab=readme-ov-file#connection-string
+  options := []string{
+    "_foreign_keys=true",
+    "_journal_mode=wal",
+    "_txlock=immediate",
+    "_busy_timeout=5000",
+    "mode=rwc",
+  }
+  connString := fmt.Sprintf("file:%s?%s", sqlitePath, strings.Join(options, "&"))
+	conn, err = sql.Open("sqlite3", connString)
 	//sqlite does not support cuncurrent write
-	//TODO: test performance implications
-	// conn.SetMaxOpenConns(1)
+	conn.SetMaxOpenConns(1)
 	return
 }
 
-// func SQLite(t *testing.T, migrations []string) (*sql.DB, func()) {
-// 	t.Helper()
-// 	// For each test, pick a new database name at random.
-// 	source, err := os.CreateTemp("", "sqltest_sqlite_")
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	return CreateSQLiteDatabase(t, source.Name(), migrations)
-// }
-
-// func CreateSQLiteDatabase(t *testing.T, path string, migrations []string) (*sql.DB, func()) {
-// 	t.Helper()
-
-// 	t.Logf("open %s\n", path)
-// 	sdb, err := sql.Open("sqlite", path)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-
-// 	files, err := sqlpath.Glob(migrations)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	for _, f := range files {
-// 		blob, err := os.ReadFile(f)
-// 		if err != nil {
-// 			t.Fatal(err)
-// 		}
-// 		if _, err := sdb.Exec(string(blob)); err != nil {
-// 			t.Fatalf("%s: %s", filepath.Base(f), err)
-// 		}
-// 	}
-
-// 	return sdb, func() {
-// 		if _, err := os.Stat(path); err == nil {
-// 			os.Remove(path)
-// 		}
-// 	}
-// }

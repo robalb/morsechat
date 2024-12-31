@@ -1,5 +1,7 @@
 tmp/
 *.sqlite
+*.sqlite-shm
+*.sqlite-wal
 main
 stress/
 
