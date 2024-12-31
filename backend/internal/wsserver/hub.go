@@ -226,6 +226,15 @@ func MessageUser(client *Client, message []byte){
 // notifying that the given user has left the channel
 // note: This function will not remove the given user
 func BroadcastUserLeft(channel string, client *Client, logger *log.Logger){
+  //there can be multiple instances of a logged user account connected to a channel.
+  //in that cause if one instance leaves, the user did not actually leave so
+  //we will not broadcast the message
+  for c := range client.hub.clients {
+    if c.userInfo.Callsign == client.userInfo.Callsign && c != client{
+      return
+    }
+  }
+
   msg := MessageLeave{
     Type: "leave",
     Channel: channel,
