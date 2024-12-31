@@ -1,10 +1,11 @@
 
 # week 3
-- [] clean files: add .dockerignore, and remove home.html
-- [] create docker container
-- [] create build pipeline with github actions
-- [] deploy test version under test domain
-- [] db migration, launch to prod
+- [] add .dockerignore
+- [x] clean files: and remove home.html
+- [x] create docker container
+- [x] create build pipeline with github actions
+- [x] deploy test version under test domain
+- [x] db migration, launch to prod
 - [] integrate ip-only fingerprint
 - [] add ip-only fingerprint to ws client struct, use it for 
      a better chamber functionality
