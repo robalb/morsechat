@@ -1,17 +1,12 @@
-
-# Volumes
 volumes:
-  morsechatgodb:
-
+  morsechatgodb: null
 networks:
   traefik-proxy:
     external: true
-  default:
-
+  default: null
 services:
-  #nginx-golang webapp
   morse:
-    image: ghcr.io/robalb/morsechat:sha-8eca2d205e46f664356281236567e418b8a4ef11
+    image: ghcr.io/robalb/morsechat:sha-e1acf6450984183ae1ef7b1b911b3c1c548246e0
     expose:
       - '80'
     restart: unless-stopped
@@ -30,7 +25,7 @@ services:
     networks:
       - traefik-proxy
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
-        max-size: "10m"
-        max-file: "1"
+        max-size: 10m
+        max-file: '1'
