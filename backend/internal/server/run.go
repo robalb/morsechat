@@ -42,6 +42,12 @@ func Run(
 		logger.Printf("Failed to init app config: %v", err.Error())
 		return err
   }
+  logger.Printf("Starting server with config: Host:'%s', Port:'%s', SqlitePath:'%s', secret:'%s[CENSORED]'", 
+    config.Host,
+    config.Port,
+    config.SqlitePath,
+    config.Secret[0:5],
+    )
 	// Init JWT auth
 	tokenAuth := jwtauth.New("HS256", config.SecretBytes, nil)
 	// Init db

@@ -146,9 +146,11 @@ func ServeSessInit(
         var userSettings Settings
         userSettingsStr, ok := res.Settings.(string)
         if !ok{
-          logger.Printf("ServeLogin: json settings type assert faied: %v", ok)
+          logger.Printf("ServeSessInit: json settings type assert faied: %v", ok)
+        } else if len(userSettingsStr) < 2 {
+          //There are not saved settings
         } else if err := json.Unmarshal([]byte(userSettingsStr), &userSettings); err != nil{
-          logger.Printf("ServeLogin: json settings unmarshall faied: %v", err.Error())
+          logger.Printf("ServeSessInit: json settings unmarshall faied: %v", err.Error())
         }else{
           responseSettings = &userSettings
         }
@@ -297,6 +299,8 @@ func ServeLogin(
     userSettingsStr, ok := res.Settings.(string)
     if !ok{
 			logger.Printf("ServeLogin: json settings type assert faied: %v", ok)
+    } else if len(userSettingsStr) < 2 {
+      //There are not saved settings
     } else if err := json.Unmarshal([]byte(userSettingsStr), &userSettings); err != nil{
 			logger.Printf("ServeLogin: json settings unmarshall faied: %v", err.Error())
     }else{

@@ -25,8 +25,6 @@ func AddRoutes(
 	dbWritePool *sql.DB,
 	/* Put here all the dependencies for middlewares and routers */
 ) {
-	rootMux.Get("/", serveHome)
-
 	ws := chi.NewRouter()
 	rootMux.Mount("/ws", ws)
 	ws.Use(middleware.RequireValidSession(tokenAuth))
@@ -83,19 +81,6 @@ func AddRoutes(
 
 //TODO: move to dedicated file anything below this line
 //---------
-
-func serveHome(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL)
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	http.ServeFile(w, r, "home.html")
-}
 
 func serveTestCtx(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
