@@ -6,7 +6,7 @@ networks:
   default: null
 services:
   morse:
-    image: ghcr.io/robalb/morsechat:sha-f6f8b5732674970d8ce9b416cb3c4e55e25c1b39
+    image: ghcr.io/robalb/morsechat:sha-a020d02ab3ce23ca6275891c01981cb5a9afd0ed
     expose:
       - '80'
     restart: unless-stopped
