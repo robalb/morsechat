@@ -15,6 +15,8 @@ func TestContainsHateSpeech(t *testing.T) {
 		{"e", false},
 		{"t", false},
 		{"hi hello h i goodbye goodbie", false},
+		{"got to go, see you later see ya later", false},
+		{"the quick brown fox jumps over the lazy dog", false},
 		{"where are u from? i'm from italy", false},
 		{"shllo w rld ", false},
 		{"the quick brown fox j mh w rld ", false},
@@ -27,8 +29,14 @@ func TestContainsHateSpeech(t *testing.T) {
 		{"text containing tolmaco", true},
 		{"text containing t0!m4c0", true},
 		{"to lma co spacing ", true},
+		{"t-o-l-m-a-c----o", true},
 		{"t 0 l m 4 c o spacing ", true},
 		{"!!!t.0.l.m.@.c.o spacing ", true},
+
+    {"This test will not --pass-- if there is a false positive", false},
+    {"I'm a business analyst living in sussex.", false},
+    {"1 in 10 therapists recommend playing the bass", false},
+    {"It's banal to assume that assassins and cocktails wil not make these tests pass", false},
 	}
 
 	for _, test := range tests {

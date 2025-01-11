@@ -7,7 +7,7 @@ import (
 )
 
 // https://github.com/zacanger/profane-words/blob/master/words.json
-//go:embed moderation_wordlist.txt
+//go:embed moderation_badwords.txt
 var badwordsListEncoded string
 
 func badwordsListDecode(input string) []string {
@@ -56,6 +56,12 @@ func ContainsBadLanguage(input string) bool {
 	input = replacementPattern.ReplaceAllString(input, "")
   input = normalize(input)
 
+  //remove false positives
+  for _, goodWord := range falsePositiveWordsList {
+    normalized := normalize(goodWord)
+    input = strings.ReplaceAll(input, normalized, " ")
+  }
+
   badList := badwordsListDecode(badwordsListEncoded)
 	for _, badWord := range badList {
     normalized := normalize(badWord)
@@ -65,3 +71,5 @@ func ContainsBadLanguage(input string) bool {
 	}
 	return false 
 }
+
+
