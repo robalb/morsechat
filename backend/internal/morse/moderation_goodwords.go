@@ -19,6 +19,7 @@ var falsePositiveWordsList = []string{
 	"basement",
 	"bass",
 	"cass",   // cassie, cassandra, carcass
+  "canu",   // can u send, can u see 
 	"butter", // butter, butterfly
 	"butthe",
 	"button",

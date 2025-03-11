@@ -32,11 +32,18 @@ func TestContainsHateSpeech(t *testing.T) {
 		{"t-o-l-m-a-c----o", true},
 		{"t 0 l m 4 c o spacing ", true},
 		{"!!!t.0.l.m.@.c.o spacing ", true},
+		{"tolmaco", true},
+		{"t0lmaco", true},
+		{" t0lmaco", true},
+		{"t0lmaco ", true},
+		{"t0lmaco assume", true},
+		{"tolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmaco", true},
 
     {"This test will not --pass-- if there is a false positive", false},
     {"I'm a business analyst living in sussex.", false},
     {"1 in 10 therapists recommend playing the bass", false},
     {"It's banal to assume that assassins and cocktails wil not make these tests pass", false},
+    {"can u send ur earlier message", false},
 	}
 
 	for _, test := range tests {
