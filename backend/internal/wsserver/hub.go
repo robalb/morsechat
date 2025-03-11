@@ -391,15 +391,24 @@ func handleMorseCommand(
 	messageText, messageDuration, isMalformed := morse.Translate(cmd.Message, cmd.Wpm)
   if isMalformed {
     //TODO; metrics
-    logger.Printf("HandleMorseCommand: malformed message:\n")
+    logger.Printf("HandleMorseCommand: malformed message\n")
     MessageUserMorseStatusError(client, logger, "Malformed message", "")
     return
   }
+
+  if cmd.Wpm < 5 {
+    logger.Printf("HandleMorseCommand: malformed command\n")
+    MessageUserMorseStatusError(client, logger, "Malformed message", "")
+    return
+  }
+    
+
   isBadLanguage := morse.ContainsBadLanguage(messageText)
   if isBadLanguage{
     //TODO; metrics
     logger.Printf("HandleMorseCommand: bad language: %v\n", messageText)
   }
+
 
   //ratelimiting logic
   //minimum seconds between each message sent, which double
