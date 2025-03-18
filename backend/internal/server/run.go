@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
@@ -49,15 +51,6 @@ func Run(
   logger.Printf("Starting server with config: %v", config.LogSafeSummary())
 
 	//--------------------
-	// Initialize monitoring
-	//--------------------
-  metrics := monitoring.NewMetrics()
-  promServer := &http.Server{
-    Addr:    net.JoinHostPort(config.Host, config.MetricsPort),
-    Handler: promhttp.Handler(),
-  }
-
-	//--------------------
 	// Initialize JWT auth
 	//--------------------
 	tokenAuth := jwtauth.New("HS256", config.SecretBytes, nil)
@@ -80,6 +73,19 @@ func Run(
 		logger.Printf("Failed to apply database migrations: %v", err.Error())
 		return err
 	}
+
+	//--------------------
+	// Initialize monitoring
+	//--------------------
+  metricsRegistry := prometheus.NewRegistry()
+  metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbReadPool, "readpool"))
+  metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbWritePool, "writepool"))
+  metricsRegistry.MustRegister(collectors.NewGoCollector())
+  metrics := monitoring.NewMetrics(metricsRegistry)
+  promServer := &http.Server{
+    Addr:    net.JoinHostPort(config.Host, config.MetricsPort),
+    Handler: promhttp.HandlerFor(metricsRegistry, promhttp.HandlerOpts{}),
+  }
 
 	//--------------------
 	// Initialize the websocket hub
