@@ -9,9 +9,32 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/robalb/morsechat/internal/auth"
 	"github.com/robalb/morsechat/internal/config"
+	"github.com/robalb/morsechat/internal/monitoring"
 	"github.com/robalb/morsechat/internal/morse"
+)
+
+var (
+  // A list of available channels. Edit to add new channels,
+  // all data will automatically propagate
+  // names containing "pro" are for logged users only
+  config_channels = map[string]bool{
+      "presence-training": true,
+      "presence-ch1": true,
+      "presence-ch2": true,
+      "presence-ch3": true,
+      "presence-ch4": true,
+      "presence-ch5": true,
+      "presence-ch6": true,
+      "presence-pro-1": true,
+      "presence-pro-2": true,
+      "presence-pro-3": true,
+  }
+  config_wpmMin = 5
+  config_wpmMax = 50
+
 )
 
 type ClientRequest struct{
@@ -78,6 +101,7 @@ func (h *Hub) Run(
 	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  metrics *monitoring.Metrics,
 ){
 	for {
 		select {
@@ -89,6 +113,7 @@ func (h *Hub) Run(
           BroadcastUserLeft(client.channel, client, logger)
         }
 				delete(h.clients, client)
+        updateOnlineUsersGauge(h, metrics)
 				close(client.send)
 			}
 		case message := <-h.broadcast:
@@ -99,6 +124,7 @@ func (h *Hub) Run(
         config,
         dbReadPool,
         dbWritePool,
+        metrics,
       )
 		}
 	}
@@ -111,6 +137,7 @@ func clientRequestMux(
 	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  metrics *monitoring.Metrics,
 ){
 	var cmd ClientRequestCommand
 	if err := json.Unmarshal(message.bytes, &cmd); err != nil {
@@ -124,6 +151,7 @@ func clientRequestMux(
       cmd.Body,
       message.client,
       logger,
+      metrics,
       )
   case "typing":
     handleTypingCommand(
@@ -222,6 +250,7 @@ func MessageUser(client *Client, message []byte){
   }
 }
 
+
 // Broadcast a  message to every user connected to the given channel,
 // notifying that the given user has left the channel
 // note: This function will not remove the given user
@@ -276,25 +305,14 @@ func handleJoinCommand(
   rawCmd json.RawMessage,
   client *Client,
 	logger *log.Logger,
+  metrics *monitoring.Metrics,
 ){
   var cmd CommandJoinRoom
   if err := json.Unmarshal(rawCmd, &cmd); err != nil {
     logger.Printf("HandleJoinCommand: Failed to parse json: %v\n", err)
     return
   }
-  channels := map[string]bool{
-      "presence-training": true,
-      "presence-ch1": true,
-      "presence-ch2": true,
-      "presence-ch3": true,
-      "presence-ch4": true,
-      "presence-ch5": true,
-      "presence-ch6": true,
-      "presence-pro-1": true,
-      "presence-pro-2": true,
-      "presence-pro-3": true,
-  }
-  if _, ok := channels[cmd.Name]; !ok {
+  if _, ok := config_channels[cmd.Name]; !ok {
     logger.Printf("HandleJoinCommand: invalid channel name: %v", cmd.Name)
     MessageUserJoinerror(client, logger, "invalid channel name", cmd.Name)
     return
@@ -341,6 +359,8 @@ func handleJoinCommand(
       IsTyping: client.isTyping,
     })
   }
+  updateOnlineUsersGauge(client.hub, metrics)
+
   msgBytes, err := json.Marshal(msg)
   if err != nil{
     logger.Printf("HandleJoinCommand: msg json marshal error: %v", err.Error())
@@ -396,7 +416,7 @@ func handleMorseCommand(
     return
   }
 
-  if cmd.Wpm < 5 {
+  if cmd.Wpm < config_wpmMin || cmd.Wpm > config_wpmMax {
     logger.Printf("HandleMorseCommand: malformed command\n")
     MessageUserMorseStatusError(client, logger, "Malformed message", "")
     return
@@ -470,3 +490,23 @@ func handleMorseCommand(
   }
 }
 
+
+func updateOnlineUsersGauge(
+  hub *Hub,
+  metrics *monitoring.Metrics,
+) {
+  channelCount := make(map[string]int)
+  for existingChannel, _ := range config_channels {
+    channelCount[existingChannel] = 0
+  }
+
+  for c := range hub.clients {
+    channelCount[c.channel]++
+  }
+
+  for channel, count := range channelCount {
+    metrics.ConnectedUsers.
+      With(prometheus.Labels{"channel": channel}).
+      Set(float64(count))
+  }
+}

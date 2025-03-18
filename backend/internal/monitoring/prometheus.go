@@ -31,16 +31,7 @@ func NewMetrics(registerer prometheus.Registerer) *Metrics {
       Name: "connected_users",
       Help: "total connected users",
     }, []string{
-        "training",
-        "ch1",
-        "ch2",
-        "ch3",
-        "ch4",
-        "ch5",
-        "ch6",
-        "pro1",
-        "pro2",
-        "pro3",
+        "channel",
       }),
     ConnectedShadowUsers: r.NewGauge(prometheus.GaugeOpts{
       Namespace: MetricsNamespace,
