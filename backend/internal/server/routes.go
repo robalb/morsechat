@@ -12,6 +12,7 @@ import (
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/handlers"
 	"github.com/robalb/morsechat/internal/middleware"
+	"github.com/robalb/morsechat/internal/monitoring"
 	"github.com/robalb/morsechat/internal/wsserver"
 )
 
@@ -23,8 +24,10 @@ func AddRoutes(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  metrics *monitoring.Metrics,
 	/* Put here all the dependencies for middlewares and routers */
 ) {
+
 	ws := chi.NewRouter()
 	rootMux.Mount("/ws", ws)
 	ws.Use(middleware.RequireValidSession(tokenAuth))

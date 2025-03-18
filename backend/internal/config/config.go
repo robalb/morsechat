@@ -44,6 +44,9 @@ func GenerateSecureRandomB64() string {
 //   - what you set via env var will override the default value.
 //   - What you set via command line will override the default value
 //     or what you set via env var.
+//
+// Note: thie configuration object is set at the app startup, and is 
+//       static and immutable. It should be passed around by value.
 func MakeConfig(
 	args []string,
 	getenv func(string) string,

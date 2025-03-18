@@ -16,6 +16,7 @@ import (
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
 	"github.com/robalb/morsechat/internal/wsserver"
+	"github.com/robalb/morsechat/internal/monitoring"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -31,12 +32,14 @@ func Run(
 	defer cancel()
 
 	//--------------------
-	// Init everything
+	// Initialize logging
 	//--------------------
-	// Init logging
 	logger := log.New(stdout, "", log.Flags())
 	logger.Println("starting... ")
-	// Init config
+
+	//--------------------
+	// Initialize the global configuration object
+	//--------------------
 	config, err := config.MakeConfig(args, getenv)
   if err != nil {
 		logger.Printf("Failed to init app config: %v", err.Error())
@@ -48,9 +51,20 @@ func Run(
     config.SqlitePath,
     config.Secret[0:5],
     )
-	// Init JWT auth
+
+	//--------------------
+	// Initialize the Prometheus instrumentation
+	//--------------------
+  metrics := monitoring.NewMetrics()
+
+	//--------------------
+	// Initialize JWT auth
+	//--------------------
 	tokenAuth := jwtauth.New("HS256", config.SecretBytes, nil)
-	// Init db
+
+	//--------------------
+	// Initialize the sqlite databases
+	//--------------------
 	dbWritePool, err := db.NewWritePool(config.SqlitePath, ctx)
 	if err != nil {
 		logger.Printf("Failed to init database write pool: %v", err.Error())
@@ -66,7 +80,10 @@ func Run(
 		logger.Printf("Failed to apply database migrations: %v", err.Error())
 		return err
 	}
-	// Init websocket hub
+
+	//--------------------
+	// Initialize the websocket hub
+	//--------------------
 	hub := wsserver.New()
 	go hub.Run(
     ctx,
@@ -75,7 +92,10 @@ func Run(
     dbReadPool,
     dbWritePool,
   )
-	// Init Server
+
+	//--------------------
+	// Initialize the API Server
+	//--------------------
 	srv := NewServer(
 		logger,
 		&config,
@@ -83,6 +103,7 @@ func Run(
 		tokenAuth,
 		dbReadPool,
 		dbWritePool,
+    metrics,
 	)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(config.Host, config.Port),
@@ -104,7 +125,7 @@ func Run(
 	//--------------------
 	var wg sync.WaitGroup
 	// Webserver graceful shutdown
-	//TODO: close websockets. Shutdown does not close websckets
+	// TODO: close websockets. Shutdown does not close websckets
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -117,7 +138,7 @@ func Run(
 			fmt.Fprintf(stderr, "error shutting down http server: %s\n", err)
 		}
 	}()
-	//example graceful shutdown (e.g could be used for a database)
+	// Example graceful shutdown (e.g could be used for a database)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()

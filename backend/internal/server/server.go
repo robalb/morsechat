@@ -9,8 +9,10 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robalb/morsechat/internal/config"
 	localmiddleware "github.com/robalb/morsechat/internal/middleware"
+	"github.com/robalb/morsechat/internal/monitoring"
 	"github.com/robalb/morsechat/internal/wsserver"
 )
 
@@ -21,6 +23,7 @@ func NewServer(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  metrics *monitoring.Metrics,
 	/* Put here all the dependencies for middlewares and routers */
 ) http.Handler {
 
@@ -39,6 +42,8 @@ func NewServer(
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 	mux.Use(jwtauth.Verifier(tokenAuth))
+  mux.Handle("/metrics", promhttp.Handler())
+
 
 	AddRoutes(
 		mux,
@@ -48,6 +53,7 @@ func NewServer(
 		tokenAuth,
 		dbReadPool,
 		dbWritePool,
+    metrics,
 	/* Put here all the dependencies for middlewares and routers */
 	)
 
