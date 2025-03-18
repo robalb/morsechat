@@ -37,6 +37,7 @@ func TestHealthEndpoint(t *testing.T) {
 		"morsechat",
 		"--port", fmt.Sprintf("%d", port),
 		"--sqlite_path", tempdb,
+    "--metrics_enabled", "false",
 	}
 	getenv := func(key string) string {
 		return ""

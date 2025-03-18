@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robalb/morsechat/internal/config"
 	localmiddleware "github.com/robalb/morsechat/internal/middleware"
 	"github.com/robalb/morsechat/internal/monitoring"
@@ -42,7 +41,6 @@ func NewServer(
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 	mux.Use(jwtauth.Verifier(tokenAuth))
-  mux.Handle("/metrics", promhttp.Handler())
 
 
 	AddRoutes(

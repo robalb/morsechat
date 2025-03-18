@@ -13,10 +13,11 @@ import (
 	"time"
 
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
-	"github.com/robalb/morsechat/internal/wsserver"
 	"github.com/robalb/morsechat/internal/monitoring"
+	"github.com/robalb/morsechat/internal/wsserver"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -45,17 +46,16 @@ func Run(
 		logger.Printf("Failed to init app config: %v", err.Error())
 		return err
   }
-  logger.Printf("Starting server with config: Host:'%s', Port:'%s', SqlitePath:'%s', secret:'%s[CENSORED]'", 
-    config.Host,
-    config.Port,
-    config.SqlitePath,
-    config.Secret[0:5],
-    )
+  logger.Printf("Starting server with config: %v", config.LogSafeSummary())
 
 	//--------------------
-	// Initialize the Prometheus instrumentation
+	// Initialize monitoring
 	//--------------------
   metrics := monitoring.NewMetrics()
+  promServer := &http.Server{
+    Addr:    net.JoinHostPort(config.Host, config.MetricsPort),
+    Handler: promhttp.Handler(),
+  }
 
 	//--------------------
 	// Initialize JWT auth
@@ -114,9 +114,23 @@ func Run(
 	// Start the webserver
 	//--------------------
 	go func() {
-		logger.Printf("listening on %s\n", httpServer.Addr)
+    logger.Printf("API server: listening on %s\n", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			fmt.Fprintf(stderr, "error listening and serving: %s\n", err)
+		}
+	}()
+
+	//--------------------
+	// Start the prometheus server
+	//--------------------
+	go func() {
+    if !config.MetricsEnabled {
+      logger.Println("Prometheus server: disabled.")
+      return
+    }
+    logger.Printf("Prometheus server: listening on %s\n", promServer.Addr)
+		if err := promServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+      fmt.Fprintf(stderr, "Prometheus server: error listening and serving: %s\n", err)
 		}
 	}()
 
@@ -124,26 +138,43 @@ func Run(
 	// Graceful shutdown
 	//--------------------
 	var wg sync.WaitGroup
-	// Webserver graceful shutdown
-	// TODO: close websockets. Shutdown does not close websckets
+	// API server graceful shutdown TODO: also close websockets
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		<-ctx.Done()
-		logger.Println("Gracefully shutting down webserver...")
+		logger.Println("Gracefully shutting down API server...")
 		shutdownCtx := context.Background()
 		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
 		defer cancel()
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			fmt.Fprintf(stderr, "error shutting down http server: %s\n", err)
-		}
+			fmt.Fprintf(stderr, "error shutting down API server: %s\n", err)
+		}else{
+      logger.Println("API server shutdown done")
+    }
 	}()
+  //Prometheus server graceful shutdown
+  wg.Add(1)
+  go func() {
+		defer wg.Done()
+		<-ctx.Done()
+		logger.Println("Gracefully shutting down Prometheus server...")
+		shutdownCtx := context.Background()
+		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 5*time.Second)
+		defer cancel()
+		if err := promServer.Shutdown(shutdownCtx); err != nil {
+			fmt.Fprintf(stderr, "error shutting down Prometheus server: %s\n", err)
+		}else{
+      logger.Println("Prometheus server shutdown done")
+    }
+  }()
 	// Example graceful shutdown (e.g could be used for a database)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		<-ctx.Done()
 		logger.Println("Gracefully shutting down test module...")
+		logger.Println("test module shutdown done")
 	}()
 
 	wg.Wait()

@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"flag"
 	"fmt"
+	"strings"
 )
 
 type Config struct {
@@ -13,31 +14,24 @@ type Config struct {
 	SqlitePath string
   Secret     string
   SecretBytes     []byte
+  MetricsEnabled bool
+  MetricsPort string
 }
 
-func defaultConfig() Config {
-	return Config{
-		Host:       "",
-		Port:       "8080",
-		SqlitePath: "db.sqlite",
-    //Secret must be the b64 string of 32 random bytes
-    // It's better to have a new random secret on every app launch causing
-    // bugs when the backend reloads
-    // than to have a hardcoded default value causing security issues
-    Secret: GenerateSecureRandomB64(),
-	}
+
+func (config *Config) LogSafeSummary() string{
+  censoredSecret := config.Secret[0:5] + "[CENSORED]"
+  return fmt.Sprintf(
+    "Host:'%s', Port:'%s', SqlitePath:'%s', secret:'%s', MetricsEnabled:%v, MetricsPort:'%s'", 
+    config.Host,
+    config.Port,
+    config.SqlitePath,
+    censoredSecret,
+    config.MetricsEnabled,
+    config.MetricsPort,
+    )
 }
 
-// Generate a random Secret. Used when a secret is not provided
-func GenerateSecureRandomB64() string {
-	randomBytes := make([]byte, 32)
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return ""
-	}
-	randomB64 := base64.StdEncoding.EncodeToString(randomBytes)
-	return randomB64
-}
 
 // Load Configuration for the whole app, using command line args or
 // env vars as a source.
@@ -53,40 +47,8 @@ func MakeConfig(
 ) (Config, error) {
 
 	c := defaultConfig()
-
-	if hostEnv := getenv("HOST"); hostEnv != "" {
-		c.Host = hostEnv
-	}
-	if portEnv := getenv("PORT"); portEnv != "" {
-		c.Port = portEnv
-	}
-	if sqlitePath := getenv("SQLITE_PATH"); sqlitePath != "" {
-		c.SqlitePath = sqlitePath
-	}
-	if SecretEnv := getenv("SECRET"); SecretEnv != "" {
-		c.Secret = SecretEnv
-	}
-
-	fs := flag.NewFlagSet("config", flag.ContinueOnError)
-	host := fs.String("host", c.Host, "Set the host")
-	port := fs.String("port", c.Port, "Set the port")
-	sqlitePath := fs.String("sqlite_path", c.SqlitePath, "Set the sqlite database path")
-	secret := fs.String("secret", c.Secret, "Set the encryption secret")
-	_ = fs.Parse(args[1:])
-
-	// Override config with command-line arguments if provided
-	if *host != "" {
-		c.Host = *host
-	}
-	if *port != "" {
-		c.Port = *port
-	}
-	if *sqlitePath != "" {
-		c.SqlitePath = *sqlitePath
-	}
-	if *secret != "" {
-		c.Secret = *secret
-	}
+  parseEnv(&c, getenv)
+  parseCmdFlags(&c, args)
 
   //data validation
   data, err := base64.StdEncoding.DecodeString(c.Secret)
@@ -98,6 +60,86 @@ func MakeConfig(
   }
   c.SecretBytes = data
 
-
 	return c, nil
+}
+
+
+func defaultConfig() Config {
+	return Config{
+		Host:       "",
+		Port:       "8080",
+		SqlitePath: "db.sqlite",
+    //Secret must be the b64 string of 32 random bytes
+    // It's better to have a new random secret on every app launch causing
+    // bugs when the backend reloads
+    // than to have a hardcoded default value causing security issues
+    Secret: GenerateSecureRandomB64(),
+    MetricsEnabled: true,
+    MetricsPort: "8081",
+	}
+}
+
+
+func parseEnv(
+  c *Config,
+  getenv func(string) string,
+) {
+	if host := getenv("HOST"); host != "" {
+		c.Host = host
+	}
+	if port := getenv("PORT"); port != "" {
+		c.Port = port
+	}
+	if sqlitePath := getenv("SQLITE_PATH"); sqlitePath != "" {
+		c.SqlitePath = sqlitePath
+	}
+	if secret := getenv("SECRET"); secret != "" {
+		c.Secret = secret
+	}
+	if metricsPort := getenv("METRICS_PORT"); metricsPort != "" {
+		c.MetricsPort = metricsPort
+	}
+
+	if metricsEnabled := getenv("METRICS_ENABLED"); metricsEnabled != "" {
+    boolStr := strings.ToLower(metricsEnabled)
+    c.MetricsEnabled = (
+      boolStr == "true" ||
+      boolStr == "yes" ||
+      boolStr == "1")
+  }
+}
+
+
+func parseCmdFlags(
+  c *Config,
+	args []string,
+) {
+	fs := flag.NewFlagSet("config", flag.ContinueOnError)
+	host := fs.String("host", c.Host, "Set the host")
+	port := fs.String("port", c.Port, "Set the port")
+	sqlitePath := fs.String("sqlite_path", c.SqlitePath, "Set the sqlite database path")
+	secret := fs.String("secret", c.Secret, "Set the encryption secret")
+	metricsPort := fs.String("metrics_port", c.MetricsPort, "Set the prometheus exporter port")
+	metricsEnabled := fs.Bool("metrics_enabled", c.MetricsEnabled, "Enable prometheus metrics")
+
+	_ = fs.Parse(args[1:])
+
+	c.Host = *host
+	c.Port = *port
+	c.SqlitePath = *sqlitePath
+	c.Secret = *secret
+	c.MetricsPort = *metricsPort
+  c.MetricsEnabled = *metricsEnabled
+}
+
+
+// Generate a random Secret. Used when a secret is not provided
+func GenerateSecureRandomB64() string {
+	randomBytes := make([]byte, 32)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return ""
+	}
+	randomB64 := base64.StdEncoding.EncodeToString(randomBytes)
+	return randomB64
 }
