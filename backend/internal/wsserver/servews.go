@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/robalb/morsechat/internal/auth"
+	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	"github.com/robalb/morsechat/internal/validation"
 )
 
@@ -132,14 +133,21 @@ func ServeWsInit(
   hub       *Hub,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+    device, err := deviceid.New(r)
+    if err != nil {
+      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+      logger.Printf("ServeWsInit: deviceID error: %v", err.Error())
+      return
+    }
+
     //retrieve the user data, which can be either anonymous or connected
 		//This is the only handler that accepts session jwts with anonymous data
     jwtData, err := auth.GetJwtData(r.Context())
     if err != nil{
-      validation.RespondError(w, "HandleWsInit: invalid jwtData: "+ err.Error(), "", http.StatusBadRequest)
+      validation.RespondError(w, "ServeWsInit: invalid jwtData: "+ err.Error(), "", http.StatusBadRequest)
       return
     }
-    logger.Printf("ServeWsInit: Connecting user with data: %v ", jwtData)
+    logger.Printf("ServeWsInit: (%v) Connecting user with data: %v ", device.Id, jwtData)
 
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {

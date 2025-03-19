@@ -1,6 +1,8 @@
 package deviceid
 
 import (
+	"fmt"
+	"net"
 	"net/http"
 )
 
@@ -119,13 +121,21 @@ func getIp(r *http.Request) string {
       return header
     }
   }
-  return r.RemoteAddr
+  ip, _, err := net.SplitHostPort(r.RemoteAddr)
+  if err != nil {
+    return "" //TODO
+  }
+  return ip
 }
 
 
 
 func (d *DeviceData) setOfflineID(){
-  d.Id = "TODO"
+  //example online id:
+  //a000f374-fc05-49a3-b13e-7508b94bf3e8
+  //example Local/offline id:
+  //L-127.0.0.1-11enus2w02_41a91f7b_75f1b356
+  d.Id = fmt.Sprintf("L-%s-%s", d.Ipv4, d.HttpFinger)
 }
 
 
