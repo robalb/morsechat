@@ -58,9 +58,7 @@ export function ReportMessage({ open, onClose, data }) {
       </DialogTitle>
       <DialogContent>
         <div >
-          <p>
-          Do you think this message represents spam or inappropriate speech?
-          </p>
+          <p> Do you believe this message is spam or contains inappropriate content? </p>
           <code>{data?.text}</code>
         </div>
 
