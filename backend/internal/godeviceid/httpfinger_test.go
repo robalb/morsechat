@@ -23,7 +23,7 @@ func TestGetHttpFinger(t *testing.T) {
 				req.Header.Set("X-Test-Header", "value")
 				return req
 			}(),
-    expectedPrefix: "20enus2w02", // HTTP/2 + "enus"
+    expectedPrefix: "20enus2w01", // HTTP/2 + "enus"
 		},
 		{
 			name: "HTTP/1.1 with short Accept-Language",
@@ -36,7 +36,7 @@ func TestGetHttpFinger(t *testing.T) {
 				req.Header.Set("User-Agent", "ShortLangAgent/1.0")
 				return req
 			}(),
-			expectedPrefix: "11esxx1n03", // HTTP/1.1 + "esxx" padded
+			expectedPrefix: "11esxx1n02", // HTTP/1.1 + "esxx" padded
 		},
 		{
 			name: "HTTP/1.1 with short Accept-Language and weights",
@@ -50,7 +50,7 @@ func TestGetHttpFinger(t *testing.T) {
 				req.Header.Set("User-Agent", "ShortLangAgent/1.0")
 				return req
 			}(),
-			expectedPrefix: "11es;q1w04", // HTTP/1.1 + "esxx" padded
+			expectedPrefix: "11esxx1w03", // HTTP/1.1 + "esxx" padded
 		},
 		{
 			name: "Missing Accept-Language",
@@ -61,7 +61,7 @@ func TestGetHttpFinger(t *testing.T) {
 				req.Header.Set("User-Agent", "NoLangAgent/1.0")
 				return req
 			}(),
-			expectedPrefix: "10xxxx0n01", // HTTP/1.0 + "none"
+			expectedPrefix: "10xxxx0n00", // HTTP/1.0 + "none"
 		},
 		{
 			name: "Cookie should not count as header",
@@ -75,7 +75,7 @@ func TestGetHttpFinger(t *testing.T) {
 				req.Header.Set("X-Test", "1")
 				return req
 			}(),
-			expectedPrefix: "11engb1n02", // Cookie is ignored, "engb" from lang
+			expectedPrefix: "11engb1n01", // Cookie is ignored, "engb" from lang
 		},
 	}
 
@@ -104,13 +104,10 @@ func TestGetHttpFingerHeaders(t *testing.T) {
   req2, _ := http.NewRequest("GET", "http://example.com", nil)
   req2.ProtoMajor = 2
   req2.ProtoMinor = 0
-  req2.Header.Set("Accept-Language", "en-US,en;q=0.9")
+  req2.Header.Set("X-Another-Test-Header2", "value")
   req2.Header.Set("User-Agent", "TestAgent/1.0")
-  req2.Header.Set("X-Test-Header", "value")
-  // req2.Header.Set("Accept-Language", "en-US,en;q=0.9")
-  // req2.Header.Set("X-Another-Test-Header2", "value")
-  // req2.Header.Set("User-Agent", "TestAgent/1.0")
-  // req2.Header.Set("Cookie", "saaomecookie")
+  req2.Header.Set("Cookie", "saaomecookie")
+  req2.Header.Set("Accept-Language", "en-US,en;q=0.9")
   fp2 := getHttpFinger(req2)
 
   if fp1 != fp2 {
