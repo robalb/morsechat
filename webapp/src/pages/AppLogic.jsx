@@ -197,15 +197,18 @@ export function AppLogic({chatDomNode}) {
           }
 
           pusher.current.subscriptionError = (message) => {
-            if (message.error === "invalid_credentials")
-                dispatch(setConnected('connection denied'))
-            else
-                dispatch(setConnected('connection failed'))
-            dispatch(updateOnline({
-              me: callsign,
-              users: []
-            }))
+          if (message.error === "invalid_credentials"){
+            dispatch(setConnected('connection denied'))
+          }else if (message.error === "too_many_users"){
+            dispatch(setConnected('connection busy'))
+          } else{
+            dispatch(setConnected('connection failed'))
           }
+          dispatch(updateOnline({
+            me: callsign,
+            users: []
+          }))
+        }
 
         }
       }

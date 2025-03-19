@@ -34,6 +34,8 @@ var (
   }
   config_wpmMin = 5
   config_wpmMax = 50
+  config_maxChannelOnline = 50     //max total devices that can join a channel
+  config_maxChannelOnlineIpv4 = 3 //max devices that can join a channel, with the same ipv4
 )
 
 type ClientRequest struct{
@@ -324,7 +326,17 @@ func handleJoinCommand(
     return
   }
 
-  //TODO: prometheus gauge of online users for every room
+  //check channel capacity
+  online := 0
+  for c := range client.hub.clients {
+    if c.channel == cmd.Name {
+      online += 1
+    }
+  }
+  if online > config_maxChannelOnline {
+    MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
+    return
+  }
 
   //TODO: is this thread safe?
   oldChannel := client.channel

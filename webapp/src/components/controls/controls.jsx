@@ -117,7 +117,7 @@ export function AdvancedControls({className = ""}) {
                 onChange={ e => update({ key_mode: e.target.value})}
             >
                 <FormControlLabel value="straight" control={<Radio />} label="straight" />
-                <FormControlLabel value="yambic" control={<Radio />} label="yambic A" />
+                <FormControlLabel value="yambic" control={<Radio />} label="iambic A" />
             </RadioGroup>
             <p style={{marginTop: "1rem"}}>iambic paddle order</p>
             <div>

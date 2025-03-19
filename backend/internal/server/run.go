@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/prometheus/client_golang/prometheus"
-	// "github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
@@ -78,8 +78,8 @@ func Run(
 	// Initialize monitoring
 	//--------------------
   metricsRegistry := prometheus.NewRegistry()
-  // metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbReadPool, "readpool"))
-  // metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbWritePool, "writepool"))
+  metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbReadPool, "readpool"))
+  metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbWritePool, "writepool"))
   // metricsRegistry.MustRegister(collectors.NewGoCollector())
   metrics := monitoring.NewMetrics(metricsRegistry)
   promServer := &http.Server{

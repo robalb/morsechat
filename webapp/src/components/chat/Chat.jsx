@@ -14,6 +14,7 @@ export function Chat({className = "", chatDomNode}) {
     const { enqueueSnackbar } = useSnackbar();
     const dispatch = useDispatch()
     const connectionStatus = useSelector(state => state.chat.connectionStatus)
+    const channels = useSelector(state => state.chat.channels)
     let showReadable = useSelector(state => state.user.settings.show_readable)
     let {loading, error} = useSelector(state => state.api)
     const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -23,6 +24,9 @@ export function Chat({className = "", chatDomNode}) {
       setDialogOpen(false);
       setSelectedMessage(null)
     };
+
+    let randomChannelIndex = Math.floor(Math.random()*channels.length)
+    let randomChannel = channels[randomChannelIndex].name
 
     function handleChatClick(e){
       if(e.target.tagName!="P" && e.target.tagName != "SPAN"){
@@ -57,7 +61,6 @@ export function Chat({className = "", chatDomNode}) {
     }
 
     let body = "";
-
     if(loading && error.length > 0){
         body = <div className={styles.loading}>
             <h2>Error: {error}</h2>
@@ -75,6 +78,13 @@ export function Chat({className = "", chatDomNode}) {
         body = <div className={styles.info}>
             <h2>Connection denied</h2>
             <p>This channel is for logged users only</p>
+        </div>
+    }
+    else if(connectionStatus == "connection busy"){
+        body = <div className={styles.info}>
+            <h2>Channel busy</h2>
+            <p>There are too many users connected to this channel</p>
+            <p>Come back later, or <a href={"/?channel="+randomChannel}>join another channel</a></p>
         </div>
     }
     else if(connectionStatus == "connection failed"){
