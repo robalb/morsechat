@@ -17,8 +17,8 @@ import (
 )
 
 var (
-  // A list of available channels. Edit to add new channels,
-  // all data will automatically propagate
+  // A list of available channels.
+  // Edit to add new channels, all data will automatically propagate
   // names containing "pro" are for logged users only
   config_channels = map[string]bool{
       "presence-training": true,
@@ -34,7 +34,6 @@ var (
   }
   config_wpmMin = 5
   config_wpmMax = 50
-
 )
 
 type ClientRequest struct{
@@ -74,6 +73,7 @@ type Client struct {
 // clients.
 type Hub struct {
 	// Registered clients.
+  // Warning: this is not thread safe, it can only be read from the hub
 	clients map[*Client]bool
 
 	// Inbound messages from the clients.
@@ -113,8 +113,8 @@ func (h *Hub) Run(
           BroadcastUserLeft(client.channel, client, logger)
         }
 				delete(h.clients, client)
-        updateOnlineUsersGauge(h, metrics)
 				close(client.send)
+        updateOnlineUsersGauge(h, metrics)
 			}
 		case message := <-h.broadcast:
       clientRequestMux(
@@ -168,6 +168,7 @@ func clientRequestMux(
       config,
       dbReadPool,
       dbWritePool,
+      metrics,
       )
   default:
     logger.Printf(
@@ -402,6 +403,7 @@ func handleMorseCommand(
 	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  metrics *monitoring.Metrics,
 ){
   var cmd CommandMorse
   if err := json.Unmarshal(rawCmd, &cmd); err != nil {
@@ -411,24 +413,16 @@ func handleMorseCommand(
 	messageText, messageDuration, isMalformed := morse.Translate(cmd.Message, cmd.Wpm)
   if isMalformed {
     //TODO; metrics
-    logger.Printf("HandleMorseCommand: malformed message\n")
+    logger.Printf("HandleMorseCommand: malformed cmd.message\n")
     MessageUserMorseStatusError(client, logger, "Malformed message", "")
     return
   }
 
   if cmd.Wpm < config_wpmMin || cmd.Wpm > config_wpmMax {
-    logger.Printf("HandleMorseCommand: malformed command\n")
+    logger.Printf("HandleMorseCommand: malformed cmd.wpm\n")
     MessageUserMorseStatusError(client, logger, "Malformed message", "")
     return
   }
-    
-
-  isBadLanguage := morse.ContainsBadLanguage(messageText)
-  if isBadLanguage{
-    //TODO; metrics
-    logger.Printf("HandleMorseCommand: bad language: %v\n", messageText)
-  }
-
 
   //ratelimiting logic
   //minimum seconds between each message sent, which double
@@ -471,10 +465,15 @@ func handleMorseCommand(
     logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
   }
 
+    
+  isBadLanguage := morse.ContainsBadLanguage(messageText)
   if isBadLanguage{
+    logger.Printf("HandleMorseCommand: bad language: %v\n", messageText)
     MessageUser(client, msgBytes)
+    metrics.BadMessages.Add(1)
   } else{
     client.hub.BroadcastChannel(msgBytes, client.channel)
+    metrics.Messages.Add(1)
   }
   // //notify the user that the message was sent
   {
@@ -488,6 +487,10 @@ func handleMorseCommand(
     }
     MessageUser(client, msgBytes)
   }
+  //wpm metrics
+  metrics.MessagesWpm.Observe(float64(cmd.Wpm))
+
+
 }
 
 
