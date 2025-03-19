@@ -34,8 +34,8 @@ var (
   }
   config_wpmMin = 5
   config_wpmMax = 50
-  config_maxChannelOnline = 50     //max total devices that can join a channel
-  config_maxChannelOnlineIpv4 = 3 //max devices that can join a channel, with the same ipv4
+  config_maxChannelOnline = 100    // max total devices that can join a channel
+  config_maxChannelOnlineIpv4 = 10 // max devices that can join a channel, with the same ipv4
 )
 
 type ClientRequest struct{
@@ -62,12 +62,12 @@ type Client struct {
   // User info
   userInfo auth.JwtData
 
-  //the channel the user is connected to
+  // the channel the user is connected to
   channel string
 
   isTyping bool
 
-  //the last time the user sent a message
+  // the last time the user sent a message
   lastMessageTimestamp time.Time
 }
 

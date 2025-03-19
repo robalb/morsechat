@@ -1,6 +1,8 @@
 package deviceid
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // DeviceData contains informations about the device behind an HTTP request.
 //
@@ -12,13 +14,23 @@ import "net/http"
 // based on the IP and http fingerprint of the HTTP request, and will not be
 // fully unique
 type DeviceData struct {
-  // deviceId and all external data are not available, for
-  // either a technical error or intentional malicious requests.
+  // deviceId and all external data are not available, because of either a 
+  // technical error or a tampered request
   Offline bool 
   // When offline, the ID is a combination of ipv4 and httpfinger
   // When online, the ID is a lookup key for the external database, which
   // uniquely identifies the device behind the HTTP request
   Id string
+  //a non-Bad device, with a long history
+  //of connections and no reported issues.
+  IsOrganic bool
+  //a device that is bad beyound any doubt:
+  // - banned
+  // - bot
+  // - request cookie was clearly tampered
+  // - request cookie was missing (only if set in settings)
+  // - vpn user (only if set in settings)
+  IsBad bool
 
   //----------
   //Local data
@@ -30,9 +42,9 @@ type DeviceData struct {
   //External data
   //-------------
   IsBanned bool
-  //a non-suspicious device, with a long history
-  //of connections and no reported issues.
-  IsOrganic bool
+  IsBot bool
+  IsVPN bool
+  IsTor bool
 }
 
 //TODO: make this an external struct that must be initialized
@@ -41,11 +53,18 @@ type deviceIDConfig struct {
   // the source for the client ip.
   // leave empty to read from http.Request.RemoteAddr
   IpHeaders string
+  VPNIsBad bool
+  TorIsBad bool
+  OfflineIsBad bool
 }
 
 var (
   globalConfig = deviceIDConfig{
-      IpHeaders: "X-Forwarded-For",
+    IpHeaders: "X-Forwarded-For",
+    VPNIsBad: true,
+    TorIsBad: true,
+    //TODO: set this via app config (env, flags, ...)
+    OfflineIsBad: false,
   }
 )
 
@@ -53,17 +72,45 @@ var (
 // Calculates the DeviceData of the device behind the given HTTP request
 // TODO: make this read from some data that was injected
 // in the context by a custom middleware
-func New(r *http.Request) (err error, d DeviceData){
+func New(r *http.Request) (d DeviceData, err error){
   d = DeviceData{
     Offline: true,
+    IsOrganic: false,
+    IsBad: false,
+    IsBanned: false,
+    IsBot: false,
+    IsVPN: false,
+    IsTor: false,
     Ipv4: getIp(r),
     HttpFinger: getHttpFinger(r),
   }
   //TODO: extract and verify deviceid signed cookie
   //      on fail, set offline and calculate custom id
   d.setOfflineID()
+
+  //TODO: metrics.
+  //offline, isOrganic, IsBad(reason)
   return
 }
+
+//if you need more than a single info, use the constructor
+func isOrganic(r *http.Request) bool{
+  d, err := New(r)
+  if err != nil {
+    return false
+  }
+  return d.IsOrganic
+}
+
+//if you need more than a single info, use the constructor
+func isBad(r *http.Request) (bool, error){
+  d, err := New(r)
+  if err != nil {
+    return false, err
+  }
+  return d.IsBad, nil
+}
+
 
 
 func getIp(r *http.Request) string {
@@ -76,13 +123,10 @@ func getIp(r *http.Request) string {
 }
 
 
-func getHttpFinger(r *http.Request) string {
-  return ""
-}
-
 
 func (d *DeviceData) setOfflineID(){
   d.Id = "TODO"
 }
+
 
 
