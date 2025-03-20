@@ -22,6 +22,15 @@ type DeviceData struct {
   // When online, the ID is a lookup key for the external database, which
   // uniquely identifies the device behind the HTTP request
   Id string
+  // When offline, the clusterID is the IP
+  // When online, the clusterID is a lookup key for the external database, which
+  // uniquely identifies a cluster of devices.
+  //
+  // - if a device is not part of a bot network, the ClusterId will likely be unique
+  // - if a deviceID is offline, it's more likely to be erroneously clustered with other
+  //   devices, just becase they share an ip. Don't take important actions based on 
+  //   Offline DeviceData
+  ClusterId string
   //a non-Bad device, with a long history
   //of connections and no reported issues.
   IsOrganic bool
@@ -85,17 +94,32 @@ func New(r *http.Request) (d DeviceData, err error){
     Ipv4: getIp(r, globalConfig.IpHeaders),
     HttpFinger: getHttpFinger(r),
   }
+  if !isPublicIP(d.Ipv4) {
+    //TODO: add logger dependency
+    //TODO: warning, fingerprinting a private ip address.
+    //      are you behind a reverse proxy?
+    fmt.Println("DeviceID warning: private IP. Are you behind a proxy?")
+  }
+
   //TODO: extract and verify deviceid signed cookie
   //      on fail, set offline and calculate custom id
-  d.setOfflineID()
+  if "offline" == "offline"{
+    d.Id = getOfflineID(&d)
+    d.ClusterId = d.Ipv4
+  }
+  
 
   //TODO: metrics.
   //offline, isOrganic, IsBad(reason)
   return
 }
 
+//--------------------
+// Unstable APIs, testing ground
+//--------------------
+
 //if you need more than a single info, use the constructor
-func isOrganic(r *http.Request) bool{
+func IsOrganic(r *http.Request) bool{
   d, err := New(r)
   if err != nil {
     return false
@@ -104,7 +128,7 @@ func isOrganic(r *http.Request) bool{
 }
 
 //if you need more than a single info, use the constructor
-func isBad(r *http.Request) (bool, error){
+func IsBad(r *http.Request) (bool, error){
   d, err := New(r)
   if err != nil {
     return false, err
@@ -113,13 +137,17 @@ func isBad(r *http.Request) (bool, error){
 }
 
 
+// Accepts a list of deviceIDs, returns all deviceIDs 
+// in the list that are in the same cluster of the current device
+func (d *DeviceData) FilterAssociatedIDs(ids []string) []string{
+  return FilterAssociatedIDs(d.Id, ids)
+}
 
-func (d *DeviceData) setOfflineID(){
-  //example online id:
-  //a000f374-fc05-49a3-b13e-7508b94bf3e8
-  //example Local/offline id:
-  //L-127.0.0.1-11enus2w02_41a91f7b_75f1b356
-  d.Id = fmt.Sprintf("L-%s-%s", d.Ipv4, d.HttpFinger)
+// Accepts a list of deviceIDs, returns all deviceIDs 
+// in the list that are in the same cluster of the deviceID
+func FilterAssociatedIDs(id string, ids []string) []string{
+  return []string{}
+  //TODO
 }
 
 

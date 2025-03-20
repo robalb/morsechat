@@ -213,7 +213,21 @@ func (h *Hub) BroadcastChannel(message []byte, channel string){
       }
     }
   }
+}
 
+// Broadcast a raw message to users that have the given channel and device clusterID
+func (h *Hub) BroadcastChannelCluster(message []byte, channel string, cluster string){
+  for client := range h.clients {
+    if client.channel == channel && client.deviceInfo.ClusterId == cluster{
+      select {
+      case client.send <- message:
+      default:
+        //TODO: investigate this part
+        close(client.send)
+        delete(h.clients, client)
+      }
+    }
+  }
 }
 
 //send a "join error" message to a specific user
@@ -441,7 +455,6 @@ func handleMorseCommand(
   }
 	messageText, messageDuration, isMalformed := morse.Translate(cmd.Message, cmd.Wpm)
   if isMalformed {
-    //TODO; metrics
     logger.Printf("HandleMorseCommand: malformed cmd.message\n")
     MessageUserMorseStatusError(client, logger, "Malformed message", "")
     return
@@ -453,9 +466,15 @@ func handleMorseCommand(
     return
   }
 
-  //ratelimiting logic
-  //minimum seconds between each message sent, which double
-  //if the user is suspiciously fast
+  //users can be connected without joining a channel.
+  if client.channel == "" || client.channel == "presence-training" {
+    MessageUserMorseStatusError(client, logger, "Malformed message", "")
+    return
+  }
+
+
+  //ratelimiting logic: Min seconds between each message sent,
+  // which double if the user is suspiciously fast
   cooldownTime := 10 * time.Second
   if cmd.Wpm > 30 {
     cooldownTime += cooldownTime
@@ -463,9 +482,7 @@ func handleMorseCommand(
   lastTime := client.lastMessageTimestamp
   if !lastTime.IsZero(){
     delta := time.Now().Sub(lastTime)
-    // logger.Printf("DEBUG time delta: %v messageDuration: %v", delta, time.Duration(messageDuration)*time.Millisecond)
     if delta < cooldownTime || delta < time.Duration(messageDuration)*time.Millisecond{
-      //TODO: metrics
       MessageUserMorseStatusError(client, logger, "You are sending too many messages, please wait some seconds", "")
       return
     }
@@ -498,7 +515,11 @@ func handleMorseCommand(
   isBadLanguage := morse.ContainsBadLanguage(messageText)
   if isBadLanguage{
     logger.Printf("HandleMorseCommand: (%s) bad language: %v\n", client.deviceInfo.Id, messageText)
-    MessageUser(client, msgBytes)
+    client.hub.BroadcastChannelCluster(
+      msgBytes,
+      client.channel,
+      client.deviceInfo.ClusterId,
+      )
     metrics.BadMessages.Add(1)
     //TODO: deviceID metrics increment
   } else{
