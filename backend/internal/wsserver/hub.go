@@ -36,7 +36,8 @@ var (
   config_wpmMin = 5
   config_wpmMax = 50
   config_maxChannelOnline = 100    // max total devices that can join a channel
-  config_maxChannelOnlineIpv4 = 10 // max devices that can join a channel, with the same ipv4
+  config_maxChannelOnlineIpv4 = 5  // max devices that can join a channel, with the same ipv4
+  config_ratelimitSeconds = 10 * time.Second
 )
 
 type ClientRequest struct{
@@ -372,10 +373,13 @@ func handleJoinCommand(
     return
   }
 
+  //refresh deviceid info
   //TODO: this is temporary, in the future this function will be slow and async,
   //      this will be called regularly for each user in the hub,
   //      and synced via channels
-  client.deviceInfo.Refresh()
+  for c := range client.hub.clients {
+    c.deviceInfo.Refresh()
+  }
   if client.deviceInfo.IsBad {
     MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
     logger.Printf("HandleJoinCommand: (%s) denied, device is bad", client.deviceInfo.Id)
@@ -385,16 +389,14 @@ func handleJoinCommand(
     return
   }
 
-
-  //TODO: is this thread safe?
+  // If the user is leaving a channel
+  // notify the old channel that they left
   oldChannel := client.channel
   client.channel = cmd.Name
-
-  // If the user is leaving a channel:
-  // notify the old channel that they left
   if oldChannel != "" && oldChannel != cmd.Name{
     BroadcastUserLeft(oldChannel, client, logger)
   }
+
   // BroadcastUserJoined:
   // Notify the new channel that a new user just joined
   msg := MessageJoin{
@@ -490,11 +492,9 @@ func handleMorseCommand(
     return
   }
 
-
-
   //ratelimiting logic: Min seconds between each message sent,
   // which double if the user is suspiciously fast
-  cooldownTime := 10 * time.Second
+  cooldownTime := config_ratelimitSeconds
   if cmd.Wpm > 30 {
     cooldownTime += cooldownTime
   }

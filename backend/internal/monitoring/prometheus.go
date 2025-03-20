@@ -35,6 +35,7 @@ func NewMetrics(registerer prometheus.Registerer) *Metrics {
     }, []string{
         "channel",
       }),
+    //deprecated, todo: remove
     ConnectedShadowUsers: r.NewGauge(prometheus.GaugeOpts{
       Namespace: MetricsNamespace,
       Name: "connected_shadow_users",
