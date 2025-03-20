@@ -2,7 +2,6 @@ package deviceid
 
 import (
 	"fmt"
-	"net"
 	"net/http"
 )
 
@@ -54,7 +53,7 @@ type DeviceData struct {
 type deviceIDConfig struct {
   // the source for the client ip.
   // leave empty to read from http.Request.RemoteAddr
-  IpHeaders string
+  IpHeaders []string
   VPNIsBad bool
   TorIsBad bool
   OfflineIsBad bool
@@ -62,7 +61,7 @@ type deviceIDConfig struct {
 
 var (
   globalConfig = deviceIDConfig{
-    IpHeaders: "X-Forwarded-For",
+    IpHeaders: []string {"X-Forwarded-For"},
     VPNIsBad: true,
     TorIsBad: true,
     //TODO: set this via app config (env, flags, ...)
@@ -83,7 +82,7 @@ func New(r *http.Request) (d DeviceData, err error){
     IsBot: false,
     IsVPN: false,
     IsTor: false,
-    Ipv4: getIp(r),
+    Ipv4: getIp(r, globalConfig.IpHeaders),
     HttpFinger: getHttpFinger(r),
   }
   //TODO: extract and verify deviceid signed cookie
@@ -111,21 +110,6 @@ func isBad(r *http.Request) (bool, error){
     return false, err
   }
   return d.IsBad, nil
-}
-
-
-
-func getIp(r *http.Request) string {
-  if globalConfig.IpHeaders != "" {
-    if header := r.Header.Get(globalConfig.IpHeaders); header != "" {
-      return header
-    }
-  }
-  ip, _, err := net.SplitHostPort(r.RemoteAddr)
-  if err != nil {
-    return "" //TODO
-  }
-  return ip
 }
 
 
