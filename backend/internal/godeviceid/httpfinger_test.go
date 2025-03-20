@@ -114,3 +114,17 @@ func TestGetHttpFingerHeaders(t *testing.T) {
     t.Errorf("Expected two identical fingerprints, got '%s' and '%s'", fp1, fp2)
   }
 }
+
+
+func TestGetHttpFingerMalicious(t *testing.T) {
+  req1, _ := http.NewRequest("GET", "http://example.com", nil)
+  req1.ProtoMajor = 9
+  req1.ProtoMinor = 107
+  req1.Header.Set("Accept-Language", "' - --")
+  fp1 := getHttpFinger(req1)
+  expected := "97xxxx1n01_a42c4da1bc00_000000000000"
+
+  if fp1 != expected {
+    t.Errorf("Expected fingerprint to be  '%s', got '%s'", expected, fp1)
+  }
+}

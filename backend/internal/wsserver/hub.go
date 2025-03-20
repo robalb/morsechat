@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/robalb/morsechat/internal/auth"
+	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/monitoring"
 	"github.com/robalb/morsechat/internal/morse"
@@ -61,6 +62,9 @@ type Client struct {
 
   // User info
   userInfo auth.JwtData
+
+  //deviceID audit info
+  deviceInfo *deviceid.DeviceData
 
   // the channel the user is connected to
   channel string
@@ -456,7 +460,7 @@ func handleMorseCommand(
   client.lastMessageTimestamp = time.Now()
 
   signatureData := morse.SignedMessage{
-    Session: "TODOuuidv4", //This is the critical element we need to ban an user
+    Deviceid: client.deviceInfo.Id, //This is the critical element we need to ban an user
     PlainText: messageText,
     Username: client.userInfo.Username,
     Callsign: client.userInfo.Callsign,
@@ -480,9 +484,10 @@ func handleMorseCommand(
     
   isBadLanguage := morse.ContainsBadLanguage(messageText)
   if isBadLanguage{
-    logger.Printf("HandleMorseCommand: bad language: %v\n", messageText)
+    logger.Printf("HandleMorseCommand: (%s) bad language: %v\n", client.deviceInfo.Id, messageText)
     MessageUser(client, msgBytes)
     metrics.BadMessages.Add(1)
+    //TODO: deviceID metrics increment
   } else{
     client.hub.BroadcastChannel(msgBytes, client.channel)
     metrics.Messages.Add(1)

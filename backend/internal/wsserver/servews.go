@@ -159,6 +159,7 @@ func ServeWsInit(
       conn: conn,
       send: make(chan []byte, 256),
       userInfo: jwtData,
+      deviceInfo: &device,
       channel: "",
       isTyping: false,
     }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/robalb/morsechat/internal/config"
+	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	"github.com/robalb/morsechat/internal/morse"
 	"github.com/robalb/morsechat/internal/validation"
 )
@@ -26,13 +27,21 @@ func ServeReport(
 			//Error response is already set by Bind
 			return
 		}
+
+    device, err := deviceid.New(r)
+    if err != nil {
+      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+      logger.Printf("ServeWsInit: deviceID error: %v", err.Error())
+      return
+    }
+
     signedMessage, err := morse.DecryptMessage(req.Signature, config.SecretBytes)
     if err != nil{
 			validation.RespondError(w, "Processing failed", "", http.StatusInternalServerError)
 			logger.Printf("ServeReport: signature decryption failed : %v", err.Error())
       return
     }
-    logger.Printf("ServeReport: reported : %v", signedMessage)
+    logger.Printf("ServeReport: (%s) reported : %v",device.Id, signedMessage)
     validation.RespondOk(w, OkResponse{Ok: "ok"})
   }
 }

@@ -38,7 +38,7 @@ func getHttpFinger(r *http.Request) string {
 		"sec-ch-ua-platform",
 	}
 	// [http version, 2 digits. e.g., 2.0 -> 20]
-  httpVersion := fmt.Sprintf("%d%d", r.ProtoMajor, r.ProtoMinor)
+  httpVersion := fmt.Sprintf("%d%d", r.ProtoMajor % 10, r.ProtoMinor % 10)
 
 	// language header
 	lang := "xxxx0n" //default language string

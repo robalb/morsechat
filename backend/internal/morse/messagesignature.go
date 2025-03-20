@@ -12,7 +12,7 @@ import (
 
 // SignedMessage represents the struct we will encrypt/decrypt
 type SignedMessage struct {
-	Session   string    `json:"s"`
+	Deviceid   string    `json:"d"`
 	PlainText string    `json:"p"`
 	Username string    `json:"u"`
 	Callsign string    `json:"c"`

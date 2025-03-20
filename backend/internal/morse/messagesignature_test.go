@@ -8,7 +8,7 @@ import (
 // TestEncryptMessage tests the encryption of the SignedMessage struct
 func TestEncryptMessage(t *testing.T) {
 	secretKey := []byte("examplekey123456") // Secret key (16 bytes)
-	msg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
+	msg := SignedMessage{Deviceid: "fakeuuidv4", PlainText: "Test Content"}
 
 	encryptedMessage, err := EncryptMessage(msg, secretKey)
 	if err != nil {
@@ -28,7 +28,7 @@ func TestEncryptMessage(t *testing.T) {
 // TestDecryptMessage tests the decryption of an encrypted message
 func TestDecryptMessage(t *testing.T) {
 	secretKey := []byte("examplekey123456") // Secret key (16 bytes)
-	originalMsg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
+	originalMsg := SignedMessage{Deviceid: "fakeuuidv4", PlainText: "Test Content"}
 
 	encryptedMessage, err := EncryptMessage(originalMsg, secretKey)
 	if err != nil {
@@ -51,7 +51,7 @@ func TestDecryptMessage(t *testing.T) {
 func TestInvalidKey(t *testing.T) {
 	secretKey := []byte("examplekey123456")      // Valid key
 	invalidKey := []byte("invalidkey123456")     // Different key
-	msg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
+	msg := SignedMessage{Deviceid: "fakeuuidv4", PlainText: "Test Content"}
 
 	encryptedMessage, err := EncryptMessage(msg, secretKey)
 	if err != nil {
@@ -68,7 +68,7 @@ func TestInvalidKey(t *testing.T) {
 // TestTamperedCiphertext tests decryption with a tampered ciphertext
 func TestTamperedCiphertext(t *testing.T) {
 	secretKey := []byte("examplekey123456") // Secret key (16 bytes)
-	msg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
+	msg := SignedMessage{Deviceid: "fakeuuidv4", PlainText: "Test Content"}
 
 	encryptedMessage, err := EncryptMessage(msg, secretKey)
 	if err != nil {
@@ -110,7 +110,7 @@ func TestEmptyMessage(t *testing.T) {
 // TestInvalidKeyLength tests encryption with an invalid key length
 func TestInvalidKeyLength(t *testing.T) {
 	invalidKey := []byte("shortkey") // Invalid key length
-	msg := SignedMessage{Session: "fakeuuidv4", PlainText: "Test Content"}
+	msg := SignedMessage{Deviceid: "fakeuuidv4", PlainText: "Test Content"}
 
 	_, err := EncryptMessage(msg, invalidKey)
 	if err == nil {
