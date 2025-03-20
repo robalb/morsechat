@@ -7,9 +7,9 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/jwtauth/v5"
@@ -31,7 +31,10 @@ func Run(
 	args []string,
 	getenv func(string) string,
 ) error {
-	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	ctx, cancel := signal.NotifyContext(ctx,
+    syscall.SIGINT,  // ctr-C from the terminal
+    syscall.SIGTERM, // terminate signal from Docker / kubernetes
+    )
 	defer cancel()
 
 	//--------------------

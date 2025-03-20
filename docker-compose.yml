@@ -3,15 +3,10 @@
 volumes:
   morsechatdb:
 
-networks:
-  traefik-proxy:
-    external: true
-  default:
-
 services:
   #nginx-golang webapp
   morse:
-    image: ghcr.io/robalb/morsechat:sha-9e1cad7bf222a1cc537d971d91afc330b174e085
+    build: .
     expose:
       - '80'
     # restart: unless-stopped
@@ -22,11 +17,3 @@ services:
       SECRET: ${SECRET}
     volumes:
       - morsechatdb:/app/backend/db
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.morse.rule=Host(`morse-dev.halb.it`)
-      - traefik.http.routers.morse.entrypoints=websecure
-      - traefik.http.routers.morse.tls=true
-      - traefik.http.routers.morse.tls.certresolver=myresolver
-    networks:
-      - traefik-proxy
