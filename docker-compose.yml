@@ -17,3 +17,4 @@ services:
       SECRET: ${SECRET}
     volumes:
       - morsechatdb:/app/backend/db
+      - ./backend/filters/:/app/backend/filters

@@ -16,6 +16,7 @@ services:
       SECRET: ${SECRET}
     volumes:
       - morsechatgodb:/app/backend/db
+      - ./filters/:/app/backend/filters
     labels:
       - traefik.enable=true
       - traefik.http.routers.morsego.rule=Host(`morse.halb.it`)

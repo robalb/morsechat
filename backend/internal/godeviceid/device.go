@@ -106,9 +106,10 @@ func New(r *http.Request) (d DeviceData, err error){
   if "offline" == "offline"{
     d.Id = getOfflineID(&d)
     d.ClusterId = d.Ipv4
+    //all this is temporary
+    d.IsBad = tempIsBad(d.Id)
   }
   
-
   //TODO: metrics.
   //offline, isOrganic, IsBad(reason)
   return
@@ -151,4 +152,9 @@ func FilterAssociatedIDs(id string, ids []string) []string{
 }
 
 
+//refresh stale deviceID data
+func (d *DeviceData) Refresh(){
+  //all this is temporary
+  d.IsBad = tempIsBad(d.Id)
+}
 

@@ -350,21 +350,38 @@ func handleJoinCommand(
   for c := range client.hub.clients {
     if c.channel == cmd.Name {
       online += 1
-      if c.deviceInfo.Ipv4 == client.deviceInfo.Ipv4 {
-        onlineWithSameIP += 1
-      }
+    }
+    if c.deviceInfo.Ipv4 == client.deviceInfo.Ipv4 {
+      onlineWithSameIP += 1
     }
   }
   if online > config_maxChannelOnline {
     MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
     logger.Printf("HandleJoinCommand: (%s) denied, too many users", client.deviceInfo.Id)
-    metrics.ConnectionDenied.Add(1)
+    metrics.ConnectionDenied.
+      With(prometheus.Labels{"reason": "max_capacity"}).
+      Add(1)
     return
   }
   if onlineWithSameIP > config_maxChannelOnlineIpv4 {
     MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
     logger.Printf("HandleJoinCommand: (%s) denied, too many similar ips", client.deviceInfo.Id)
-    metrics.ConnectionDeniedIP.Add(1)
+    metrics.ConnectionDenied.
+      With(prometheus.Labels{"reason": "max_ip"}).
+      Add(1)
+    return
+  }
+
+  //TODO: this is temporary, in the future this function will be slow and async,
+  //      this will be called regularly for each user in the hub,
+  //      and synced via channels
+  client.deviceInfo.Refresh()
+  if client.deviceInfo.IsBad {
+    MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
+    logger.Printf("HandleJoinCommand: (%s) denied, device is bad", client.deviceInfo.Id)
+    metrics.ConnectionDenied.
+      With(prometheus.Labels{"reason": "bad"}).
+      Add(1)
     return
   }
 
@@ -453,12 +470,6 @@ func handleMorseCommand(
     logger.Printf("HandleMorseCommand: Failed to parse json: %v\n", err)
     return
   }
-	messageText, messageDuration, isMalformed := morse.Translate(cmd.Message, cmd.Wpm)
-  if isMalformed {
-    logger.Printf("HandleMorseCommand: malformed cmd.message\n")
-    MessageUserMorseStatusError(client, logger, "Malformed message", "")
-    return
-  }
 
   if cmd.Wpm < config_wpmMin || cmd.Wpm > config_wpmMax {
     logger.Printf("HandleMorseCommand: malformed cmd.wpm\n")
@@ -471,6 +482,14 @@ func handleMorseCommand(
     MessageUserMorseStatusError(client, logger, "Malformed message", "")
     return
   }
+
+	messageText, messageDuration, isMalformed := morse.Translate(cmd.Message, cmd.Wpm)
+  if isMalformed {
+    logger.Printf("HandleMorseCommand: malformed cmd.message\n")
+    MessageUserMorseStatusError(client, logger, "Malformed message", "")
+    return
+  }
+
 
 
   //ratelimiting logic: Min seconds between each message sent,

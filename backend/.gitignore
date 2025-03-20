@@ -3,5 +3,6 @@ tmp/
 *.sqlite-shm
 *.sqlite-wal
 main
+filters/
 stress/
 
