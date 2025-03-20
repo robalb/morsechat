@@ -332,15 +332,28 @@ func handleJoinCommand(
 
   //check channel capacity
   online := 0
+  onlineWithSameIP := 0
   for c := range client.hub.clients {
     if c.channel == cmd.Name {
       online += 1
+      if c.deviceInfo.Ipv4 == client.deviceInfo.Ipv4 {
+        onlineWithSameIP += 1
+      }
     }
   }
   if online > config_maxChannelOnline {
     MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
+    logger.Printf("HandleJoinCommand: (%s) denied, too many users", client.deviceInfo.Id)
+    metrics.ConnectionDenied.Add(1)
     return
   }
+  if onlineWithSameIP > config_maxChannelOnlineIpv4 {
+    MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
+    logger.Printf("HandleJoinCommand: (%s) denied, too many similar ips", client.deviceInfo.Id)
+    metrics.ConnectionDeniedIP.Add(1)
+    return
+  }
+
 
   //TODO: is this thread safe?
   oldChannel := client.channel

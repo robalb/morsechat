@@ -12,6 +12,8 @@ const (
 type Metrics struct{
   ConnectedUsers *prometheus.GaugeVec
   ConnectedShadowUsers prometheus.Gauge
+  ConnectionDenied prometheus.Counter
+  ConnectionDeniedIP prometheus.Counter
   // report *prometheus.Counter
   // login *prometheus.Counter
   // register *prometheus.Counter
@@ -38,6 +40,17 @@ func NewMetrics(registerer prometheus.Registerer) *Metrics {
       Name: "connected_shadow_users",
       Help: "Total connected users that are shadow banned",
     }),
+    ConnectionDenied: r.NewCounter(prometheus.CounterOpts{
+      Namespace: MetricsNamespace,
+      Name: "connection_denied_capacity",
+      Help: "number of connections denied because of max channel capacity",
+    }),
+    ConnectionDeniedIP: r.NewCounter(prometheus.CounterOpts{
+      Namespace: MetricsNamespace,
+      Name: "connection_denied_ip",
+      Help: "number of connections denied because of max similar ips",
+    }),
+
     BadMessages: r.NewCounter(prometheus.CounterOpts{
       Namespace: MetricsNamespace,
       Name: "bad_messages",
