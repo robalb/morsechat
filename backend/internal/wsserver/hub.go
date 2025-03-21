@@ -189,7 +189,7 @@ func clientRequestMux(
 }
 
 // Broadcast a raw message to every connected user, in every channel
-func (h *Hub) BroadcastAll(message []byte, logger *log.Logger){
+func (h *Hub) broadcastAll(message []byte, logger *log.Logger){
   for client := range h.clients {
     select {
     case client.send <- message:
@@ -203,7 +203,7 @@ func (h *Hub) BroadcastAll(message []byte, logger *log.Logger){
 }
 
 // Broadcast a raw message to every user connected to the given channel
-func (h *Hub) BroadcastChannel(message []byte, channel string, logger *log.Logger){
+func (h *Hub) broadcastChannel(message []byte, channel string, logger *log.Logger){
   for client := range h.clients {
     if client.channel == channel {
       select {
@@ -212,14 +212,14 @@ func (h *Hub) BroadcastChannel(message []byte, channel string, logger *log.Logge
         //TODO: investigate this part
         close(client.send)
         delete(h.clients, client)
-        logger.Println("BroadcastChannel: forced connection drop")
+        logger.Println("broadcastChannel: forced connection drop")
       }
     }
   }
 }
 
 // Broadcast a raw message to users that have the given channel and device clusterID
-func (h *Hub) BroadcastChannelCluster(message []byte, channel string, cluster string, logger *log.Logger){
+func (h *Hub) broadcastChannelCluster(message []byte, channel string, cluster string, logger *log.Logger){
   for client := range h.clients {
     if client.channel == channel && client.deviceInfo.ClusterId == cluster{
       select {
@@ -228,14 +228,14 @@ func (h *Hub) BroadcastChannelCluster(message []byte, channel string, cluster st
         //TODO: investigate this part
         close(client.send)
         delete(h.clients, client)
-        logger.Println("BroadcastChannelCluster: forced connection drop")
+        logger.Println("broadcastChannelCluster: forced connection drop")
       }
     }
   }
 }
 
 //send a "join error" message to a specific user
-func MessageUserJoinerror(client *Client, logger *log.Logger, error string, channel string){
+func messageUserJoinError(client *Client, logger *log.Logger, error string, channel string){
   msg := MessageJoinError{
     Type: "joinerror",
     RejectedChannel: channel,
@@ -245,11 +245,11 @@ func MessageUserJoinerror(client *Client, logger *log.Logger, error string, chan
   if err != nil{
     logger.Printf("MessageUserJoinError: msg json marshal error: %v", err.Error())
   }
-  MessageUser(client, msgBytes, logger)
+  messageUser(client, msgBytes, logger)
 }
 
 //send a "morse message broadcast error" to a specific user
-func MessageUserMorseStatusError(client *Client, logger *log.Logger, error string, details string){
+func messageUserMorseStatusError(client *Client, logger *log.Logger, error string, details string){
   msg := MessageMorseStatus{
     Type: "messagestatus",
     Ok: false,
@@ -260,19 +260,19 @@ func MessageUserMorseStatusError(client *Client, logger *log.Logger, error strin
   if err != nil{
     logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
   }
-  MessageUser(client, msgBytes, logger)
+  messageUser(client, msgBytes, logger)
 }
 
 
 //send message bytes to a specific user
-func MessageUser(client *Client, message []byte, logger *log.Logger){
+func messageUser(client *Client, message []byte, logger *log.Logger){
   select {
   case client.send <- message:
   default:
     //TODO: investigate this part
     close(client.send)
     delete(client.hub.clients, client)
-    logger.Println("MessageUser: forced connection drop")
+    logger.Println("messageUser: forced connection drop")
   }
 }
 
@@ -320,7 +320,7 @@ func BroadcastUserLeft(channel string, client *Client, logger *log.Logger){
   if err != nil{
     logger.Printf("BroadcastUserLeft: msg json marshal error: %v", err.Error())
   }
-  client.hub.BroadcastChannel(msgBytes, channel, logger)
+  client.hub.broadcastChannel(msgBytes, channel, logger)
 }
 
 //------------------------
@@ -340,12 +340,12 @@ func handleJoinCommand(
   }
   if _, ok := config_channels[cmd.Name]; !ok {
     logger.Printf("HandleJoinCommand: invalid channel name: %v", cmd.Name)
-    MessageUserJoinerror(client, logger, "invalid channel name", cmd.Name)
+    messageUserJoinError(client, logger, "invalid channel name", cmd.Name)
     return
   }
 
   if strings.Contains(cmd.Name, "pro") && client.userInfo.IsAnonymous{
-    MessageUserJoinerror(client, logger, "invalid_credentials", cmd.Name)
+    messageUserJoinError(client, logger, "invalid_credentials", cmd.Name)
     return
   }
 
@@ -361,7 +361,7 @@ func handleJoinCommand(
     }
   }
   if online > config_maxChannelOnline {
-    MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
+    messageUserJoinError(client, logger, "too_many_users", cmd.Name)
     logger.Printf("HandleJoinCommand: (%s) denied, too many users", client.deviceInfo.Id)
     metrics.ConnectionDenied.
       With(prometheus.Labels{"reason": "max_capacity"}).
@@ -369,7 +369,7 @@ func handleJoinCommand(
     return
   }
   if onlineWithSameIP > config_maxChannelOnlineIpv4 {
-    MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
+    messageUserJoinError(client, logger, "too_many_users", cmd.Name)
     logger.Printf("HandleJoinCommand: (%s) denied, too many similar ips", client.deviceInfo.Id)
     metrics.ConnectionDenied.
       With(prometheus.Labels{"reason": "max_ip"}).
@@ -385,7 +385,7 @@ func handleJoinCommand(
     c.deviceInfo.Refresh()
   }
   if client.deviceInfo.IsBad {
-    MessageUserJoinerror(client, logger, "too_many_users", cmd.Name)
+    messageUserJoinError(client, logger, "too_many_users", cmd.Name)
     logger.Printf("HandleJoinCommand: (%s) denied, device is bad", client.deviceInfo.Id)
     metrics.ConnectionDenied.
       With(prometheus.Labels{"reason": "bad"}).
@@ -432,7 +432,7 @@ func handleJoinCommand(
   if err != nil{
     logger.Printf("HandleJoinCommand: msg json marshal error: %v", err.Error())
   }
-  client.hub.BroadcastChannel(msgBytes, client.channel, logger)
+  client.hub.broadcastChannel(msgBytes, client.channel, logger)
 }
 
 func handleTypingCommand(
@@ -456,7 +456,7 @@ func handleTypingCommand(
     if err != nil{
       logger.Printf("HandleTypingCommand: msg json marshal error: %v", err.Error())
     }
-    client.hub.BroadcastChannel(msgBytes, client.channel, logger)
+    client.hub.broadcastChannel(msgBytes, client.channel, logger)
   }
 }
 
@@ -479,20 +479,20 @@ func handleMorseCommand(
 
   if cmd.Wpm < config_wpmMin || cmd.Wpm > config_wpmMax {
     logger.Printf("HandleMorseCommand: malformed cmd.wpm\n")
-    MessageUserMorseStatusError(client, logger, "Malformed message", "")
+    messageUserMorseStatusError(client, logger, "Malformed message", "")
     return
   }
 
   //users can be connected without joining a channel.
   if client.channel == "" || client.channel == "presence-training" {
-    MessageUserMorseStatusError(client, logger, "Malformed message", "")
+    messageUserMorseStatusError(client, logger, "Malformed message", "")
     return
   }
 
 	messageText, messageDuration, isMalformed := morse.Translate(cmd.Message, cmd.Wpm)
   if isMalformed {
     logger.Printf("HandleMorseCommand: malformed cmd.message\n")
-    MessageUserMorseStatusError(client, logger, "Malformed message", "")
+    messageUserMorseStatusError(client, logger, "Malformed message", "")
     return
   }
 
@@ -509,7 +509,7 @@ func handleMorseCommand(
   if !lastTime.IsZero(){
     delta := time.Now().Sub(lastTime)
     if delta < cooldownTime || delta < time.Duration(messageDuration)*time.Millisecond{
-      MessageUserMorseStatusError(client, logger, "You are sending too many messages, please wait some seconds", "")
+      messageUserMorseStatusError(client, logger, "You are sending too many messages, please wait some seconds", "")
       return
     }
   }
@@ -541,7 +541,7 @@ func handleMorseCommand(
   isBadLanguage := morse.ContainsBadLanguage(messageText)
   if isBadLanguage || client.deviceInfo.IsBad{
     logger.Printf("HandleMorseCommand: (%s) bad language: %v\n", client.deviceInfo.Id, messageText)
-    client.hub.BroadcastChannelCluster(
+    client.hub.broadcastChannelCluster(
       msgBytes,
       client.channel,
       client.deviceInfo.ClusterId,
@@ -550,7 +550,7 @@ func handleMorseCommand(
     metrics.BadMessages.Add(1)
     //TODO: deviceID metrics increment
   } else{
-    client.hub.BroadcastChannel(msgBytes, client.channel, logger)
+    client.hub.broadcastChannel(msgBytes, client.channel, logger)
     metrics.Messages.Add(1)
   }
   // //notify the user that the message was sent
@@ -563,7 +563,7 @@ func handleMorseCommand(
     if err != nil{
       logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
     }
-    MessageUser(client, msgBytes, logger)
+    messageUser(client, msgBytes, logger)
   }
   //wpm metrics
   metrics.MessagesWpm.Observe(float64(cmd.Wpm))
