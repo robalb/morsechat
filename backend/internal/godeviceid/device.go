@@ -116,7 +116,55 @@ func New(r *http.Request) (d DeviceData, err error){
 }
 
 //--------------------
-// Unstable APIs, testing ground
+// Unstable APIs, v0, in use
+//--------------------
+
+// associate an unique Identity to a device.
+// this is considered new, trusted information about
+// the device. it will be used to recalculate the clusters.
+//
+// This information is anonymized before being sent to the
+// deviceID servers.
+func (d *DeviceData) SetUniqueIdentity(id string){
+  //TODO
+}
+
+// ban a cluster associated to the device, with no
+// additional metadata. 
+// if the cluster was already banned, this is a no-op,
+// and previous ban metadata will remain valid
+//
+// return the deviceId, which can be stored
+// to keep track of bans, and be used to undo a ban.
+// when offline, the ban is a simple ipban
+func (d *DeviceData) SetBanned() string{
+  d.IsBanned = true
+  d.IsBad = true
+  tempBan(d.Ipv4)
+  return d.Id
+}
+
+//same as SetBanned, but works with a deviceID string,
+//even if there is no current reference to the device object.
+func Ban(deviceId string) string{
+  tempBan(deviceId)
+  return deviceId
+}
+
+
+//undo the ban associated to an ID
+// when offline, the banID is the IP
+func UndoBan(bannedDeviceId string){
+  ip, isOfflineId := extractIP(bannedDeviceId)
+  if isOfflineId {
+    tempUnBan(ip)
+  }
+}
+
+
+
+//--------------------
+// Unstable APIs, testing ground, not in use
 //--------------------
 
 //if you need more than a single info, use the constructor

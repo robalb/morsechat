@@ -380,10 +380,9 @@ func handleJoinCommand(
   //refresh deviceid info
   //TODO: this is temporary, in the future this function will be slow and async,
   //      this will be called regularly for each user in the hub,
-  //      and synced via channels
-  for c := range client.hub.clients {
-    c.deviceInfo.Refresh()
-  }
+  //      and synced via channels.
+  //      if a bad user gets detected, the future system will just drop the connection
+  client.deviceInfo.Refresh()
   if client.deviceInfo.IsBad {
     messageUserJoinError(client, logger, "too_many_users", cmd.Name)
     logger.Printf("HandleJoinCommand: (%s) denied, device is bad", client.deviceInfo.Id)
@@ -501,9 +500,6 @@ func handleMorseCommand(
   cooldownTime := config_ratelimitSeconds
   if cmd.Wpm > 30 {
     cooldownTime += cooldownTime
-  }
-  if client.deviceInfo.IsBad {
-    cooldownTime += 100 * time.Hour
   }
   lastTime := client.lastMessageTimestamp
   if !lastTime.IsZero(){

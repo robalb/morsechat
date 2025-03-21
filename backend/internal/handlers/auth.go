@@ -12,6 +12,7 @@ import (
 	"github.com/robalb/morsechat/internal/argon2id"
 	"github.com/robalb/morsechat/internal/auth"
 	"github.com/robalb/morsechat/internal/db"
+	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	"github.com/robalb/morsechat/internal/morse"
 	"github.com/robalb/morsechat/internal/validation"
 )
@@ -37,6 +38,14 @@ func ServeRegister(
 			return
 		}
 
+    device, err := deviceid.New(r)
+    if err != nil {
+      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+      logger.Printf("ServeWsInit: deviceID error: %v", err.Error())
+      return
+    }
+
+
     countryCode, ok := morse.ParseCallsign(regData.Callsign)
     if (!ok){
 			validation.RespondError(w, "Invalid callsign", "", http.StatusBadRequest)
@@ -49,6 +58,13 @@ func ServeRegister(
 			validation.RespondError(w, "Already logged in", "", http.StatusBadRequest)
 			return
 		}
+
+    // fail if bad device
+    if device.IsBad {
+			validation.RespondError(w, "Invalid callsign", "", http.StatusBadRequest)
+			logger.Printf("ServeRegister: (%s) bad device registration stopped", device.Id)
+			return
+    }
 
 		hash, err := argon2id.CreateHash(regData.Password, argon2id.DefaultParams)
 		if err != nil {
@@ -63,7 +79,7 @@ func ServeRegister(
 			Password:            hash,
 			Callsign:            regData.Callsign,
       Country:             countryCode,
-			RegistrationSession: "",
+			RegistrationSession: device.Id,
 		})
     if sqliteErr, ok := err.(sqlite3.Error); ok {
       if sqliteErr.Code == sqlite3.ErrConstraint {
@@ -87,6 +103,9 @@ func ServeRegister(
 			logger.Printf("ServeRegister: query id error: %v", err.Error())
 			return
 		}
+    
+    // audit events
+    device.SetUniqueIdentity(regData.Username)
 
 		jwtData := auth.JwtData{
 			UserId:      id,
@@ -117,7 +136,7 @@ func ServeRegister(
 /*
 If the user is not logged this endpoints acts as a sort of
 anonymous login, setting a cookie with limited credentials
-that will allows a connection to the websocket
+that allows a connection to the websocket
 */
 func ServeSessInit(
 	logger *log.Logger,
@@ -125,7 +144,6 @@ func ServeSessInit(
 	dbReadPool *sql.DB,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		//If the user already has a session, just return the session data,
 		//But don't set any jwt cokie.
 		currentJwtData, err := auth.GetJwtData(r.Context())
@@ -259,6 +277,13 @@ func ServeLogin(
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+    device, err := deviceid.New(r)
+    if err != nil {
+      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+      logger.Printf("ServeWsInit: deviceID error: %v", err.Error())
+      return
+    }
+
 		var reqData LoginData
 		if err := validation.Bind(w, r, &reqData); err != nil {
 			//Error response is already set by Bind
@@ -294,6 +319,16 @@ func ServeLogin(
 			return
 		}
 
+    device.SetUniqueIdentity(res.Username)
+    if res.IsBanned != 0 {
+      //curse this device
+      device.SetBanned()
+			validation.RespondError(w, "invalid_credentials", "", http.StatusBadRequest)
+			logger.Printf("ServeLogin: (%s) Logged into a banned account", device.Id)
+      return
+    }
+
+
     var userSettings Settings
     var responseSettings *Settings = nil
     userSettingsStr, ok := res.Settings.(string)
@@ -318,7 +353,7 @@ func ServeLogin(
     err = auth.SetJwtCookie(w, tokenAuth, jwtData)
 		if err != nil {
 			validation.RespondError(w, "Session creation error", "", http.StatusInternalServerError)
-			logger.Printf("ServeRegister: Jwt creation error: %v", err.Error())
+			logger.Printf("ServeLogin: Jwt creation error: %v", err.Error())
 			return
     }
 		validation.RespondOk(w, AuthResponse{
@@ -367,7 +402,7 @@ func ServeValidateCallsign(
       return
     }else if err != nil {
 			validation.RespondError(w, "query_failed", "", http.StatusInternalServerError)
-			logger.Printf("ServeRegister: query error: %v", err.Error())
+			logger.Printf("ServeValidateCallsign: query error: %v", err.Error())
       return
 		}
     validation.RespondError(w, "already_taken", "", http.StatusBadRequest)
