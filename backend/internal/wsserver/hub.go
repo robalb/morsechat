@@ -189,7 +189,7 @@ func clientRequestMux(
 }
 
 // Broadcast a raw message to every connected user, in every channel
-func (h *Hub) BroadcastAll(message []byte){
+func (h *Hub) BroadcastAll(message []byte, logger *log.Logger){
   for client := range h.clients {
     select {
     case client.send <- message:
@@ -197,12 +197,13 @@ func (h *Hub) BroadcastAll(message []byte){
       //TODO: investigate this part
       close(client.send)
       delete(h.clients, client)
+      logger.Println("BroadCastAll: forced connection drop")
     }
   }
 }
 
 // Broadcast a raw message to every user connected to the given channel
-func (h *Hub) BroadcastChannel(message []byte, channel string){
+func (h *Hub) BroadcastChannel(message []byte, channel string, logger *log.Logger){
   for client := range h.clients {
     if client.channel == channel {
       select {
@@ -211,13 +212,14 @@ func (h *Hub) BroadcastChannel(message []byte, channel string){
         //TODO: investigate this part
         close(client.send)
         delete(h.clients, client)
+        logger.Println("BroadcastChannel: forced connection drop")
       }
     }
   }
 }
 
 // Broadcast a raw message to users that have the given channel and device clusterID
-func (h *Hub) BroadcastChannelCluster(message []byte, channel string, cluster string){
+func (h *Hub) BroadcastChannelCluster(message []byte, channel string, cluster string, logger *log.Logger){
   for client := range h.clients {
     if client.channel == channel && client.deviceInfo.ClusterId == cluster{
       select {
@@ -226,6 +228,7 @@ func (h *Hub) BroadcastChannelCluster(message []byte, channel string, cluster st
         //TODO: investigate this part
         close(client.send)
         delete(h.clients, client)
+        logger.Println("BroadcastChannelCluster: forced connection drop")
       }
     }
   }
@@ -242,7 +245,7 @@ func MessageUserJoinerror(client *Client, logger *log.Logger, error string, chan
   if err != nil{
     logger.Printf("MessageUserJoinError: msg json marshal error: %v", err.Error())
   }
-  MessageUser(client, msgBytes)
+  MessageUser(client, msgBytes, logger)
 }
 
 //send a "morse message broadcast error" to a specific user
@@ -257,18 +260,19 @@ func MessageUserMorseStatusError(client *Client, logger *log.Logger, error strin
   if err != nil{
     logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
   }
-  MessageUser(client, msgBytes)
+  MessageUser(client, msgBytes, logger)
 }
 
 
 //send message bytes to a specific user
-func MessageUser(client *Client, message []byte){
+func MessageUser(client *Client, message []byte, logger *log.Logger){
   select {
   case client.send <- message:
   default:
     //TODO: investigate this part
     close(client.send)
     delete(client.hub.clients, client)
+    logger.Println("MessageUser: forced connection drop")
   }
 }
 
@@ -316,7 +320,7 @@ func BroadcastUserLeft(channel string, client *Client, logger *log.Logger){
   if err != nil{
     logger.Printf("BroadcastUserLeft: msg json marshal error: %v", err.Error())
   }
-  client.hub.BroadcastChannel(msgBytes, channel)
+  client.hub.BroadcastChannel(msgBytes, channel, logger)
 }
 
 //------------------------
@@ -428,7 +432,7 @@ func handleJoinCommand(
   if err != nil{
     logger.Printf("HandleJoinCommand: msg json marshal error: %v", err.Error())
   }
-  client.hub.BroadcastChannel(msgBytes, client.channel)
+  client.hub.BroadcastChannel(msgBytes, client.channel, logger)
 }
 
 func handleTypingCommand(
@@ -452,7 +456,7 @@ func handleTypingCommand(
     if err != nil{
       logger.Printf("HandleTypingCommand: msg json marshal error: %v", err.Error())
     }
-    client.hub.BroadcastChannel(msgBytes, client.channel)
+    client.hub.BroadcastChannel(msgBytes, client.channel, logger)
   }
 }
 
@@ -493,10 +497,13 @@ func handleMorseCommand(
   }
 
   //ratelimiting logic: Min seconds between each message sent,
-  // which double if the user is suspiciously fast
+  // which double if the user is suspiciously fast,
   cooldownTime := config_ratelimitSeconds
   if cmd.Wpm > 30 {
     cooldownTime += cooldownTime
+  }
+  if client.deviceInfo.IsBad {
+    cooldownTime += 100 * time.Hour
   }
   lastTime := client.lastMessageTimestamp
   if !lastTime.IsZero(){
@@ -532,17 +539,18 @@ func handleMorseCommand(
 
     
   isBadLanguage := morse.ContainsBadLanguage(messageText)
-  if isBadLanguage{
+  if isBadLanguage || client.deviceInfo.IsBad{
     logger.Printf("HandleMorseCommand: (%s) bad language: %v\n", client.deviceInfo.Id, messageText)
     client.hub.BroadcastChannelCluster(
       msgBytes,
       client.channel,
       client.deviceInfo.ClusterId,
+      logger,
       )
     metrics.BadMessages.Add(1)
     //TODO: deviceID metrics increment
   } else{
-    client.hub.BroadcastChannel(msgBytes, client.channel)
+    client.hub.BroadcastChannel(msgBytes, client.channel, logger)
     metrics.Messages.Add(1)
   }
   // //notify the user that the message was sent
@@ -555,7 +563,7 @@ func handleMorseCommand(
     if err != nil{
       logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
     }
-    MessageUser(client, msgBytes)
+    MessageUser(client, msgBytes, logger)
   }
   //wpm metrics
   metrics.MessagesWpm.Observe(float64(cmd.Wpm))
