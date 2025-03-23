@@ -15,6 +15,8 @@ export function ReportMessage({ open, onClose, data }) {
   let [btDisabled, setBtDisabled] = React.useState(false)
   let [reported, setReported] = React.useState(false)
   let authenticated = useSelector(state => state.user.authenticated)
+  let ismoderator = useSelector(state => state.user.ismoderator)
+  let isadmin = useSelector(state => state.user.isadmin)
   const {enqueueSnackbar} = useSnackbar();
   const dispatch = useDispatch()
   async function handleReport(){
@@ -60,12 +62,21 @@ export function ReportMessage({ open, onClose, data }) {
         <div >
           <p> Do you believe this message is spam or contains inappropriate content? </p>
           <code>{data?.text}</code>
+
         </div>
 
       </DialogContent>
       <DialogActions>
         <Button onClick={handleReport} disabled={btDisabled} color="error" variant="contained">Report</Button>
         <Button onClick={onClose} color="primary" variant="contained">Close</Button>
+          {(ismoderator || isadmin) && (
+            <>
+            <p></p>
+            <p> Moderator actions: </p>
+              <Button onClick={onClose} color="error" variant="contained">Ban</Button>
+            </>
+          )}
+
       </DialogActions>
     </Dialog>
   );
