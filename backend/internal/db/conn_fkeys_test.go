@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 	"time"
 
@@ -38,11 +39,13 @@ func TestForeignKey(t *testing.T) {
 	}
 
 	res, err := queries.CreateReport(ctx, CreateReportParams{
-		ReporterUserID:       1337, //not a valid foreign key
+		ReporterUserID:       sql.NullInt64{ 
+      Int64: 1337,
+      Valid: true, // we're lying
+    }, //not a valid foreign key
 		ReporterSession:      "afakeuuidv4",
 		BaduserSession:       "anotherfakeuuidv4",
 		BadmessageTranscript: "",
-		BadmessageRecording:  "",
 	})
 
 	if err == nil {
@@ -50,11 +53,13 @@ func TestForeignKey(t *testing.T) {
 	}
 
 	res2, err := queries.CreateReport(ctx, CreateReportParams{
-		ReporterUserID:       insertedUserId,
+		ReporterUserID:       sql.NullInt64{ 
+      Int64: insertedUserId,
+      Valid: true,
+    },
 		ReporterSession:      "afakeuuidv4",
 		BaduserSession:       "anotherfakeuuidv4",
 		BadmessageTranscript: "",
-		BadmessageRecording:  "",
 	})
 
 	if err != nil {

@@ -1,0 +1,21 @@
+meta {
+  name: moderationlist
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{host}}/api/v1/moderation/list
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "aaa"
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}

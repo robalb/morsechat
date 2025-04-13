@@ -5,7 +5,6 @@
 -- browsing metadata like the user ip.
 -- Everywhere auditing features are required, we log
 -- session ids. Even when we have an username.
-
 CREATE TABLE IF NOT EXISTS users (
   id                     INTEGER PRIMARY KEY,
   username               TEXT NOT NULL,
@@ -26,6 +25,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_callsign
   ON users (callsign);
 CREATE INDEX IF NOT EXISTS idx_users_registration_session
   ON users (registration_session);
+
+
+-- we keep track of anon_users only when we ban them,
+-- in order to have a clear record of the existing
+-- banned users, logged or not
+CREATE TABLE IF NOT EXISTS anon_users (
+  id                     INTEGER PRIMARY KEY,
+  last_session           TEXT NOT NULL,
+  is_banned              INTEGER NOT NULL DEFAULT 0 -- BOOLEAN
+  ) STRICT;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_anon_users_last_session
+  ON anon_users (last_session);
 
 
 CREATE TABLE IF NOT EXISTS report_action(
@@ -49,7 +60,6 @@ CREATE INDEX IF NOT EXISTS idx_report_action_baduser_session
   ON report_action (baduser_session);
 CREATE INDEX IF NOT EXISTS idx_report_action_event_timestamp
   ON report_action (event_timestamp);
-
 
 
 CREATE TABLE IF NOT EXISTS ban_action(

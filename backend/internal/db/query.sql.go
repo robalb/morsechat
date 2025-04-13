@@ -10,6 +10,25 @@ import (
 	"database/sql"
 )
 
+const createAnonUser = `-- name: CreateAnonUser :execresult
+INSERT INTO anon_users (
+  last_session, is_banned
+) VALUES (
+  ?, ?
+)
+ON CONFLICT(last_session)
+DO UPDATE SET is_banned = excluded.is_banned
+`
+
+type CreateAnonUserParams struct {
+	LastSession string
+	IsBanned    int64
+}
+
+func (q *Queries) CreateAnonUser(ctx context.Context, arg CreateAnonUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createAnonUser, arg.LastSession, arg.IsBanned)
+}
+
 const createReport = `-- name: CreateReport :execresult
 INSERT INTO report_action (
   reporter_user_id,
@@ -90,6 +109,160 @@ func (q *Queries) GetCallsign(ctx context.Context, callsign string) (string, err
 	return callsign, err
 }
 
+const getLastBanEvents = `-- name: GetLastBanEvents :many
+SELECT id, moderator_id, event_timestamp, baduser_id, baduser_session, moderator_notes, reason, is_ban_revert
+FROM ban_action
+ORDER BY event_timestamp DESC
+LIMIT 100
+`
+
+func (q *Queries) GetLastBanEvents(ctx context.Context) ([]BanAction, error) {
+	rows, err := q.db.QueryContext(ctx, getLastBanEvents)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []BanAction
+	for rows.Next() {
+		var i BanAction
+		if err := rows.Scan(
+			&i.ID,
+			&i.ModeratorID,
+			&i.EventTimestamp,
+			&i.BaduserID,
+			&i.BaduserSession,
+			&i.ModeratorNotes,
+			&i.Reason,
+			&i.IsBanRevert,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLastBanned = `-- name: GetLastBanned :many
+SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp
+FROM users
+WHERE is_banned == 1
+AND username LIKE ?
+LIMIT 100
+`
+
+func (q *Queries) GetLastBanned(ctx context.Context, username string) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, getLastBanned, username)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.Password,
+			&i.Callsign,
+			&i.Country,
+			&i.Settings,
+			&i.IsBanned,
+			&i.IsVerified,
+			&i.IsModerator,
+			&i.RegistrationSession,
+			&i.RegistrationTimestamp,
+			&i.LastOnlineTimestamp,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLastBannedAnon = `-- name: GetLastBannedAnon :many
+SELECT id, last_session, is_banned
+FROM anon_users
+where is_banned == 1
+AND last_session LIKE ?
+LIMIT 100
+`
+
+func (q *Queries) GetLastBannedAnon(ctx context.Context, lastSession string) ([]AnonUser, error) {
+	rows, err := q.db.QueryContext(ctx, getLastBannedAnon, lastSession)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AnonUser
+	for rows.Next() {
+		var i AnonUser
+		if err := rows.Scan(&i.ID, &i.LastSession, &i.IsBanned); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLastReports = `-- name: GetLastReports :many
+SELECT id, reporter_user_id, reporter_session, event_timestamp, baduser_id, baduser_session, reason, badmessage_transcript, badmessage_timestamp
+FROM report_action
+ORDER BY event_timestamp DESC
+LIMIT 100
+`
+
+func (q *Queries) GetLastReports(ctx context.Context) ([]ReportAction, error) {
+	rows, err := q.db.QueryContext(ctx, getLastReports)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ReportAction
+	for rows.Next() {
+		var i ReportAction
+		if err := rows.Scan(
+			&i.ID,
+			&i.ReporterUserID,
+			&i.ReporterSession,
+			&i.EventTimestamp,
+			&i.BaduserID,
+			&i.BaduserSession,
+			&i.Reason,
+			&i.BadmessageTranscript,
+			&i.BadmessageTimestamp,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUser = `-- name: GetUser :one
 SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE username = ? LIMIT 1
@@ -138,6 +311,20 @@ func (q *Queries) GetUserFromId(ctx context.Context, id int64) (User, error) {
 		&i.LastOnlineTimestamp,
 	)
 	return i, err
+}
+
+const isModerator = `-- name: IsModerator :one
+SELECT is_moderator
+FROM users
+WHERE id == ?
+LIMIT 1
+`
+
+func (q *Queries) IsModerator(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, isModerator, id)
+	var is_moderator int64
+	err := row.Scan(&is_moderator)
+	return is_moderator, err
 }
 
 const listModerators = `-- name: ListModerators :many
@@ -212,6 +399,19 @@ func (q *Queries) RecordBanAction(ctx context.Context, arg RecordBanActionParams
 		arg.Reason,
 		arg.IsBanRevert,
 	)
+}
+
+const updateBanned = `-- name: UpdateBanned :execresult
+UPDATE users SET is_banned = ? WHERE id = ?
+`
+
+type UpdateBannedParams struct {
+	IsBanned int64
+	ID       int64
+}
+
+func (q *Queries) UpdateBanned(ctx context.Context, arg UpdateBannedParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateBanned, arg.IsBanned, arg.ID)
 }
 
 const updateSettings = `-- name: UpdateSettings :execresult

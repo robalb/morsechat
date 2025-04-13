@@ -55,11 +55,10 @@ func AddRoutes(
     r.Post("/logout", handlers.ServeLogout(logger, tokenAuth))
     r.Post("/update_settings", handlers.ServeUpdateSettings(logger, dbReadPool, dbWritePool))
 
-		r.Route("/moderator", func(r chi.Router) {
+		r.Route("/moderation", func(r chi.Router) {
 			r.Use(middleware.RequireModerator(tokenAuth))
-			r.Get("/list_banned", serveTODO)
-			r.Post("/ban", serveTODO)
-			r.Post("/unbann", serveTODO)
+			r.Post("/list", handlers.ServeModerationList(logger, tokenAuth, dbReadPool, dbWritePool))
+			r.Post("/ban", handlers.ServeModerationBan(logger, tokenAuth, dbReadPool, dbWritePool))
 		})
 		r.Route("/admin", func(r chi.Router) {
 			r.Use(middleware.RequireAdmin(tokenAuth))

@@ -34,3 +34,49 @@ type AuthResponse struct {
 type OkResponse struct {
   Ok string `json:"ok"`
 }
+
+type ModerationUserResponse struct {
+	ID          int64  `json:"id"`
+	Username    string `json:"username"`
+	Callsign    string `json:"callsign"`
+	Country     any    `json:"country"`
+	IsVerified  bool   `json:"is_verified"`
+	IsModerator bool   `json:"is_moderator"`
+}
+
+type ModerationAnonUserResponse struct {
+	ID          int64  `json:"id"`
+	LastSession string `json:"last_session"`
+}
+
+type ModerationBanActionResponse struct {
+	ID             int64  `json:"id"`
+	ModeratorID    int64  `json:"moderator_id"`
+	EventTimestamp int64  `json:"event_timestamp"`
+	BaduserID      int64  `json:"baduser_id"`
+	BaduserSession string `json:"baduser_session"`
+	ModeratorNotes any    `json:"moderator_notes"`
+	Reason         any    `json:"reason"`
+	IsBanRevert    bool   `json:"is_ban_revert"`
+}
+
+type ModerationReportActionResponse struct {
+	ID                   int64  `json:"id"`
+	ReporterUserID       int64  `json:"reporter_user_id"`
+	ReporterSession      string `json:"reporter_session"`
+	EventTimestamp       int64  `json:"event_timestamp"`
+	BaduserID            int64  `json:"baduser_id"`
+	BaduserSession       string `json:"baduser_session"`
+	Reason               any    `json:"reason"`
+	BadmessageTranscript string `json:"badmessage_transcript"`
+	BadmessageTimestamp  int64  `json:"badmessage_timestamp"`
+}
+
+type ModerationListResponse struct {
+	Users      []ModerationUserResponse          `json:"users"`
+	BanActions []ModerationBanActionResponse     `json:"ban_actions"`
+	Reports    []ModerationReportActionResponse  `json:"report_actions"`
+	AnonUsers  []ModerationAnonUserResponse      `json:"anon_users"`
+}
+
+

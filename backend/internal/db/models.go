@@ -8,6 +8,12 @@ import (
 	"database/sql"
 )
 
+type AnonUser struct {
+	ID          int64
+	LastSession string
+	IsBanned    int64
+}
+
 type BanAction struct {
 	ID             int64
 	ModeratorID    int64

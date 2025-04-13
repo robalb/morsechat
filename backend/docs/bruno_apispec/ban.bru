@@ -1,0 +1,24 @@
+meta {
+  name: ban
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{host}}/api/v1/moderation/ban
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "baduser_id": 1,
+    "baduser_session": "sess2",
+    "notes": "this is a test ban",
+    "is_rever": false
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:8080
+}

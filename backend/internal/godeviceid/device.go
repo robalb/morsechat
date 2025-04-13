@@ -147,7 +147,10 @@ func (d *DeviceData) SetBanned() string{
 //same as SetBanned, but works with a deviceID string,
 //even if there is no current reference to the device object.
 func Ban(deviceId string) string{
-  tempBan(deviceId)
+  ip, isOfflineId := extractIP(deviceId)
+  if isOfflineId {
+    tempBan(ip)
+  }
   return deviceId
 }
 

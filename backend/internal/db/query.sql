@@ -17,6 +17,15 @@ INSERT INTO users (
   ?, ?, ?, ?, ?
 );
 
+/* name: CreateAnonUser :execresult */
+INSERT INTO anon_users (
+  last_session, is_banned
+) VALUES (
+  ?, ?
+)
+ON CONFLICT(last_session)
+DO UPDATE SET is_banned = excluded.is_banned;
+
 /* name: DeleteUser :exec */
 DELETE FROM users
 WHERE username = ?;
@@ -49,8 +58,41 @@ INSERT INTO ban_action (
   ?, ?, ?, ?, ?, ?
 );
 
+/* name: GetLastBanEvents :many */
+SELECT *
+FROM ban_action
+ORDER BY event_timestamp DESC
+LIMIT 100;
 
+/* name: GetLastReports :many */
+SELECT *
+FROM report_action
+ORDER BY event_timestamp DESC
+LIMIT 100;
+
+/* name: GetLastBanned :many */
+SELECT *
+FROM users
+WHERE is_banned == 1
+AND username LIKE ?
+LIMIT 100;
+
+/* name: GetLastBannedAnon :many */
+SELECT *
+FROM anon_users
+where is_banned == 1
+AND last_session LIKE ?
+LIMIT 100;
+
+/* name: IsModerator :one */
+SELECT is_moderator
+FROM users
+WHERE id == ?
+LIMIT 1;
 
 /* name: UpdateSettings :execresult */
 UPDATE users SET settings = ? WHERE id = ?;
+
+/* name: UpdateBanned :execresult */
+UPDATE users SET is_banned = ? WHERE id = ?;
 
