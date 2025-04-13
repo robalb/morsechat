@@ -21,14 +21,14 @@ type BanAction struct {
 
 type ReportAction struct {
 	ID                   int64
-	ReporterUserID       int64
+	ReporterUserID       sql.NullInt64
 	ReporterSession      string
 	EventTimestamp       int64
 	BaduserID            sql.NullInt64
 	BaduserSession       string
 	Reason               interface{}
 	BadmessageTranscript string
-	BadmessageRecording  string
+	BadmessageTimestamp  int64
 }
 
 type User struct {

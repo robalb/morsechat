@@ -59,12 +59,14 @@ export function Header({ leftContent = "", authState }) {
     if (!loading) {
         rightContent = authenticated ? (
             <>
-                <Button
-                    startIcon={<ShieldIcon />}
-                    onClick={handleModerationOpen}
-                >
-                    Moderation
-                </Button>
+                {(isadmin || ismoderator) &&
+                  <Button
+                      startIcon={<ShieldIcon />}
+                      onClick={handleModerationOpen}
+                  >
+                      Moderation
+                  </Button>
+                }
 
                 <Button
                     startIcon={<AccountCircleIcon />}

@@ -30,14 +30,14 @@ CREATE INDEX IF NOT EXISTS idx_users_registration_session
 
 CREATE TABLE IF NOT EXISTS report_action(
   id                     INTEGER PRIMARY KEY,
-  reporter_user_id       INTEGER NOT NULL REFERENCES users(id),
+  reporter_user_id       INTEGER REFERENCES users(id),
   reporter_session       TEXT NOT NULL,
   event_timestamp        INTEGER NOT NULL DEFAULT (unixepoch()),
   baduser_id             INTEGER REFERENCES users(id),
   baduser_session        TEXT NOT NULL,
   reason                 TEXT NOT NULL DEFAULT "",
   badmessage_transcript  TEXT NOT NULL,
-  badmessage_recording   TEXT NOT NULL
+  badmessage_timestamp   INTEGER NOT NULL DEFAULT (unixepoch())
 ) STRICT;
 CREATE INDEX IF NOT EXISTS idx_report_action_reporter_user_id
   ON report_action (reporter_user_id);
@@ -47,6 +47,8 @@ CREATE INDEX IF NOT EXISTS idx_report_action_baduser_id
   ON report_action (baduser_id);
 CREATE INDEX IF NOT EXISTS idx_report_action_baduser_session
   ON report_action (baduser_session);
+CREATE INDEX IF NOT EXISTS idx_report_action_event_timestamp
+  ON report_action (event_timestamp);
 
 
 
@@ -66,4 +68,6 @@ CREATE INDEX IF NOT EXISTS idx_ban_action_baduser_id
   ON ban_action (baduser_id);
 CREATE INDEX IF NOT EXISTS idx_ban_action_baduser_session
   ON ban_action (baduser_session);
+CREATE INDEX IF NOT EXISTS idx_ban_action_event_timestamp
+  ON ban_action (event_timestamp);
 

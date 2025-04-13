@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/robalb/morsechat/internal/auth"
 	"github.com/robalb/morsechat/internal/config"
+	"github.com/robalb/morsechat/internal/db"
 	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	"github.com/robalb/morsechat/internal/morse"
 	"github.com/robalb/morsechat/internal/validation"
@@ -28,10 +30,17 @@ func ServeReport(
 			return
 		}
 
+		currentJwtData, err := auth.GetJwtData(r.Context())
+    if err != nil{
+      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+      logger.Printf("ServeReport: jetData error: %v", err.Error())
+      return
+    }
+
     device, err := deviceid.New(r)
     if err != nil {
       validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
-      logger.Printf("ServeWsInit: deviceID error: %v", err.Error())
+      logger.Printf("ServeReport: deviceID error: %v", err.Error())
       return
     }
 
@@ -42,6 +51,30 @@ func ServeReport(
       return
     }
     logger.Printf("ServeReport: (%s) reported : %v",device.Id, signedMessage)
+
+		queries := db.New(dbWritePool)
+    _, err = queries.CreateReport(r.Context(), db.CreateReportParams{ 
+      //reporter
+      ReporterUserID: sql.NullInt64{ 
+        Int64: currentJwtData.UserId,
+        Valid: !currentJwtData.IsAnonymous,
+      },
+      ReporterSession: device.Id, 
+      //bad user
+      BaduserID: sql.NullInt64{ 
+        Int64: signedMessage.Userid,
+        Valid: signedMessage.Userid != 0,
+      },
+      BaduserSession: signedMessage.Deviceid,
+      BadmessageTranscript: signedMessage.PlainText,
+      BadmessageTimestamp: signedMessage.Timestamp,
+    })
+		if err != nil {
+			validation.RespondError(w, "Processing failed", "", http.StatusInternalServerError)
+			logger.Printf("ServeReport: query error: %v", err.Error())
+			return
+		}
+
     validation.RespondOk(w, OkResponse{Ok: "ok"})
   }
 }

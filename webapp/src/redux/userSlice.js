@@ -116,6 +116,8 @@ const userSlice = createSlice({
       state.authenticated = !apidata.is_anonymous
       state.callsign = apidata.callsign
       state.country = apidata.country
+      state.isadmin = apidata.is_admin
+      state.ismoderator = apidata.is_moderator
       state.username = apidata.username
       if(apidata.settings)
         state.settings = apidata.settings
@@ -126,6 +128,8 @@ const userSlice = createSlice({
       state.authenticated = !apidata.is_anonymous
       state.callsign = apidata.callsign
       state.country = apidata.country
+      state.isadmin = apidata.is_admin
+      state.ismoderator = apidata.is_moderator
       state.username = apidata.username
     })
     //user logout
@@ -134,6 +138,8 @@ const userSlice = createSlice({
       state.authenticated = !apidata.is_anonymous
       state.callsign = apidata.callsign
       state.country = apidata.country
+      state.isadmin = apidata.is_admin
+      state.ismoderator = apidata.is_moderator
       state.username = apidata.username
     })
     //..

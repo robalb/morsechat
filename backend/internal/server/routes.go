@@ -44,6 +44,7 @@ func AddRoutes(
 		r.Post("/validate_callsign", handlers.ServeValidateCallsign(logger, dbReadPool))
 
 		r.Route("/chat", func(r chi.Router) {
+      r.Use(middleware.RequireValidSession(tokenAuth))
 			r.Post("/report", handlers.ServeReport(logger, config, dbReadPool, dbWritePool))
 		})
 	})

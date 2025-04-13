@@ -162,7 +162,7 @@ func ServeWsInit(
       deviceInfo: &device,
       channel: "",
       isTyping: false,
-      lastMessageTimestamp: time.Now(),//.Add(-config_ratelimitSeconds), //no ratelimit on the first message
+      lastMessageTimestamp: time.Now().Add(-config_ratelimitSeconds), //no ratelimit on the first message
     }
     client.hub.register <- client
 

@@ -14,29 +14,32 @@ const createReport = `-- name: CreateReport :execresult
 INSERT INTO report_action (
   reporter_user_id,
   reporter_session,
+  baduser_id,
   baduser_session,
   badmessage_transcript,
-  badmessage_recording
+  badmessage_timestamp
 ) VALUES (
-  ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?
 )
 `
 
 type CreateReportParams struct {
-	ReporterUserID       int64
+	ReporterUserID       sql.NullInt64
 	ReporterSession      string
+	BaduserID            sql.NullInt64
 	BaduserSession       string
 	BadmessageTranscript string
-	BadmessageRecording  string
+	BadmessageTimestamp  int64
 }
 
 func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createReport,
 		arg.ReporterUserID,
 		arg.ReporterSession,
+		arg.BaduserID,
 		arg.BaduserSession,
 		arg.BadmessageTranscript,
-		arg.BadmessageRecording,
+		arg.BadmessageTimestamp,
 	)
 }
 
@@ -176,6 +179,39 @@ func (q *Queries) ListModerators(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const recordBanAction = `-- name: RecordBanAction :execresult
+INSERT INTO ban_action (
+  moderator_id,
+  baduser_id,
+  baduser_session,
+  moderator_notes,
+  reason,
+  is_ban_revert
+) VALUES (
+  ?, ?, ?, ?, ?, ?
+)
+`
+
+type RecordBanActionParams struct {
+	ModeratorID    int64
+	BaduserID      sql.NullInt64
+	BaduserSession string
+	ModeratorNotes interface{}
+	Reason         interface{}
+	IsBanRevert    int64
+}
+
+func (q *Queries) RecordBanAction(ctx context.Context, arg RecordBanActionParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, recordBanAction,
+		arg.ModeratorID,
+		arg.BaduserID,
+		arg.BaduserSession,
+		arg.ModeratorNotes,
+		arg.Reason,
+		arg.IsBanRevert,
+	)
 }
 
 const updateSettings = `-- name: UpdateSettings :execresult

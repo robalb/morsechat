@@ -25,17 +25,30 @@ WHERE username = ?;
 SELECT callsign FROM users
 WHERE callsign = ? LIMIT 1;
 
-
 /* name: CreateReport :execresult */
 INSERT INTO report_action (
   reporter_user_id,
   reporter_session,
+  baduser_id,
   baduser_session,
   badmessage_transcript,
-  badmessage_recording
+  badmessage_timestamp
 ) VALUES (
-  ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?
 );
+
+/* name: RecordBanAction :execresult */
+INSERT INTO ban_action (
+  moderator_id,
+  baduser_id,
+  baduser_session,
+  moderator_notes,
+  reason,
+  is_ban_revert
+) VALUES (
+  ?, ?, ?, ?, ?, ?
+);
+
 
 
 /* name: UpdateSettings :execresult */

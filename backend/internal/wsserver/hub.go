@@ -512,10 +512,11 @@ func handleMorseCommand(
   client.lastMessageTimestamp = time.Now()
 
   signatureData := morse.SignedMessage{
-    Deviceid: client.deviceInfo.Id, //This is the critical element we need to ban an user
-    PlainText: messageText,
+    Deviceid: client.deviceInfo.Id, 
+    Userid: client.userInfo.UserId,
     Username: client.userInfo.Username,
     Callsign: client.userInfo.Callsign,
+    PlainText: messageText,
     Timestamp: time.Now().Unix(),
   }
   signature, err := morse.EncryptMessage(signatureData, config.SecretBytes)
