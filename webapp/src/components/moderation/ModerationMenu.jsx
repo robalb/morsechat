@@ -11,7 +11,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useDispatch, useSelector } from 'react-redux'
 import { apiCall } from '../../redux/apiSlice';
 import useDebounce from '../../hooks/UseDebounce';
-import TableCellWithCopy from './TableCell.jsx'
+import TableCellTooltip from './TableCellTooltip.jsx'
+import TableCellWithCopy from './TableCellCopy.jsx'
 
 function formatDate(date){
     const now = new Date();
@@ -145,8 +146,8 @@ export default function ModerationMenu() {
           {action.moderator_notes && `: ${action.moderator_notes}`}
         </TableCell>
         <TableCell>{action.is_ban_revert ? "ban REVERT" : "BAN"}</TableCell>
-        <TableCell>{action.baduser_id === 0 ? "--" : action.baduser_username}</TableCell>
-        <TableCell title={action.baduser_session}>{action.baduser_session}</TableCell>
+        <TableCellWithCopy text={action.baduser_id === 0 ? "--" : action.baduser_username} />
+        <TableCellWithCopy title={action.baduser_session} text={action.baduser_session} />
       </TableRow>
     );
   })}
@@ -178,8 +179,8 @@ export default function ModerationMenu() {
         <TableCell>{isAnon ? "-" : user.callsign}</TableCell>
         <TableCell>{isAnon ? "-" : user.country}</TableCell>
         <TableCell>{isAnon ? "-" : user.is_verified ? "YES": "no"}</TableCell>
-        <TableCell>{isAnon ? "-" : user.username}</TableCell>
-        <TableCell>{isAnon ? user.last_session : "-"}</TableCell>
+        <TableCellWithCopy text={isAnon ? "-" : user.username} />
+        <TableCellWithCopy text={isAnon ? user.last_session : "-"} />
         <TableCell>
           <Button variant="outlined" size="small" onClick={() => {}}>
             Revert ban
@@ -217,12 +218,12 @@ export default function ModerationMenu() {
 
     return (
       <TableRow key={report.id}>
-        <TableCellWithCopy text={report.badmessage_transcript} maxLength={30} />
+        <TableCellTooltip text={report.badmessage_transcript} maxLength={30} />
         {/* <TableCell title={report.badmessage_transcript}> */}
         {/*   {truncate(report.badmessage_transcript, 30)} */}
         {/* </TableCell> */}
-        <TableCell>{report.baduser_id === 0 ? "--" : report.baduser_username}</TableCell>
-        <TableCellWithCopy text={report.baduser_session} maxLength={20} />
+        <TableCellWithCopy text={report.baduser_id === 0 ? "--" : report.baduser_username} />
+        <TableCellTooltip text={report.baduser_session} maxLength={20} />
         <TableCell>{formatDate(badMsgDate)}</TableCell>
         <TableCell>
           <Button 
@@ -232,8 +233,8 @@ export default function ModerationMenu() {
             Ban
           </Button>
         </TableCell>
-        <TableCell>{report.reporter_user_id === 0 ? "--" : report.reporter_username}</TableCell>
-        <TableCellWithCopy text={report.reporter_session} maxLength={20} />
+        <TableCellWithCopy text={report.reporter_user_id === 0 ? "--" : report.reporter_username} />
+        <TableCellTooltip text={report.reporter_session} maxLength={20} />
         <TableCell>{formatDate(reportDate)}</TableCell>
         <TableCell>
           <Button 

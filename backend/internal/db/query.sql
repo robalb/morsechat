@@ -72,6 +72,9 @@ INSERT INTO ban_action (
 /* name: GetLastBanEvents :many */
 SELECT *
 FROM ban_action
+WHERE moderator_username LIKE ?
+OR baduser_session LIKE ?
+OR baduser_username LIKE ?
 ORDER BY event_timestamp DESC
 LIMIT 100;
 

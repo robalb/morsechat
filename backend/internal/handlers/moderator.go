@@ -80,7 +80,11 @@ func ServeModerationList(
     if err != nil {
 			logger.Printf("%s: query error: %v", errCtx, err.Error())
     }
-    banReports, err := queries.GetLastBanEvents(r.Context())
+    banReports, err := queries.GetLastBanEvents(r.Context(), db.GetLastBanEventsParams{ 
+      ModeratorUsername: query,
+      BaduserSession: query,
+      BaduserUsername: query,
+    })
     if err != nil {
 			logger.Printf("%s: query error: %v", errCtx, err.Error())
     }

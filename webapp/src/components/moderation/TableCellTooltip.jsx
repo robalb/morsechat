@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TableCell, Tooltip, tooltipClasses, Typography, Fade, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-const TableCellWithCopy = ({ text, maxLength = 30 }) => {
+const TableCellTooltip = ({ text, maxLength = 30 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -74,4 +74,4 @@ const LightTooltip = styled(({ className, ...props }) => (
   );
 };
 
-export default TableCellWithCopy;
+export default TableCellTooltip;

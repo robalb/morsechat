@@ -120,13 +120,22 @@ const getLastBanEvents = `-- name: GetLastBanEvents :many
 
 SELECT id, moderator_id, moderator_username, event_timestamp, baduser_id, baduser_username, baduser_session, moderator_notes, reason, is_ban_revert
 FROM ban_action
+WHERE moderator_username LIKE ?
+OR baduser_session LIKE ?
+OR baduser_username LIKE ?
 ORDER BY event_timestamp DESC
 LIMIT 100
 `
 
+type GetLastBanEventsParams struct {
+	ModeratorUsername string
+	BaduserSession    string
+	BaduserUsername   string
+}
+
 // is_ban_revert
-func (q *Queries) GetLastBanEvents(ctx context.Context) ([]BanAction, error) {
-	rows, err := q.db.QueryContext(ctx, getLastBanEvents)
+func (q *Queries) GetLastBanEvents(ctx context.Context, arg GetLastBanEventsParams) ([]BanAction, error) {
+	rows, err := q.db.QueryContext(ctx, getLastBanEvents, arg.ModeratorUsername, arg.BaduserSession, arg.BaduserUsername)
 	if err != nil {
 		return nil, err
 	}
