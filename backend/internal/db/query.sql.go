@@ -124,7 +124,7 @@ WHERE moderator_username LIKE ?
 OR baduser_session LIKE ?
 OR baduser_username LIKE ?
 ORDER BY event_timestamp DESC
-LIMIT 100
+LIMIT 25
 `
 
 type GetLastBanEventsParams struct {
@@ -173,7 +173,7 @@ SELECT id, username, password, callsign, country, settings, is_banned, is_verifi
 FROM users
 WHERE is_banned == 1
 AND username LIKE ?
-LIMIT 100
+LIMIT 25
 `
 
 func (q *Queries) GetLastBanned(ctx context.Context, username string) ([]User, error) {
@@ -217,7 +217,7 @@ SELECT id, last_session, is_banned
 FROM anon_users
 where is_banned == 1
 AND last_session LIKE ?
-LIMIT 100
+LIMIT 25
 `
 
 func (q *Queries) GetLastBannedAnon(ctx context.Context, lastSession string) ([]AnonUser, error) {
@@ -251,7 +251,7 @@ OR reporter_session LIKE ?
 OR baduser_username LIKE ?
 or baduser_SESSION LIKE ?
 ORDER BY event_timestamp DESC
-LIMIT 100
+LIMIT 25
 `
 
 type GetLastReportsParams struct {

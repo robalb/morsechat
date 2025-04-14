@@ -154,6 +154,12 @@ func Ban(deviceId string) string{
   return deviceId
 }
 
+// ban a unique identity.
+// TODO(al)
+func BanUniqueIdentity(identity string) string{
+  return ""
+}
+
 
 //undo the ban associated to an ID
 // when offline, the banID is the IP

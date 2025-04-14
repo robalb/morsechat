@@ -76,7 +76,7 @@ WHERE moderator_username LIKE ?
 OR baduser_session LIKE ?
 OR baduser_username LIKE ?
 ORDER BY event_timestamp DESC
-LIMIT 100;
+LIMIT 25;
 
 /* name: GetLastReports :many */
 SELECT *
@@ -86,21 +86,21 @@ OR reporter_session LIKE ?
 OR baduser_username LIKE ?
 or baduser_SESSION LIKE ?
 ORDER BY event_timestamp DESC
-LIMIT 100;
+LIMIT 25;
 
 /* name: GetLastBanned :many */
 SELECT *
 FROM users
 WHERE is_banned == 1
 AND username LIKE ?
-LIMIT 100;
+LIMIT 25;
 
 /* name: GetLastBannedAnon :many */
 SELECT *
 FROM anon_users
 where is_banned == 1
 AND last_session LIKE ?
-LIMIT 100;
+LIMIT 25;
 
 /* name: IsModerator :one */
 SELECT is_moderator
