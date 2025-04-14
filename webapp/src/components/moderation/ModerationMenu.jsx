@@ -11,6 +11,20 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useDispatch, useSelector } from 'react-redux'
 import { apiCall } from '../../redux/apiSlice';
 import useDebounce from '../../hooks/UseDebounce';
+import TableCellWithCopy from './TableCell.jsx'
+
+function formatDate(date){
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    if (now.toDateString() === date.toDateString()) return `today, ${date.toLocaleTimeString()}`;
+    if (yesterday.toDateString() === date.toDateString()) return `yesterday, ${date.toLocaleTimeString()}`;
+    return date.toLocaleString();
+}
+
+function truncate(str, maxLength){
+  return str.length > maxLength ? str.slice(0, maxLength) + "…" : str;
+}
 
 export default function ModerationMenu() {
     const dispatch = useDispatch()
@@ -114,15 +128,29 @@ export default function ModerationMenu() {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Date & Time</TableCell>{/*event_timestamp: convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
+                                <TableCell>Info</TableCell>{/*moderator_id, moderator_notes: both moderator ID and moderator_notes fields, combined in a string*/}
+                                <TableCell>Action</TableCell>{/*is_ban_revert: boolean. translate into either "BAN" or "ban REVERT" */}
                                 <TableCell>User id</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
                                 <TableCell>Device</TableCell>{/*baduser_session: a long string. show the first 10 chars, and expand on hover */}
-                                <TableCell>Action</TableCell>{/*is_ban_revert: boolean. translate into either "BAN" or "ban REVERT" */}
-                                <TableCell>Info</TableCell>{/*moderator_id, moderator_notes: both moderator ID and moderator_notes fields, combined in a string*/}
                             </TableRow>
                         </TableHead>
-                        <TableBody>
-                          {/*todo*/}
-                        </TableBody>
+<TableBody>
+  {modData?.ban_actions?.map((action) => {
+    const date = new Date(action.event_timestamp * 1000);
+    return (
+      <TableRow key={action.id}>
+        <TableCell>{formatDate(date)}</TableCell>
+        <TableCell>
+          Mod #{action.moderator_id}
+          {action.moderator_notes && `: ${action.moderator_notes}`}
+        </TableCell>
+        <TableCell>{action.is_ban_revert ? "ban REVERT" : "BAN"}</TableCell>
+        <TableCell>{action.baduser_id === 0 ? "anonymous" : action.baduser_id}</TableCell>
+        <TableCell title={action.baduser_session}>{action.baduser_session}</TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
                     </Table>
                 </TableContainer>
             )}
@@ -134,15 +162,31 @@ export default function ModerationMenu() {
                         <TableHead>
                             <TableRow>
                                 {/*this table will contain both the content of users and anon_users*/}
-                                <TableCell>Callsign</TableCell>{/*users.callsign: when anon_user, set to "-"*/}
-                                <TableCell>Username</TableCell>{/*users.username: when anon_user, set to "-"*/}
-                                <TableCell>Identifier</TableCell>{/*users.id or anon_user.last_session*/}
-                                <TableCell>Actions</TableCell>{/*This row must contain a "Revert ban" button, that does nothing*/}
+                                <TableCell>Callsign</TableCell>
+                                <TableCell>Username</TableCell>
+                                <TableCell>User ID</TableCell>
+                                <TableCell>Device</TableCell>
+                                <TableCell>Actions</TableCell>
                             </TableRow>
                         </TableHead>
-                        <TableBody>
-                            {/* todo */}
-                        </TableBody>
+<TableBody>
+  {[...(modData?.users || []), ...(modData?.anon_users || [])].map((user, idx) => {
+    const isAnon = !user.username;
+    return (
+      <TableRow key={isAnon ? `anon-${user.last_session}` : user.id}>
+        <TableCell>{isAnon ? "-" : user.callsign}</TableCell>
+        <TableCell>{isAnon ? "-" : user.username}</TableCell>
+        <TableCell>{isAnon ? "-" : user.id}</TableCell>
+        <TableCell>{isAnon ? user.last_session : "-"}</TableCell>
+        <TableCell>
+          <Button variant="outlined" size="small" onClick={() => {}}>
+            Revert ban
+          </Button>
+        </TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
                     </Table>
                 </TableContainer>
             )}
@@ -153,7 +197,7 @@ export default function ModerationMenu() {
                     <Table size="small" >
                         <TableHead>
                             <TableRow>
-                                <TableCell>Message</TableCell>{/*badmessage_transcript: a long string. show the first 10 chars, and expand on hover*/}
+                                <TableCell>Bad Message</TableCell>{/*badmessage_transcript: a long string. show the first 10 chars, and expand on hover*/}
                                 <TableCell>Bad User ID</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
                                 <TableCell>Bad Device</TableCell>{/*baduser_session: a long string. show the first 10 chars, and expand on hover */}
                                 <TableCell>Sent at</TableCell>{/*badmessage_timestamp: date and time. convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
@@ -164,9 +208,43 @@ export default function ModerationMenu() {
                                 <TableCell>Actions</TableCell>{/*This row must contain a "ban reporter" button, that calls a callback with baduser_id and baduser_session */}
                             </TableRow>
                         </TableHead>
-                        <TableBody>
-                            {/* todo */}
-                        </TableBody>
+<TableBody>
+  {modData?.report_actions?.map((report) => {
+    const badMsgDate = new Date(report.badmessage_timestamp * 1000);
+    const reportDate = new Date(report.event_timestamp * 1000);
+
+    return (
+      <TableRow key={report.id}>
+        <TableCellWithCopy text={report.badmessage_transcript} maxLength={30} />
+        {/* <TableCell title={report.badmessage_transcript}> */}
+        {/*   {truncate(report.badmessage_transcript, 30)} */}
+        {/* </TableCell> */}
+        <TableCell>{report.baduser_id === 0 ? "anonymous" : report.baduser_id}</TableCell>
+        <TableCellWithCopy text={report.baduser_session} maxLength={20} />
+        <TableCell>{formatDate(badMsgDate)}</TableCell>
+        <TableCell>
+          <Button 
+            variant="outlined" 
+            size="small" 
+            onClick={() => console.log("Ban", report.baduser_id, report.baduser_session)}>
+            Ban
+          </Button>
+        </TableCell>
+        <TableCell>{report.reporter_user_id === 0 ? "anonymous" : report.reporter_user_id}</TableCell>
+        <TableCellWithCopy text={report.reporter_session} maxLength={20} />
+        <TableCell>{formatDate(reportDate)}</TableCell>
+        <TableCell>
+          <Button 
+            variant="outlined" 
+            size="small" 
+            onClick={() => console.log("Ban reporter", report.reporter_user_id, report.reporter_session)}>
+            Ban reporter
+          </Button>
+        </TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
                     </Table>
                 </TableContainer>
             )}
