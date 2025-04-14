@@ -43,14 +43,12 @@ export default function ModerationMenu() {
       setModPromise(livePromise)
       livePromise.unwrap()
         .then(ret => {
-          console.log("5555555555555")
           console.log(ret)
+          //TODO: apply transformations to some fields
           setModData(ret)
           setLoading(loadingStates.DONE)
-          //TODO
         })
         .catch(ret => {
-          console.log("4444444444444")
           console.log(ret)
           setLoading(loadingStates.ERROR)
         })
@@ -61,48 +59,6 @@ export default function ModerationMenu() {
       }
     }, [debouncedSearchTerm])
 
-    // Placeholder Data
-    let moderationLogs = [
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 10:00', moderator: 'ModA', action: 'Deleted inappropriate message' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-        { date: '2025-03-23 11:15', moderator: 'ModB', action: 'Issued warning to UserX' },
-    ];
-    moderationLogs = []
-
-    const bans = [
-        { callsign: 'Alpha1', username: 'UserAlpha', date: '2025-03-22 09:00', reason: 'Spam', deviceId: 'device123' },
-        { callsign: 'Bravo2', username: 'UserBravo', date: '2025-03-21 14:30', reason: 'Toxic behavior', deviceId: 'device456' },
-    ];
-
-    const reports = [
-        { date: '2025-03-23 08:45', callsign: 'Charlie3', username: 'UserCharlie', badMessage: 'Offensive text', deviceId: 'device789', reporterCallsign: 'Delta4', reporterUsername: 'UserDelta', reporterDeviceId: 'device101' },
-        { date: '2025-03-23 09:20', callsign: 'Echo5', username: 'UserEcho', badMessage: 'Harassment', deviceId: 'device202', reporterCallsign: 'Foxtrot6', reporterUsername: 'UserFoxtrot', reporterDeviceId: 'device303' },
-    ];
 
     const handleTabChange = (event, newValue) => {
         setTabIndex(newValue);
@@ -147,7 +103,7 @@ export default function ModerationMenu() {
             {/* Tabs */}
             <Tabs value={tabIndex} onChange={handleTabChange}>
                 <Tab label="Moderation Logs" />
-                <Tab label="Bans" />
+                <Tab label="Baned users" />
                 <Tab label="Reports" />
             </Tabs>
 
@@ -157,58 +113,35 @@ export default function ModerationMenu() {
                     <Table size="small" >
                         <TableHead>
                             <TableRow>
-                                <TableCell>Date & Time</TableCell>
-                                <TableCell>Moderator</TableCell>
-                                <TableCell>Action</TableCell>
+                                <TableCell>Date & Time</TableCell>{/*event_timestamp: convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
+                                <TableCell>User id</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
+                                <TableCell>Device</TableCell>{/*baduser_session: a long string. show the first 10 chars, and expand on hover */}
+                                <TableCell>Action</TableCell>{/*is_ban_revert: boolean. translate into either "BAN" or "ban REVERT" */}
+                                <TableCell>Info</TableCell>{/*moderator_id, moderator_notes: both moderator ID and moderator_notes fields, combined in a string*/}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {moderationLogs.map((log, idx) => (
-                                <TableRow key={idx}>
-                                    <TableCell>{log.date}</TableCell>
-                                    <TableCell>{log.moderator}</TableCell>
-                                    <TableCell>{log.action}</TableCell>
-                                </TableRow>
-                            ))}
+                          {/*todo*/}
                         </TableBody>
                     </Table>
                 </TableContainer>
             )}
 
-            {/* Bans Tab */}
+            {/* Banned users Tab */}
             {tabIndex === 1 && (
                 <TableContainer component={Paper} sx={{ mt: 2 }}>
-                    <Table>
+                    <Table size="small" >
                         <TableHead>
                             <TableRow>
-                                <TableCell>Callsign</TableCell>
-                                <TableCell>Username</TableCell>
-                                <TableCell>Date & Time</TableCell>
-                                <TableCell>Ban Reason</TableCell>
-                                <TableCell>Device ID</TableCell>
-                                <TableCell>Action</TableCell>
+                                {/*this table will contain both the content of users and anon_users*/}
+                                <TableCell>Callsign</TableCell>{/*users.callsign: when anon_user, set to "-"*/}
+                                <TableCell>Username</TableCell>{/*users.username: when anon_user, set to "-"*/}
+                                <TableCell>Identifier</TableCell>{/*users.id or anon_user.last_session*/}
+                                <TableCell>Actions</TableCell>{/*This row must contain a "Revert ban" button, that does nothing*/}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {bans.map((ban, idx) => (
-                                <TableRow key={idx}>
-                                    <TableCell>{ban.callsign}</TableCell>
-                                    <TableCell>{ban.username}</TableCell>
-                                    <TableCell>{ban.date}</TableCell>
-                                    <TableCell>{ban.reason}</TableCell>
-                                    <TableCell>{ban.deviceId}</TableCell>
-                                    <TableCell>
-                                        <Button 
-                                            variant="outlined" 
-                                            size="small"
-                                            color="error"
-                                            onClick={() => handleRemoveBan(ban.callsign)}
-                                        >
-                                            Remove Ban
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                            {/* todo */}
                         </TableBody>
                     </Table>
                 </TableContainer>
@@ -217,32 +150,22 @@ export default function ModerationMenu() {
             {/* Reports Tab */}
             {tabIndex === 2 && (
                 <TableContainer component={Paper} sx={{ mt: 2 }}>
-                    <Table>
+                    <Table size="small" >
                         <TableHead>
                             <TableRow>
-                                <TableCell>Date & Time</TableCell>
-                                <TableCell>Callsign</TableCell>
-                                <TableCell>Username</TableCell>
-                                <TableCell>Bad Message</TableCell>
-                                <TableCell>Device ID</TableCell>
-                                <TableCell>Reporter Callsign</TableCell>
-                                <TableCell>Reporter Username</TableCell>
-                                <TableCell>Reporter Device ID</TableCell>
+                                <TableCell>Message</TableCell>{/*badmessage_transcript: a long string. show the first 10 chars, and expand on hover*/}
+                                <TableCell>Bad User ID</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
+                                <TableCell>Bad Device</TableCell>{/*baduser_session: a long string. show the first 10 chars, and expand on hover */}
+                                <TableCell>Sent at</TableCell>{/*badmessage_timestamp: date and time. convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
+                                <TableCell>Actions</TableCell>{/*This row must contain a "ban" button, that calls a callback with baduser_id and baduser_session */}
+                                <TableCell>Reporter ID</TableCell>{/*reporter_user_id: Integer. if 0, write "anonymous"*/}
+                                <TableCell>Reporter Device</TableCell>{/*reporter_session: a long string. show the first 10 chars, and expand on hover */}
+                                <TableCell>Reported at</TableCell>{/*event_timestamp: date and time. convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
+                                <TableCell>Actions</TableCell>{/*This row must contain a "ban reporter" button, that calls a callback with baduser_id and baduser_session */}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {reports.map((report, idx) => (
-                                <TableRow key={idx}>
-                                    <TableCell>{report.date}</TableCell>
-                                    <TableCell>{report.callsign}</TableCell>
-                                    <TableCell>{report.username}</TableCell>
-                                    <TableCell>{report.badMessage}</TableCell>
-                                    <TableCell>{report.deviceId}</TableCell>
-                                    <TableCell>{report.reporterCallsign}</TableCell>
-                                    <TableCell>{report.reporterUsername}</TableCell>
-                                    <TableCell>{report.reporterDeviceId}</TableCell>
-                                </TableRow>
-                            ))}
+                            {/* todo */}
                         </TableBody>
                     </Table>
                 </TableContainer>
