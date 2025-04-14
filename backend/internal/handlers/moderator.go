@@ -17,11 +17,29 @@ import (
 Moderation and bans
 
 A ban can be either:
-- logged user ban
-- anonymous ban 
+- username ban
+- device ban
+- both
 
-In a logged user ban, the user.is_banned is simply set to true.
-on the next login, their device will be banned (curse)
+an UnBann can be either:
+- username unbann
+- device unbann
+- both
+
+When in doubt, it's better to ban and
+unbann all data that is available.
+For example, user reports provide both
+the username and device when the reported
+user is logged. a ban from those logs
+should be on both datapoints.
+
+Behind the scenes, the ban system will make sure that username and devices are properly grouped
+and clustered. when you ban a username, all the devices associated to it will also be banned.
+- If you want to unbann a user, you must explicitly unbann by user, not only by previous devices
+- When you unbann a device (eg. false positive), that device will simply gain an anti-affinity
+to the current banned cluster, and loose the ban status.
+all other devices that for some reason were in a similar cluster,
+and received similar ban status will maintain their ban status
 
 
 */
@@ -129,10 +147,14 @@ func ServeModerationBan(
     //record the ban action in the db event logs
     _, err = queries.RecordBanAction(r.Context(), db.RecordBanActionParams{ 
       ModeratorID: currentJwtData.UserId,
+      ModeratorUsername: currentJwtData.Username,
       BaduserID: sql.NullInt64{ 
         Int64: reqData.BaduserId,
         Valid: reqData.BaduserId != 0,
       },
+      //A quirk of this spefici query: the content of BaduserId must be
+      //replicated in this other ID field
+      ID: reqData.BaduserId,
       BaduserSession: reqData.BaduserSession,
       ModeratorNotes: reqData.ModeratorNotes,
       IsBanRevert: isBanRevertInt,

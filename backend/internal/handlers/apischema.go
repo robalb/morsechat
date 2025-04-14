@@ -50,14 +50,16 @@ type ModerationAnonUserResponse struct {
 }
 
 type ModerationBanActionResponse struct {
-	ID             int64  `json:"id"`
-	ModeratorID    int64  `json:"moderator_id"`
-	EventTimestamp int64  `json:"event_timestamp"`
-	BaduserID      int64  `json:"baduser_id"`
-	BaduserSession string `json:"baduser_session"`
-	ModeratorNotes any    `json:"moderator_notes"`
-	Reason         any    `json:"reason"`
-	IsBanRevert    bool   `json:"is_ban_revert"`
+	ID                int64  `json:"id"`
+	ModeratorID       int64  `json:"moderator_id"`
+	ModeratorUsername string `json:"moderator_username"`
+	EventTimestamp    int64  `json:"event_timestamp"`
+	BaduserID         int64  `json:"baduser_id"`
+	BaduserUsername   string `json:"baduser_username"`
+	BaduserSession    string `json:"baduser_session"`
+	ModeratorNotes    any    `json:"moderator_notes"`
+	Reason            any    `json:"reason"`
+	IsBanRevert       bool   `json:"is_ban_revert"`
 }
 
 type ModerationReportActionResponse struct {

@@ -116,12 +116,15 @@ func (q *Queries) GetCallsign(ctx context.Context, callsign string) (string, err
 }
 
 const getLastBanEvents = `-- name: GetLastBanEvents :many
+;
+
 SELECT id, moderator_id, moderator_username, event_timestamp, baduser_id, baduser_username, baduser_session, moderator_notes, reason, is_ban_revert
 FROM ban_action
 ORDER BY event_timestamp DESC
 LIMIT 100
 `
 
+// is_ban_revert
 func (q *Queries) GetLastBanEvents(ctx context.Context) ([]BanAction, error) {
 	rows, err := q.db.QueryContext(ctx, getLastBanEvents)
 	if err != nil {
@@ -388,16 +391,22 @@ INSERT INTO ban_action (
   moderator_notes,
   reason,
   is_ban_revert
-) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?
-)
+) SELECT
+  ?,      -- moderator_id
+  ?,      -- moderator_username
+  ?,      -- baduser_id
+  COALESCE((SELECT username FROM users WHERE users.id = ?), ''), -- baduser_id
+  ?,      -- baduser_session
+  ?,      -- moderator_notes
+  ?,      -- reason
+  ?
 `
 
 type RecordBanActionParams struct {
 	ModeratorID       int64
 	ModeratorUsername string
 	BaduserID         sql.NullInt64
-	BaduserUsername   string
+	ID                int64
 	BaduserSession    string
 	ModeratorNotes    interface{}
 	Reason            interface{}
@@ -409,7 +418,7 @@ func (q *Queries) RecordBanAction(ctx context.Context, arg RecordBanActionParams
 		arg.ModeratorID,
 		arg.ModeratorUsername,
 		arg.BaduserID,
-		arg.BaduserUsername,
+		arg.ID,
 		arg.BaduserSession,
 		arg.ModeratorNotes,
 		arg.Reason,

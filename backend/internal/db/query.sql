@@ -58,9 +58,16 @@ INSERT INTO ban_action (
   moderator_notes,
   reason,
   is_ban_revert
-) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?
-);
+) SELECT
+  ?,      -- moderator_id
+  ?,      -- moderator_username
+  ?,      -- baduser_id
+  COALESCE((SELECT username FROM users WHERE users.id = ?), ''), -- baduser_id
+  ?,      -- baduser_session
+  ?,      -- moderator_notes
+  ?,      -- reason
+  ?       -- is_ban_revert
+;
 
 /* name: GetLastBanEvents :many */
 SELECT *

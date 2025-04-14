@@ -130,7 +130,7 @@ export default function ModerationMenu() {
                                 <TableCell>Date & Time</TableCell>{/*event_timestamp: convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
                                 <TableCell>Info</TableCell>{/*moderator_id, moderator_notes: both moderator ID and moderator_notes fields, combined in a string*/}
                                 <TableCell>Action</TableCell>{/*is_ban_revert: boolean. translate into either "BAN" or "ban REVERT" */}
-                                <TableCell>User id</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
+                                <TableCell>User</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
                                 <TableCell>Device</TableCell>{/*baduser_session: a long string. show the first 10 chars, and expand on hover */}
                             </TableRow>
                         </TableHead>
@@ -141,11 +141,11 @@ export default function ModerationMenu() {
       <TableRow key={action.id}>
         <TableCell>{formatDate(date)}</TableCell>
         <TableCell>
-          Mod #{action.moderator_id}
+          Moderator @{action.moderator_username}
           {action.moderator_notes && `: ${action.moderator_notes}`}
         </TableCell>
         <TableCell>{action.is_ban_revert ? "ban REVERT" : "BAN"}</TableCell>
-        <TableCell>{action.baduser_id === 0 ? "anonymous" : action.baduser_id}</TableCell>
+        <TableCell>{action.baduser_id === 0 ? "--" : action.baduser_username}</TableCell>
         <TableCell title={action.baduser_session}>{action.baduser_session}</TableCell>
       </TableRow>
     );
@@ -164,7 +164,6 @@ export default function ModerationMenu() {
                                 {/*this table will contain both the content of users and anon_users*/}
                                 <TableCell>Callsign</TableCell>
                                 <TableCell>Username</TableCell>
-                                <TableCell>User ID</TableCell>
                                 <TableCell>Device</TableCell>
                                 <TableCell>Actions</TableCell>
                             </TableRow>
@@ -176,7 +175,6 @@ export default function ModerationMenu() {
       <TableRow key={isAnon ? `anon-${user.last_session}` : user.id}>
         <TableCell>{isAnon ? "-" : user.callsign}</TableCell>
         <TableCell>{isAnon ? "-" : user.username}</TableCell>
-        <TableCell>{isAnon ? "-" : user.id}</TableCell>
         <TableCell>{isAnon ? user.last_session : "-"}</TableCell>
         <TableCell>
           <Button variant="outlined" size="small" onClick={() => {}}>

@@ -34,8 +34,10 @@ func adaptBanActions(bans []db.BanAction) []ModerationBanActionResponse {
 		action := ModerationBanActionResponse{
 			ID:             b.ID,
 			ModeratorID:    b.ModeratorID,
+      ModeratorUsername: b.ModeratorUsername,
 			EventTimestamp: b.EventTimestamp,
 			BaduserSession: b.BaduserSession,
+      BaduserUsername: b.BaduserUsername,
 			ModeratorNotes: b.ModeratorNotes,
 			Reason:         b.Reason,
 			IsBanRevert:    b.IsBanRevert == 1,
