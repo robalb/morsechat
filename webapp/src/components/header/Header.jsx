@@ -100,7 +100,10 @@ export function Header({ leftContent = "", authState }) {
                 </Menu>
 
                 {/* Moderation Popup */}
-                <Dialog open={moderationOpen} onClose={handleModerationClose} fullScreen>
+                <Dialog open={moderationOpen} onClose={handleModerationClose} fullScreen
+                  PaperProps={{
+                    elevation: 0,
+                  }}>
                     <DialogTitle sx={{ m: 0, p: 2 }}>
                         Moderation Menu
                         <IconButton
