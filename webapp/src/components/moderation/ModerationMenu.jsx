@@ -51,7 +51,7 @@ export default function ModerationMenu() {
       // perform an api call to the mod data endpoint
       const livePromise = dispatch(apiCall({
         endpoint: "moderation/list",
-        data: {name: query}
+        data: {query: query}
       }))
       // we need to preserve this promise during rerenders if we want to abort it
       setModPromise(livePromise)
@@ -198,11 +198,11 @@ export default function ModerationMenu() {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Bad Message</TableCell>{/*badmessage_transcript: a long string. show the first 10 chars, and expand on hover*/}
-                                <TableCell>Bad User ID</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
+                                <TableCell>Bad User</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
                                 <TableCell>Bad Device</TableCell>{/*baduser_session: a long string. show the first 10 chars, and expand on hover */}
                                 <TableCell>Sent at</TableCell>{/*badmessage_timestamp: date and time. convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
                                 <TableCell>Actions</TableCell>{/*This row must contain a "ban" button, that calls a callback with baduser_id and baduser_session */}
-                                <TableCell>Reporter ID</TableCell>{/*reporter_user_id: Integer. if 0, write "anonymous"*/}
+                                <TableCell>Reporter</TableCell>{/*reporter_user_id: Integer. if 0, write "anonymous"*/}
                                 <TableCell>Reporter Device</TableCell>{/*reporter_session: a long string. show the first 10 chars, and expand on hover */}
                                 <TableCell>Reported at</TableCell>{/*event_timestamp: date and time. convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
                                 <TableCell>Actions</TableCell>{/*This row must contain a "ban reporter" button, that calls a callback with baduser_id and baduser_session */}
@@ -219,7 +219,7 @@ export default function ModerationMenu() {
         {/* <TableCell title={report.badmessage_transcript}> */}
         {/*   {truncate(report.badmessage_transcript, 30)} */}
         {/* </TableCell> */}
-        <TableCell>{report.baduser_id === 0 ? "anonymous" : report.baduser_id}</TableCell>
+        <TableCell>{report.baduser_id === 0 ? "--" : report.baduser_username}</TableCell>
         <TableCellWithCopy text={report.baduser_session} maxLength={20} />
         <TableCell>{formatDate(badMsgDate)}</TableCell>
         <TableCell>
@@ -230,7 +230,7 @@ export default function ModerationMenu() {
             Ban
           </Button>
         </TableCell>
-        <TableCell>{report.reporter_user_id === 0 ? "anonymous" : report.reporter_user_id}</TableCell>
+        <TableCell>{report.reporter_user_id === 0 ? "--" : report.reporter_username}</TableCell>
         <TableCellWithCopy text={report.reporter_session} maxLength={20} />
         <TableCell>{formatDate(reportDate)}</TableCell>
         <TableCell>

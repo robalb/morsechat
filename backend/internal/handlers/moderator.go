@@ -27,7 +27,7 @@ on the next login, their device will be banned (curse)
 */
 
 type ModerationListQuery struct {
-    Name        string   `json:"name" validate:"required,min=0,max=200"`
+    Query   string   `json:"query" validate:"required,min=0,max=200"`
 }
 
 func ServeModerationList(
@@ -47,7 +47,7 @@ func ServeModerationList(
 
 
     // set a wildcard query when no filter is provided
-    query := reqData.Name
+    query := reqData.Query
     if len(query) < 2 {
       query = "%"
     }
