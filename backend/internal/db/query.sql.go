@@ -237,12 +237,28 @@ func (q *Queries) GetLastBannedAnon(ctx context.Context, lastSession string) ([]
 const getLastReports = `-- name: GetLastReports :many
 SELECT id, reporter_user_id, reporter_username, reporter_session, event_timestamp, baduser_id, baduser_username, baduser_session, reason, badmessage_transcript, badmessage_timestamp
 FROM report_action
+WHERE reporter_username LIKE ?
+OR reporter_session LIKE ?
+OR baduser_username LIKE ?
+or baduser_SESSION LIKE ?
 ORDER BY event_timestamp DESC
 LIMIT 100
 `
 
-func (q *Queries) GetLastReports(ctx context.Context) ([]ReportAction, error) {
-	rows, err := q.db.QueryContext(ctx, getLastReports)
+type GetLastReportsParams struct {
+	ReporterUsername string
+	ReporterSession  string
+	BaduserUsername  string
+	BaduserSession   string
+}
+
+func (q *Queries) GetLastReports(ctx context.Context, arg GetLastReportsParams) ([]ReportAction, error) {
+	rows, err := q.db.QueryContext(ctx, getLastReports,
+		arg.ReporterUsername,
+		arg.ReporterSession,
+		arg.BaduserUsername,
+		arg.BaduserSession,
+	)
 	if err != nil {
 		return nil, err
 	}

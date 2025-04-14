@@ -71,7 +71,12 @@ func ServeModerationList(
     }
 
 		queries := db.New(dbReadPool)
-    resReports, err := queries.GetLastReports(r.Context())
+    resReports, err := queries.GetLastReports(r.Context(), db.GetLastReportsParams{ 
+      ReporterUsername: query,
+      ReporterSession: query,
+      BaduserUsername: query,
+      BaduserSession: query,
+    })
     if err != nil {
 			logger.Printf("%s: query error: %v", errCtx, err.Error())
     }

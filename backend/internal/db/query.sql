@@ -78,6 +78,10 @@ LIMIT 100;
 /* name: GetLastReports :many */
 SELECT *
 FROM report_action
+WHERE reporter_username LIKE ?
+OR reporter_session LIKE ?
+OR baduser_username LIKE ?
+or baduser_SESSION LIKE ?
 ORDER BY event_timestamp DESC
 LIMIT 100;
 

@@ -117,7 +117,7 @@ export default function ModerationMenu() {
             {/* Tabs */}
             <Tabs value={tabIndex} onChange={handleTabChange}>
                 <Tab label="Moderation Logs" />
-                <Tab label="Baned users" />
+                <Tab label="Banned users" />
                 <Tab label="Reports" />
             </Tabs>
 
@@ -163,6 +163,8 @@ export default function ModerationMenu() {
                             <TableRow>
                                 {/*this table will contain both the content of users and anon_users*/}
                                 <TableCell>Callsign</TableCell>
+                                <TableCell>Country</TableCell>
+                                <TableCell>Verified</TableCell>
                                 <TableCell>Username</TableCell>
                                 <TableCell>Device</TableCell>
                                 <TableCell>Actions</TableCell>
@@ -174,6 +176,8 @@ export default function ModerationMenu() {
     return (
       <TableRow key={isAnon ? `anon-${user.last_session}` : user.id}>
         <TableCell>{isAnon ? "-" : user.callsign}</TableCell>
+        <TableCell>{isAnon ? "-" : user.country}</TableCell>
+        <TableCell>{isAnon ? "-" : user.is_verified ? "YES": "no"}</TableCell>
         <TableCell>{isAnon ? "-" : user.username}</TableCell>
         <TableCell>{isAnon ? user.last_session : "-"}</TableCell>
         <TableCell>
