@@ -32,20 +32,24 @@ func (q *Queries) CreateAnonUser(ctx context.Context, arg CreateAnonUserParams) 
 const createReport = `-- name: CreateReport :execresult
 INSERT INTO report_action (
   reporter_user_id,
+  reporter_username,
   reporter_session,
   baduser_id,
+  baduser_username,
   baduser_session,
   badmessage_transcript,
   badmessage_timestamp
 ) VALUES (
-  ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?
 )
 `
 
 type CreateReportParams struct {
 	ReporterUserID       sql.NullInt64
+	ReporterUsername     string
 	ReporterSession      string
 	BaduserID            sql.NullInt64
+	BaduserUsername      string
 	BaduserSession       string
 	BadmessageTranscript string
 	BadmessageTimestamp  int64
@@ -54,8 +58,10 @@ type CreateReportParams struct {
 func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createReport,
 		arg.ReporterUserID,
+		arg.ReporterUsername,
 		arg.ReporterSession,
 		arg.BaduserID,
+		arg.BaduserUsername,
 		arg.BaduserSession,
 		arg.BadmessageTranscript,
 		arg.BadmessageTimestamp,
@@ -110,7 +116,7 @@ func (q *Queries) GetCallsign(ctx context.Context, callsign string) (string, err
 }
 
 const getLastBanEvents = `-- name: GetLastBanEvents :many
-SELECT id, moderator_id, event_timestamp, baduser_id, baduser_session, moderator_notes, reason, is_ban_revert
+SELECT id, moderator_id, moderator_username, event_timestamp, baduser_id, baduser_username, baduser_session, moderator_notes, reason, is_ban_revert
 FROM ban_action
 ORDER BY event_timestamp DESC
 LIMIT 100
@@ -128,8 +134,10 @@ func (q *Queries) GetLastBanEvents(ctx context.Context) ([]BanAction, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.ModeratorID,
+			&i.ModeratorUsername,
 			&i.EventTimestamp,
 			&i.BaduserID,
+			&i.BaduserUsername,
 			&i.BaduserSession,
 			&i.ModeratorNotes,
 			&i.Reason,
@@ -224,7 +232,7 @@ func (q *Queries) GetLastBannedAnon(ctx context.Context, lastSession string) ([]
 }
 
 const getLastReports = `-- name: GetLastReports :many
-SELECT id, reporter_user_id, reporter_session, event_timestamp, baduser_id, baduser_session, reason, badmessage_transcript, badmessage_timestamp
+SELECT id, reporter_user_id, reporter_username, reporter_session, event_timestamp, baduser_id, baduser_username, baduser_session, reason, badmessage_transcript, badmessage_timestamp
 FROM report_action
 ORDER BY event_timestamp DESC
 LIMIT 100
@@ -242,9 +250,11 @@ func (q *Queries) GetLastReports(ctx context.Context) ([]ReportAction, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.ReporterUserID,
+			&i.ReporterUsername,
 			&i.ReporterSession,
 			&i.EventTimestamp,
 			&i.BaduserID,
+			&i.BaduserUsername,
 			&i.BaduserSession,
 			&i.Reason,
 			&i.BadmessageTranscript,
@@ -371,29 +381,35 @@ func (q *Queries) ListModerators(ctx context.Context) ([]User, error) {
 const recordBanAction = `-- name: RecordBanAction :execresult
 INSERT INTO ban_action (
   moderator_id,
+  moderator_username,
   baduser_id,
+  baduser_username,
   baduser_session,
   moderator_notes,
   reason,
   is_ban_revert
 ) VALUES (
-  ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?
 )
 `
 
 type RecordBanActionParams struct {
-	ModeratorID    int64
-	BaduserID      sql.NullInt64
-	BaduserSession string
-	ModeratorNotes interface{}
-	Reason         interface{}
-	IsBanRevert    int64
+	ModeratorID       int64
+	ModeratorUsername string
+	BaduserID         sql.NullInt64
+	BaduserUsername   string
+	BaduserSession    string
+	ModeratorNotes    interface{}
+	Reason            interface{}
+	IsBanRevert       int64
 }
 
 func (q *Queries) RecordBanAction(ctx context.Context, arg RecordBanActionParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, recordBanAction,
 		arg.ModeratorID,
+		arg.ModeratorUsername,
 		arg.BaduserID,
+		arg.BaduserUsername,
 		arg.BaduserSession,
 		arg.ModeratorNotes,
 		arg.Reason,

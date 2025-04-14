@@ -54,8 +54,10 @@ func adaptReportActions(reports []db.ReportAction) []ModerationReportActionRespo
 		action := ModerationReportActionResponse{
 			ID:                   r.ID,
 			ReporterSession:      r.ReporterSession,
+      ReporterUsername:     r.ReporterUsername,
 			EventTimestamp:       r.EventTimestamp,
 			BaduserSession:       r.BaduserSession,
+      BaduserUsername:      r.BaduserUsername,
 			Reason:               r.Reason,
 			BadmessageTranscript: r.BadmessageTranscript,
 			BadmessageTimestamp:  r.BadmessageTimestamp,

@@ -60,11 +60,13 @@ func ServeReport(
         Valid: !currentJwtData.IsAnonymous,
       },
       ReporterSession: device.Id, 
+      ReporterUsername: currentJwtData.Username,
       //bad user
       BaduserID: sql.NullInt64{ 
         Int64: signedMessage.Userid,
         Valid: signedMessage.Userid != 0,
       },
+      BaduserUsername: signedMessage.Username,
       BaduserSession: signedMessage.Deviceid,
       BadmessageTranscript: signedMessage.PlainText,
       BadmessageTimestamp: signedMessage.Timestamp,

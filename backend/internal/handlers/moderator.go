@@ -12,6 +12,20 @@ import (
 	"github.com/robalb/morsechat/internal/validation"
 )
 
+/*
+
+Moderation and bans
+
+A ban can be either:
+- logged user ban
+- anonymous ban 
+
+In a logged user ban, the user.is_banned is simply set to true.
+on the next login, their device will be banned (curse)
+
+
+*/
+
 type ModerationListQuery struct {
     Name        string   `json:"name" validate:"required,min=0,max=200"`
 }

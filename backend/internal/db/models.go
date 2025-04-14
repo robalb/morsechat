@@ -15,22 +15,26 @@ type AnonUser struct {
 }
 
 type BanAction struct {
-	ID             int64
-	ModeratorID    int64
-	EventTimestamp int64
-	BaduserID      sql.NullInt64
-	BaduserSession string
-	ModeratorNotes interface{}
-	Reason         interface{}
-	IsBanRevert    int64
+	ID                int64
+	ModeratorID       int64
+	ModeratorUsername string
+	EventTimestamp    int64
+	BaduserID         sql.NullInt64
+	BaduserUsername   string
+	BaduserSession    string
+	ModeratorNotes    interface{}
+	Reason            interface{}
+	IsBanRevert       int64
 }
 
 type ReportAction struct {
 	ID                   int64
 	ReporterUserID       sql.NullInt64
+	ReporterUsername     string
 	ReporterSession      string
 	EventTimestamp       int64
 	BaduserID            sql.NullInt64
+	BaduserUsername      string
 	BaduserSession       string
 	Reason               interface{}
 	BadmessageTranscript string

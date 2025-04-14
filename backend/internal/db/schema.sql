@@ -1,10 +1,24 @@
-
--- A session is an UUIDv4 that uniquely
+-- database conventions:
+--
+-- all tables in the schema are identified by a row ID,
+-- see https://sqlite.org/lang_createtable.html#rowid
+-- all join and foreign key references are based on the row ID,
+-- which is a first class citizen in SQLITE, almost twice as fast
+-- as a regular index lookup.
+-- 
+-- when storing an user.id as foreign key, it's convention to also 
+-- store the user.username, to add a human readable information and
+-- avoid extra lookups. The username will not be used as foreign key
+-- This convention is also used in application-level data structures.
+-- 
+-- A Session, or DeviceId, is a string that uniquely
 -- identifies a browsing session on our website.
 -- a session is tied to a speicific timeline, and
 -- browsing metadata like the user ip.
 -- Everywhere auditing features are required, we log
--- session ids. Even when we have an username.
+-- sessions. Even when we have an username.
+-- "session" is an alias for "device id".
+
 CREATE TABLE IF NOT EXISTS users (
   id                     INTEGER PRIMARY KEY,
   username               TEXT NOT NULL,
@@ -42,20 +56,28 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_anon_users_last_session
 CREATE TABLE IF NOT EXISTS report_action(
   id                     INTEGER PRIMARY KEY,
   reporter_user_id       INTEGER REFERENCES users(id),
+  reporter_username      TEXT NOT NULL,
   reporter_session       TEXT NOT NULL,
   event_timestamp        INTEGER NOT NULL DEFAULT (unixepoch()),
   baduser_id             INTEGER REFERENCES users(id),
+  baduser_username       TEXT NOT NULL,
   baduser_session        TEXT NOT NULL,
   reason                 TEXT NOT NULL DEFAULT "",
   badmessage_transcript  TEXT NOT NULL,
   badmessage_timestamp   INTEGER NOT NULL DEFAULT (unixepoch())
 ) STRICT;
-CREATE INDEX IF NOT EXISTS idx_report_action_reporter_user_id
-  ON report_action (reporter_user_id);
+-- lookup by ID is unlikey to happen; most report_action lookups will happen during
+-- moderation queries, which are human based, and therefore based on the username
+-- CREATE INDEX IF NOT EXISTS idx_report_action_reporter_user_id
+--   ON report_action (reporter_user_id);
+CREATE INDEX IF NOT EXISTS idx_report_action_reporter_username
+  ON report_action (reporter_username);
 CREATE INDEX IF NOT EXISTS idx_report_action_reporter_session
   ON report_action (reporter_session);
-CREATE INDEX IF NOT EXISTS idx_report_action_baduser_id
-  ON report_action (baduser_id);
+-- CREATE INDEX IF NOT EXISTS idx_report_action_baduser_id
+--   ON report_action (baduser_id);
+CREATE INDEX IF NOT EXISTS idx_report_action_baduser_username
+  ON report_action (baduser_username);
 CREATE INDEX IF NOT EXISTS idx_report_action_baduser_session
   ON report_action (baduser_session);
 CREATE INDEX IF NOT EXISTS idx_report_action_event_timestamp
@@ -63,19 +85,27 @@ CREATE INDEX IF NOT EXISTS idx_report_action_event_timestamp
 
 
 CREATE TABLE IF NOT EXISTS ban_action(
-  id               INTEGER PRIMARY KEY,
-  moderator_id     INTEGER NOT NULL REFERENCES USERS(id),
-  event_timestamp  INTEGER NOT NULL DEFAULT (unixepoch()),
-  baduser_id       INTEGER REFERENCES USERS(id),
-  baduser_session  TEXT NOT NULL,
-  moderator_notes  TEXT NOT NULL DEFAULT "",
-  reason           TEXT NOT NULL DEFAULT "",
-  is_ban_revert    INTEGER NOT NULL DEFAULT 0
+  id                  INTEGER PRIMARY KEY,
+  moderator_id        INTEGER NOT NULL REFERENCES USERS(id),
+  moderator_username  TEXT NOT NULL,
+  event_timestamp     INTEGER NOT NULL DEFAULT (unixepoch()),
+  baduser_id          INTEGER REFERENCES USERS(id),
+  baduser_username    TEXT NOT NULL,
+  baduser_session     TEXT NOT NULL,
+  moderator_notes     TEXT NOT NULL DEFAULT "",
+  reason              TEXT NOT NULL DEFAULT "",
+  is_ban_revert       INTEGER NOT NULL DEFAULT 0
 ) STRICT;
-CREATE INDEX IF NOT EXISTS idx_ban_action_moderator_id
-  ON ban_action (moderator_id);
-CREATE INDEX IF NOT EXISTS idx_ban_action_baduser_id
-  ON ban_action (baduser_id);
+-- lookup by ID is unlikey to happen; most ban_action lookups will happen during
+-- moderation queries, which are human based, and therefore based on the username
+-- CREATE INDEX IF NOT EXISTS idx_ban_action_moderator_id
+--   ON ban_action (moderator_id);
+CREATE INDEX IF NOT EXISTS idx_ban_action_moderator_username
+  ON ban_action (moderator_username);
+-- CREATE INDEX IF NOT EXISTS idx_ban_action_baduser_id
+--   ON ban_action (baduser_id);
+CREATE INDEX IF NOT EXISTS idx_ban_action_baduser_username
+  ON ban_action (baduser_username);
 CREATE INDEX IF NOT EXISTS idx_ban_action_baduser_session
   ON ban_action (baduser_session);
 CREATE INDEX IF NOT EXISTS idx_ban_action_event_timestamp

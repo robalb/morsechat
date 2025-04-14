@@ -63,9 +63,11 @@ type ModerationBanActionResponse struct {
 type ModerationReportActionResponse struct {
 	ID                   int64  `json:"id"`
 	ReporterUserID       int64  `json:"reporter_user_id"`
+	ReporterUsername     string `json:"reporter_username"`
 	ReporterSession      string `json:"reporter_session"`
 	EventTimestamp       int64  `json:"event_timestamp"`
 	BaduserID            int64  `json:"baduser_id"`
+	BaduserUsername      string `json:"baduser_username"`
 	BaduserSession       string `json:"baduser_session"`
 	Reason               any    `json:"reason"`
 	BadmessageTranscript string `json:"badmessage_transcript"`

@@ -37,25 +37,29 @@ WHERE callsign = ? LIMIT 1;
 /* name: CreateReport :execresult */
 INSERT INTO report_action (
   reporter_user_id,
+  reporter_username,
   reporter_session,
   baduser_id,
+  baduser_username,
   baduser_session,
   badmessage_transcript,
   badmessage_timestamp
 ) VALUES (
-  ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?
 );
 
 /* name: RecordBanAction :execresult */
 INSERT INTO ban_action (
   moderator_id,
+  moderator_username,
   baduser_id,
+  baduser_username,
   baduser_session,
   moderator_notes,
   reason,
   is_ban_revert
 ) VALUES (
-  ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?
 );
 
 /* name: GetLastBanEvents :many */
