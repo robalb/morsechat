@@ -153,15 +153,7 @@ func Ban(deviceId string) string{
   }
   return deviceId
 }
-
-// ban a unique identity.
-// TODO(al)
-func BanUniqueIdentity(identity string) string{
-  return ""
-}
-
-
-//undo the ban associated to an ID
+//undo the ban associated to a device ID
 // when offline, the banID is the IP
 func UndoBan(bannedDeviceId string){
   ip, isOfflineId := extractIP(bannedDeviceId)
@@ -169,6 +161,19 @@ func UndoBan(bannedDeviceId string){
     tempUnBan(ip)
   }
 }
+
+// ban a unique identity.
+// TODO(al)
+func BanIdentity(identity string) string{
+  return ""
+}
+//  undo ban on a unique identity.
+// TODO(al)
+func UndoBanIdentity(identity string) string{
+  return ""
+}
+
+
 
 
 

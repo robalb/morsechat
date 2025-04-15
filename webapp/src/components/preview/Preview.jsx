@@ -11,6 +11,8 @@ import { selectMorseTimes } from "../../redux/userSlice";
 import {systemMessage} from '../../utils/chatDom'
 import {getInstance} from '../../socket/global.js'
 
+let dashChar = "–" // endash (U+2013)
+
 function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
     let times = useSelector(selectMorseTimes)
@@ -75,7 +77,7 @@ function TextPreview(){
             return out + translateToReadable(letter);
         return out + (showReadable ? " " : "")+ letter
     }
-    let morseString = bufferedMorseToString(buffer, times).replaceAll("-", "_")
+    let morseString = bufferedMorseToString(buffer, times).replaceAll("-", dashChar)
 
     return <p>{morseString}</p>
 }

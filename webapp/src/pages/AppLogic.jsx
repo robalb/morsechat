@@ -11,6 +11,8 @@ import {setInstance, getInstance} from '../socket/global.js'
 import ReceiverSound from '../utils/ReceiverSound'
 import { fetchAllData } from "../redux/apiSlice";
 
+let dashChar = "–" // endash (U+2013)
+
 export function AppLogic({chatDomNode}) {
     const dispatch = useDispatch()
     let loading = useSelector(state => state.api.loading)
@@ -59,7 +61,7 @@ export function AppLogic({chatDomNode}) {
             if(t < times.dash){
                 letter += "."
             }else{
-                letter += "_"
+                letter += dashChar
             }
         }
         //pressed after t millis
@@ -90,7 +92,7 @@ export function AppLogic({chatDomNode}) {
     }
     function translateToReadable(letter, dialectName){
         let dialect = getDialect(dialectName)
-        letter = letter.replaceAll("_", "-")
+        letter = letter.replaceAll(dashChar, "-")
         if(dialect.table.hasOwnProperty(letter))
             return dialect.table[letter];
         return " " + letter + " ";

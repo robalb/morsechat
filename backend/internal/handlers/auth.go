@@ -144,6 +144,13 @@ func ServeSessInit(
 	dbReadPool *sql.DB,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+    device, err := deviceid.New(r)
+    if err != nil {
+      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+      logger.Printf("ServeSessInit: deviceID error: %v", err.Error())
+      return
+    }
 		//If the user already has a session, just return the session data,
 		//But don't set any jwt cokie.
 		currentJwtData, err := auth.GetJwtData(r.Context())
@@ -159,6 +166,13 @@ func ServeSessInit(
           logger.Printf("ServeSessInit: data query error: %v", err.Error())
           return
         }
+        //update the device metadata, and handle banned user
+        device.SetUniqueIdentity(res.Username)
+        if res.IsBanned != 0 {
+          //silently curse this device
+          device.SetBanned()
+        }
+
         responseCountry = res.Country.(string)
         //parse json field
         var userSettings Settings

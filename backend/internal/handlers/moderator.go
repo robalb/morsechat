@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/auth"
@@ -121,6 +122,13 @@ func ServeModerationBan(
 	return func(w http.ResponseWriter, r *http.Request) {
     errCtx := "ServeModerationBan"
 
+    device, err := deviceid.New(r)
+    if err != nil {
+      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+      logger.Printf("%s: deviceID error: %v", errCtx, err.Error())
+      return
+    }
+
 		var reqData ModerationBanData
 		if err := validation.Bind(w, r, &reqData); err != nil {
 			//Error response is already set by Bind
@@ -202,16 +210,43 @@ func ServeModerationBan(
       }
     }
 
-    //perform the actual ban via the deviceID api
+    //perform the actual ban or unbann via the deviceID api
     if reqData.IsBanRevert{
-      deviceid.UndoBan(reqData.BaduserSession)
+      if len(reqData.BaduserSession) > 0 {
+        deviceid.UndoBan(reqData.BaduserSession)
+      }
+      if reqData.BaduserId != 0 {
+        //TODO: use username string
+        deviceid.UndoBanIdentity(strconv.FormatInt(reqData.BaduserId, 10))
+      }
     } else {
-      deviceid.Ban(reqData.BaduserSession)
+      if len(reqData.BaduserSession) > 0 {
+        deviceid.Ban(reqData.BaduserSession)
+      }
+      if reqData.BaduserId != 0 {
+        //TODO: use username string
+        deviceid.BanIdentity(strconv.FormatInt(reqData.BaduserId, 10))
+      }
     }
 
     //TODO(al) communicate to the hub that a device must be kicked
     if !reqData.IsBanRevert{
       //TODO(al)
+      //communicate to the hub that we want to kick a username and/or deviceID
+    }
+
+    {
+      //basic audit log of the events
+      event := "banned"
+      if reqData.IsBanRevert {
+        event = "reverted_ban"
+      }
+      logger.Printf("Moderation: (%s): %s on (%d, %s)",
+        device.Id,
+        event,
+        reqData.BaduserId,
+        reqData.BaduserSession,
+        )
     }
 
     validation.RespondOk(w, "ok")
