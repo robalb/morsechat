@@ -21,7 +21,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import { logoutUser } from "../../redux/userSlice";
 import { setChannel } from "../../redux/chatSlice";
 
-// Import your ModerationMenu component
 import ModerationMenu from "../moderation/ModerationMenu";
 
 export function Header({ leftContent = "", authState }) {

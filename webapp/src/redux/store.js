@@ -3,6 +3,7 @@ import { configureStore, createAsyncThunk } from '@reduxjs/toolkit'
 import userReducer from './userSlice'
 import apiReducer from './apiSlice'
 import chatReducer from './chatSlice'
+import dialogReducer from './dialogSlice';
 
 // This is the entry point to the redux-toolkit store of the webapp
 // It's an untyped, entangled mess I created a long time ago.
@@ -15,7 +16,8 @@ export default configureStore({
   reducer: {
     user: userReducer,
     api: apiReducer,
-    chat: chatReducer
+    chat: chatReducer,
+    dialog: dialogReducer,
   },
 })
 

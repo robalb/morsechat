@@ -185,7 +185,7 @@ func ServeModerationBan(
 
     //update the ban status in the users db table
     if reqData.BaduserId == 0 {
-      // the user we are banning / unbanning is anonymous
+      // the user we are banning / unbanning is anonymous:
       //add or edit an entry to the anon_users, with the banned status
       _, err = queries.CreateAnonUser(r.Context(), db.CreateAnonUserParams{ 
         IsBanned: isBannedInt,
@@ -197,7 +197,7 @@ func ServeModerationBan(
         return
       }
     } else {
-      // the user we are banning / unbanning is NOT anonymous
+      // the user we are banning / unbanning is NOT anonymous:
       // update the banned status in the user table
       _, err = queries.UpdateBanned(r.Context(), db.UpdateBannedParams{ 
         IsBanned: isBannedInt,

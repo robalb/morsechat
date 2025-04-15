@@ -13,6 +13,7 @@ import { apiCall } from '../../redux/apiSlice';
 import useDebounce from '../../hooks/UseDebounce';
 import TableCellTooltip from './TableCellTooltip.jsx'
 import TableCellWithCopy from './TableCellCopy.jsx'
+import BanButton from './BanButton.jsx'
 
 function formatDate(date){
     const now = new Date();
@@ -182,9 +183,9 @@ export default function ModerationMenu() {
         <TableCellWithCopy text={isAnon ? "-" : user.username} />
         <TableCellWithCopy text={isAnon ? user.last_session : "-"} />
         <TableCell>
-          <Button variant="outlined" size="small" onClick={() => {}}>
+          <BanButton variant="outlined" size="small" username={user.username} session={user.last_session} revert={true}>
             Revert ban
-          </Button>
+          </BanButton>
         </TableCell>
       </TableRow>
     );
@@ -226,23 +227,17 @@ export default function ModerationMenu() {
         <TableCellTooltip text={report.baduser_session} maxLength={20} />
         <TableCell>{formatDate(badMsgDate)}</TableCell>
         <TableCell>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            onClick={() => console.log("Ban", report.baduser_id, report.baduser_session)}>
-            Ban
-          </Button>
+          <BanButton variant="outlined" size="small" username={report.baduser_username} session={report.baduser_session} >
+                        Ban
+          </BanButton>
         </TableCell>
         <TableCellWithCopy text={report.reporter_user_id === 0 ? "--" : report.reporter_username} />
         <TableCellTooltip text={report.reporter_session} maxLength={20} />
         <TableCell>{formatDate(reportDate)}</TableCell>
         <TableCell>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            onClick={() => console.log("Ban reporter", report.reporter_user_id, report.reporter_session)}>
-            Ban reporter
-          </Button>
+          <BanButton variant="outlined" size="small" username={report.reporter_username} session={report.reporter_session} >
+                        Ban reporter
+          </BanButton>
         </TableCell>
       </TableRow>
     );

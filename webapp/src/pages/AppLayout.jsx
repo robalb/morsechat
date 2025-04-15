@@ -18,6 +18,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import {Sheet} from "../components/sheet/Sheet";
 import {Settings} from "../components/settings/Settings";
 import { useSelector } from 'react-redux'
+import {BanUserDialog} from "../components/moderation/BanUserDialog"
 
 import './appLayout.css'
 
@@ -159,6 +160,7 @@ export function AppLayout({chatDomNode}) {
                         closeBtHandler={toggleSheet}
                     />
                 }
+                <BanUserDialog />
             </main>
         </div>
     );

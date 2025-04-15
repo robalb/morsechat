@@ -69,13 +69,6 @@ export function ReportMessage({ open, onClose, data }) {
       <DialogActions>
         <Button onClick={handleReport} disabled={btDisabled} color="error" variant="contained">Report</Button>
         <Button onClick={onClose} color="primary" variant="contained">Close</Button>
-          {(ismoderator || isadmin) && (
-            <>
-            <p></p>
-            <p> Moderator actions: </p>
-              <Button onClick={onClose} color="error" variant="contained">Ban</Button>
-            </>
-          )}
 
       </DialogActions>
     </Dialog>
