@@ -107,7 +107,8 @@ func ServeModerationList(
 
 
 type ModerationBanData struct {
-  BaduserId  int64 `json:"baduser_id"`
+  BaduserId    int64 `json:"baduser_id"`
+  Badusername  int64 `json:"baduser_username"`
   BaduserSession string `json:"baduser_session"`
   ModeratorNotes string `json:"notes"`
   IsBanRevert bool `json:"is_revert"`

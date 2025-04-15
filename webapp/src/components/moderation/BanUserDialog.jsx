@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeDialog } from '../../redux/dialogSlice';
+import { apiCall } from '../../redux/apiSlice';
 import { useSnackbar } from 'notistack';
 
 export const BanUserDialog = () => {
@@ -19,6 +20,7 @@ export const BanUserDialog = () => {
   const { open, username, session, revert } = useSelector((state) => state.dialog);
 
   const [notes, setNotes] = useState('');
+  let [apiPromise, setApiPromise] = React.useState(undefined)
 
   useEffect(() => {
     if (open) setNotes('');
@@ -27,17 +29,32 @@ export const BanUserDialog = () => {
   const handleConfirm = () => {
     if (!notes.trim()) return;
 
-    if (revert) {
-      console.log(`Reverting ban for ${username} (session: ${session}) with notes: ${notes}`);
-      // API call for reverting a ban
-      enqueueSnackbar("failed to call api", {variant: "error", preventDuplicate:true})
-    } else {
-      console.log(`Banning ${username} (session: ${session}) with notes: ${notes}`);
-      // API call for banning
-      enqueueSnackbar("failed to call api", {variant: "error", preventDuplicate:true})
-    }
 
-    dispatch(closeDialog());
+    const livePromise = dispatch(apiCall({
+      endpoint: "moderation/ban",
+      data: {
+        baduser_username: username,
+        baduser_session: session,
+        notes: notes,
+        is_revert: revert
+      }
+    }))
+
+    // we need to preserve this promise during rerenders if we want to abort it
+    setApiPromise(livePromise)
+    livePromise.unwrap()
+      .then(ret => {
+        console.log(ret)
+        let actionName = revert ? "ban REVERT successfull." : "ban succesfful"
+        enqueueSnackbar(actionName, {variant: "success", preventDuplicate:true})
+        dispatch(closeDialog());
+      })
+      .catch(ret => {
+        console.log(ret)
+        let actionName = revert ? "ban REVERT failed." : "ban failed"
+      enqueueSnackbar(actionName, {variant: "error", preventDuplicate:true})
+      dispatch(closeDialog());
+      })
   };
 
   const title = revert ? 'Revert Ban' : 'Ban User';

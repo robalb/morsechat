@@ -14,6 +14,7 @@ import useDebounce from '../../hooks/UseDebounce';
 import TableCellTooltip from './TableCellTooltip.jsx'
 import TableCellWithCopy from './TableCellCopy.jsx'
 import BanButton from './BanButton.jsx'
+import ManualBanForm from './ManualBanForm.jsx'
 
 function formatDate(date){
     const now = new Date();
@@ -121,6 +122,7 @@ export default function ModerationMenu() {
                 <Tab label="Moderation Logs" />
                 <Tab label="Banned users" />
                 <Tab label="Reports" />
+                <Tab label="Manual operations" />
             </Tabs>
 
             {/* Moderation Logs Tab */}
@@ -245,6 +247,11 @@ export default function ModerationMenu() {
 </TableBody>
                     </Table>
                 </TableContainer>
+            )}
+
+            {/* Manual operations Tab */}
+            {tabIndex === 3 && (
+              <ManualBanForm />
             )}
         </Box>
     );
