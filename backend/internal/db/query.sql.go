@@ -420,7 +420,7 @@ INSERT INTO ban_action (
   ?,      -- moderator_id
   ?,      -- moderator_username
   ?,      -- baduser_id
-  COALESCE((SELECT username FROM users WHERE users.id = ?), ''), -- baduser_id
+  ?,      -- baduser_username
   ?,      -- baduser_session
   ?,      -- moderator_notes
   ?,      -- reason
@@ -431,7 +431,7 @@ type RecordBanActionParams struct {
 	ModeratorID       int64
 	ModeratorUsername string
 	BaduserID         sql.NullInt64
-	ID                int64
+	BaduserUsername   string
 	BaduserSession    string
 	ModeratorNotes    interface{}
 	Reason            interface{}
@@ -443,7 +443,7 @@ func (q *Queries) RecordBanAction(ctx context.Context, arg RecordBanActionParams
 		arg.ModeratorID,
 		arg.ModeratorUsername,
 		arg.BaduserID,
-		arg.ID,
+		arg.BaduserUsername,
 		arg.BaduserSession,
 		arg.ModeratorNotes,
 		arg.Reason,

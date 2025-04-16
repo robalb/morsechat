@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/auth"
@@ -107,8 +106,8 @@ func ServeModerationList(
 
 
 type ModerationBanData struct {
-  BaduserId    int64 `json:"baduser_id"`
-  Badusername  int64 `json:"baduser_username"`
+  // BaduserId    int64 `json:"baduser_id"`
+  Badusername  string `json:"baduser_username"`
   BaduserSession string `json:"baduser_session"`
   ModeratorNotes string `json:"notes"`
   IsBanRevert bool `json:"is_revert"`
@@ -145,15 +144,23 @@ func ServeModerationBan(
 		queriesRead := db.New(dbReadPool)
     res, err := queriesRead.IsModerator(r.Context(), currentJwtData.UserId)
     if err != nil {
-			logger.Printf("%s: query error: %v", errCtx, err.Error())
+			logger.Printf("%s: moderator query error: %v", errCtx, err.Error())
+      validation.RespondError(w, "Data query error", "", http.StatusInternalServerError)
+      return
     }
     if res == 0 {
-      validation.RespondError(w, "Data query error", "", http.StatusBadRequest)
 			logger.Printf("%s: invalid access: %v", errCtx, err.Error())
+      validation.RespondError(w, "Data query error", "", http.StatusBadRequest)
       return
     }
 
-		queries := db.New(dbWritePool)
+    //basic validation
+    if len(reqData.Badusername) == 0 && len(reqData.BaduserSession) == 0 {
+      validation.RespondError(w, "Invalid parameters", "", http.StatusBadRequest)
+      return
+    }
+
+    //prepare query data
     banReason := "manual action"
     isBanRevertInt := int64(0)
     isBannedInt := int64(1)
@@ -161,18 +168,29 @@ func ServeModerationBan(
       isBanRevertInt = 1
       isBannedInt = 0
     }
+    //get bad user info
+    baduserId := int64(0)
+    if len(reqData.Badusername) > 0 {
+      res, err := queriesRead.GetUser(r.Context(), reqData.Badusername)
+      if err != nil {
+        logger.Printf("%s: username query error: %v", errCtx, err.Error())
+        validation.RespondError(w, "Data query error", "", http.StatusInternalServerError)
+        return
+      }
+      baduserId = res.ID
+    }
+
+		queries := db.New(dbWritePool)
 
     //record the ban action in the db event logs
     _, err = queries.RecordBanAction(r.Context(), db.RecordBanActionParams{ 
       ModeratorID: currentJwtData.UserId,
       ModeratorUsername: currentJwtData.Username,
       BaduserID: sql.NullInt64{ 
-        Int64: reqData.BaduserId,
-        Valid: reqData.BaduserId != 0,
+        Int64: baduserId,
+        Valid: baduserId != 0,
       },
-      //A quirk of this spefici query: the content of BaduserId must be
-      //replicated in this other ID field
-      ID: reqData.BaduserId,
+      BaduserUsername: reqData.Badusername,
       BaduserSession: reqData.BaduserSession,
       ModeratorNotes: reqData.ModeratorNotes,
       IsBanRevert: isBanRevertInt,
@@ -185,7 +203,7 @@ func ServeModerationBan(
     }
 
     //update the ban status in the users db table
-    if reqData.BaduserId == 0 {
+    if baduserId == 0 {
       // the user we are banning / unbanning is anonymous:
       //add or edit an entry to the anon_users, with the banned status
       _, err = queries.CreateAnonUser(r.Context(), db.CreateAnonUserParams{ 
@@ -202,7 +220,7 @@ func ServeModerationBan(
       // update the banned status in the user table
       _, err = queries.UpdateBanned(r.Context(), db.UpdateBannedParams{ 
         IsBanned: isBannedInt,
-        ID: reqData.BaduserId,
+        ID: baduserId,
       })
       if err != nil {
         logger.Printf("%s: user update failed: %v", errCtx, err.Error())
@@ -216,17 +234,15 @@ func ServeModerationBan(
       if len(reqData.BaduserSession) > 0 {
         deviceid.UndoBan(reqData.BaduserSession)
       }
-      if reqData.BaduserId != 0 {
-        //TODO: use username string
-        deviceid.UndoBanIdentity(strconv.FormatInt(reqData.BaduserId, 10))
+      if len(reqData.Badusername) > 0 {
+        deviceid.UndoBanIdentity(reqData.Badusername)
       }
     } else {
       if len(reqData.BaduserSession) > 0 {
         deviceid.Ban(reqData.BaduserSession)
       }
-      if reqData.BaduserId != 0 {
-        //TODO: use username string
-        deviceid.BanIdentity(strconv.FormatInt(reqData.BaduserId, 10))
+      if len(reqData.Badusername) > 0 {
+        deviceid.BanIdentity(reqData.Badusername)
       }
     }
 
@@ -242,10 +258,10 @@ func ServeModerationBan(
       if reqData.IsBanRevert {
         event = "reverted_ban"
       }
-      logger.Printf("Moderation: (%s): %s on (%d, %s)",
+      logger.Printf("Moderation: (%s): %s user: (%s, %s)",
         device.Id,
         event,
-        reqData.BaduserId,
+        reqData.Badusername,
         reqData.BaduserSession,
         )
     }

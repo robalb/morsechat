@@ -131,30 +131,14 @@ export default function ModerationMenu() {
                     <Table size="small" >
                         <TableHead>
                             <TableRow>
-                                <TableCell>Date & Time</TableCell>{/*event_timestamp: convert unix timestamp to date and time. if the date is recent, write it in the format "today", "yesterday", ... eg: "yesterday, 12:01 AM"*/}
-                                <TableCell>Info</TableCell>{/*moderator_id, moderator_notes: both moderator ID and moderator_notes fields, combined in a string*/}
-                                <TableCell>Action</TableCell>{/*is_ban_revert: boolean. translate into either "BAN" or "ban REVERT" */}
-                                <TableCell>User</TableCell>{/*baduser_id: Integer. if 0, write "anonymous"*/}
-                                <TableCell>Device</TableCell>{/*baduser_session: a long string. show the first 10 chars, and expand on hover */}
+                                <TableCell>Date & Time</TableCell>
+                                <TableCell>Info</TableCell>
+                                <TableCell>Action</TableCell>
+                                <TableCell>User</TableCell>
+                                <TableCell>Device</TableCell>
                             </TableRow>
                         </TableHead>
-<TableBody>
-  {modData?.ban_actions?.map((action) => {
-    const date = new Date(action.event_timestamp * 1000);
-    return (
-      <TableRow key={action.id}>
-        <TableCell>{formatDate(date)}</TableCell>
-        <TableCell>
-          Moderator @{action.moderator_username}
-          {action.moderator_notes && `: ${action.moderator_notes}`}
-        </TableCell>
-        <TableCell>{action.is_ban_revert ? "ban REVERT" : "BAN"}</TableCell>
-        <TableCellWithCopy text={action.baduser_id === 0 ? "--" : action.baduser_username} />
-        <TableCellWithCopy title={action.baduser_session} text={action.baduser_session} />
-      </TableRow>
-    );
-  })}
-</TableBody>
+                        <BanActionsTable data={modData?.ban_actions} />
                     </Table>
                 </TableContainer>
             )}
@@ -174,25 +158,7 @@ export default function ModerationMenu() {
                                 <TableCell>Actions</TableCell>
                             </TableRow>
                         </TableHead>
-<TableBody>
-  {[...(modData?.users || []), ...(modData?.anon_users || [])].map((user, idx) => {
-    const isAnon = !user.username;
-    return (
-      <TableRow key={isAnon ? `anon-${user.last_session}` : user.id}>
-        <TableCell>{isAnon ? "-" : user.callsign}</TableCell>
-        <TableCell>{isAnon ? "-" : user.country}</TableCell>
-        <TableCell>{isAnon ? "-" : user.is_verified ? "YES": "no"}</TableCell>
-        <TableCellWithCopy text={isAnon ? "-" : user.username} />
-        <TableCellWithCopy text={isAnon ? user.last_session : "-"} />
-        <TableCell>
-          <BanButton variant="outlined" size="small" username={user.username} session={user.last_session} revert={true}>
-            Revert ban
-          </BanButton>
-        </TableCell>
-      </TableRow>
-    );
-  })}
-</TableBody>
+                        <UsersTable data={{users: modData.users, banned_users: modData.banned_users}} />
                     </Table>
                 </TableContainer>
             )}
@@ -214,37 +180,7 @@ export default function ModerationMenu() {
                                 <TableCell>Actions</TableCell>{/*This row must contain a "ban reporter" button, that calls a callback with baduser_id and baduser_session */}
                             </TableRow>
                         </TableHead>
-<TableBody>
-  {modData?.report_actions?.map((report) => {
-    const badMsgDate = new Date(report.badmessage_timestamp * 1000);
-    const reportDate = new Date(report.event_timestamp * 1000);
-
-    return (
-      <TableRow key={report.id}>
-        <TableCellTooltip text={report.badmessage_transcript} maxLength={30} />
-        {/* <TableCell title={report.badmessage_transcript}> */}
-        {/*   {truncate(report.badmessage_transcript, 30)} */}
-        {/* </TableCell> */}
-        <TableCellWithCopy text={report.baduser_id === 0 ? "--" : report.baduser_username} />
-        <TableCellTooltip text={report.baduser_session} maxLength={20} />
-        <TableCell>{formatDate(badMsgDate)}</TableCell>
-        <TableCell>
-          <BanButton variant="outlined" size="small" username={report.baduser_username} session={report.baduser_session} >
-                        Ban
-          </BanButton>
-        </TableCell>
-        <TableCellWithCopy text={report.reporter_user_id === 0 ? "--" : report.reporter_username} />
-        <TableCellTooltip text={report.reporter_session} maxLength={20} />
-        <TableCell>{formatDate(reportDate)}</TableCell>
-        <TableCell>
-          <BanButton variant="outlined" size="small" username={report.reporter_username} session={report.reporter_session} >
-                        Ban reporter
-          </BanButton>
-        </TableCell>
-      </TableRow>
-    );
-  })}
-</TableBody>
+                        <ReportActionsTable data={modData.report_actions} />
                     </Table>
                 </TableContainer>
             )}
@@ -257,3 +193,86 @@ export default function ModerationMenu() {
     );
 }
 
+
+const BanActionsTable = React.memo(({ data }) => {
+  return (
+    <TableBody>
+      {data?.map((action) => {
+        const date = new Date(action.event_timestamp * 1000);
+        return (
+          <TableRow key={action.id}>
+            <TableCell>{formatDate(date)}</TableCell>
+            <TableCell>
+              Moderator @{action.moderator_username}
+              {action.moderator_notes && `: ${action.moderator_notes}`}
+            </TableCell>
+            <TableCell>{action.is_ban_revert ? "ban REVERT" : "BAN"}</TableCell>
+            <TableCellWithCopy text={action.baduser_id === 0 ? "--" : action.baduser_username} />
+            <TableCellWithCopy title={action.baduser_session} text={action.baduser_session} />
+          </TableRow>
+        );
+      })}
+    </TableBody>
+  );
+});
+
+const UsersTable = React.memo(({ data }) => {
+  return (
+  <TableBody>
+    {[...(data?.users || []), ...(data?.anon_users || [])].map((user, idx) => {
+      const isAnon = !user.username;
+      return (
+        <TableRow key={isAnon ? `anon-${user.last_session}` : user.id}>
+          <TableCell>{isAnon ? "-" : user.callsign}</TableCell>
+          <TableCell>{isAnon ? "-" : user.country}</TableCell>
+          <TableCell>{isAnon ? "-" : user.is_verified ? "YES": "no"}</TableCell>
+          <TableCellWithCopy text={isAnon ? "-" : user.username} />
+          <TableCellWithCopy text={isAnon ? user.last_session : "-"} />
+          <TableCell>
+            <BanButton variant="outlined" size="small" username={user.username} session={user.last_session} revert={true}>
+              Revert ban
+            </BanButton>
+          </TableCell>
+        </TableRow>
+      );
+    })}
+  </TableBody>
+  );
+
+});
+
+const ReportActionsTable = React.memo(({ data }) => {
+  return (
+    <TableBody>
+      {data.map((report) => {
+        const badMsgDate = new Date(report.badmessage_timestamp * 1000);
+        const reportDate = new Date(report.event_timestamp * 1000);
+
+        return (
+          <TableRow key={report.id}>
+            <TableCellTooltip text={report.badmessage_transcript} maxLength={30} />
+            {/* <TableCell title={report.badmessage_transcript}> */}
+            {/*   {truncate(report.badmessage_transcript, 30)} */}
+            {/* </TableCell> */}
+            <TableCellWithCopy text={report.baduser_id === 0 ? "--" : report.baduser_username} />
+            <TableCellTooltip text={report.baduser_session} maxLength={20} />
+            <TableCell>{formatDate(badMsgDate)}</TableCell>
+            <TableCell>
+              <BanButton variant="outlined" size="small" username={report.baduser_username} session={report.baduser_session} >
+                            Ban
+              </BanButton>
+            </TableCell>
+            <TableCellWithCopy text={report.reporter_user_id === 0 ? "--" : report.reporter_username} />
+            <TableCellTooltip text={report.reporter_session} maxLength={20} />
+            <TableCell>{formatDate(reportDate)}</TableCell>
+            <TableCell>
+              <BanButton variant="outlined" size="small" username={report.reporter_username} session={report.reporter_session} >
+                            Ban reporter
+              </BanButton>
+            </TableCell>
+          </TableRow>
+        );
+      })}
+    </TableBody>
+  )
+});

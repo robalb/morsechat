@@ -62,7 +62,7 @@ INSERT INTO ban_action (
   ?,      -- moderator_id
   ?,      -- moderator_username
   ?,      -- baduser_id
-  COALESCE((SELECT username FROM users WHERE users.id = ?), ''), -- baduser_id
+  ?,      -- baduser_username
   ?,      -- baduser_session
   ?,      -- moderator_notes
   ?,      -- reason
