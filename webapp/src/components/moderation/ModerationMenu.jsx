@@ -240,7 +240,7 @@ const UsersTable = React.memo(({ data }) => {
 const ReportActionsTable = React.memo(({ data }) => {
   return (
     <TableBody>
-      {data.map((report) => {
+      {data?.map((report) => {
         const badMsgDate = new Date(report.badmessage_timestamp * 1000);
         const reportDate = new Date(report.event_timestamp * 1000);
 

@@ -167,7 +167,10 @@ func ServeSessInit(
 				//update the device metadata, and handle banned user
 				device.SetUniqueIdentity(res.Username)
 				if res.IsBanned != 0 {
-					//silently curse this device
+					//silently curse this device.
+          //this is likely a redundant operation:
+          //It's likely that the unique identity was already banned,
+          //and by calling SetUniqueIdentity we propagated the ban.
 					device.SetBanned()
 				}
 

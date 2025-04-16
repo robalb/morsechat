@@ -70,7 +70,7 @@ func (c *Client) readPump() {
 			bytes:  message,
 			client: c,
 		}
-		c.hub.broadcast <- clientRequest
+		c.hub.clientRequest <- clientRequest
 	}
 }
 
