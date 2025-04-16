@@ -158,7 +158,7 @@ export default function ModerationMenu() {
                                 <TableCell>Actions</TableCell>
                             </TableRow>
                         </TableHead>
-                        <UsersTable data={{users: modData.users, banned_users: modData.banned_users}} />
+                        <UsersTable data={{users: modData.users, anon_users: modData.anon_users}} />
                     </Table>
                 </TableContainer>
             )}
