@@ -11,20 +11,18 @@ import (
 // that have been specified in the configuration.
 // if all fails, an empty string is returned
 func getIp(r *http.Request, ipHeaders []string) string {
-  if len(ipHeaders) > 0 {
-    if ip := getIpFromHeaders(r, ipHeaders); ip != "" {
-      return ip
-    }
-  }
+	if len(ipHeaders) > 0 {
+		if ip := getIpFromHeaders(r, ipHeaders); ip != "" {
+			return ip
+		}
+	}
 
-  ip, _, err := net.SplitHostPort(r.RemoteAddr)
-  if err != nil {
-    return ""
-  }
-  return ip
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return ""
+	}
+	return ip
 }
-
-
 
 func getIpFromHeaders(r *http.Request, headers []string) string {
 	for _, header := range headers {
@@ -39,10 +37,9 @@ func getIpFromHeaders(r *http.Request, headers []string) string {
 	return ""
 }
 
-
 // true if the IP is not local or reserved
 func isPublicIP(ipString string) bool {
-  ip := net.ParseIP(ipString)
+	ip := net.ParseIP(ipString)
 	for _, ipNet := range DefaultFilteredNetworks {
 		if ipNet.Contains(ip) {
 			return false
@@ -50,7 +47,6 @@ func isPublicIP(ipString string) bool {
 	}
 	return true
 }
-
 
 // MustParseCIDR parses string into net.IPNet
 // https://github.com/wader/filtertransport/blob/master/filter.go
@@ -93,4 +89,3 @@ var DefaultFilteredNetworks = []net.IPNet{
 	MustParseCIDR("ff00::/8"),           // RFC 4291: Section 2.7
 	MustParseCIDR("2002::/16"),          // RFC 7526: 6to4 anycast prefix deprecated
 }
-

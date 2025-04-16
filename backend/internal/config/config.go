@@ -9,29 +9,27 @@ import (
 )
 
 type Config struct {
-	Host       string
-	Port       string
-	SqlitePath string
-  Secret     string
-  SecretBytes     []byte
-  MetricsEnabled bool
-  MetricsPort string
+	Host           string
+	Port           string
+	SqlitePath     string
+	Secret         string
+	SecretBytes    []byte
+	MetricsEnabled bool
+	MetricsPort    string
 }
 
-
-func (config *Config) LogSafeSummary() string{
-  censoredSecret := config.Secret[0:5] + "[CENSORED]"
-  return fmt.Sprintf(
-    "Host:'%s', Port:'%s', SqlitePath:'%s', secret:'%s', MetricsEnabled:%v, MetricsPort:'%s'", 
-    config.Host,
-    config.Port,
-    config.SqlitePath,
-    censoredSecret,
-    config.MetricsEnabled,
-    config.MetricsPort,
-    )
+func (config *Config) LogSafeSummary() string {
+	censoredSecret := config.Secret[0:5] + "[CENSORED]"
+	return fmt.Sprintf(
+		"Host:'%s', Port:'%s', SqlitePath:'%s', secret:'%s', MetricsEnabled:%v, MetricsPort:'%s'",
+		config.Host,
+		config.Port,
+		config.SqlitePath,
+		censoredSecret,
+		config.MetricsEnabled,
+		config.MetricsPort,
+	)
 }
-
 
 // Load Configuration for the whole app, using command line args or
 // env vars as a source.
@@ -39,50 +37,49 @@ func (config *Config) LogSafeSummary() string{
 //   - What you set via command line will override the default value
 //     or what you set via env var.
 //
-// Note: thie configuration object is set at the app startup, and is 
-//       static and immutable. It should be passed around by value.
+// Note: thie configuration object is set at the app startup, and is
+//
+//	static and immutable. It should be passed around by value.
 func MakeConfig(
 	args []string,
 	getenv func(string) string,
 ) (Config, error) {
 
 	c := defaultConfig()
-  parseEnv(&c, getenv)
-  parseCmdFlags(&c, args)
+	parseEnv(&c, getenv)
+	parseCmdFlags(&c, args)
 
-  //data validation
-  data, err := base64.StdEncoding.DecodeString(c.Secret)
-  if err != nil{
-    return c, fmt.Errorf("Config error: Secret is not a base64 string")
-  }
-  if len(data) != 32{
-    return c, fmt.Errorf("Config error: Secret is not 32 bytes long after b64 decoding")
-  }
-  c.SecretBytes = data
+	//data validation
+	data, err := base64.StdEncoding.DecodeString(c.Secret)
+	if err != nil {
+		return c, fmt.Errorf("Config error: Secret is not a base64 string")
+	}
+	if len(data) != 32 {
+		return c, fmt.Errorf("Config error: Secret is not 32 bytes long after b64 decoding")
+	}
+	c.SecretBytes = data
 
 	return c, nil
 }
-
 
 func defaultConfig() Config {
 	return Config{
 		Host:       "",
 		Port:       "8080",
 		SqlitePath: "db.sqlite",
-    //Secret must be the b64 string of 32 random bytes
-    // It's better to have a new random secret on every app launch causing
-    // bugs when the backend reloads
-    // than to have a hardcoded default value causing security issues
-    Secret: GenerateSecureRandomB64(),
-    MetricsEnabled: true,
-    MetricsPort: "8081",
+		//Secret must be the b64 string of 32 random bytes
+		// It's better to have a new random secret on every app launch causing
+		// bugs when the backend reloads
+		// than to have a hardcoded default value causing security issues
+		Secret:         GenerateSecureRandomB64(),
+		MetricsEnabled: true,
+		MetricsPort:    "8081",
 	}
 }
 
-
 func parseEnv(
-  c *Config,
-  getenv func(string) string,
+	c *Config,
+	getenv func(string) string,
 ) {
 	if host := getenv("HOST"); host != "" {
 		c.Host = host
@@ -101,17 +98,15 @@ func parseEnv(
 	}
 
 	if metricsEnabled := getenv("METRICS_ENABLED"); metricsEnabled != "" {
-    boolStr := strings.ToLower(metricsEnabled)
-    c.MetricsEnabled = (
-      boolStr == "true" ||
-      boolStr == "yes" ||
-      boolStr == "1")
-  }
+		boolStr := strings.ToLower(metricsEnabled)
+		c.MetricsEnabled = (boolStr == "true" ||
+			boolStr == "yes" ||
+			boolStr == "1")
+	}
 }
 
-
 func parseCmdFlags(
-  c *Config,
+	c *Config,
 	args []string,
 ) {
 	fs := flag.NewFlagSet("config", flag.ContinueOnError)
@@ -129,9 +124,8 @@ func parseCmdFlags(
 	c.SqlitePath = *sqlitePath
 	c.Secret = *secret
 	c.MetricsPort = *metricsPort
-  c.MetricsEnabled = *metricsEnabled
+	c.MetricsEnabled = *metricsEnabled
 }
-
 
 // Generate a random Secret. Used when a secret is not provided
 func GenerateSecureRandomB64() string {

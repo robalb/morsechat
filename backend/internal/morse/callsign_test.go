@@ -15,7 +15,7 @@ func TestParseCallsign(t *testing.T) {
 		{"Valid US callsign", "US12ABC", "US", true},
 		{"Valid CA callsign", "CA99XYZ", "CA", true},
 		{"Valid GB callsign", "GB01DEF", "GB", true},
-		
+
 		// Invalid cases
 		{"Invalid length - too short", "US12AB", "", false},
 		{"Invalid length - too long", "US1234ABC", "", false},
@@ -35,4 +35,3 @@ func TestParseCallsign(t *testing.T) {
 		})
 	}
 }
-

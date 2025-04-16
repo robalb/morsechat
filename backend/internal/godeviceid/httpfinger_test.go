@@ -8,8 +8,8 @@ import (
 
 func TestGetHttpFinger(t *testing.T) {
 	tests := []struct {
-		name     string
-		request  *http.Request
+		name           string
+		request        *http.Request
 		expectedPrefix string // We'll check that the start of the fingerprint is correct
 	}{
 		{
@@ -23,7 +23,7 @@ func TestGetHttpFinger(t *testing.T) {
 				req.Header.Set("X-Test-Header", "value")
 				return req
 			}(),
-    expectedPrefix: "20enus2w01", // HTTP/2 + "enus"
+			expectedPrefix: "20enus2w01", // HTTP/2 + "enus"
 		},
 		{
 			name: "HTTP/1.1 with short Accept-Language",
@@ -90,41 +90,38 @@ func TestGetHttpFinger(t *testing.T) {
 	}
 }
 
-
-
 func TestGetHttpFingerHeaders(t *testing.T) {
-  req1, _ := http.NewRequest("GET", "http://example.com", nil)
-  req1.ProtoMajor = 2
-  req1.ProtoMinor = 0
-  req1.Header.Set("Accept-Language", "en-US,en;q=0.9")
-  req1.Header.Set("User-Agent", "TestAgent/1.0")
-  req1.Header.Set("X-Test-Header", "value")
-  fp1 := getHttpFinger(req1)
+	req1, _ := http.NewRequest("GET", "http://example.com", nil)
+	req1.ProtoMajor = 2
+	req1.ProtoMinor = 0
+	req1.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	req1.Header.Set("User-Agent", "TestAgent/1.0")
+	req1.Header.Set("X-Test-Header", "value")
+	fp1 := getHttpFinger(req1)
 
-  req2, _ := http.NewRequest("GET", "http://example.com", nil)
-  req2.ProtoMajor = 2
-  req2.ProtoMinor = 0
-  req2.Header.Set("X-Another-Test-Header2", "value")
-  req2.Header.Set("User-Agent", "TestAgent/1.0")
-  req2.Header.Set("Cookie", "saaomecookie")
-  req2.Header.Set("Accept-Language", "en-US,en;q=0.9")
-  fp2 := getHttpFinger(req2)
+	req2, _ := http.NewRequest("GET", "http://example.com", nil)
+	req2.ProtoMajor = 2
+	req2.ProtoMinor = 0
+	req2.Header.Set("X-Another-Test-Header2", "value")
+	req2.Header.Set("User-Agent", "TestAgent/1.0")
+	req2.Header.Set("Cookie", "saaomecookie")
+	req2.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	fp2 := getHttpFinger(req2)
 
-  if fp1 != fp2 {
-    t.Errorf("Expected two identical fingerprints, got '%s' and '%s'", fp1, fp2)
-  }
+	if fp1 != fp2 {
+		t.Errorf("Expected two identical fingerprints, got '%s' and '%s'", fp1, fp2)
+	}
 }
 
-
 func TestGetHttpFingerMalicious(t *testing.T) {
-  req1, _ := http.NewRequest("GET", "http://example.com", nil)
-  req1.ProtoMajor = 9
-  req1.ProtoMinor = 107
-  req1.Header.Set("Accept-Language", "' - --")
-  fp1 := getHttpFinger(req1)
-  expected := "97xxxx1n01_a42c4da1bc00_000000000000"
+	req1, _ := http.NewRequest("GET", "http://example.com", nil)
+	req1.ProtoMajor = 9
+	req1.ProtoMinor = 107
+	req1.Header.Set("Accept-Language", "' - --")
+	fp1 := getHttpFinger(req1)
+	expected := "97xxxx1n01_a42c4da1bc00_000000000000"
 
-  if fp1 != expected {
-    t.Errorf("Expected fingerprint to be  '%s', got '%s'", expected, fp1)
-  }
+	if fp1 != expected {
+		t.Errorf("Expected fingerprint to be  '%s', got '%s'", expected, fp1)
+	}
 }

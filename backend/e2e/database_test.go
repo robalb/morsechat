@@ -15,18 +15,17 @@ func TestDatabase(t *testing.T) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	t.Cleanup(cancel)
 
-
 	tempdb, cleandb, err := NewVolatileSqliteFile()
 	if err != nil {
 		t.Fatalf("Could not generate temporary db file")
 	}
 	t.Cleanup(cleandb)
 
-  dbWritePool, err := db.NewWritePool(tempdb, ctx)
+	dbWritePool, err := db.NewWritePool(tempdb, ctx)
 	if err != nil {
 		t.Fatalf("Failed to init database write pool: %v", err.Error())
 	}
-  dbReadPool, err := db.NewReadPool(tempdb, ctx)
+	dbReadPool, err := db.NewReadPool(tempdb, ctx)
 	if err != nil {
 		t.Fatalf("Failed to init database read pool: %v", err.Error())
 	}
@@ -39,41 +38,40 @@ func TestDatabase(t *testing.T) {
 	writeQueries := db.New(dbWritePool)
 
 	// perform a read query using the read pool
-  {
-    authors, err := readQueries.ListModerators(ctx)
-    if err != nil {
-      t.Fatalf("error query db: %v", err)
-    }
-    fmt.Println(authors)
-  }
+	{
+		authors, err := readQueries.ListModerators(ctx)
+		if err != nil {
+			t.Fatalf("error query db: %v", err)
+		}
+		fmt.Println(authors)
+	}
 
 	// perform a write query using the read pool
-  {
-    _, err := readQueries.CreateUser(ctx, db.CreateUserParams{
-      Username:            "lorem",
-      Callsign:            "US121X",
-      Country:             "US",
-      RegistrationSession: "afakeuuidv4",
-    })
-    if err == nil {
-      t.Fatalf("a write query on a readonly db connection did not raise errors")
-    } else{
-      fmt.Printf("db raised err as expected: %v", err)
-    }
-  }
+	{
+		_, err := readQueries.CreateUser(ctx, db.CreateUserParams{
+			Username:            "lorem",
+			Callsign:            "US121X",
+			Country:             "US",
+			RegistrationSession: "afakeuuidv4",
+		})
+		if err == nil {
+			t.Fatalf("a write query on a readonly db connection did not raise errors")
+		} else {
+			fmt.Printf("db raised err as expected: %v", err)
+		}
+	}
 
 	// perform a write query using the write pool
-  {
-    _, err := writeQueries.CreateUser(ctx, db.CreateUserParams{
-      Username:            "lorem",
-      Callsign:            "US121X",
-      Country:             "US",
-      RegistrationSession: "afakeuuidv4",
-    })
-    if err != nil {
-      t.Fatalf("db error writing with a write connection")
-    } 
-  }
+	{
+		_, err := writeQueries.CreateUser(ctx, db.CreateUserParams{
+			Username:            "lorem",
+			Callsign:            "US121X",
+			Country:             "US",
+			RegistrationSession: "afakeuuidv4",
+		})
+		if err != nil {
+			t.Fatalf("db error writing with a write connection")
+		}
+	}
 
 }
-

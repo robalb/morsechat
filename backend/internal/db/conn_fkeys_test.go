@@ -26,7 +26,7 @@ func TestForeignKey(t *testing.T) {
 		Username:            "lorem",
 		Password:            "fake_passwordhash",
 		Callsign:            "US121X",
-    Country:             "US",
+		Country:             "US",
 		RegistrationSession: "afakeuuidv4",
 	})
 	if err != nil {
@@ -39,10 +39,10 @@ func TestForeignKey(t *testing.T) {
 	}
 
 	res, err := queries.CreateReport(ctx, CreateReportParams{
-		ReporterUserID:       sql.NullInt64{ 
-      Int64: 1337,
-      Valid: true, // we're lying
-    }, //not a valid foreign key
+		ReporterUserID: sql.NullInt64{
+			Int64: 1337,
+			Valid: true, // we're lying
+		}, //not a valid foreign key
 		ReporterSession:      "afakeuuidv4",
 		BaduserSession:       "anotherfakeuuidv4",
 		BadmessageTranscript: "",
@@ -53,10 +53,10 @@ func TestForeignKey(t *testing.T) {
 	}
 
 	res2, err := queries.CreateReport(ctx, CreateReportParams{
-		ReporterUserID:       sql.NullInt64{ 
-      Int64: insertedUserId,
-      Valid: true,
-    },
+		ReporterUserID: sql.NullInt64{
+			Int64: insertedUserId,
+			Valid: true,
+		},
 		ReporterSession:      "afakeuuidv4",
 		BaduserSession:       "anotherfakeuuidv4",
 		BadmessageTranscript: "",

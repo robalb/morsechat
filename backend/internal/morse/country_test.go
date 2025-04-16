@@ -7,43 +7,43 @@ import (
 // Unit Tests
 func TestParseAndNegotiate(t *testing.T) {
 	tests := []struct {
-		name           string
-		acceptLanguage string
+		name            string
+		acceptLanguage  string
 		expectedCountry string
 	}{
 		{
-			name:           "Single language with region",
-			acceptLanguage: "en-US",
+			name:            "Single language with region",
+			acceptLanguage:  "en-US",
 			expectedCountry: "US",
 		},
 		{
-			name:           "Multiple languages with weights",
-			acceptLanguage: "fr-FR;q=0.9,en-US;q=0.8,es-ES;q=0.7",
+			name:            "Multiple languages with weights",
+			acceptLanguage:  "fr-FR;q=0.9,en-US;q=0.8,es-ES;q=0.7",
 			expectedCountry: "FR",
 		},
 		{
-			name:           "Multiple languages with unordered weights",
-			acceptLanguage: "fr-FR;q=0.2,en-US;q=0.5,es-ES;q=0.7",
+			name:            "Multiple languages with unordered weights",
+			acceptLanguage:  "fr-FR;q=0.2,en-US;q=0.5,es-ES;q=0.7",
 			expectedCountry: "ES",
 		},
 		{
-			name:           "No weights specified",
-			acceptLanguage: "es-MX,en-US",
+			name:            "No weights specified",
+			acceptLanguage:  "es-MX,en-US",
 			expectedCountry: "MX",
 		},
 		{
-			name:           "Malformed header",
-			acceptLanguage: "en;q=notanumber,fr;q=0.5",
+			name:            "Malformed header",
+			acceptLanguage:  "en;q=notanumber,fr;q=0.5",
 			expectedCountry: "FR",
 		},
 		{
-			name:           "Empty Accept-Language",
-			acceptLanguage: "",
+			name:            "Empty Accept-Language",
+			acceptLanguage:  "",
 			expectedCountry: "US",
 		},
 		{
-			name:           "Evil Accept-Language",
-			acceptLanguage: ";;;;;=;;;==;;;;' \"",
+			name:            "Evil Accept-Language",
+			acceptLanguage:  ";;;;;=;;;==;;;;' \"",
 			expectedCountry: "US",
 		},
 	}
@@ -58,4 +58,3 @@ func TestParseAndNegotiate(t *testing.T) {
 		})
 	}
 }
-

@@ -22,10 +22,10 @@ func TestContainsHateSpeech(t *testing.T) {
 		{"the quick brown fox j mh w rld ", false},
 		{"completely innocent text", false},
 		{"just some random gibberish", false},
-    {"e http://some.website.com some random gibberish", false},
-    {"e 127.21.43.21 some random gibberish", false},
+		{"e http://some.website.com some random gibberish", false},
+		{"e 127.21.43.21 some random gibberish", false},
 
-    {"for testing purposes, we filter the made up word: tolmaco", true},
+		{"for testing purposes, we filter the made up word: tolmaco", true},
 		{"text containing tolmaco", true},
 		{"text containing t0!m4c0", true},
 		{"to lma co spacing ", true},
@@ -39,11 +39,11 @@ func TestContainsHateSpeech(t *testing.T) {
 		{"t0lmaco assume", true},
 		{"tolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmaco", true},
 
-    {"This test will not --pass-- if there is a false positive", false},
-    {"I'm a business analyst living in sussex.", false},
-    {"1 in 10 therapists recommend playing the bass", false},
-    {"It's banal to assume that assassins and cocktails wil not make these tests pass", false},
-    {"can u send ur earlier message", false},
+		{"This test will not --pass-- if there is a false positive", false},
+		{"I'm a business analyst living in sussex.", false},
+		{"1 in 10 therapists recommend playing the bass", false},
+		{"It's banal to assume that assassins and cocktails wil not make these tests pass", false},
+		{"can u send ur earlier message", false},
 	}
 
 	for _, test := range tests {
@@ -53,4 +53,3 @@ func TestContainsHateSpeech(t *testing.T) {
 		}
 	}
 }
-

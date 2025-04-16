@@ -15,104 +15,103 @@ import (
 // based on the IP and http fingerprint of the HTTP request, and will not be
 // fully unique
 type DeviceData struct {
-  // deviceId and all external data are not available, because of either a 
-  // technical error or a tampered request
-  Offline bool 
-  // When offline, the ID is a combination of ipv4 and httpfinger
-  // When online, the ID is a lookup key for the external database, which
-  // uniquely identifies the device behind the HTTP request
-  Id string
-  // When offline, the clusterID is the IP
-  // When online, the clusterID is a lookup key for the external database, which
-  // uniquely identifies a cluster of devices.
-  //
-  // - if a device is not part of a bot network, the ClusterId will likely be unique
-  // - if a deviceID is offline, it's more likely to be erroneously clustered with other
-  //   devices, just becase they share an ip. Don't take important actions based on 
-  //   Offline DeviceData
-  ClusterId string
-  //a non-Bad device, with a long history
-  //of connections and no reported issues.
-  IsOrganic bool
-  //a device that is bad beyound any doubt:
-  // - banned
-  // - bot
-  // - request cookie was clearly tampered
-  // - request cookie was missing (only if set in settings)
-  // - vpn user (only if set in settings)
-  IsBad bool
+	// deviceId and all external data are not available, because of either a
+	// technical error or a tampered request
+	Offline bool
+	// When offline, the ID is a combination of ipv4 and httpfinger
+	// When online, the ID is a lookup key for the external database, which
+	// uniquely identifies the device behind the HTTP request
+	Id string
+	// When offline, the clusterID is the IP
+	// When online, the clusterID is a lookup key for the external database, which
+	// uniquely identifies a cluster of devices.
+	//
+	// - if a device is not part of a bot network, the ClusterId will likely be unique
+	// - if a deviceID is offline, it's more likely to be erroneously clustered with other
+	//   devices, just becase they share an ip. Don't take important actions based on
+	//   Offline DeviceData
+	ClusterId string
+	//a non-Bad device, with a long history
+	//of connections and no reported issues.
+	IsOrganic bool
+	//a device that is bad beyound any doubt:
+	// - banned
+	// - bot
+	// - request cookie was clearly tampered
+	// - request cookie was missing (only if set in settings)
+	// - vpn user (only if set in settings)
+	IsBad bool
 
-  //----------
-  //Local data
-  //----------
-  Ipv4 string
-  HttpFinger string
+	//----------
+	//Local data
+	//----------
+	Ipv4       string
+	HttpFinger string
 
-  //-------------
-  //External data
-  //-------------
-  IsBanned bool
-  IsBot bool
-  IsVPN bool
-  IsTor bool
+	//-------------
+	//External data
+	//-------------
+	IsBanned bool
+	IsBot    bool
+	IsVPN    bool
+	IsTor    bool
 }
 
-//TODO: make this an external struct that must be initialized
-//at program startup, and passed to some http middleware
+// TODO: make this an external struct that must be initialized
+// at program startup, and passed to some http middleware
 type deviceIDConfig struct {
-  // the source for the client ip.
-  // leave empty to read from http.Request.RemoteAddr
-  IpHeaders []string
-  VPNIsBad bool
-  TorIsBad bool
-  OfflineIsBad bool
+	// the source for the client ip.
+	// leave empty to read from http.Request.RemoteAddr
+	IpHeaders    []string
+	VPNIsBad     bool
+	TorIsBad     bool
+	OfflineIsBad bool
 }
 
 var (
-  globalConfig = deviceIDConfig{
-    IpHeaders: []string {"X-Forwarded-For"},
-    VPNIsBad: true,
-    TorIsBad: true,
-    //TODO: set this via app config (env, flags, ...)
-    OfflineIsBad: false,
-  }
+	globalConfig = deviceIDConfig{
+		IpHeaders: []string{"X-Forwarded-For"},
+		VPNIsBad:  true,
+		TorIsBad:  true,
+		//TODO: set this via app config (env, flags, ...)
+		OfflineIsBad: false,
+	}
 )
-
 
 // Calculates the DeviceData of the device behind the given HTTP request
 // TODO: make this read from some data that was injected
 // in the context by a custom middleware
-func New(r *http.Request) (d DeviceData, err error){
-  d = DeviceData{
-    Offline: true,
-    IsOrganic: false,
-    IsBad: false,
-    IsBanned: false,
-    IsBot: false,
-    IsVPN: false,
-    IsTor: false,
-    Ipv4: getIp(r, globalConfig.IpHeaders),
-    HttpFinger: getHttpFinger(r),
-  }
-  if !isPublicIP(d.Ipv4) {
-    //TODO: add logger dependency
-    //TODO: warning, fingerprinting a private ip address.
-    //      are you behind a reverse proxy?
-    fmt.Println("DeviceID warning: private IP. Are you behind a proxy?")
-  }
+func New(r *http.Request) (d DeviceData, err error) {
+	d = DeviceData{
+		Offline:    true,
+		IsOrganic:  false,
+		IsBad:      false,
+		IsBanned:   false,
+		IsBot:      false,
+		IsVPN:      false,
+		IsTor:      false,
+		Ipv4:       getIp(r, globalConfig.IpHeaders),
+		HttpFinger: getHttpFinger(r),
+	}
+	if !isPublicIP(d.Ipv4) {
+		//TODO: add logger dependency
+		//TODO: warning, fingerprinting a private ip address.
+		//      are you behind a reverse proxy?
+		fmt.Println("DeviceID warning: private IP. Are you behind a proxy?")
+	}
 
-  //TODO: extract and verify deviceid signed cookie
-  //      on fail, set offline and calculate custom id
-  if "offline" == "offline"{
-    d.Id = getOfflineID(&d)
-    d.ClusterId = d.Ipv4
-    //all this is temporary
-    d.IsBad = tempIsBad(d.Id)
-  }
-  
-  //TODO: metrics.
-  //offline, isOrganic, IsBad(reason)
-  return
+	//TODO: extract and verify deviceid signed cookie
+	//      on fail, set offline and calculate custom id
+	if "offline" == "offline" {
+		d.Id = getOfflineID(&d)
+		d.ClusterId = d.Ipv4
+		//all this is temporary
+		d.IsBad = tempIsBad(d.Id)
+	}
+
+	//TODO: metrics.
+	//offline, isOrganic, IsBad(reason)
+	return
 }
 
 //--------------------
@@ -125,98 +124,94 @@ func New(r *http.Request) (d DeviceData, err error){
 //
 // This information is anonymized before being sent to the
 // deviceID servers.
-func (d *DeviceData) SetUniqueIdentity(id string){
-  //TODO
+func (d *DeviceData) SetUniqueIdentity(id string) {
+	//TODO
 }
 
 // ban a cluster associated to the device, with no
-// additional metadata. 
+// additional metadata.
 // if the cluster was already banned, this is a no-op,
 // and previous ban metadata will remain valid
 //
 // return the deviceId, which can be stored
 // to keep track of bans, and be used to undo a ban.
 // when offline, the ban is a simple ipban
-func (d *DeviceData) SetBanned() string{
-  d.IsBanned = true
-  d.IsBad = true
-  tempBan(d.Ipv4)
-  return d.Id
+func (d *DeviceData) SetBanned() string {
+	d.IsBanned = true
+	d.IsBad = true
+	tempBan(d.Ipv4)
+	return d.Id
 }
 
-//same as SetBanned, but works with a deviceID string,
-//even if there is no current reference to the device object.
-func Ban(deviceId string) string{
-  ip, isOfflineId := extractIP(deviceId)
-  if isOfflineId {
-    tempBan(ip)
-  }
-  return deviceId
+// same as SetBanned, but works with a deviceID string,
+// even if there is no current reference to the device object.
+func Ban(deviceId string) string {
+	ip, isOfflineId := extractIP(deviceId)
+	if isOfflineId {
+		tempBan(ip)
+	}
+	return deviceId
 }
-//undo the ban associated to a device ID
+
+// undo the ban associated to a device ID
 // when offline, the banID is the IP
-func UndoBan(bannedDeviceId string){
-  ip, isOfflineId := extractIP(bannedDeviceId)
-  if isOfflineId {
-    tempUnBan(ip)
-  }
+func UndoBan(bannedDeviceId string) {
+	ip, isOfflineId := extractIP(bannedDeviceId)
+	if isOfflineId {
+		tempUnBan(ip)
+	}
 }
 
 // ban a unique identity.
 // TODO(al)
-func BanIdentity(identity string) string{
-  return ""
+func BanIdentity(identity string) string {
+	return ""
 }
-//  undo ban on a unique identity.
+
+//	undo ban on a unique identity.
+//
 // TODO(al)
-func UndoBanIdentity(identity string) string{
-  return ""
+func UndoBanIdentity(identity string) string {
+	return ""
 }
-
-
-
-
 
 //--------------------
 // Unstable APIs, testing ground, not in use
 //--------------------
 
-//if you need more than a single info, use the constructor
-func IsOrganic(r *http.Request) bool{
-  d, err := New(r)
-  if err != nil {
-    return false
-  }
-  return d.IsOrganic
+// if you need more than a single info, use the constructor
+func IsOrganic(r *http.Request) bool {
+	d, err := New(r)
+	if err != nil {
+		return false
+	}
+	return d.IsOrganic
 }
 
-//if you need more than a single info, use the constructor
-func IsBad(r *http.Request) (bool, error){
-  d, err := New(r)
-  if err != nil {
-    return false, err
-  }
-  return d.IsBad, nil
+// if you need more than a single info, use the constructor
+func IsBad(r *http.Request) (bool, error) {
+	d, err := New(r)
+	if err != nil {
+		return false, err
+	}
+	return d.IsBad, nil
 }
 
-
-// Accepts a list of deviceIDs, returns all deviceIDs 
+// Accepts a list of deviceIDs, returns all deviceIDs
 // in the list that are in the same cluster of the current device
-func (d *DeviceData) FilterAssociatedIDs(ids []string) []string{
-  return FilterAssociatedIDs(d.Id, ids)
+func (d *DeviceData) FilterAssociatedIDs(ids []string) []string {
+	return FilterAssociatedIDs(d.Id, ids)
 }
 
-// Accepts a list of deviceIDs, returns all deviceIDs 
+// Accepts a list of deviceIDs, returns all deviceIDs
 // in the list that are in the same cluster of the deviceID
-func FilterAssociatedIDs(id string, ids []string) []string{
-  return []string{}
-  //TODO
+func FilterAssociatedIDs(id string, ids []string) []string {
+	return []string{}
+	//TODO
 }
 
-
-//refresh stale deviceID data
-func (d *DeviceData) Refresh(){
-  //all this is temporary
-  d.IsBad = tempIsBad(d.Id)
+// refresh stale deviceID data
+func (d *DeviceData) Refresh() {
+	//all this is temporary
+	d.IsBad = tempIsBad(d.Id)
 }
-

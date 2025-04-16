@@ -7,26 +7,25 @@ import (
 	"strings"
 )
 
-
-func GetVisitorCountry(r *http.Request) (country string){
-  //default country
-  country = "US" 
-  // Extract the Accept-Language header.
-  acceptLanguage := r.Header.Get("Accept-Language")
-  if acceptLanguage == "" {
-    return
-  }
-  // When possible, match the declared languages to a country
-  parsedList := parseAcceptLanguage(acceptLanguage)
-  return negotiateCountryFromLanguages(parsedList)
+func GetVisitorCountry(r *http.Request) (country string) {
+	//default country
+	country = "US"
+	// Extract the Accept-Language header.
+	acceptLanguage := r.Header.Get("Accept-Language")
+	if acceptLanguage == "" {
+		return
+	}
+	// When possible, match the declared languages to a country
+	parsedList := parseAcceptLanguage(acceptLanguage)
+	return negotiateCountryFromLanguages(parsedList)
 }
 
 func parseAcceptLanguage(acceptLanguage string) (localeQPairs []struct {
 	Locale string
 	Weight float64
-}){
+}) {
 	if len(acceptLanguage) < 2 {
-    return
+		return
 	}
 	languages := strings.Split(acceptLanguage, ",")
 	for _, language := range languages {
@@ -46,7 +45,7 @@ func parseAcceptLanguage(acceptLanguage string) (localeQPairs []struct {
 			Weight float64
 		}{locale, weight})
 	}
-	return 
+	return
 }
 
 func negotiateCountryFromLanguages(parsedList []struct {
@@ -85,4 +84,3 @@ func negotiateCountryFromLanguages(parsedList []struct {
 
 	return defaultCountry
 }
-

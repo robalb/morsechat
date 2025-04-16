@@ -11,25 +11,25 @@ import (
 )
 
 // SignedMessage represents the struct we will encrypt/decrypt
-//Note: javascript does not handle int values > 2^32 when decoding json
-//We can safely json encode int64 here only because it is never
-//parsed by javascript. The json blobs generated from here will only
-//be decoded by golang code.
+// Note: javascript does not handle int values > 2^32 when decoding json
+// We can safely json encode int64 here only because it is never
+// parsed by javascript. The json blobs generated from here will only
+// be decoded by golang code.
 type SignedMessage struct {
-  Timestamp int64     `json:"t"`
-  //also referred as "Session" or "sessionId", refers to the
-  //identifier that uniquely identifies the device behind a 
-  //user request. It's what we use to ban a user, wether they
-  //are anonymous or logged in
-	Deviceid  string    `json:"d"`
-  //The message that is being reported, translated into readable
-  //text by a server-side morse translator
-	PlainText string    `json:"p"`
-  //The following three fields are all user identifiers.
-  //Only the ID matters, the rest is there to avoid extra DB lookups
-  Userid    int64     `json:"i"`
-	Username  string    `json:"u"`
-	Callsign  string    `json:"c"`
+	Timestamp int64 `json:"t"`
+	//also referred as "Session" or "sessionId", refers to the
+	//identifier that uniquely identifies the device behind a
+	//user request. It's what we use to ban a user, wether they
+	//are anonymous or logged in
+	Deviceid string `json:"d"`
+	//The message that is being reported, translated into readable
+	//text by a server-side morse translator
+	PlainText string `json:"p"`
+	//The following three fields are all user identifiers.
+	//Only the ID matters, the rest is there to avoid extra DB lookups
+	Userid   int64  `json:"i"`
+	Username string `json:"u"`
+	Callsign string `json:"c"`
 }
 
 // encryptMessage encrypts the SignedMessage struct with the given secret key

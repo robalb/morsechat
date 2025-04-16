@@ -32,9 +32,9 @@ func Run(
 	getenv func(string) string,
 ) error {
 	ctx, cancel := signal.NotifyContext(ctx,
-    syscall.SIGINT,  // ctr-C from the terminal
-    syscall.SIGTERM, // terminate signal from Docker / kubernetes
-    )
+		syscall.SIGINT,  // ctr-C from the terminal
+		syscall.SIGTERM, // terminate signal from Docker / kubernetes
+	)
 	defer cancel()
 
 	//--------------------
@@ -47,11 +47,11 @@ func Run(
 	// Initialize the global configuration object
 	//--------------------
 	config, err := config.MakeConfig(args, getenv)
-  if err != nil {
+	if err != nil {
 		logger.Printf("Failed to init app config: %v", err.Error())
 		return err
-  }
-  logger.Printf("Starting server with config: %v", config.LogSafeSummary())
+	}
+	logger.Printf("Starting server with config: %v", config.LogSafeSummary())
 
 	//--------------------
 	// Initialize JWT auth
@@ -80,28 +80,28 @@ func Run(
 	//--------------------
 	// Initialize monitoring
 	//--------------------
-  metricsRegistry := prometheus.NewRegistry()
-  metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbReadPool, "readpool"))
-  metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbWritePool, "writepool"))
-  // metricsRegistry.MustRegister(collectors.NewGoCollector())
-  metrics := monitoring.NewMetrics(metricsRegistry)
-  promServer := &http.Server{
-    Addr:    net.JoinHostPort(config.Host, config.MetricsPort),
-    Handler: promhttp.HandlerFor(metricsRegistry, promhttp.HandlerOpts{}),
-  }
+	metricsRegistry := prometheus.NewRegistry()
+	metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbReadPool, "readpool"))
+	metricsRegistry.MustRegister(collectors.NewDBStatsCollector(dbWritePool, "writepool"))
+	// metricsRegistry.MustRegister(collectors.NewGoCollector())
+	metrics := monitoring.NewMetrics(metricsRegistry)
+	promServer := &http.Server{
+		Addr:    net.JoinHostPort(config.Host, config.MetricsPort),
+		Handler: promhttp.HandlerFor(metricsRegistry, promhttp.HandlerOpts{}),
+	}
 
 	//--------------------
 	// Initialize the websocket hub
 	//--------------------
 	hub := wsserver.New()
 	go hub.Run(
-    ctx,
-    logger,
-    &config,
-    dbReadPool,
-    dbWritePool,
-    metrics,
-  )
+		ctx,
+		logger,
+		&config,
+		dbReadPool,
+		dbWritePool,
+		metrics,
+	)
 
 	//--------------------
 	// Initialize the API Server
@@ -113,7 +113,7 @@ func Run(
 		tokenAuth,
 		dbReadPool,
 		dbWritePool,
-    metrics,
+		metrics,
 	)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(config.Host, config.Port),
@@ -124,7 +124,7 @@ func Run(
 	// Start the webserver
 	//--------------------
 	go func() {
-    logger.Printf("API server: listening on %s\n", httpServer.Addr)
+		logger.Printf("API server: listening on %s\n", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			fmt.Fprintf(stderr, "error listening and serving: %s\n", err)
 		}
@@ -134,13 +134,13 @@ func Run(
 	// Start the prometheus server
 	//--------------------
 	go func() {
-    if !config.MetricsEnabled {
-      logger.Println("Prometheus server: disabled.")
-      return
-    }
-    logger.Printf("Prometheus server: listening on %s\n", promServer.Addr)
+		if !config.MetricsEnabled {
+			logger.Println("Prometheus server: disabled.")
+			return
+		}
+		logger.Printf("Prometheus server: listening on %s\n", promServer.Addr)
 		if err := promServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-      fmt.Fprintf(stderr, "Prometheus server: error listening and serving: %s\n", err)
+			fmt.Fprintf(stderr, "Prometheus server: error listening and serving: %s\n", err)
 		}
 	}()
 
@@ -159,13 +159,13 @@ func Run(
 		defer cancel()
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
 			fmt.Fprintf(stderr, "error shutting down API server: %s\n", err)
-		}else{
-      logger.Println("API server shutdown done")
-    }
+		} else {
+			logger.Println("API server shutdown done")
+		}
 	}()
-  //Prometheus server graceful shutdown
-  wg.Add(1)
-  go func() {
+	//Prometheus server graceful shutdown
+	wg.Add(1)
+	go func() {
 		defer wg.Done()
 		<-ctx.Done()
 		logger.Println("Gracefully shutting down Prometheus server...")
@@ -174,10 +174,10 @@ func Run(
 		defer cancel()
 		if err := promServer.Shutdown(shutdownCtx); err != nil {
 			fmt.Fprintf(stderr, "error shutting down Prometheus server: %s\n", err)
-		}else{
-      logger.Println("Prometheus server shutdown done")
-    }
-  }()
+		} else {
+			logger.Println("Prometheus server shutdown done")
+		}
+	}()
 	// Example graceful shutdown (e.g could be used for a database)
 	wg.Add(1)
 	go func() {

@@ -1,6 +1,5 @@
 package morse
 
-
 // english false positives adapted from
 // https://github.com/TwiN/go-away/ (MIT license)
 var falsePositiveWordsList = []string{
@@ -19,7 +18,7 @@ var falsePositiveWordsList = []string{
 	"basement",
 	"bass",
 	"cass",   // cassie, cassandra, carcass
-  "canu",   // can u send, can u see 
+	"canu",   // can u send, can u see
 	"butter", // butter, butterfly
 	"butthe",
 	"button",

@@ -32,15 +32,15 @@ func adaptBanActions(bans []db.BanAction) []ModerationBanActionResponse {
 	actions := make([]ModerationBanActionResponse, 0, len(bans))
 	for _, b := range bans {
 		action := ModerationBanActionResponse{
-			ID:             b.ID,
-			ModeratorID:    b.ModeratorID,
-      ModeratorUsername: b.ModeratorUsername,
-			EventTimestamp: b.EventTimestamp,
-			BaduserSession: b.BaduserSession,
-      BaduserUsername: b.BaduserUsername,
-			ModeratorNotes: b.ModeratorNotes,
-			Reason:         b.Reason,
-			IsBanRevert:    b.IsBanRevert == 1,
+			ID:                b.ID,
+			ModeratorID:       b.ModeratorID,
+			ModeratorUsername: b.ModeratorUsername,
+			EventTimestamp:    b.EventTimestamp,
+			BaduserSession:    b.BaduserSession,
+			BaduserUsername:   b.BaduserUsername,
+			ModeratorNotes:    b.ModeratorNotes,
+			Reason:            b.Reason,
+			IsBanRevert:       b.IsBanRevert == 1,
 		}
 		if b.BaduserID.Valid {
 			action.BaduserID = b.BaduserID.Int64
@@ -56,10 +56,10 @@ func adaptReportActions(reports []db.ReportAction) []ModerationReportActionRespo
 		action := ModerationReportActionResponse{
 			ID:                   r.ID,
 			ReporterSession:      r.ReporterSession,
-      ReporterUsername:     r.ReporterUsername,
+			ReporterUsername:     r.ReporterUsername,
 			EventTimestamp:       r.EventTimestamp,
 			BaduserSession:       r.BaduserSession,
-      BaduserUsername:      r.BaduserUsername,
+			BaduserUsername:      r.BaduserUsername,
 			Reason:               r.Reason,
 			BadmessageTranscript: r.BadmessageTranscript,
 			BadmessageTimestamp:  r.BadmessageTimestamp,
@@ -74,4 +74,3 @@ func adaptReportActions(reports []db.ReportAction) []ModerationReportActionRespo
 	}
 	return actions
 }
-

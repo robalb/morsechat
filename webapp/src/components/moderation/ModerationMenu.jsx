@@ -25,10 +25,6 @@ function formatDate(date){
     return date.toLocaleString();
 }
 
-function truncate(str, maxLength){
-  return str.length > maxLength ? str.slice(0, maxLength) + "…" : str;
-}
-
 export default function ModerationMenu() {
     const dispatch = useDispatch()
     const [tabIndex, setTabIndex] = useState(0);
@@ -251,9 +247,6 @@ const ReportActionsTable = React.memo(({ data }) => {
         return (
           <TableRow key={report.id}>
             <TableCellTooltip text={report.badmessage_transcript} maxLength={30} />
-            {/* <TableCell title={report.badmessage_transcript}> */}
-            {/*   {truncate(report.badmessage_transcript, 30)} */}
-            {/* </TableCell> */}
             <TableCellWithCopy text={report.baduser_id === 0 ? "--" : report.baduser_username} />
             <TableCellTooltip text={report.baduser_session} maxLength={20} />
             <TableCell>{formatDate(badMsgDate)}</TableCell>

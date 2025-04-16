@@ -39,7 +39,7 @@ func TestAuthPasswords(t *testing.T) {
 		"morsechat",
 		"--port", fmt.Sprintf("%d", port),
 		"--sqlite_path", tempdb,
-    "--metrics_enabled", "false",
+		"--metrics_enabled", "false",
 	}
 	getenv := func(key string) string {
 		return ""
@@ -61,22 +61,22 @@ func TestAuthPasswords(t *testing.T) {
 	// --------------------
 	// call logged endpoint, without cookie
 	// --------------------
-  {
-    resp, err := http.Get(baseUrl + "/api/v1/user/me/")
-    if err != nil {
-      t.Fatalf("Failed to make GET request: %v", err)
-    }
-    if resp.StatusCode != 401 {
-      t.Errorf("Expected status code 401, got %d", resp.StatusCode)
-    }
+	{
+		resp, err := http.Get(baseUrl + "/api/v1/user/me/")
+		if err != nil {
+			t.Fatalf("Failed to make GET request: %v", err)
+		}
+		if resp.StatusCode != 401 {
+			t.Errorf("Expected status code 401, got %d", resp.StatusCode)
+		}
 
-  }
+	}
 
 	// --------------------
-  // Story: register an user, then login, then
-  // call logged-only endpoints with a valid cookie
+	// Story: register an user, then login, then
+	// call logged-only endpoints with a valid cookie
 	// --------------------
-  //global data used in this story:
+	//global data used in this story:
 	registerData := map[string]string{
 		"username": "testuser",
 		"password": "securepassword123",
@@ -93,7 +93,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to marshal registration data: %v", err)
 		}
 
-    resp, err := http.Post(baseUrl+"/api/v1/register", "application/json", bytes.NewBuffer(registerDataJSON))
+		resp, err := http.Post(baseUrl+"/api/v1/register", "application/json", bytes.NewBuffer(registerDataJSON))
 		if err != nil {
 			t.Fatalf("Failed to make POST request to register: %v", err)
 		}
@@ -117,7 +117,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to marshal registration data: %v", err)
 		}
 
-    resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
+		resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
 		if err != nil {
 			t.Fatalf("Failed to make POST request to register: %v", err)
 		}
@@ -152,7 +152,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to marshal registration data: %v", err)
 		}
 
-    resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
+		resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
 		if err != nil {
 			t.Fatalf("Failed to make POST request to register: %v", err)
 		}
@@ -195,7 +195,7 @@ func TestAuthPasswords(t *testing.T) {
 			t.Fatalf("Failed to marshal registration data: %v", err)
 		}
 
-    resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
+		resp, err := http.Post(baseUrl+"/api/v1/login", "application/json", bytes.NewBuffer(reqDataJSON))
 		if err != nil {
 			t.Fatalf("Failed to make POST request to register: %v", err)
 		}
@@ -236,7 +236,7 @@ func TestAuthPasswords(t *testing.T) {
 		}
 
 		req.AddCookie(cookie)
-    resp, err := client.Do(req)
+		resp, err := client.Do(req)
 		if err != nil {
 			t.Fatalf("Failed to make authenticated GET request to /api/v1/user/me: %v", err)
 		}
@@ -275,7 +275,7 @@ func TestAuthPasswords(t *testing.T) {
 		}
 
 		req.AddCookie(cookie)
-    resp, err := client.Do(req)
+		resp, err := client.Do(req)
 		if err != nil {
 			t.Fatalf("Failed to make authenticated POST request to /api/v1/sess_init: %v", err)
 		}
@@ -318,7 +318,7 @@ func TestAuthPasswords(t *testing.T) {
 		// Add the valid cookie to the request
 		req.AddCookie(cookie)
 
-    resp, err := client.Do(req)
+		resp, err := client.Do(req)
 		if err != nil {
 			t.Fatalf("Failed to make GET request with invalid JWT: %v", err)
 		}

@@ -49,8 +49,8 @@ func TestDecryptMessage(t *testing.T) {
 
 // TestInvalidKey tests decryption with an invalid key
 func TestInvalidKey(t *testing.T) {
-	secretKey := []byte("examplekey123456")      // Valid key
-	invalidKey := []byte("invalidkey123456")     // Different key
+	secretKey := []byte("examplekey123456")  // Valid key
+	invalidKey := []byte("invalidkey123456") // Different key
 	msg := SignedMessage{Deviceid: "fakeuuidv4", PlainText: "Test Content"}
 
 	encryptedMessage, err := EncryptMessage(msg, secretKey)

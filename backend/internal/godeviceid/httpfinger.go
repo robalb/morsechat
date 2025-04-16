@@ -26,8 +26,8 @@ import (
 func getHttpFinger(r *http.Request) string {
 	// List of allowed headers that are likely to stay the same
 	// across HTTP methods and origins (low-entropy headers)
-  // The order of these headers is important for the implementation.
-  // The user agent header is calculated in a separate hash
+	// The order of these headers is important for the implementation.
+	// The user agent header is calculated in a separate hash
 	allowedHeaders := []string{
 		"accept-language",
 		"dnt",
@@ -38,53 +38,53 @@ func getHttpFinger(r *http.Request) string {
 		"sec-ch-ua-platform",
 	}
 	// [http version, 2 digits. e.g., 2.0 -> 20]
-  httpVersion := fmt.Sprintf("%d%d", r.ProtoMajor % 10, r.ProtoMinor % 10)
+	httpVersion := fmt.Sprintf("%d%d", r.ProtoMajor%10, r.ProtoMinor%10)
 
 	// language header
 	lang := "xxxx0n" //default language string
-  if langHeader := r.Header.Get("Accept-Language"); len(langHeader) > 0{
-    // first 4 digits of the language
-    lang = ""
-    for _, char := range strings.ToLower(langHeader) {
-      if len(lang) == 4 || char == ',' || char == ';'{
-        break
-      }
-      if char == '-' {
-        continue
-      }
-      if unicode.IsLetter(char) {
-        lang += string(char)
-      }
-    }
-    //pad with 'x' if lan is less than 4 characters
-    for i := len(lang); i < 4; i++{
-      lang += "x"
-    }
+	if langHeader := r.Header.Get("Accept-Language"); len(langHeader) > 0 {
+		// first 4 digits of the language
+		lang = ""
+		for _, char := range strings.ToLower(langHeader) {
+			if len(lang) == 4 || char == ',' || char == ';' {
+				break
+			}
+			if char == '-' {
+				continue
+			}
+			if unicode.IsLetter(char) {
+				lang += string(char)
+			}
+		}
+		//pad with 'x' if lan is less than 4 characters
+		for i := len(lang); i < 4; i++ {
+			lang += "x"
+		}
 
-    //language count, 0-9
-    langCount := 1 + strings.Count(langHeader, ",")
-    if langCount > 9{
-      langCount = 9
-    }
-    lang += strconv.Itoa(langCount)
-    // 'w' if there are weights, 'n' if there are not
-    hasWeights := strings.Contains(langHeader, ";")
-    if hasWeights {
-      lang += "w"
-    }else {
-      lang += "n"
-    }
+		//language count, 0-9
+		langCount := 1 + strings.Count(langHeader, ",")
+		if langCount > 9 {
+			langCount = 9
+		}
+		lang += strconv.Itoa(langCount)
+		// 'w' if there are weights, 'n' if there are not
+		hasWeights := strings.Contains(langHeader, ";")
+		if hasWeights {
+			lang += "w"
+		} else {
+			lang += "n"
+		}
 	}
 
 	// [num of headers (taken from the allowlist), 2 digits]
-  count := 0
-  headersForHash := ""
-  for _, h := range allowedHeaders {
-    if hContent := r.Header.Get(h); hContent != "" {
-      count += 1
-      headersForHash += hContent
-    }
-  }
+	count := 0
+	headersForHash := ""
+	for _, h := range allowedHeaders {
+		if hContent := r.Header.Get(h); hContent != "" {
+			count += 1
+			headersForHash += hContent
+		}
+	}
 	numHeaders := fmt.Sprintf("%02d", count)
 
 	// [shortened sha256 hash of headers (excluding Cookie)]
@@ -105,5 +105,3 @@ func getHttpFinger(r *http.Request) string {
 	// Assemble the fingerprint
 	return fmt.Sprintf("%s%s%s_%s_%s", httpVersion, lang, numHeaders, headersHash, uaHash)
 }
-
-

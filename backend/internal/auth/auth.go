@@ -51,20 +51,19 @@ func EncodeJwt(tokenAuth *jwtauth.JWTAuth, data JwtData, expiration time.Time) (
 	return
 }
 
-
-func SetJwtCookie(w http.ResponseWriter, tokenAuth *jwtauth.JWTAuth, jwtData JwtData) (err error){
-		expiration := time.Now().Add(365 * 24 * time.Hour)
-		tokenString, err := EncodeJwt(tokenAuth, jwtData, expiration)
-		if err != nil {
-      return
-		}
-		// logger.Printf("token: %v |", tokenString)
-		cookie := http.Cookie{
-      Name: "jwt",
-      Value: tokenString,
-      Expires: expiration, 
-      Path: "/",
-    }
-		http.SetCookie(w, &cookie)
-    return
+func SetJwtCookie(w http.ResponseWriter, tokenAuth *jwtauth.JWTAuth, jwtData JwtData) (err error) {
+	expiration := time.Now().Add(365 * 24 * time.Hour)
+	tokenString, err := EncodeJwt(tokenAuth, jwtData, expiration)
+	if err != nil {
+		return
+	}
+	// logger.Printf("token: %v |", tokenString)
+	cookie := http.Cookie{
+		Name:    "jwt",
+		Value:   tokenString,
+		Expires: expiration,
+		Path:    "/",
+	}
+	http.SetCookie(w, &cookie)
+	return
 }

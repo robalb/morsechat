@@ -14,12 +14,13 @@ import (
 )
 
 type ServeReport_req struct {
-  Text string   `json:"text" validate:"required,min=1"`
-  Signature string   `json:"signature" validate:"required,min=1"` //TODO
+	Text      string `json:"text" validate:"required,min=1"`
+	Signature string `json:"signature" validate:"required,min=1"` //TODO
 }
+
 func ServeReport(
 	logger *log.Logger,
-  config *config.Config,
+	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 ) func(w http.ResponseWriter, r *http.Request) {
@@ -31,53 +32,52 @@ func ServeReport(
 		}
 
 		currentJwtData, err := auth.GetJwtData(r.Context())
-    if err != nil{
-      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
-      logger.Printf("ServeReport: jetData error: %v", err.Error())
-      return
-    }
+		if err != nil {
+			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+			logger.Printf("ServeReport: jetData error: %v", err.Error())
+			return
+		}
 
-    device, err := deviceid.New(r)
-    if err != nil {
-      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
-      logger.Printf("ServeReport: deviceID error: %v", err.Error())
-      return
-    }
+		device, err := deviceid.New(r)
+		if err != nil {
+			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+			logger.Printf("ServeReport: deviceID error: %v", err.Error())
+			return
+		}
 
-    signedMessage, err := morse.DecryptMessage(req.Signature, config.SecretBytes)
-    if err != nil{
+		signedMessage, err := morse.DecryptMessage(req.Signature, config.SecretBytes)
+		if err != nil {
 			validation.RespondError(w, "Processing failed", "", http.StatusInternalServerError)
 			logger.Printf("ServeReport: signature decryption failed : %v", err.Error())
-      return
-    }
-    logger.Printf("ServeReport: (%s) reported : %v",device.Id, signedMessage)
+			return
+		}
+		logger.Printf("ServeReport: (%s) reported : %v", device.Id, signedMessage)
 
 		queries := db.New(dbWritePool)
-    _, err = queries.CreateReport(r.Context(), db.CreateReportParams{ 
-      //reporter
-      ReporterUserID: sql.NullInt64{ 
-        Int64: currentJwtData.UserId,
-        Valid: !currentJwtData.IsAnonymous,
-      },
-      ReporterSession: device.Id, 
-      ReporterUsername: currentJwtData.Username,
-      //bad user
-      BaduserID: sql.NullInt64{ 
-        Int64: signedMessage.Userid,
-        Valid: signedMessage.Userid != 0,
-      },
-      BaduserUsername: signedMessage.Username,
-      BaduserSession: signedMessage.Deviceid,
-      BadmessageTranscript: signedMessage.PlainText,
-      BadmessageTimestamp: signedMessage.Timestamp,
-    })
+		_, err = queries.CreateReport(r.Context(), db.CreateReportParams{
+			//reporter
+			ReporterUserID: sql.NullInt64{
+				Int64: currentJwtData.UserId,
+				Valid: !currentJwtData.IsAnonymous,
+			},
+			ReporterSession:  device.Id,
+			ReporterUsername: currentJwtData.Username,
+			//bad user
+			BaduserID: sql.NullInt64{
+				Int64: signedMessage.Userid,
+				Valid: signedMessage.Userid != 0,
+			},
+			BaduserUsername:      signedMessage.Username,
+			BaduserSession:       signedMessage.Deviceid,
+			BadmessageTranscript: signedMessage.PlainText,
+			BadmessageTimestamp:  signedMessage.Timestamp,
+		})
 		if err != nil {
 			validation.RespondError(w, "Processing failed", "", http.StatusInternalServerError)
 			logger.Printf("ServeReport: query error: %v", err.Error())
 			return
 		}
 
-    validation.RespondOk(w, OkResponse{Ok: "ok"})
-  }
+		validation.RespondOk(w, OkResponse{Ok: "ok"})
+	}
 }
-

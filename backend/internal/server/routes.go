@@ -24,7 +24,7 @@ func AddRoutes(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
-  metrics *monitoring.Metrics,
+	metrics *monitoring.Metrics,
 	/* Put here all the dependencies for middlewares and routers */
 ) {
 
@@ -44,7 +44,7 @@ func AddRoutes(
 		r.Post("/validate_callsign", handlers.ServeValidateCallsign(logger, dbReadPool))
 
 		r.Route("/chat", func(r chi.Router) {
-      r.Use(middleware.RequireValidSession(tokenAuth))
+			r.Use(middleware.RequireValidSession(tokenAuth))
 			r.Post("/report", handlers.ServeReport(logger, config, dbReadPool, dbWritePool))
 		})
 	})
@@ -52,8 +52,8 @@ func AddRoutes(
 	//Authenticated routes
 	v1.Group(func(r chi.Router) {
 		r.Use(middleware.RequireAuthenticated(tokenAuth))
-    r.Post("/logout", handlers.ServeLogout(logger, tokenAuth))
-    r.Post("/update_settings", handlers.ServeUpdateSettings(logger, dbReadPool, dbWritePool))
+		r.Post("/logout", handlers.ServeLogout(logger, tokenAuth))
+		r.Post("/update_settings", handlers.ServeUpdateSettings(logger, dbReadPool, dbWritePool))
 
 		r.Route("/moderation", func(r chi.Router) {
 			r.Use(middleware.RequireModerator(tokenAuth))

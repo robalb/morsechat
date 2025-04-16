@@ -34,16 +34,15 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-  CheckOrigin: func(r *http.Request) bool {
-    // We don't need this check: It's not particularly
-    // clear what security issue it's supposed to solve
-    // since Origin headers can easily be forged,
-    // and browser requests that cannot forge Origin headers
-    // are already limited by the browser CORS system
-    return true
-  },
+	CheckOrigin: func(r *http.Request) bool {
+		// We don't need this check: It's not particularly
+		// clear what security issue it's supposed to solve
+		// since Origin headers can easily be forged,
+		// and browser requests that cannot forge Origin headers
+		// are already limited by the browser CORS system
+		return true
+	},
 }
-
 
 // readPump pumps messages from the websocket connection to the hub.
 //
@@ -67,14 +66,13 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-    clientRequest := ClientRequest{
-      bytes: message,
-      client: c,
-    }
+		clientRequest := ClientRequest{
+			bytes:  message,
+			client: c,
+		}
 		c.hub.broadcast <- clientRequest
 	}
 }
-
 
 // writePump pumps messages from the hub to the websocket connection.
 //
@@ -103,9 +101,9 @@ func (c *Client) writePump() {
 			}
 			w.Write(message)
 
-      //this iptimization will cause multiple messages to be sent 
-      //in the same packet. This is not good if the client expects
-      //a single json message per packet.
+			//this iptimization will cause multiple messages to be sent
+			//in the same packet. This is not good if the client expects
+			//a single json message per packet.
 			// Add queued chat messages to the current websocket message.
 			// n := len(c.send)
 			// for i := 0; i < n; i++ {
@@ -125,51 +123,49 @@ func (c *Client) writePump() {
 	}
 }
 
-
 // This is a special webserver Route handler that upgrades
 // user connections to a websocket.
 func ServeWsInit(
 	logger *log.Logger,
-  hub       *Hub,
+	hub *Hub,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-    device, err := deviceid.New(r)
-    if err != nil {
-      validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
-      logger.Printf("ServeWsInit: deviceID error: %v", err.Error())
-      return
-    }
+		device, err := deviceid.New(r)
+		if err != nil {
+			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+			logger.Printf("ServeWsInit: deviceID error: %v", err.Error())
+			return
+		}
 
-    //retrieve the user data, which can be either anonymous or connected
+		//retrieve the user data, which can be either anonymous or connected
 		//This is the only handler that accepts session jwts with anonymous data
-    jwtData, err := auth.GetJwtData(r.Context())
-    if err != nil{
-      validation.RespondError(w, "ServeWsInit: invalid jwtData: "+ err.Error(), "", http.StatusBadRequest)
-      return
-    }
-    logger.Printf("ServeWsInit: (%v) Connecting user with data: %v ", device.Id, jwtData)
+		jwtData, err := auth.GetJwtData(r.Context())
+		if err != nil {
+			validation.RespondError(w, "ServeWsInit: invalid jwtData: "+err.Error(), "", http.StatusBadRequest)
+			return
+		}
+		logger.Printf("ServeWsInit: (%v) Connecting user with data: %v ", device.Id, jwtData)
 
-    conn, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-      log.Println(err)
-      return
-    }
-    client := &Client{
-      hub: hub,
-      conn: conn,
-      send: make(chan []byte, 256),
-      userInfo: jwtData,
-      deviceInfo: &device,
-      channel: "",
-      isTyping: false,
-      lastMessageTimestamp: time.Now().Add(-config_ratelimitSeconds), //no ratelimit on the first message
-    }
-    client.hub.register <- client
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		client := &Client{
+			hub:                  hub,
+			conn:                 conn,
+			send:                 make(chan []byte, 256),
+			userInfo:             jwtData,
+			deviceInfo:           &device,
+			channel:              "",
+			isTyping:             false,
+			lastMessageTimestamp: time.Now().Add(-config_ratelimitSeconds), //no ratelimit on the first message
+		}
+		client.hub.register <- client
 
-    // Allow collection of memory referenced by the caller by doing all work in
-    // new goroutines.
-    go client.writePump()
-    go client.readPump()
-  }
+		// Allow collection of memory referenced by the caller by doing all work in
+		// new goroutines.
+		go client.writePump()
+		go client.readPump()
+	}
 }
-

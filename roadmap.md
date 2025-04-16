@@ -3,8 +3,8 @@
 
 - [x] feature: better dashes "_" -> "-"
 - [x] ban button
-- [] tweak ban API to use username
-- kick system in hub
+- [x] tweak ban API to use username
+- [] kick system in hub
 - [] discord oauth
 - deviceID mock api:
     bandevice, banIdentity,

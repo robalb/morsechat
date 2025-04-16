@@ -37,7 +37,7 @@ func TestHealthEndpoint(t *testing.T) {
 		"morsechat",
 		"--port", fmt.Sprintf("%d", port),
 		"--sqlite_path", tempdb,
-    "--metrics_enabled", "false",
+		"--metrics_enabled", "false",
 	}
 	getenv := func(key string) string {
 		return ""
@@ -56,34 +56,34 @@ func TestHealthEndpoint(t *testing.T) {
 		t.Fatalf("Readiness probe failed: %v", err)
 	}
 
-  // --------------------
+	// --------------------
 	// Make a GET request to the /health endpoint
-  // --------------------
-  {
-    resp, err := http.Get(healthUrl)
-    if err != nil {
-      t.Fatalf("Failed to make GET request: %v", err)
-    }
-    defer resp.Body.Close()
-    // Validate response
-    if resp.StatusCode != http.StatusOK {
-      t.Errorf("Expected status code 200, got %d", resp.StatusCode)
-    }
-  }
+	// --------------------
+	{
+		resp, err := http.Get(healthUrl)
+		if err != nil {
+			t.Fatalf("Failed to make GET request: %v", err)
+		}
+		defer resp.Body.Close()
+		// Validate response
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code 200, got %d", resp.StatusCode)
+		}
+	}
 
-  // --------------------
+	// --------------------
 	// Make a GET request to the /nonexistent endpoint
-  // --------------------
-  {
-    resp, err := http.Get(fmt.Sprintf("%s/nonexistent", baseUrl))
-    if err != nil {
-      t.Fatalf("Failed to make GET request: %v", err)
-    }
-    defer resp.Body.Close()
-    // Validate response
-    if resp.StatusCode != http.StatusNotFound {
-      t.Errorf("Expected status code 404, got %d", resp.StatusCode)
-    }
-  }
+	// --------------------
+	{
+		resp, err := http.Get(fmt.Sprintf("%s/nonexistent", baseUrl))
+		if err != nil {
+			t.Fatalf("Failed to make GET request: %v", err)
+		}
+		defer resp.Body.Close()
+		// Validate response
+		if resp.StatusCode != http.StatusNotFound {
+			t.Errorf("Expected status code 404, got %d", resp.StatusCode)
+		}
+	}
 
 }
