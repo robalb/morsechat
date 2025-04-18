@@ -8,6 +8,7 @@ import {Typography, Grid, TextField, Link, Stack, IconButton} from '@mui/materia
 import CloseIcon from '@mui/icons-material/Close';
 import { useDispatch, useSelector} from 'react-redux'
 import BanButton from "../moderation/BanButton";
+import MuteButton from "../moderation/MuteButton";
 
 import styles from './user.module.css';
 
@@ -41,9 +42,14 @@ export function User({ open, onClose, user }) {
       </DialogContent>
       <DialogActions>
         {(ismoderator || isadmin) && !user?.is_anonymous && (
-          <BanButton color="error" variant="contained"
-            username={user?.username || ""}
-          >Ban</BanButton>
+          <>
+            <BanButton color="error" variant="contained"
+              username={user?.username || ""}
+            >Ban</BanButton>
+            <MuteButton color="primary" variant="contained" callsign={user?.callsign} >
+            Mute
+            </MuteButton>
+          </>
         )}
       </DialogActions>
     </Dialog>

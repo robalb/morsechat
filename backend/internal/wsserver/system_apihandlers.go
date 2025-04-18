@@ -49,8 +49,7 @@ func handleMuteSysCommand(
 	hub *Hub,
 ) {
   for client := range hub.clients{
-    if client.channel != cmd.Channel &&
-    client.userInfo.Callsign == cmd.Callsign {
+    if cmd.Callsign != "" && client.userInfo.Callsign == cmd.Callsign {
       client.shadowMuted = cmd.Mute
     }
   }

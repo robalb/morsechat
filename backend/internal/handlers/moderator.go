@@ -278,7 +278,6 @@ func ServeModerationBan(
 
 
 type ModerationMuteData struct {
-  Channel    string `json:"channel" validate:"required"`
   Callsign   string `json:"callsign" validate:"required"`
   Mute       bool   `json:"mute" validate:"required"`
 }
@@ -331,7 +330,6 @@ func ServeModerationMute(
     // of stale data
     select {
       case hub.SystemRequest <- wsserver.SysMessageMute{ 
-        Channel: reqData.Channel,
         Mute: reqData.Mute,
         Callsign: reqData.Callsign,
       }:
@@ -341,9 +339,8 @@ func ServeModerationMute(
     }
 
     //basic audit log of the events
-    logger.Printf("Moderation: (%s): muted user: %s in channel %s",
+    logger.Printf("Moderation: (%s): muted user: %s",
       device.Id,
-      reqData.Channel,
       reqData.Callsign,
     )
 

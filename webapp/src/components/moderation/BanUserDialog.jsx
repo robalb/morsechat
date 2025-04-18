@@ -57,6 +57,12 @@ export const BanUserDialog = () => {
       })
   };
 
+  React.useEffect(()=>{
+    return function cleanUp(){
+      apiPromise?.abort()
+    }
+  }, [])
+
   const title = revert ? 'Revert Ban' : 'Ban User';
   const actionLabel = revert ? 'Revert Ban' : 'Ban';
   const displayUser = username ? `user "${username}"` : "this anonymous user"

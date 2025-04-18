@@ -10,7 +10,6 @@ type SysMessageKick struct {
 
 func (m SysMessageMute) isSystemMessage(){}
 type SysMessageMute struct {
-	Channel  string
   Callsign string
   Mute bool
 }
