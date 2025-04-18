@@ -8,8 +8,9 @@ type SysMessageBan struct {
 	Device   string
 }
 
-
 func (m SysMessageBroadcast) isSystemMessage(){}
 type SysMessageBroadcast struct {
-	Text string
+	message []byte
+  channel string
 }
+

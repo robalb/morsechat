@@ -122,7 +122,8 @@ func handleJoinCommand(
 	//      this will be called regularly for each user in the hub,
 	//      and synced via channels.
 	//      if a bad user gets detected, the future system will just drop the connection
-	client.deviceInfo.Refresh()
+	// client.deviceInfo.Refresh()
+
 	if client.deviceInfo.IsBad {
 		messageUserJoinError(client, logger, "too_many_users", cmd.Name)
 		logger.Printf("HandleJoinCommand: (%s) denied, device is bad", client.deviceInfo.Id)

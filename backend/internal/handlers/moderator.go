@@ -4,12 +4,14 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/auth"
 	"github.com/robalb/morsechat/internal/db"
 	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	"github.com/robalb/morsechat/internal/validation"
+	"github.com/robalb/morsechat/internal/wsserver"
 )
 
 /*
@@ -115,6 +117,7 @@ func ServeModerationBan(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  hub *wsserver.Hub,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errCtx := "ServeModerationBan"
@@ -243,25 +246,30 @@ func ServeModerationBan(
 			}
 		}
 
-		//TODO(al) communicate to the hub that a device must be kicked
+		// Communicate to the hub that a device must be kicked
 		if !reqData.IsBanRevert {
-			//TODO(al)
-			//communicate to the hub that we want to kick a username and/or deviceID
+      select {
+        case hub.SystemRequest <- wsserver.SysMessageBan{ 
+          Username: reqData.Badusername,
+          Device: reqData.BaduserSession,
+        }:
+          //Sent succesffully
+        case <- time.After(300 * time.Millisecond):
+          logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
+      }
 		}
 
-		{
-			//basic audit log of the events
-			event := "banned"
-			if reqData.IsBanRevert {
-				event = "reverted_ban"
-			}
-			logger.Printf("Moderation: (%s): %s user: (%s, %s)",
-				device.Id,
-				event,
-				reqData.Badusername,
-				reqData.BaduserSession,
-			)
-		}
+    //basic audit log of the events
+    event := "banned"
+    if reqData.IsBanRevert {
+      event = "reverted_ban"
+    }
+    logger.Printf("Moderation: (%s): %s user: (%s, %s)",
+      device.Id,
+      event,
+      reqData.Badusername,
+      reqData.BaduserSession,
+    )
 
 		validation.RespondOk(w, "ok")
 	}

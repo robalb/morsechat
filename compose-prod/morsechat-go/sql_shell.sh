@@ -1,17 +1,10 @@
 #
-# This is a generic script that opens a root sql shell in the morsechat db
-# tested on bitnami/mariadb
-#
-# this script expects an .env file with the following variables set:
-# DB_DBNAME
-# DB_ROOT_PASSWORD
+# This is a generic script that opens a root sqlte3 shell in the morsechat db
 #
 
-# name of the running mariadb container
-SERVICE="morsechat-mariadb-1"
+# name of the docker compose service running the sqlite db
+SERVICE="morse"
+SQLITE_PATH="/app/backend/db/master.sqlite"
 
-set -o allexport
-source .env set
-+o allexport
 
-docker exec -it $SERVICE mysql -u root -p$DB_ROOT_PASSWORD $DB_DBNAME
+docker compose exec -it $SERVICE sqlite3 $SQLITE_PATH

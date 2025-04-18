@@ -87,7 +87,7 @@ type Hub struct {
 	clientRequest chan ClientRequest
 
   // Inbound messages from other parts of the system.
-  systemRequest chan SystemRequest
+  SystemRequest chan SystemRequest
 
 	// Register requests from the clients.
 	register chan *Client
@@ -99,7 +99,7 @@ type Hub struct {
 func New() *Hub {
 	return &Hub{
 		clientRequest:  make(chan ClientRequest),
-    systemRequest: make(chan SystemRequest),
+    SystemRequest: make(chan SystemRequest),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
@@ -137,10 +137,11 @@ func (h *Hub) Run(
 				dbWritePool,
 				metrics,
 			)
-    case message := <-h.systemRequest:
+    case message := <-h.SystemRequest:
 			systemRequestMux(
 				&message,
 				ctx,
+        h,
 				logger,
 				config,
 				dbReadPool,
@@ -290,7 +291,7 @@ func updateOnlineUsersGauge(
 	metrics *monitoring.Metrics,
 ) {
 	channelCount := make(map[string]int)
-	for existingChannel, _ := range config_channels {
+	for existingChannel := range config_channels {
 		channelCount[existingChannel] = 0
 	}
 
