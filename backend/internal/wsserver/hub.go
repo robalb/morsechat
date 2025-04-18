@@ -73,6 +73,8 @@ type Client struct {
 
 	isTyping bool
 
+  shadowMuted bool
+
 	// the last time the user sent a message
 	lastMessageTimestamp time.Time
 }

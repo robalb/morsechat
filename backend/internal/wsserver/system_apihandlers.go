@@ -34,10 +34,28 @@ func systemRequestMux(
       hub,
       logger,
       )
+  case SysMessageMute:
+    handleMuteSysCommand(
+      &m,
+      hub,
+    )
   default:
     logger.Printf( "SystemRequestMux: unknown message type %T", m)
   }
 }
+
+func handleMuteSysCommand(
+	cmd *SysMessageMute,
+	hub *Hub,
+) {
+  for client := range hub.clients{
+    if client.channel != cmd.Channel &&
+    client.userInfo.Callsign == cmd.Callsign {
+      client.shadowMuted = cmd.Mute
+    }
+  }
+}
+
 
 func handleBanSysCommand(
 	cmd *SysMessageKick,

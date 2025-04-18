@@ -59,6 +59,7 @@ func AddRoutes(
 			r.Use(middleware.RequireModerator(tokenAuth))
 			r.Post("/list", handlers.ServeModerationList(logger, tokenAuth, dbReadPool, dbWritePool))
 			r.Post("/ban", handlers.ServeModerationBan(logger, tokenAuth, dbReadPool, dbWritePool, hub))
+			r.Post("/mute", handlers.ServeModerationMute(logger, tokenAuth, dbReadPool, dbWritePool, hub))
 		})
 		r.Route("/admin", func(r chi.Router) {
 			r.Use(middleware.RequireAdmin(tokenAuth))

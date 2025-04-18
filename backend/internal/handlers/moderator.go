@@ -149,7 +149,7 @@ func ServeModerationBan(
 			return
 		}
 		if res == 0 {
-			logger.Printf("%s: invalid access: %v", errCtx, err.Error())
+			logger.Printf("%s: invalid access", errCtx)
 			validation.RespondError(w, "Data query error", "", http.StatusBadRequest)
 			return
 		}
@@ -274,4 +274,79 @@ func ServeModerationBan(
 
 		validation.RespondOk(w, "ok")
 	}
+}
+
+
+type ModerationMuteData struct {
+  Channel    string `json:"channel" validate:"required"`
+  Callsign   string `json:"callsign" validate:"required"`
+  Mute       bool   `json:"mute" validate:"required"`
+}
+
+func ServeModerationMute(
+	logger *log.Logger,
+	tokenAuth *jwtauth.JWTAuth,
+	dbReadPool *sql.DB,
+	dbWritePool *sql.DB,
+  hub *wsserver.Hub,
+) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		errCtx := "ServeModerationBan"
+
+		device, err := deviceid.New(r)
+		if err != nil {
+			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
+			logger.Printf("%s: deviceID error: %v", errCtx, err.Error())
+			return
+		}
+
+		var reqData ModerationMuteData
+		if err := validation.Bind(w, r, &reqData); err != nil {
+			//Error response is already set by Bind
+			return
+		}
+
+		currentJwtData, err := auth.GetJwtData(r.Context())
+		if err != nil {
+			logger.Printf("%s: jwt auth error: %v", errCtx, err.Error())
+		}
+
+		// refresh moderation status
+		queriesRead := db.New(dbReadPool)
+		res, err := queriesRead.IsModerator(r.Context(), currentJwtData.UserId)
+		if err != nil {
+			logger.Printf("%s: moderator query error: %v", errCtx, err.Error())
+			validation.RespondError(w, "Data query error", "", http.StatusInternalServerError)
+			return
+		}
+		if res == 0 {
+			logger.Printf("%s: invalid access attempt", errCtx)
+			validation.RespondError(w, "Data query error", "", http.StatusBadRequest)
+			return
+		}
+
+		// Communicate to the hub that a device must be kicked.
+    // This will force a refresh of the user connection,
+    // resulting in either a ban or unbann with no possibilities
+    // of stale data
+    select {
+      case hub.SystemRequest <- wsserver.SysMessageMute{ 
+        Channel: reqData.Channel,
+        Mute: reqData.Mute,
+        Callsign: reqData.Callsign,
+      }:
+        //Sent succesffully
+      case <- time.After(300 * time.Millisecond):
+        logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
+    }
+
+    //basic audit log of the events
+    logger.Printf("Moderation: (%s): muted user: %s in channel %s",
+      device.Id,
+      reqData.Channel,
+      reqData.Callsign,
+    )
+
+		validation.RespondOk(w, "ok")
+  }
 }

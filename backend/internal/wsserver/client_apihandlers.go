@@ -275,8 +275,10 @@ func handleMorseCommand(
 	}
 
 	isBadLanguage := morse.ContainsBadLanguage(messageText)
-	if isBadLanguage || client.deviceInfo.IsBad {
+  if isBadLanguage {
 		logger.Printf("HandleMorseCommand: (%s) bad language: %v\n", client.deviceInfo.Id, messageText)
+  }
+	if isBadLanguage || client.deviceInfo.IsBad || client.shadowMuted {
 		client.hub.broadcastChannelCluster(
 			msgBytes,
 			client.channel,
@@ -284,7 +286,6 @@ func handleMorseCommand(
 			logger,
 		)
 		metrics.BadMessages.Add(1)
-		//TODO: deviceID metrics increment
 	} else {
 		client.hub.broadcastChannel(msgBytes, client.channel, logger)
 		metrics.Messages.Add(1)

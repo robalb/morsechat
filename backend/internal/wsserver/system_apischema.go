@@ -8,6 +8,13 @@ type SysMessageKick struct {
 	Device   string
 }
 
+func (m SysMessageMute) isSystemMessage(){}
+type SysMessageMute struct {
+	Channel  string
+  Callsign string
+  Mute bool
+}
+
 func (m SysMessageBroadcast) isSystemMessage(){}
 type SysMessageBroadcast struct {
 	message []byte
