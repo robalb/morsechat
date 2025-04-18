@@ -1,0 +1,32 @@
+volumes:
+  morsechatgostagingdb: null
+networks:
+  traefik-proxy:
+    external: true
+  default: null
+services:
+  morse:
+    image: ghcr.io/robalb/morsechat:sha-ea985f505f7c0cf99b1fc5d7932f175a5b8b7256
+    expose:
+      - '80'
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      SQLITE_PATH: /app/backend/db/master.sqlite
+      SECRET: ${SECRET}
+    volumes:
+      - morsechatgodb:/app/backend/db
+      - ./filters/:/app/backend/filters
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.morsego_staging.rule=Host(`morse-staging.halb.it`)
+      - traefik.http.routers.morsego_staging.entrypoints=websecure
+      - traefik.http.routers.morsego_staging.tls=true
+      - traefik.http.routers.morsego_staging.tls.certresolver=myresolver
+    networks:
+      - traefik-proxy
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '1'

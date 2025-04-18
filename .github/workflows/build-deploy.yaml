@@ -72,6 +72,15 @@ jobs:
           updateFile: true
           commitChange: false
 
+      - name: update image tags in compose-staging
+        uses: fjogeleit/yaml-update-action@v0.9.0
+        with:
+          valueFile: 'compose-staging/morsechat-go-staging/docker-compose.yml'
+          propertyPath: 'services.morse.image'
+          value: ghcr.io/robalb/morsechat:sha-${{ github.sha }}
+          updateFile: true
+          commitChange: false
+
       - name: Commit changes
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
