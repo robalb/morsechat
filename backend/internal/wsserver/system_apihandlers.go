@@ -21,7 +21,7 @@ func systemRequestMux(
 	metrics *monitoring.Metrics,
 ) {
   switch m := (*message).(type){
-  case SysMessageBan:
+  case SysMessageKick:
     handleBanSysCommand(
       &m,
       hub,
@@ -40,7 +40,7 @@ func systemRequestMux(
 }
 
 func handleBanSysCommand(
-	cmd *SysMessageBan,
+	cmd *SysMessageKick,
 	hub *Hub,
 	logger *log.Logger,
 	metrics *monitoring.Metrics,

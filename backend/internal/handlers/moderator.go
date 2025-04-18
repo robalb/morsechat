@@ -246,18 +246,19 @@ func ServeModerationBan(
 			}
 		}
 
-		// Communicate to the hub that a device must be kicked
-		if !reqData.IsBanRevert {
-      select {
-        case hub.SystemRequest <- wsserver.SysMessageBan{ 
-          Username: reqData.Badusername,
-          Device: reqData.BaduserSession,
-        }:
-          //Sent succesffully
-        case <- time.After(300 * time.Millisecond):
-          logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
-      }
-		}
+		// Communicate to the hub that a device must be kicked.
+    // This will force a refresh of the user connection,
+    // resulting in either a ban or unbann with no possibilities
+    // of stale data
+    select {
+      case hub.SystemRequest <- wsserver.SysMessageKick{ 
+        Username: reqData.Badusername,
+        Device: reqData.BaduserSession,
+      }:
+        //Sent succesffully
+      case <- time.After(300 * time.Millisecond):
+        logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
+    }
 
     //basic audit log of the events
     event := "banned"

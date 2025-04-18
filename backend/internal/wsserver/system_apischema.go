@@ -2,8 +2,8 @@
 // that allow the system to interact with the Hub.
 package wsserver
 
-func (m SysMessageBan) isSystemMessage(){}
-type SysMessageBan struct {
+func (m SysMessageKick) isSystemMessage(){}
+type SysMessageKick struct {
 	Username string
 	Device   string
 }
