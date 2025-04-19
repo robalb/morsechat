@@ -360,6 +360,7 @@ func ServeLogin(
 			UserId:      res.ID,
 			IsAnonymous: false,
 			IsAdmin:     false,
+      IsVerified:  res.IsVerified != 0,
 			IsModerator: res.IsModerator != 0,
 			Username:    res.Username,
 			Callsign:    res.Callsign,

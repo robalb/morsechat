@@ -35,7 +35,7 @@ var (
 	config_wpmMax               = 50
 	config_maxChannelOnline     = 100 // max total devices that can join a channel
 	config_maxChannelOnlineIpv4 = 5   // max devices that can join a channel, with the same ipv4
-	config_ratelimitSeconds     = 10 * time.Second
+	config_ratelimitSeconds     = 5 * time.Second
 )
 
 type SystemRequest interface {

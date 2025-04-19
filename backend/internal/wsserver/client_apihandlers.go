@@ -171,6 +171,7 @@ func handleJoinCommand(
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
 		logger.Printf("HandleJoinCommand: msg json marshal error: %v", err.Error())
+    return
 	}
 	client.hub.broadcastChannel(msgBytes, client.channel, logger)
 }
@@ -195,6 +196,7 @@ func handleTypingCommand(
 		msgBytes, err := json.Marshal(msg)
 		if err != nil {
 			logger.Printf("HandleTypingCommand: msg json marshal error: %v", err.Error())
+      return
 		}
 		client.hub.broadcastChannel(msgBytes, client.channel, logger)
 	}
@@ -236,16 +238,33 @@ func handleMorseCommand(
 	}
 
 	//ratelimiting logic: Min seconds between each message sent,
-	// which double if the user is suspiciously fast,
+	// which doubles if the user is suspiciously fast,
 	cooldownTime := config_ratelimitSeconds
 	if cmd.Wpm > 30 {
 		cooldownTime += cooldownTime
 	}
+  if client.userInfo.IsAnonymous {
+		cooldownTime += cooldownTime
+  }
+  if client.userInfo.IsVerified {
+    cooldownTime = 0
+  }
 	lastTime := client.lastMessageTimestamp
 	if !lastTime.IsZero() {
 		delta := time.Now().Sub(lastTime)
 		if delta < cooldownTime || delta < time.Duration(messageDuration)*time.Millisecond {
 			messageUserMorseStatusError(client, logger, "You are sending too many messages, please wait some seconds", "")
+      msg := MessageTyping{
+        Type:     "typing",
+        Typing:   false,
+        Callsign: client.userInfo.Callsign,
+      }
+      msgBytes, err := json.Marshal(msg)
+      if err != nil {
+        logger.Printf("HandleTypingCommand: msg json marshal error: %v", err.Error())
+        return
+      }
+      client.hub.broadcastChannel(msgBytes, client.channel, logger)
 			return
 		}
 	}
@@ -272,6 +291,7 @@ func handleMorseCommand(
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
 		logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
+    return
 	}
 
 	isBadLanguage := morse.ContainsBadLanguage(messageText)
@@ -299,6 +319,7 @@ func handleMorseCommand(
 		msgBytes, err := json.Marshal(msg)
 		if err != nil {
 			logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
+      return
 		}
 		messageUser(client, msgBytes, logger)
 	}
