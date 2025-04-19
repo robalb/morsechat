@@ -125,6 +125,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_deviceid_ip_ipv4
   on deviceid_ip (ipv4);
 CREATE INDEX IF NOT EXISTS idx_deviceid_ip_is_banned
   on deviceid_ip (is_banned);
+create index if not exists idx_deviceid_ip_event_timestamp
+  on deviceid_ip (event_timestamp);
 
 
 CREATE TABLE IF NOT EXISTS deviceid_identities(
@@ -139,4 +141,6 @@ create index if not exists idx_deviceid_identities_ipv4
   on deviceid_identities (ipv4);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_deviceid_identities_username_ipv4
 ON deviceid_identities (username, ipv4);
+create index if not exists idx_deviceid_identities_event_timestamp
+  on deviceid_identities (event_timestamp);
 
