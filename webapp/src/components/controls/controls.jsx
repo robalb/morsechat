@@ -121,7 +121,7 @@ export function AdvancedControls({className = ""}) {
             </RadioGroup>
             <p style={{marginTop: "1rem"}}>iambic paddle order</p>
             <div>
-                <p>left is dot</p>
+                <p>left is dit</p>
                 <MemoSwitch 
                     checked={! settings.left_is_dot}
                     color="primary"
@@ -129,7 +129,7 @@ export function AdvancedControls({className = ""}) {
                         (e) => update({ left_is_dot: ! e.target.checked }),
                         [])}
                 />
-                <p>right is dot</p>
+                <p>right is dit</p>
             </div>
         </div>
     )

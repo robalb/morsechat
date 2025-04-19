@@ -1,5 +1,5 @@
 volumes:
-  morsechatgostagingdb: null
+  morsechatgodb_staging: null
 networks:
   traefik-proxy:
     external: true
@@ -15,7 +15,7 @@ services:
       SQLITE_PATH: /app/backend/db/master.sqlite
       SECRET: ${SECRET}
     volumes:
-      - morsechatgodb:/app/backend/db
+      - morsechatgodb_staging:/app/backend/db
       - ./filters/:/app/backend/filters
     labels:
       - traefik.enable=true
