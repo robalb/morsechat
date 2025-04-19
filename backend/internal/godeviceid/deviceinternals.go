@@ -2,9 +2,14 @@ package deviceid
 
 import (
 	"bufio"
+	"context"
+	"database/sql"
 	"fmt"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/robalb/morsechat/internal/db"
 )
 
 var (
@@ -54,64 +59,91 @@ func tempIsBad(id string) bool {
 	return false
 }
 
-func tempBan(id string) {
-	// Append id into a new line of the file
-	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		fmt.Println("failed to open filter file for writing")
-		return
-	}
-	defer file.Close()
+//check if an ipv4 is banned (either because of direct ipv4 ban or username ban)
+func tempIsBanned(ip string, config *Config) bool{
+	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	defer cancel()
 
-	// Avoid duplicate entries
-	if tempIsBad(id) {
-		fmt.Println("filter file: ID is already banned")
-		return
-	}
-
-	_, err = file.WriteString(id + "\n")
+  queriesRead := db.New(config.dbReadPool)
+  isBanned, err := queriesRead.DeviceId_isBanned(ctx, ip)
 	if err != nil {
-		fmt.Println("failed to write to filter file")
+		if err != sql.ErrNoRows {
+      config.logger.Printf("DeviceID: tempIsBanned query error: %v ", err)
+		}
+		return false
+	}
+	return isBanned == 1
+}
+
+//associate a username to an ip
+func tempAssociate(id string, ip string, config *Config) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	defer cancel()
+
+  queriesWrite := db.New(config.dbWritePool)
+  _, err := queriesWrite.DeviceId_insertIdentity(ctx, db.DeviceId_insertIdentityParams{ 
+    Username: id,
+    Ipv4: ip,
+  })
+	if err != nil && err != sql.ErrNoRows {
+    config.logger.Printf("DeviceID: tempAssociate query error: %v ", err)
 	}
 }
 
-func tempUnBan(id string) {
-	// Read all lines, skip the line containing the id, write back
-	file, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println("failed to open filter file for reading")
-		return
-	}
-	defer file.Close()
 
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if !strings.Contains(line, id) {
-			lines = append(lines, line)
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading filter file")
-		return
+//ban an ipv4
+func tempBan(ip string, config *Config) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	defer cancel()
+
+  queriesWrite := db.New(config.dbWritePool)
+  _, err := queriesWrite.DeviceId_insertIp(ctx, db.DeviceId_insertIpParams{ 
+    Ipv4: ip,
+    IsBanned: 1,
+  })
+	if err != nil && err != sql.ErrNoRows {
+    config.logger.Printf("DeviceID: tempBan query error: %v ", err)
 	}
 
-	// Rewrite the file without the banned ID
-	file, err = os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
-	if err != nil {
-		fmt.Println("failed to open filter file for writing")
-		return
-	}
-	defer file.Close()
-
-	writer := bufio.NewWriter(file)
-	for _, line := range lines {
-		_, err := writer.WriteString(line + "\n")
-		if err != nil {
-			fmt.Println("failed to write to filter file")
-			return
-		}
-	}
-	writer.Flush()
 }
+
+//unbann an ipv4
+func tempUnban(ip string, config *Config) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	defer cancel()
+
+  queriesWrite := db.New(config.dbWritePool)
+  _, err := queriesWrite.DeviceId_insertIp(ctx, db.DeviceId_insertIpParams{ 
+    Ipv4: ip,
+    IsBanned: 0,
+  })
+	if err != nil && err != sql.ErrNoRows {
+    config.logger.Printf("DeviceID: tempUnbann query error: %v ", err)
+	}
+}
+
+//ban all the ips associated to a username
+func tempBanIdentity(id string, config *Config) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	defer cancel()
+
+  queriesWrite := db.New(config.dbWritePool)
+  _, err := queriesWrite.DeviceId_banIdentity(ctx, id)
+	if err != nil && err != sql.ErrNoRows {
+    config.logger.Printf("DeviceID: tempBanIdentity query error: %v ", err)
+	}
+}
+
+//unbann all the ips associated to a username
+func tempUnbanIdentity(id string, config *Config) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	defer cancel()
+
+  queriesWrite := db.New(config.dbWritePool)
+  _, err := queriesWrite.DeviceId_unbanIdentity(ctx, id)
+	if err != nil && err != sql.ErrNoRows {
+    config.logger.Printf("DeviceID: tempBanIdentity query error: %v ", err)
+	}
+}
+
+

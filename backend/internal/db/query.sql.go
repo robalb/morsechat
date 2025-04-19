@@ -104,6 +104,78 @@ func (q *Queries) DeleteUser(ctx context.Context, username string) error {
 	return err
 }
 
+const deviceId_banIdentity = `-- name: DeviceId_banIdentity :execresult
+UPDATE deviceid_ip
+SET is_banned = 1
+WHERE ipv4 IN (
+  SELECT ipv4 FROM deviceid_identities WHERE username = ?
+)
+`
+
+func (q *Queries) DeviceId_banIdentity(ctx context.Context, username string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deviceId_banIdentity, username)
+}
+
+const deviceId_insertIdentity = `-- name: DeviceId_insertIdentity :execresult
+INSERT into deviceid_identities (
+  username,
+  ipv4
+) VALUES ( ?, ? )
+ON CONFLICT(username, ipv4) DO NOTHING
+`
+
+type DeviceId_insertIdentityParams struct {
+	Username string
+	Ipv4     string
+}
+
+func (q *Queries) DeviceId_insertIdentity(ctx context.Context, arg DeviceId_insertIdentityParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deviceId_insertIdentity, arg.Username, arg.Ipv4)
+}
+
+const deviceId_insertIp = `-- name: DeviceId_insertIp :execresult
+
+INSERT into deviceid_ip (
+  ipv4,
+  is_banned
+) VALUES ( ?, ? )
+ON CONFLICT(ipv4)
+DO UPDATE SET is_banned = excluded.is_banned
+`
+
+type DeviceId_insertIpParams struct {
+	Ipv4     string
+	IsBanned int64
+}
+
+// temporary deviceID queries
+func (q *Queries) DeviceId_insertIp(ctx context.Context, arg DeviceId_insertIpParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deviceId_insertIp, arg.Ipv4, arg.IsBanned)
+}
+
+const deviceId_isBanned = `-- name: DeviceId_isBanned :one
+SELECT is_banned from deviceid_ip where ipv4 = ? and is_banned = 1 LIMIT 1
+`
+
+func (q *Queries) DeviceId_isBanned(ctx context.Context, ipv4 string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deviceId_isBanned, ipv4)
+	var is_banned int64
+	err := row.Scan(&is_banned)
+	return is_banned, err
+}
+
+const deviceId_unbanIdentity = `-- name: DeviceId_unbanIdentity :execresult
+UPDATE deviceid_ip
+SET is_banned = 0
+WHERE ipv4 IN (
+  SELECT ipv4 FROM deviceid_identities WHERE username = ?
+)
+`
+
+func (q *Queries) DeviceId_unbanIdentity(ctx context.Context, username string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deviceId_unbanIdentity, username)
+}
+
 const getCallsign = `-- name: GetCallsign :one
 SELECT callsign FROM users
 WHERE callsign = ? LIMIT 1

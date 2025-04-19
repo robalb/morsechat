@@ -55,6 +55,7 @@ func ServeModerationList(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errCtx := "ServeModerationList"
@@ -118,11 +119,12 @@ func ServeModerationBan(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
   hub *wsserver.Hub,
+  deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errCtx := "ServeModerationBan"
 
-		device, err := deviceid.New(r)
+		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
 			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
 			logger.Printf("%s: deviceID error: %v", errCtx, err.Error())
@@ -232,17 +234,17 @@ func ServeModerationBan(
 		//perform the actual ban or unbann via the deviceID api
 		if reqData.IsBanRevert {
 			if len(reqData.BaduserSession) > 0 {
-				deviceid.UndoBan(reqData.BaduserSession)
+				deviceIdConfig.UndoBan(reqData.BaduserSession)
 			}
 			if len(reqData.Badusername) > 0 {
-				deviceid.UndoBanIdentity(reqData.Badusername)
+				deviceIdConfig.UndoBanIdentity(reqData.Badusername)
 			}
 		} else {
 			if len(reqData.BaduserSession) > 0 {
-				deviceid.Ban(reqData.BaduserSession)
+				deviceIdConfig.Ban(reqData.BaduserSession)
 			}
 			if len(reqData.Badusername) > 0 {
-				deviceid.BanIdentity(reqData.Badusername)
+				deviceIdConfig.BanIdentity(reqData.Badusername)
 			}
 		}
 
@@ -288,11 +290,12 @@ func ServeModerationMute(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
   hub *wsserver.Hub,
+  deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errCtx := "ServeModerationBan"
 
-		device, err := deviceid.New(r)
+		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
 			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
 			logger.Printf("%s: deviceID error: %v", errCtx, err.Error())

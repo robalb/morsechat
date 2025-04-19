@@ -23,6 +23,7 @@ func ServeReport(
 	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req ServeReport_req
@@ -38,7 +39,7 @@ func ServeReport(
 			return
 		}
 
-		device, err := deviceid.New(r)
+		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
 			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
 			logger.Printf("ServeReport: deviceID error: %v", err.Error())

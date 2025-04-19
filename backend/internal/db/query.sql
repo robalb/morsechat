@@ -114,3 +114,38 @@ UPDATE users SET settings = ? WHERE id = ?;
 /* name: UpdateBanned :execresult */
 UPDATE users SET is_banned = ? WHERE id = ?;
 
+-- temporary deviceID queries
+
+/* name: DeviceId_insertIp :execresult */
+INSERT into deviceid_ip (
+  ipv4,
+  is_banned
+) VALUES ( ?, ? )
+ON CONFLICT(ipv4)
+DO UPDATE SET is_banned = excluded.is_banned;
+
+
+/* name: DeviceId_insertIdentity :execresult */
+INSERT into deviceid_identities (
+  username,
+  ipv4
+) VALUES ( ?, ? )
+ON CONFLICT(username, ipv4) DO NOTHING;
+
+/* name: DeviceId_banIdentity :execresult */
+UPDATE deviceid_ip
+SET is_banned = 1
+WHERE ipv4 IN (
+  SELECT ipv4 FROM deviceid_identities WHERE username = ?
+);
+
+/* name: DeviceId_unbanIdentity :execresult */
+UPDATE deviceid_ip
+SET is_banned = 0
+WHERE ipv4 IN (
+  SELECT ipv4 FROM deviceid_identities WHERE username = ?
+);
+
+/* name: DeviceId_isBanned :one */
+SELECT is_banned from deviceid_ip where ipv4 = ? and is_banned = 1 LIMIT 1;
+

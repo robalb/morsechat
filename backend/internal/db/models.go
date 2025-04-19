@@ -27,6 +27,20 @@ type BanAction struct {
 	IsBanRevert       int64
 }
 
+type DeviceidIdentity struct {
+	ID             int64
+	Username       string
+	EventTimestamp int64
+	Ipv4           string
+}
+
+type DeviceidIp struct {
+	ID             int64
+	Ipv4           string
+	EventTimestamp int64
+	IsBanned       int64
+}
+
 type ReportAction struct {
 	ID                   int64
 	ReporterUserID       sql.NullInt64

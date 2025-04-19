@@ -18,6 +18,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
+	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	"github.com/robalb/morsechat/internal/monitoring"
 	"github.com/robalb/morsechat/internal/wsserver"
 
@@ -78,6 +79,17 @@ func Run(
 	}
 
 	//--------------------
+	// Initialize deviceId
+	//--------------------
+  deviceIdConfig := deviceid.NewConfig(
+    logger,
+    dbReadPool,
+    dbWritePool,
+    //Real IP source
+    []string{"X-Forwarded-For"},
+    )
+
+	//--------------------
 	// Initialize monitoring
 	//--------------------
 	metricsRegistry := prometheus.NewRegistry()
@@ -114,6 +126,7 @@ func Run(
 		dbReadPool,
 		dbWritePool,
 		metrics,
+    deviceIdConfig,
 	)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(config.Host, config.Port),

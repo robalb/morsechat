@@ -113,26 +113,30 @@ CREATE INDEX IF NOT EXISTS idx_ban_action_event_timestamp
 
 
 
--- Experimental section
+-- Temporary deviceID data
+
+create table if not exists deviceid_ip(
+  id                  INTEGER PRIMARY KEY,
+  ipv4                TEXT NOT NULL,
+  event_timestamp     INTEGER NOT NULL DEFAULT (unixepoch()),
+  is_banned           INTEGER NOT NULL DEFAULT 0
+) strict;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_deviceid_ip_ipv4
+  on deviceid_ip (ipv4);
+CREATE INDEX IF NOT EXISTS idx_deviceid_ip_is_banned
+  on deviceid_ip (is_banned);
 
 
--- CREATE TABLE IF NOT EXISTS deviceid_identities(
---   id                  INTEGER PRIMARY KEY,
---   identityName        TEXT NOT NULL,
---   is_banned           INTEGER NOT NULL DEFAULT 0
--- ) STRICT;
+CREATE TABLE IF NOT EXISTS deviceid_identities(
+  id                  INTEGER PRIMARY KEY,
+  username            TEXT NOT NULL,
+  event_timestamp     INTEGER NOT NULL DEFAULT (unixepoch()),
+  ipv4                TEXT NOT NULL
+) STRICT;
+create index if not exists idx_deviceid_identities_username
+  on deviceid_identities (username);
+create index if not exists idx_deviceid_identities_ipv4
+  on deviceid_identities (ipv4);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_deviceid_identities_username_ipv4
+ON deviceid_identities (username, ipv4);
 
--- CREATE TABLE IF NOT EXISTS deviceid_devices(
---   id                  INTEGER PRIMARY KEY,
---   device_id           TEXT NOT NULL,
---   ipv4                TEXT NOT NULL,
---   is_banned           INTEGER NOT NULL DEFAULT 0
--- ) STRICT;
-
--- CREATE TABLE IF NOT EXISTS deviceid_device_identity_map(
---   device_id       INTEGER NOT NULL,
---   identity_id     INTEGER NOT NULL,
---   PRIMARY KEY (device_id, identity_id),
---   FOREIGN KEY (device_id) REFERENCES deviceid_devices(id) ON DELETE CASCADE,
---   FOREIGN KEY (identity_id) REFERENCES deviceid_identities(id) ON DELETE CASCADE
--- ) STRICT;

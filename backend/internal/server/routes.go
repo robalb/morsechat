@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/config"
+	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	"github.com/robalb/morsechat/internal/handlers"
 	"github.com/robalb/morsechat/internal/middleware"
 	"github.com/robalb/morsechat/internal/monitoring"
@@ -25,27 +26,28 @@ func AddRoutes(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 	metrics *monitoring.Metrics,
+  deviceIdConfig *deviceid.Config,
 	/* Put here all the dependencies for middlewares and routers */
 ) {
 
 	ws := chi.NewRouter()
 	rootMux.Mount("/ws", ws)
 	ws.Use(middleware.RequireValidSession(tokenAuth))
-	ws.Get("/init", wsserver.ServeWsInit(logger, hub))
+	ws.Get("/init", wsserver.ServeWsInit(logger, hub, deviceIdConfig))
 
 	v1 := chi.NewRouter()
 	rootMux.Mount("/api/v1", v1)
 
 	//Non authenticated routes
 	v1.Group(func(r chi.Router) {
-		r.Post("/register", handlers.ServeRegister(logger, tokenAuth, dbReadPool, dbWritePool))
-		r.Post("/login", handlers.ServeLogin(logger, tokenAuth, dbReadPool, dbWritePool))
-		r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth, dbReadPool))
+		r.Post("/register", handlers.ServeRegister(logger, tokenAuth, dbReadPool, dbWritePool, deviceIdConfig))
+		r.Post("/login", handlers.ServeLogin(logger, tokenAuth, dbReadPool, dbWritePool, deviceIdConfig))
+		r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth, dbReadPool, deviceIdConfig))
 		r.Post("/validate_callsign", handlers.ServeValidateCallsign(logger, dbReadPool))
 
 		r.Route("/chat", func(r chi.Router) {
 			r.Use(middleware.RequireValidSession(tokenAuth))
-			r.Post("/report", handlers.ServeReport(logger, config, dbReadPool, dbWritePool))
+			r.Post("/report", handlers.ServeReport(logger, config, dbReadPool, dbWritePool, deviceIdConfig))
 		})
 	})
 
@@ -57,9 +59,9 @@ func AddRoutes(
 
 		r.Route("/moderation", func(r chi.Router) {
 			r.Use(middleware.RequireModerator(tokenAuth))
-			r.Post("/list", handlers.ServeModerationList(logger, tokenAuth, dbReadPool, dbWritePool))
-			r.Post("/ban", handlers.ServeModerationBan(logger, tokenAuth, dbReadPool, dbWritePool, hub))
-			r.Post("/mute", handlers.ServeModerationMute(logger, tokenAuth, dbReadPool, dbWritePool, hub))
+			r.Post("/list", handlers.ServeModerationList(logger, tokenAuth, dbReadPool, dbWritePool, deviceIdConfig))
+			r.Post("/ban", handlers.ServeModerationBan(logger, tokenAuth, dbReadPool, dbWritePool, hub, deviceIdConfig))
+			r.Post("/mute", handlers.ServeModerationMute(logger, tokenAuth, dbReadPool, dbWritePool, hub, deviceIdConfig))
 		})
 		r.Route("/admin", func(r chi.Router) {
 			r.Use(middleware.RequireAdmin(tokenAuth))

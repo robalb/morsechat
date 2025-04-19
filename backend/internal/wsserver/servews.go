@@ -128,9 +128,10 @@ func (c *Client) writePump() {
 func ServeWsInit(
 	logger *log.Logger,
 	hub *Hub,
+  deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		device, err := deviceid.New(r)
+		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
 			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
 			logger.Printf("ServeWsInit: deviceID error: %v", err.Error())

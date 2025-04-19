@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/robalb/morsechat/internal/config"
+	deviceid "github.com/robalb/morsechat/internal/godeviceid"
 	localmiddleware "github.com/robalb/morsechat/internal/middleware"
 	"github.com/robalb/morsechat/internal/monitoring"
 	"github.com/robalb/morsechat/internal/wsserver"
@@ -23,6 +24,7 @@ func NewServer(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 	metrics *monitoring.Metrics,
+  deviceIdConfig *deviceid.Config,
 	/* Put here all the dependencies for middlewares and routers */
 ) http.Handler {
 
@@ -51,6 +53,7 @@ func NewServer(
 		dbReadPool,
 		dbWritePool,
 		metrics,
+    deviceIdConfig,
 	/* Put here all the dependencies for middlewares and routers */
 	)
 

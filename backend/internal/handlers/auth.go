@@ -28,6 +28,7 @@ func ServeRegister(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -37,7 +38,7 @@ func ServeRegister(
 			return
 		}
 
-		device, err := deviceid.New(r)
+		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
 			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
 			logger.Printf("ServeWsInit: deviceID error: %v", err.Error())
@@ -140,10 +141,11 @@ func ServeSessInit(
 	logger *log.Logger,
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
+  deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		device, err := deviceid.New(r)
+		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
 			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
 			logger.Printf("ServeSessInit: deviceID error: %v", err.Error())
@@ -286,10 +288,11 @@ func ServeLogin(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
+  deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		device, err := deviceid.New(r)
+		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
 			validation.RespondError(w, "internal error", "", http.StatusInternalServerError)
 			logger.Printf("ServeWsInit: deviceID error: %v", err.Error())

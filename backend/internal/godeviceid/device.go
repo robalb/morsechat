@@ -1,7 +1,8 @@
 package deviceid
 
 import (
-	"fmt"
+	"database/sql"
+	"log"
 	"net/http"
 )
 
@@ -55,33 +56,43 @@ type DeviceData struct {
 	IsBot    bool
 	IsVPN    bool
 	IsTor    bool
+
+  config *Config
 }
 
-// TODO: make this an external struct that must be initialized
-// at program startup, and passed to some http middleware
-type deviceIDConfig struct {
+type Config struct {
 	// the source for the client ip.
 	// leave empty to read from http.Request.RemoteAddr
-	IpHeaders    []string
-	VPNIsBad     bool
-	TorIsBad     bool
-	OfflineIsBad bool
+  ipHeaders []string
+  vPNIsBad bool
+  torIsBad bool
+  offlineIsBad bool
+
+	logger *log.Logger
+	dbReadPool *sql.DB
+	dbWritePool *sql.DB
 }
 
-var (
-	globalConfig = deviceIDConfig{
-		IpHeaders: []string{"X-Forwarded-For"},
-		VPNIsBad:  true,
-		TorIsBad:  true,
-		//TODO: set this via app config (env, flags, ...)
-		OfflineIsBad: false,
-	}
-)
+func  NewConfig(
+	logger *log.Logger,
+	dbReadPool *sql.DB,
+	dbWritePool *sql.DB,
+  ipHeaders []string,
+) *Config{
+  return &Config{ 
+    ipHeaders: ipHeaders,
+		vPNIsBad:  true,
+		torIsBad:  true,
+		offlineIsBad: false,
+
+    logger: logger,
+    dbReadPool: dbReadPool,
+    dbWritePool: dbWritePool,
+  }
+}
 
 // Calculates the DeviceData of the device behind the given HTTP request
-// TODO: make this read from some data that was injected
-// in the context by a custom middleware
-func New(r *http.Request) (d DeviceData, err error) {
+func New(config *Config, r *http.Request) (d DeviceData, err error) {
 	d = DeviceData{
 		Offline:    true,
 		IsOrganic:  false,
@@ -90,14 +101,12 @@ func New(r *http.Request) (d DeviceData, err error) {
 		IsBot:      false,
 		IsVPN:      false,
 		IsTor:      false,
-		Ipv4:       getIp(r, globalConfig.IpHeaders),
+		Ipv4:       getIp(r, config.ipHeaders),
 		HttpFinger: getHttpFinger(r),
+    config:     config,
 	}
 	if !isPublicIP(d.Ipv4) {
-		//TODO: add logger dependency
-		//TODO: warning, fingerprinting a private ip address.
-		//      are you behind a reverse proxy?
-		fmt.Println("DeviceID warning: private IP. Are you behind a proxy?")
+		config.logger.Printf("DeviceID warning: private IP. Are you behind a proxy?")
 	}
 
 	//TODO: extract and verify deviceid signed cookie
@@ -106,16 +115,13 @@ func New(r *http.Request) (d DeviceData, err error) {
 		d.Id = getOfflineID(&d)
 		d.ClusterId = d.Ipv4
 		//all this is temporary
-		d.IsBad = tempIsBad(d.Id)
+		d.IsBad = tempIsBad(d.Id) || tempIsBanned(d.Ipv4, config)
 	}
-
-	//TODO: metrics.
-	//offline, isOrganic, IsBad(reason)
 	return
 }
 
 //--------------------
-// Unstable APIs, v0, in use
+// Unstable APIs, in use
 //--------------------
 
 // associate an unique Identity to a device.
@@ -125,7 +131,9 @@ func New(r *http.Request) (d DeviceData, err error) {
 // This information is anonymized before being sent to the
 // deviceID servers.
 func (d *DeviceData) SetUniqueIdentity(id string) {
-	//TODO
+  //instead of considering a device, we are temporarily
+  //associating an identity to an IP, stored locally
+	tempAssociate(id, d.Ipv4, d.config)
 }
 
 // ban a cluster associated to the device, with no
@@ -139,79 +147,45 @@ func (d *DeviceData) SetUniqueIdentity(id string) {
 func (d *DeviceData) SetBanned() string {
 	d.IsBanned = true
 	d.IsBad = true
-	tempBan(d.Ipv4)
+	tempBan(d.Ipv4, d.config)
 	return d.Id
 }
 
 // same as SetBanned, but works with a deviceID string,
 // even if there is no current reference to the device object.
-func Ban(deviceId string) string {
+func (config *Config) Ban(deviceId string) string {
 	ip, isOfflineId := extractIP(deviceId)
 	if isOfflineId {
-		tempBan(ip)
+    tempBan(ip, config)
 	}
 	return deviceId
 }
 
 // undo the ban associated to a device ID
 // when offline, the banID is the IP
-func UndoBan(bannedDeviceId string) {
+func (config *Config) UndoBan(bannedDeviceId string) {
 	ip, isOfflineId := extractIP(bannedDeviceId)
 	if isOfflineId {
-		tempUnBan(ip)
+		tempUnban(ip, config)
 	}
 }
 
 // ban a unique identity.
-// TODO(al)
-func BanIdentity(identity string) string {
-	return ""
+func (config *Config) BanIdentity(identity string) {
+	tempBanIdentity(identity, config)
 }
 
 //	undo ban on a unique identity.
-//
-// TODO(al)
-func UndoBanIdentity(identity string) string {
-	return ""
+func (config *Config) UndoBanIdentity(identity string) {
+	tempUnbanIdentity(identity, config)
 }
 
 //--------------------
 // Unstable APIs, testing ground, not in use
 //--------------------
 
-// if you need more than a single info, use the constructor
-func IsOrganic(r *http.Request) bool {
-	d, err := New(r)
-	if err != nil {
-		return false
-	}
-	return d.IsOrganic
-}
-
-// if you need more than a single info, use the constructor
-func IsBad(r *http.Request) (bool, error) {
-	d, err := New(r)
-	if err != nil {
-		return false, err
-	}
-	return d.IsBad, nil
-}
-
 // Accepts a list of deviceIDs, returns all deviceIDs
 // in the list that are in the same cluster of the current device
-func (d *DeviceData) FilterAssociatedIDs(ids []string) []string {
-	return FilterAssociatedIDs(d.Id, ids)
-}
-
-// Accepts a list of deviceIDs, returns all deviceIDs
-// in the list that are in the same cluster of the deviceID
-func FilterAssociatedIDs(id string, ids []string) []string {
+func (config *Config) FilterAssociatedIDs(ids []string) []string {
 	return []string{}
-	//TODO
-}
-
-// refresh stale deviceID data
-func (d *DeviceData) Refresh() {
-	//all this is temporary
-	d.IsBad = tempIsBad(d.Id)
 }
