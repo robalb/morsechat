@@ -42,14 +42,14 @@ export function User({ open, onClose, user }) {
       </DialogContent>
       <DialogActions>
         {(ismoderator || isadmin) && !user?.is_anonymous && (
-          <>
             <BanButton color="error" variant="contained"
               username={user?.username || ""}
             >Ban</BanButton>
+        )}
+        {(ismoderator || isadmin) && (
             <MuteButton color="primary" variant="contained" callsign={user?.callsign} >
             Mute
             </MuteButton>
-          </>
         )}
       </DialogActions>
     </Dialog>
