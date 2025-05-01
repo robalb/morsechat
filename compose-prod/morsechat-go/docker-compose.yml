@@ -25,6 +25,11 @@ services:
       - traefik.http.routers.morsego.tls.certresolver=myresolver
     networks:
       - traefik-proxy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 900M
     logging:
       driver: json-file
       options:

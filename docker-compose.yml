@@ -9,8 +9,10 @@ services:
     build: .
     expose:
       - '80'
+    ports:
+      - 9090:80
     # restart: unless-stopped
-    restart: unless-stopped
+    restart: no
     environment:
       PORT: 8080
       SQLITEPATH: app/backend/db/master.sqlite
