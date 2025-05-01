@@ -44,8 +44,30 @@ func normalize(input string) string {
 			runes[i] = replacement
 		}
 	}
-	return string(runes)
+  return string(runes)
 }
+
+
+func truncate(input string, length int) string {
+	runes := []rune(input)
+	var result []rune
+  lastRune := '.'
+	count := 0
+
+	for _, r := range runes {
+		if r == lastRune {
+			count++
+		} else {
+			count = 1
+			lastRune = r
+		}
+		if count <= length {
+			result = append(result, r)
+		}
+	} 
+	return string(result)
+}
+
 
 // return true if the input string contains spam or inappropirate language
 func ContainsBadLanguage(input string) bool {
@@ -57,15 +79,16 @@ func ContainsBadLanguage(input string) bool {
 	input = replacementPattern.ReplaceAllString(input, "")
 	input = normalize(input)
 
-	//remove false positives
+	// remove false positives
 	for _, goodWord := range falsePositiveWordsList {
 		normalized := normalize(goodWord)
 		input = strings.ReplaceAll(input, normalized, " ")
 	}
 
+  input = truncate(input, 1)
 	badList := badwordsListDecode(badwordsListEncoded)
 	for _, badWord := range badList {
-		normalized := normalize(badWord)
+		normalized := truncate(normalize(badWord), 1)
 		if len(normalized) > 1 && strings.Contains(input, normalized) {
 			return true
 		}
