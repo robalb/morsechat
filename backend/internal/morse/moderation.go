@@ -11,6 +11,10 @@ import (
 var badwordsListEncoded string
 
 // special regex for the "att" problem
+// The att pipeline:
+// raw text -> att regex -> att composite  -> att composite
+//             for non-     false positive    bad word 
+//             composite    removal.          removal
 var attPattern = regexp.MustCompile(`(?i)(?:^|\s)a\s*s\s*s(?:\s|$)`)
 var replacementPattern = regexp.MustCompile(`[ .\-_]+`)
 

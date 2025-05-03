@@ -45,6 +45,7 @@ func TestContainsHateSpeech(t *testing.T) {
 		{"tolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmacotolmaco", true},
     {"ass", true},
     {"yo mamas ass", true},
+    {"yourass", true},
     {"a ss", true},
     {" a s s ..", true},
 
