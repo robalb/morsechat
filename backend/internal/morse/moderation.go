@@ -7,9 +7,13 @@ import (
 )
 
 // https://github.com/zacanger/profane-words/blob/master/words.json
-//
 //go:embed moderation_badwords.txt
 var badwordsListEncoded string
+
+// special regex for the "att" problem
+var attPattern = regexp.MustCompile(`(?i)(?:^|\s)a\s*s\s*s(?:\s|$)`)
+var replacementPattern = regexp.MustCompile(`[ .\-_]+`)
+
 
 func badwordsListDecode(input string) []string {
 	runes := []rune(input)
@@ -74,10 +78,14 @@ func ContainsBadLanguage(input string) bool {
 	if len(input) < 3 {
 		return false
 	}
+  //we handle the "att" problem before normalization
+  if attPattern.MatchString(input){
+    return true
+  }
+
 	// Replacement regex to normalize the input
-	replacementPattern := regexp.MustCompile(`[ .\-_]+`)
 	input = replacementPattern.ReplaceAllString(input, "")
-	input = normalize(input)
+	input = truncate(normalize(input), 2)
 
 	// remove false positives
 	for _, goodWord := range falsePositiveWordsList {
@@ -85,10 +93,9 @@ func ContainsBadLanguage(input string) bool {
 		input = strings.ReplaceAll(input, normalized, " ")
 	}
 
-  input = truncate(input, 1)
 	badList := badwordsListDecode(badwordsListEncoded)
 	for _, badWord := range badList {
-		normalized := truncate(normalize(badWord), 1)
+		normalized := truncate(normalize(badWord), 2)
 		if len(normalized) > 1 && strings.Contains(input, normalized) {
 			return true
 		}
