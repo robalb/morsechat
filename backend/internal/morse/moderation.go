@@ -7,17 +7,17 @@ import (
 )
 
 // https://github.com/zacanger/profane-words/blob/master/words.json
+//
 //go:embed moderation_badwords.txt
 var badwordsListEncoded string
 
 // special regex for the "att" problem
 // The att pipeline:
 // raw text -> att regex -> att composite  -> att composite
-//             for non-     false positive    bad word 
-//             composite    removal.          removal
+// .           for non-     false positive    bad word
+// .           composite    removal.          removal
 var attPattern = regexp.MustCompile(`(?i)(?:^|\s)a\s*s\s*s(?:\s|$)`)
 var replacementPattern = regexp.MustCompile(`[ .\-_]+`)
-
 
 func badwordsListDecode(input string) []string {
 	runes := []rune(input)
@@ -52,14 +52,13 @@ func normalize(input string) string {
 			runes[i] = replacement
 		}
 	}
-  return string(runes)
+	return string(runes)
 }
-
 
 func truncate(input string, length int) string {
 	runes := []rune(input)
 	var result []rune
-  lastRune := '.'
+	lastRune := '.'
 	count := 0
 
 	for _, r := range runes {
@@ -72,24 +71,24 @@ func truncate(input string, length int) string {
 		if count <= length {
 			result = append(result, r)
 		}
-	} 
+	}
 	return string(result)
 }
-
 
 // return true if the input string contains spam or inappropirate language
 func ContainsBadLanguage(input string) bool {
 	if len(input) < 3 {
 		return false
 	}
-  //we handle the "att" problem before normalization
-  if attPattern.MatchString(input){
-    return true
-  }
+	//we handle the "att" problem before normalization
+	if attPattern.MatchString(input) {
+		return true
+	}
 
 	// Replacement regex to normalize the input
 	input = replacementPattern.ReplaceAllString(input, "")
-	input = truncate(normalize(input), 2)
+	input = normalize(input)
+	input = truncate(input, 2)
 
 	// remove false positives
 	for _, goodWord := range falsePositiveWordsList {

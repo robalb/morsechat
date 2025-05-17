@@ -7,19 +7,20 @@ var falsePositiveWordsList = []string{
 	"arsenal",
 	"assassin",
 	"assaying", // was saying
-  "thisexact",
-  "thinkill", //think i'll
-  "whohas",
-  "shehas",
-  "noonehas",
-  "hehas",
-  "whassup",
+	"thisexact",
+	"thinkill", //think i'll
+	"skill",    //skill, task i'll
+	"whohas",
+	"shehas",
+	"noonehas",
+	"hehas",
+	"whassup",
 	"assert",
 	"assign",
 	"assimil",
 	"assist",
 	"associat",
-  "iwass", // i was s...
+	"iwass", // i was s...
 	"assum", // assuming, assumption, assumed
 	"assur", // assurance
 	"banal",

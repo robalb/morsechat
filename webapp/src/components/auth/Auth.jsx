@@ -1,20 +1,20 @@
 import * as React from "react";
-import {MainIndexForm} from "./mainIndexForm";
+import { MainIndexForm } from "./mainIndexForm";
 import LoginForm from "./loginForm";
 import RegisterForm from "./registerForm";
 import VerificationForm from "./verificationForm";
 import MainDataLoading from "./mainDataLoading";
 import Dialog from "@mui/material/Dialog";
 
-import styles from './auth.module.css';
+import styles from "./auth.module.css";
 
-import { useSelector } from 'react-redux'
+import { useSelector } from "react-redux";
 
 //TODO: use these constants
-export const MENU = "menu"
-export const LOGIN = "login"
-export const REGISTER = "register"
-export const VERIFY = "verify"
+export const MENU = "menu";
+export const LOGIN = "login";
+export const REGISTER = "register";
+export const VERIFY = "verify";
 
 /**
  *
@@ -24,51 +24,53 @@ export const VERIFY = "verify"
  *                        An invalid string will close the Dialog and log an error
  * @param {boolean} fullScreen - when true, the dialog will be full screen
  */
-export function Auth({authState, fullScreen = false}) {
+export function Auth({ authState, fullScreen = false }) {
+	let loading = useSelector((state) => state.api.loading);
 
-    let loading = useSelector(state => state.api.loading)
+	let [page, _setPage] = authState;
+	let open = page.length > 0;
 
-    let [page, _setPage] = authState
-    let open = page.length > 0
+	let pages = {
+		menu: MainIndexForm,
+		login: LoginForm,
+		register: RegisterForm,
+		verify: VerificationForm,
+	};
 
-    let pages = {
-        "menu": MainIndexForm,
-        "login": LoginForm,
-        "register": RegisterForm,
-        "verify": VerificationForm
-    }
+	function closeAuth(event) {
+		if (
+			event.type === "keydown" &&
+			(event.key === "Tab" || event.key === "Shift")
+		) {
+			return;
+		}
+		_setPage("");
+	}
 
-    function closeAuth(event) {
-        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-            return;
-        }
-        _setPage("")
-    }
+	let mainContent = "";
+	if (open) {
+		if (!pages.hasOwnProperty(page)) {
+			console.error("invalid page provided");
+		} else {
+			let CurrentPage = pages[page];
+			mainContent = loading ? (
+				<MainDataLoading />
+			) : (
+				<CurrentPage setPage={_setPage} />
+			);
+		}
+	}
 
-    let mainContent = ""
-    if (open) {
-        if (!pages.hasOwnProperty(page)) {
-            console.error("invalid page provided")
-        } else {
-            let CurrentPage = pages[page]
-            mainContent = loading ?
-                <MainDataLoading /> :
-                <CurrentPage setPage={_setPage}/>;
-        }
-    }
-
-    return (
-        <Dialog
-            PaperProps={{
-              elevation: 1
-            }}
-            fullScreen={fullScreen}
-            open={open}
-            onClose={closeAuth}
-        >
-            <div className={styles.auth}>
-                {mainContent}
-            </div>
-        </Dialog>
-    )
+	return (
+		<Dialog
+			PaperProps={{
+				elevation: 1,
+			}}
+			fullScreen={fullScreen}
+			open={open}
+			onClose={closeAuth}
+		>
+			<div className={styles.auth}>{mainContent}</div>
+		</Dialog>
+	);
 }
