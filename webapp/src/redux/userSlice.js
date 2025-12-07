@@ -4,6 +4,8 @@ import {
 	createSelector,
 } from "@reduxjs/toolkit";
 
+import { getFreqencyFromCallsign } from "../utils/ReceiverSound.js";
+
 import createDebouncedAsyncThunk from "../utils/createDebouncedAsyncThunk";
 
 import { apiCall, payloadCreatorCreator } from "./apiSlice";
@@ -57,39 +59,10 @@ const updateSettingsRemote = createDebouncedAsyncThunk(
 	1000 * 4, //4 seconds debounce
 );
 
-function generateRandomFrequency() {
-	//C minor pentathonic scale
-	let poolAm = [
-		220, // A3
-		261,
-		329,
-		392,
-		440,
-	];
-	//c major pentathonic scale
-	let poolAM = [
-		261, // C4
-		293,
-		329,
-		392,
-		440,
-	];
-	//select the penthatonic scale
-	let poolBase = poolAM;
-	//generate the pool of available frequencies
-	let pool = [
-		...poolBase, //octave 4
-		...poolBase.map((f) => f * 2), //octave 5
-		...poolBase.slice(0, 2).map((f) => f * 4), //octave 6
-	];
-	let i = Math.floor(Math.random() * pool.length);
-	return pool[i];
-}
-
 //default app settings
 const initialSettings = {
 	wpm: 12, //5-50
-	key_frequency: generateRandomFrequency(),
+	key_frequency: 440,
 	volume_receiver: 50, //0-100
 	volume_key: 50, //0-100
 	dialect: "international",
@@ -142,6 +115,10 @@ const userSlice = createSlice({
 			state.ismoderator = apidata.is_moderator;
 			state.username = apidata.username;
 			if (apidata.settings) state.settings = apidata.settings;
+			// assign pseudorandom frequency if not set in the settings
+			if (!apidata.settings || apidata.settings.key_frequency === 0) {
+				state.settings.key_frequency = getFreqencyFromCallsign(state.callsign);
+			}
 		});
 		//user logged in
 		builder.addCase(loginUser.fulfilled, (state, action) => {
@@ -153,6 +130,10 @@ const userSlice = createSlice({
 			state.ismoderator = apidata.is_moderator;
 			state.username = apidata.username;
 			if (apidata.settings) state.settings = apidata.settings;
+			// assign pseudorandom frequency if not set in the settings
+			if (!apidata.settings || apidata.settings.key_frequency === 0) {
+				state.settings.key_frequency = getFreqencyFromCallsign(state.callsign);
+			}
 		});
 		//user registered
 		builder.addCase(registerUser.fulfilled, (state, action) => {
