@@ -62,14 +62,7 @@ export function SideControls({className = "", settingsButton=""}) {
                     [])}
             />
 
-            <p>key frequency</p>
-            <MemoSlider size="small" value={settings.key_frequency} aria-label="Default" valueLabelDisplay="auto"
-                min={100}
-                max={1200}
-                onChangeCommitted={React.useCallback(
-                    (e, v) => update({ key_frequency: v }),
-                    [])}
-             />
+            
 
             <p>receiver volume</p>
             <MemoSlider size="small" value={settings.volume_receiver} aria-label="Default" valueLabelDisplay="auto"
@@ -117,6 +110,14 @@ export function AdvancedControls({className = ""}) {
                 max={50}
                 onChangeCommitted={React.useCallback(
                     (e, v) => update({ submit_delay: v }),
+                    [])}
+             />
+             <p>key frequency</p>
+            <MemoSlider size="small" value={settings.key_frequency} aria-label="Default" valueLabelDisplay="auto"
+                min={100}
+                max={1200}
+                onChangeCommitted={React.useCallback(
+                    (e, v) => update({ key_frequency: v }),
                     [])}
              />
             <p>key mode</p>
