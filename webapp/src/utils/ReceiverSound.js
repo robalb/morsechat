@@ -32,7 +32,6 @@ export function getFreqencyFromCallsign(callsign) {
 	const pool = [
 		...poolBase, //octave 4
 		...poolBase.map((f) => f * 2), //octave 5
-		...poolBase.slice(0, 2).map((f) => f * 4), //octave 6
 	];
 	// let i = Math.floor(Math.random() * pool.length)
 	function hashCode(s) {
