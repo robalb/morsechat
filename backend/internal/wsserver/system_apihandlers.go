@@ -69,7 +69,7 @@ func handleBanSysCommand(
 	}
 
 	for client := range hub.clients {
-		if client.deviceInfo.Id == cmd.Device || (client.userInfo.IsAnonymous == false && client.userInfo.Username == cmd.Username) {
+		if client.deviceInfo.Id == cmd.Device {
 			BroadcastUserLeft(client.channel, client, logger)
 			delete(hub.clients, client)
 			close(client.send)
