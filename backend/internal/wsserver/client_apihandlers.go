@@ -66,7 +66,6 @@ func clientRequestMux(
 
 }
 
-
 func handleJoinCommand(
 	rawCmd json.RawMessage,
 	client *Client,
@@ -171,7 +170,7 @@ func handleJoinCommand(
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
 		logger.Printf("HandleJoinCommand: msg json marshal error: %v", err.Error())
-    return
+		return
 	}
 	client.hub.broadcastChannel(msgBytes, client.channel, logger)
 }
@@ -196,7 +195,7 @@ func handleTypingCommand(
 		msgBytes, err := json.Marshal(msg)
 		if err != nil {
 			logger.Printf("HandleTypingCommand: msg json marshal error: %v", err.Error())
-      return
+			return
 		}
 		client.hub.broadcastChannel(msgBytes, client.channel, logger)
 	}
@@ -215,6 +214,12 @@ func handleMorseCommand(
 	var cmd CommandMorse
 	if err := json.Unmarshal(rawCmd, &cmd); err != nil {
 		logger.Printf("HandleMorseCommand: Failed to parse json: %v\n", err)
+		return
+	}
+
+	if cmd.Frequency < config_freqMin || cmd.Frequency > config_freqMax {
+		logger.Printf("HandleMorseCommand: malformed cmd.frequency\n")
+		messageUserMorseStatusError(client, logger, "Malformed message", "")
 		return
 	}
 
@@ -243,28 +248,28 @@ func handleMorseCommand(
 	if cmd.Wpm > 30 {
 		cooldownTime += cooldownTime
 	}
-  if client.userInfo.IsAnonymous {
+	if client.userInfo.IsAnonymous {
 		cooldownTime += cooldownTime
-  }
-  if client.userInfo.IsVerified {
-    cooldownTime = 0
-  }
+	}
+	if client.userInfo.IsVerified {
+		cooldownTime = 0
+	}
 	lastTime := client.lastMessageTimestamp
 	if !lastTime.IsZero() {
 		delta := time.Now().Sub(lastTime)
 		if delta < cooldownTime || delta < time.Duration(messageDuration)*time.Millisecond {
 			messageUserMorseStatusError(client, logger, "You are sending too many messages, please wait some seconds", "")
-      msg := MessageTyping{
-        Type:     "typing",
-        Typing:   false,
-        Callsign: client.userInfo.Callsign,
-      }
-      msgBytes, err := json.Marshal(msg)
-      if err != nil {
-        logger.Printf("HandleTypingCommand: msg json marshal error: %v", err.Error())
-        return
-      }
-      client.hub.broadcastChannel(msgBytes, client.channel, logger)
+			msg := MessageTyping{
+				Type:     "typing",
+				Typing:   false,
+				Callsign: client.userInfo.Callsign,
+			}
+			msgBytes, err := json.Marshal(msg)
+			if err != nil {
+				logger.Printf("HandleTypingCommand: msg json marshal error: %v", err.Error())
+				return
+			}
+			client.hub.broadcastChannel(msgBytes, client.channel, logger)
 			return
 		}
 	}
@@ -285,19 +290,20 @@ func handleMorseCommand(
 		Callsign:  client.userInfo.Callsign,
 		Dialect:   cmd.Dialect,
 		Wpm:       cmd.Wpm,
+		Frequency: cmd.Frequency,
 		Message:   cmd.Message,
 		Signature: signature,
 	}
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
 		logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
-    return
+		return
 	}
 
 	isBadLanguage := morse.ContainsBadLanguage(messageText)
-  if isBadLanguage {
+	if isBadLanguage {
 		logger.Printf("HandleMorseCommand: (%s) bad language: %v\n", client.deviceInfo.Id, messageText)
-  }
+	}
 	if isBadLanguage || client.deviceInfo.IsBad || client.shadowMuted {
 		client.hub.broadcastChannelCluster(
 			msgBytes,
@@ -319,7 +325,7 @@ func handleMorseCommand(
 		msgBytes, err := json.Marshal(msg)
 		if err != nil {
 			logger.Printf("HandleMorseCommand: msg json marshal error: %v", err.Error())
-      return
+			return
 		}
 		messageUser(client, msgBytes, logger)
 	}
@@ -327,4 +333,3 @@ func handleMorseCommand(
 	metrics.MessagesWpm.Observe(float64(cmd.Wpm))
 
 }
-
