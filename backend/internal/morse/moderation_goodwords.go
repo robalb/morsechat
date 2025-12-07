@@ -5,7 +5,6 @@ package morse
 var falsePositiveWordsList = []string{
 	"analy", // analysis, analytics
 	"arsenal",
-	"speed",
 	"assassin",
 	"assaying", // was saying
 	"thisexact",

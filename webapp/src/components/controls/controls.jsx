@@ -15,7 +15,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
-
 import {dialects} from '../../utils/dialects'
 /**
  * TODO: rename this file and its parent folder into controls
@@ -33,6 +32,7 @@ const MemoSlider = React.memo(function CustomSlider({value, onChangeCommitted, .
                 onChangeCommitted={onChangeCommitted}
                 {...props} />
 })
+
 
 const MemoSwitch = React.memo(Switch)
 
@@ -62,18 +62,29 @@ export function SideControls({className = "", settingsButton=""}) {
                     [])}
             />
 
+            <p>key frequency</p>
+            <MemoSlider size="small" value={settings.key_frequency} aria-label="Default" valueLabelDisplay="auto"
+                min={100}
+                max={1200}
+                onChangeCommitted={React.useCallback(
+                    (e, v) => update({ key_frequency: v }),
+                    [])}
+             />
+
             <p>receiver volume</p>
             <MemoSlider size="small" value={settings.volume_receiver} aria-label="Default" valueLabelDisplay="auto"
                 onChangeCommitted={React.useCallback(
                     (e, v) => update({ volume_receiver: v }),
                     [])}
              />
+
             <p>key volume</p>
             <MemoSlider size="small" value={settings.volume_key} aria-label="Default" valueLabelDisplay="auto"
                 onChangeCommitted={React.useCallback(
                     (e, v) => update({ volume_key: v }),
                     [])}
              />
+
             <div>
                 <p>show letters</p>
                 <MemoSwitch 

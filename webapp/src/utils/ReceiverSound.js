@@ -22,13 +22,13 @@ export default class ReceiverSound {
      *                             This class is expected to be used from within callbacks,
      *                             where a simple reference to useSelector would remain outdated
      */
-    constructor(uid, volumeRef, onlineUsersRef) {
+    constructor(uid, volumeRef, onlineUsersRef, soundFrequency) {
         this.uid = uid
         this.volumeRef = volumeRef
         this.onlineUsersRef = onlineUsersRef
         this.baseVolume = 0.0000001
         this.lastKnownPermision = this.playSoundForDisconnectedUsers
-
+        this.note = soundFrequency
         let o = ctx.createOscillator()
         o.frequency.value = this.#getFrequency()
         o.type = "triangle"

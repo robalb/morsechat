@@ -56,6 +56,7 @@ const updateSettingsRemote = createDebouncedAsyncThunk(
 //default app settings
 const initialSettings = {
   wpm: 12, //5-50
+  key_frequency: 880,
   volume_receiver: 50, //0-100
   volume_key: 50, //0-100
   dialect: "international",

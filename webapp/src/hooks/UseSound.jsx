@@ -9,13 +9,22 @@ export function useSound(note = 880, volume = 100) {
     volume = (volume + baseVolume) / 100
 
     let [g, setG] = React.useState(null)
+      const [o, setO] = React.useState(null);        // store oscillator
     let [isOn, setIsOn] = React.useState(false)
 
-    //update the volume in real time if it changes while the sound is playing
+    //update the volume in real time 
     React.useEffect(() => {
-        if (isOn)
+        if (isOn && g)
             g.gain.setValueAtTime(volume, ctx.currentTime)
-    }, [volume])
+    }, [volume, g, isOn])
+
+
+    // update frequency in real time
+    React.useEffect(() => {
+        if (isOn && o) {
+            o.frequency.setValueAtTime(note, ctx.currentTime);
+        }
+    }, [note, o, isOn]);
 
     //initialize the audio context - in chrome this will throw a warning
     //because user action is required but it still works
@@ -23,14 +32,18 @@ export function useSound(note = 880, volume = 100) {
         console.log("AUDIO NODE CREATED")
         //https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
         let o = ctx.createOscillator()
-        o.frequency.value = note
+        o.frequency.value = 880
         o.type = "triangle"
         let g = ctx.createGain()
         o.connect(g)
         g.connect(ctx.destination)
+        setO(o)
         setG(g)
+    
         g.gain.setValueAtTime(baseVolume, ctx.currentTime)
         o.start()
+
+
         return () => {
             console.log("CLOSING AUDIO OSCILLATOR")
             g.disconnect()
