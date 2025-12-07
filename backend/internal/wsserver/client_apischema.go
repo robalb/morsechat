@@ -17,9 +17,10 @@ type CommandTying struct {
 
 // {type: "message", body: CommandMorse}
 type CommandMorse struct {
-	Dialect string `json:"dialect"`
-	Wpm     int    `json:"wpm"`
-	Message []int  `json:"message"`
+	Dialect   string `json:"dialect"`
+	Wpm       int    `json:"wpm"`
+	Message   []int  `json:"message"`
+	Frequency int    `json:"frequency"`
 }
 
 //------------------------
@@ -69,6 +70,7 @@ type MessageMorse struct {
 	Callsign  string `json:"callsign"`
 	Dialect   string `json:"dialect"`
 	Wpm       int    `json:"wpm"`
+	Frequency int    `json:"frequency"`
 	Message   []int  `json:"message"`
 	Signature string `json:"signature"`
 }

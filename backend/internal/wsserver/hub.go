@@ -33,6 +33,8 @@ var (
 	}
 	config_wpmMin               = 5
 	config_wpmMax               = 50
+	config_freqMin              = 200
+	config_freqMax              = 1000
 	config_maxChannelOnline     = 100 // max total devices that can join a channel
 	config_maxChannelOnlineIpv4 = 5   // max devices that can join a channel, with the same ipv4
 	config_ratelimitSeconds     = 5 * time.Second
@@ -73,7 +75,7 @@ type Client struct {
 
 	isTyping bool
 
-  shadowMuted bool
+	shadowMuted bool
 
 	// the last time the user sent a message
 	lastMessageTimestamp time.Time
@@ -88,8 +90,8 @@ type Hub struct {
 	// Inbound messages from the clients.
 	clientRequest chan ClientRequest
 
-  // Inbound messages from other parts of the system.
-  SystemRequest chan SystemRequest
+	// Inbound messages from other parts of the system.
+	SystemRequest chan SystemRequest
 
 	// Register requests from the clients.
 	register chan *Client
@@ -100,11 +102,11 @@ type Hub struct {
 
 func New() *Hub {
 	return &Hub{
-		clientRequest:  make(chan ClientRequest),
-    SystemRequest: make(chan SystemRequest),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		clientRequest: make(chan ClientRequest),
+		SystemRequest: make(chan SystemRequest),
+		register:      make(chan *Client),
+		unregister:    make(chan *Client),
+		clients:       make(map[*Client]bool),
 	}
 }
 
@@ -139,11 +141,11 @@ func (h *Hub) Run(
 				dbWritePool,
 				metrics,
 			)
-    case message := <-h.SystemRequest:
+		case message := <-h.SystemRequest:
 			systemRequestMux(
 				&message,
 				ctx,
-        h,
+				h,
 				logger,
 				config,
 				dbReadPool,
@@ -153,7 +155,6 @@ func (h *Hub) Run(
 		}
 	}
 }
-
 
 // Broadcast a raw message to every connected user, in every channel
 func (h *Hub) broadcastAll(message []byte, logger *log.Logger) {

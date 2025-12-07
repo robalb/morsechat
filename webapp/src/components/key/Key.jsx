@@ -14,11 +14,11 @@ function KeyInternal(props){
 
   let settings = useSelector(state => state.user.settings)
   let keyMode = settings.key_mode
+  let keyFrequency = settings.key_frequency
   let wpm = settings.wpm
   let keyVolume = settings.volume_key
   let leftIsDot = settings.left_is_dot
   let keybinds =  settings.keybinds
-
   //state used by the yambic keyer.
   let [dotDown, setDotDown] = React.useState(false)
   let [dashDown, setDashDown] = React.useState(false)
@@ -26,7 +26,7 @@ function KeyInternal(props){
   const interval = React.useRef(null);
   const dashReleaseTimer = React.useRef(null);
 
-  let [on, off] = useSound(880, keyVolume)
+  let [on, off] = useSound(keyFrequency, keyVolume)
 
 
   //handle component leave

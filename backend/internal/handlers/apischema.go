@@ -12,6 +12,7 @@ type Settings struct {
 	Dialect        string   `json:"dialect" validate:"required,min=1,max=20"`
 	KeyMode        string   `json:"key_mode" validate:"required,min=1,max=20"`
 	WPM            int      `json:"wpm" validate:"required,gte=5,lte=50"`
+	Frequency      int      `json:"key_frequency" validate:"min=200,max=1000"`
 	VolumeReceiver int      `json:"volume_receiver" validate:"required,gte=0,lte=100"`
 	VolumeKey      int      `json:"volume_key" validate:"required,gte=0,lte=100"`
 	SubmitDelay    int      `json:"submit_delay" validate:"required,gte=5,lte=50"`
