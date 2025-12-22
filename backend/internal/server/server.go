@@ -24,7 +24,7 @@ func NewServer(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 	metrics *monitoring.Metrics,
-  deviceIdConfig *deviceid.Config,
+	deviceIdConfig *deviceid.Config,
 	/* Put here all the dependencies for middlewares and routers */
 ) http.Handler {
 
@@ -53,7 +53,7 @@ func NewServer(
 		dbReadPool,
 		dbWritePool,
 		metrics,
-    deviceIdConfig,
+		deviceIdConfig,
 	/* Put here all the dependencies for middlewares and routers */
 	)
 

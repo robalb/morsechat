@@ -26,7 +26,7 @@ func AddRoutes(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 	metrics *monitoring.Metrics,
-  deviceIdConfig *deviceid.Config,
+	deviceIdConfig *deviceid.Config,
 	/* Put here all the dependencies for middlewares and routers */
 ) {
 

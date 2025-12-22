@@ -20,41 +20,40 @@ func systemRequestMux(
 	dbWritePool *sql.DB,
 	metrics *monitoring.Metrics,
 ) {
-  switch m := (*message).(type){
-  case SysMessageKick:
-    handleBanSysCommand(
-      &m,
-      hub,
-      logger,
-      metrics,
-      )
-  case SysMessageBroadcast:
-    handleBroadcastSysCommand(
-      &m,
-      hub,
-      logger,
-      )
-  case SysMessageMute:
-    handleMuteSysCommand(
-      &m,
-      hub,
-    )
-  default:
-    logger.Printf( "SystemRequestMux: unknown message type %T", m)
-  }
+	switch m := (*message).(type) {
+	case SysMessageKick:
+		handleBanSysCommand(
+			&m,
+			hub,
+			logger,
+			metrics,
+		)
+	case SysMessageBroadcast:
+		handleBroadcastSysCommand(
+			&m,
+			hub,
+			logger,
+		)
+	case SysMessageMute:
+		handleMuteSysCommand(
+			&m,
+			hub,
+		)
+	default:
+		logger.Printf("SystemRequestMux: unknown message type %T", m)
+	}
 }
 
 func handleMuteSysCommand(
 	cmd *SysMessageMute,
 	hub *Hub,
 ) {
-  for client := range hub.clients{
-    if cmd.Callsign != "" && client.userInfo.Callsign == cmd.Callsign {
-      client.shadowMuted = cmd.Mute
-    }
-  }
+	for client := range hub.clients {
+		if cmd.Callsign != "" && client.userInfo.Callsign == cmd.Callsign {
+			client.shadowMuted = cmd.Mute
+		}
+	}
 }
-
 
 func handleBanSysCommand(
 	cmd *SysMessageKick,
@@ -62,34 +61,33 @@ func handleBanSysCommand(
 	logger *log.Logger,
 	metrics *monitoring.Metrics,
 ) {
-  errCtx := "handleBanSysCommand"
+	errCtx := "handleBanSysCommand"
 
-  if cmd.Username == "" && cmd.Device == "" {
-    logger.Printf("%s: emtpy ban parameters", errCtx)
-    return
-  }
+	if cmd.Username == "" && cmd.Device == "" {
+		logger.Printf("%s: emtpy ban parameters", errCtx)
+		return
+	}
 
-  for client := range hub.clients{
-    if client.userInfo.Username == cmd.Username || 
-    client.deviceInfo.Id == cmd.Device {
-      BroadcastUserLeft(client.channel, client, logger)
-      delete(hub.clients, client)
-      close(client.send)
-      updateOnlineUsersGauge(hub, metrics)
-    }
-  }
+	for client := range hub.clients {
+		if client.userInfo.Username == cmd.Username ||
+			client.deviceInfo.Id == cmd.Device {
+			BroadcastUserLeft(client.channel, client, logger)
+			delete(hub.clients, client)
+			close(client.send)
+			updateOnlineUsersGauge(hub, metrics)
+		}
+	}
 }
-
 
 func handleBroadcastSysCommand(
 	cmd *SysMessageBroadcast,
 	hub *Hub,
 	logger *log.Logger,
 ) {
-  channelExists := config_channels[cmd.channel]
-  if channelExists {
-    hub.broadcastChannel(cmd.message, cmd.channel, logger)
-  } else {
-    hub.broadcastAll(cmd.message, logger)
-  }
+	channelExists := config_channels[cmd.channel]
+	if channelExists {
+		hub.broadcastChannel(cmd.message, cmd.channel, logger)
+	} else {
+		hub.broadcastAll(cmd.message, logger)
+	}
 }

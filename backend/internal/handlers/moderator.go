@@ -55,7 +55,7 @@ func ServeModerationList(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
-  deviceIdConfig *deviceid.Config,
+	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errCtx := "ServeModerationList"
@@ -118,8 +118,8 @@ func ServeModerationBan(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
-  hub *wsserver.Hub,
-  deviceIdConfig *deviceid.Config,
+	hub *wsserver.Hub,
+	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errCtx := "ServeModerationBan"
@@ -249,39 +249,38 @@ func ServeModerationBan(
 		}
 
 		// Communicate to the hub that a device must be kicked.
-    // This will force a refresh of the user connection,
-    // resulting in either a ban or unbann with no possibilities
-    // of stale data
-    select {
-      case hub.SystemRequest <- wsserver.SysMessageKick{ 
-        Username: reqData.Badusername,
-        Device: reqData.BaduserSession,
-      }:
-        //Sent succesffully
-      case <- time.After(300 * time.Millisecond):
-        logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
-    }
+		// This will force a refresh of the user connection,
+		// resulting in either a ban or unbann with no possibilities
+		// of stale data
+		select {
+		case hub.SystemRequest <- wsserver.SysMessageKick{
+			Username: reqData.Badusername,
+			Device:   reqData.BaduserSession,
+		}:
+			//Sent succesffully
+		case <-time.After(300 * time.Millisecond):
+			logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
+		}
 
-    //basic audit log of the events
-    event := "banned"
-    if reqData.IsBanRevert {
-      event = "reverted_ban"
-    }
-    logger.Printf("Moderation: (%s): %s user: (%s, %s)",
-      device.Id,
-      event,
-      reqData.Badusername,
-      reqData.BaduserSession,
-    )
+		//basic audit log of the events
+		event := "banned"
+		if reqData.IsBanRevert {
+			event = "reverted_ban"
+		}
+		logger.Printf("Moderation: (%s): %s user: (%s, %s)",
+			device.Id,
+			event,
+			reqData.Badusername,
+			reqData.BaduserSession,
+		)
 
 		validation.RespondOk(w, "ok")
 	}
 }
 
-
 type ModerationMuteData struct {
-  Callsign   string `json:"callsign" validate:"required"`
-  Mute       bool   `json:"mute" validate:"required"`
+	Callsign string `json:"callsign" validate:"required"`
+	Mute     bool   `json:"mute" validate:"required"`
 }
 
 func ServeModerationMute(
@@ -289,8 +288,8 @@ func ServeModerationMute(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
-  hub *wsserver.Hub,
-  deviceIdConfig *deviceid.Config,
+	hub *wsserver.Hub,
+	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errCtx := "ServeModerationBan"
@@ -328,25 +327,25 @@ func ServeModerationMute(
 		}
 
 		// Communicate to the hub that a device must be kicked.
-    // This will force a refresh of the user connection,
-    // resulting in either a ban or unbann with no possibilities
-    // of stale data
-    select {
-      case hub.SystemRequest <- wsserver.SysMessageMute{ 
-        Mute: reqData.Mute,
-        Callsign: reqData.Callsign,
-      }:
-        //Sent succesffully
-      case <- time.After(300 * time.Millisecond):
-        logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
-    }
+		// This will force a refresh of the user connection,
+		// resulting in either a ban or unbann with no possibilities
+		// of stale data
+		select {
+		case hub.SystemRequest <- wsserver.SysMessageMute{
+			Mute:     reqData.Mute,
+			Callsign: reqData.Callsign,
+		}:
+			//Sent succesffully
+		case <-time.After(300 * time.Millisecond):
+			logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
+		}
 
-    //basic audit log of the events
-    logger.Printf("Moderation: (%s): muted user: %s",
-      device.Id,
-      reqData.Callsign,
-    )
+		//basic audit log of the events
+		logger.Printf("Moderation: (%s): muted user: %s",
+			device.Id,
+			reqData.Callsign,
+		)
 
 		validation.RespondOk(w, "ok")
-  }
+	}
 }

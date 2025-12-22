@@ -57,38 +57,38 @@ type DeviceData struct {
 	IsVPN    bool
 	IsTor    bool
 
-  config *Config
+	config *Config
 }
 
 type Config struct {
 	// the source for the client ip.
 	// leave empty to read from http.Request.RemoteAddr
-  ipHeaders []string
-  vPNIsBad bool
-  torIsBad bool
-  offlineIsBad bool
+	ipHeaders    []string
+	vPNIsBad     bool
+	torIsBad     bool
+	offlineIsBad bool
 
-	logger *log.Logger
-	dbReadPool *sql.DB
+	logger      *log.Logger
+	dbReadPool  *sql.DB
 	dbWritePool *sql.DB
 }
 
-func  NewConfig(
+func NewConfig(
 	logger *log.Logger,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
-  ipHeaders []string,
-) *Config{
-  return &Config{ 
-    ipHeaders: ipHeaders,
-		vPNIsBad:  true,
-		torIsBad:  true,
+	ipHeaders []string,
+) *Config {
+	return &Config{
+		ipHeaders:    ipHeaders,
+		vPNIsBad:     true,
+		torIsBad:     true,
 		offlineIsBad: false,
 
-    logger: logger,
-    dbReadPool: dbReadPool,
-    dbWritePool: dbWritePool,
-  }
+		logger:      logger,
+		dbReadPool:  dbReadPool,
+		dbWritePool: dbWritePool,
+	}
 }
 
 // Calculates the DeviceData of the device behind the given HTTP request
@@ -103,7 +103,7 @@ func New(config *Config, r *http.Request) (d DeviceData, err error) {
 		IsTor:      false,
 		Ipv4:       getIp(r, config.ipHeaders),
 		HttpFinger: getHttpFinger(r),
-    config:     config,
+		config:     config,
 	}
 	if !isPublicIP(d.Ipv4) {
 		config.logger.Printf("DeviceID warning: private IP. Are you behind a proxy?")
@@ -131,8 +131,8 @@ func New(config *Config, r *http.Request) (d DeviceData, err error) {
 // This information is anonymized before being sent to the
 // deviceID servers.
 func (d *DeviceData) SetUniqueIdentity(id string) {
-  //instead of considering a device, we are temporarily
-  //associating an identity to an IP, stored locally
+	//instead of considering a device, we are temporarily
+	//associating an identity to an IP, stored locally
 	tempAssociate(id, d.Ipv4, d.config)
 }
 
@@ -156,7 +156,7 @@ func (d *DeviceData) SetBanned() string {
 func (config *Config) Ban(deviceId string) string {
 	ip, isOfflineId := extractIP(deviceId)
 	if isOfflineId {
-    tempBan(ip, config)
+		tempBan(ip, config)
 	}
 	return deviceId
 }
@@ -175,7 +175,7 @@ func (config *Config) BanIdentity(identity string) {
 	tempBanIdentity(identity, config)
 }
 
-//	undo ban on a unique identity.
+// undo ban on a unique identity.
 func (config *Config) UndoBanIdentity(identity string) {
 	tempUnbanIdentity(identity, config)
 }

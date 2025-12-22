@@ -81,13 +81,13 @@ func Run(
 	//--------------------
 	// Initialize deviceId
 	//--------------------
-  deviceIdConfig := deviceid.NewConfig(
-    logger,
-    dbReadPool,
-    dbWritePool,
-    //Real IP source
-    []string{"X-Forwarded-For"},
-    )
+	deviceIdConfig := deviceid.NewConfig(
+		logger,
+		dbReadPool,
+		dbWritePool,
+		//Real IP source
+		[]string{"X-Forwarded-For"},
+	)
 
 	//--------------------
 	// Initialize monitoring
@@ -126,7 +126,7 @@ func Run(
 		dbReadPool,
 		dbWritePool,
 		metrics,
-    deviceIdConfig,
+		deviceIdConfig,
 	)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(config.Host, config.Port),

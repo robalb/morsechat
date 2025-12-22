@@ -59,91 +59,88 @@ func tempIsBad(id string) bool {
 	return false
 }
 
-//check if an ipv4 is banned (either because of direct ipv4 ban or username ban)
-func tempIsBanned(ip string, config *Config) bool{
-	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+// check if an ipv4 is banned (either because of direct ipv4 ban or username ban)
+func tempIsBanned(ip string, config *Config) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-  queriesRead := db.New(config.dbReadPool)
-  isBanned, err := queriesRead.DeviceId_isBanned(ctx, ip)
+	queriesRead := db.New(config.dbReadPool)
+	isBanned, err := queriesRead.DeviceId_isBanned(ctx, ip)
 	if err != nil {
 		if err != sql.ErrNoRows {
-      config.logger.Printf("DeviceID: tempIsBanned query error: %v ", err)
+			config.logger.Printf("DeviceID: tempIsBanned query error: %v ", err)
 		}
 		return false
 	}
 	return isBanned == 1
 }
 
-//associate a username to an ip
+// associate a username to an ip
 func tempAssociate(id string, ip string, config *Config) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-  queriesWrite := db.New(config.dbWritePool)
-  _, err := queriesWrite.DeviceId_insertIdentity(ctx, db.DeviceId_insertIdentityParams{ 
-    Username: id,
-    Ipv4: ip,
-  })
+	queriesWrite := db.New(config.dbWritePool)
+	_, err := queriesWrite.DeviceId_insertIdentity(ctx, db.DeviceId_insertIdentityParams{
+		Username: id,
+		Ipv4:     ip,
+	})
 	if err != nil && err != sql.ErrNoRows {
-    config.logger.Printf("DeviceID: tempAssociate query error: %v ", err)
+		config.logger.Printf("DeviceID: tempAssociate query error: %v ", err)
 	}
 }
 
-
-//ban an ipv4
+// ban an ipv4
 func tempBan(ip string, config *Config) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-  queriesWrite := db.New(config.dbWritePool)
-  _, err := queriesWrite.DeviceId_insertIp(ctx, db.DeviceId_insertIpParams{ 
-    Ipv4: ip,
-    IsBanned: 1,
-  })
+	queriesWrite := db.New(config.dbWritePool)
+	_, err := queriesWrite.DeviceId_insertIp(ctx, db.DeviceId_insertIpParams{
+		Ipv4:     ip,
+		IsBanned: 1,
+	})
 	if err != nil && err != sql.ErrNoRows {
-    config.logger.Printf("DeviceID: tempBan query error: %v ", err)
+		config.logger.Printf("DeviceID: tempBan query error: %v ", err)
 	}
 
 }
 
-//unbann an ipv4
+// unbann an ipv4
 func tempUnban(ip string, config *Config) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-  queriesWrite := db.New(config.dbWritePool)
-  _, err := queriesWrite.DeviceId_insertIp(ctx, db.DeviceId_insertIpParams{ 
-    Ipv4: ip,
-    IsBanned: 0,
-  })
+	queriesWrite := db.New(config.dbWritePool)
+	_, err := queriesWrite.DeviceId_insertIp(ctx, db.DeviceId_insertIpParams{
+		Ipv4:     ip,
+		IsBanned: 0,
+	})
 	if err != nil && err != sql.ErrNoRows {
-    config.logger.Printf("DeviceID: tempUnbann query error: %v ", err)
+		config.logger.Printf("DeviceID: tempUnbann query error: %v ", err)
 	}
 }
 
-//ban all the ips associated to a username
+// ban all the ips associated to a username
 func tempBanIdentity(id string, config *Config) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-  queriesWrite := db.New(config.dbWritePool)
-  _, err := queriesWrite.DeviceId_banIdentity(ctx, id)
+	queriesWrite := db.New(config.dbWritePool)
+	_, err := queriesWrite.DeviceId_banIdentity(ctx, id)
 	if err != nil && err != sql.ErrNoRows {
-    config.logger.Printf("DeviceID: tempBanIdentity query error: %v ", err)
+		config.logger.Printf("DeviceID: tempBanIdentity query error: %v ", err)
 	}
 }
 
-//unbann all the ips associated to a username
+// unbann all the ips associated to a username
 func tempUnbanIdentity(id string, config *Config) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-  queriesWrite := db.New(config.dbWritePool)
-  _, err := queriesWrite.DeviceId_unbanIdentity(ctx, id)
+	queriesWrite := db.New(config.dbWritePool)
+	_, err := queriesWrite.DeviceId_unbanIdentity(ctx, id)
 	if err != nil && err != sql.ErrNoRows {
-    config.logger.Printf("DeviceID: tempBanIdentity query error: %v ", err)
+		config.logger.Printf("DeviceID: tempBanIdentity query error: %v ", err)
 	}
 }
-
-

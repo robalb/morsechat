@@ -28,7 +28,7 @@ func ServeRegister(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
-  deviceIdConfig *deviceid.Config,
+	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -141,7 +141,7 @@ func ServeSessInit(
 	logger *log.Logger,
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
-  deviceIdConfig *deviceid.Config,
+	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -170,9 +170,9 @@ func ServeSessInit(
 				device.SetUniqueIdentity(res.Username)
 				if res.IsBanned != 0 {
 					//silently curse this device.
-          //this is likely a redundant operation:
-          //It's likely that the unique identity was already banned,
-          //and by calling SetUniqueIdentity we propagated the ban.
+					//this is likely a redundant operation:
+					//It's likely that the unique identity was already banned,
+					//and by calling SetUniqueIdentity we propagated the ban.
 					device.SetBanned()
 				}
 
@@ -288,7 +288,7 @@ func ServeLogin(
 	tokenAuth *jwtauth.JWTAuth,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
-  deviceIdConfig *deviceid.Config,
+	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -360,7 +360,7 @@ func ServeLogin(
 			UserId:      res.ID,
 			IsAnonymous: false,
 			IsAdmin:     false,
-      IsVerified:  res.IsVerified != 0,
+			IsVerified:  res.IsVerified != 0,
 			IsModerator: res.IsModerator != 0,
 			Username:    res.Username,
 			Callsign:    res.Callsign,

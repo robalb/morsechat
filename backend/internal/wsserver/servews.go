@@ -128,7 +128,7 @@ func (c *Client) writePump() {
 func ServeWsInit(
 	logger *log.Logger,
 	hub *Hub,
-  deviceIdConfig *deviceid.Config,
+	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		device, err := deviceid.New(deviceIdConfig, r)

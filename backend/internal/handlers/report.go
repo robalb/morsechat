@@ -23,7 +23,7 @@ func ServeReport(
 	config *config.Config,
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
-  deviceIdConfig *deviceid.Config,
+	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req ServeReport_req
