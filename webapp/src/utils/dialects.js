@@ -1,89 +1,88 @@
-
 /**
-*  https://morsecode.world/international/morse.html 
-**/
+ *  https://morsecode.world/international/morse.html
+ **/
 const prosign = {
-  ".-.-.": "[End of message]",
-  ".-.-": "[New line]",
-  ".-...": "[wait]",
-  "-...-.-": "[Break]",
-  "-...-": "[New Paragraph]",
-  "-.-..-..": "[Going off the air]",
-  "-.-.-": "[Start copying]",
-  "-.-.-": "[Starting signal]",
-  "-.--.": "[Please transmit]",
-  "...-.-": "[End of transmission]",
-  "---.-": "[Understood]",
-  "...---...": "[SOS]"
-}
+	".-.-.": "[End of message]",
+	".-.-": "[New line]",
+	".-...": "[wait]",
+	"-...-.-": "[Break]",
+	"-...-": "[New Paragraph]",
+	"-.-..-..": "[Going off the air]",
+	"-.-.-": "[Start copying]",
+	"-.-.-": "[Starting signal]",
+	"-.--.": "[Please transmit]",
+	"...-.-": "[End of transmission]",
+	"---.-": "[Understood]",
+	"...---...": "[SOS]",
+};
 
 const base = {
-		".-": "a",
-		"-...": "b",
-		"-.-.": "c",
-		"-..": "d",
-		".": "e",
-		"..-.": "f",
-		"--.": "g",
-		"....": "h",
-		"..": "i",
-		".---": "j",
-		"-.-": "k",
-		".-..": "l",
-		"--": "m",
-		"-.": "n",
-		"---": "o",
-		".--.": "p",
-		"--.-": "q",
-		".-.": "r",
-		"...": "s",
-		"-": "t",
-		"..-": "u",
-		"...-": "v",
-		".--": "w",
-		"-..-": "x",
-		"-.--": "y",
-		"--..": "z",
-		".-.-.-": ".",
-		"--..--": ",",
-		"..--..": "?",
-		".----.": "'",
-		".-..-.": "\"",
-		"-.-.--": "!",
-		"-..-.": "/",
-		"---...": ":",
-		"-.-.-.": ";",
-		"-.--.": "(",
-		"-.--.-": ")",
-		"-...-": "=",
-		"-....-": "-",
-		"..--.-": "_",
-		".-.-.": "+",
-		".--.-.": "@",
-		".----": "1",
-		"..---": "2",
-		"...--": "3",
-		"....-": "4",
-		".....": "5",
-		"-....": "6",
-		"--...": "7",
-		"---..": "8",
-		"----.": "9",
-		"-----": "0",
-}
+	".-": "a",
+	"-...": "b",
+	"-.-.": "c",
+	"-..": "d",
+	".": "e",
+	"..-.": "f",
+	"--.": "g",
+	"....": "h",
+	"..": "i",
+	".---": "j",
+	"-.-": "k",
+	".-..": "l",
+	"--": "m",
+	"-.": "n",
+	"---": "o",
+	".--.": "p",
+	"--.-": "q",
+	".-.": "r",
+	"...": "s",
+	"-": "t",
+	"..-": "u",
+	"...-": "v",
+	".--": "w",
+	"-..-": "x",
+	"-.--": "y",
+	"--..": "z",
+	".-.-.-": ".",
+	"--..--": ",",
+	"..--..": "?",
+	".----.": "'",
+	".-..-.": '"',
+	"-.-.--": "!",
+	"-..-.": "/",
+	"---...": ":",
+	"-.-.-.": ";",
+	"-.--.": "(",
+	"-.--.-": ")",
+	"-...-": "=",
+	"-....-": "-",
+	"..--.-": "_",
+	".-.-.": "+",
+	".--.-.": "@",
+	".----": "1",
+	"..---": "2",
+	"...--": "3",
+	"....-": "4",
+	".....": "5",
+	"-....": "6",
+	"--...": "7",
+	"---..": "8",
+	"----.": "9",
+	"-----": "0",
+};
 
 const international = {
 	name: "international",
-  short_name: "",
+	short_name: "",
 	table: {
-    ...base,
-	}
-}
+		...base,
+	},
+};
 
 const russian = {
-  name: "russian",
-  short_name: "RU",
-  table: {
+	name: "russian",
+	short_name: "RU",
+	table: {
 		".-": "a",
 		"-...": "б",
 		".--": "в",
@@ -97,7 +96,7 @@ const russian = {
 		"-.-": "к",
 		".-..": "л",
 		"--": "м",
-		"-.": "h",
+		"-.": "н",
 		"---": "о",
 		".--.": "п",
 		".-.": "p",
@@ -115,12 +114,12 @@ const russian = {
 		"..-..": "э",
 		"..--": "ю",
 		".-.-": "я",
-		
+
 		"......": ".",
 		".-.-.-": ",",
 		"..--..": "?",
 		".----.": "'",
-		".-..-.": "\"",
+		".-..-.": '"',
 		"--..--": "!",
 		"-..-.": "/",
 		"---...": ":",
@@ -141,10 +140,9 @@ const russian = {
 		"--...": "7",
 		"---..": "8",
 		"----.": "9",
-    "-----": "0",  
-  }
-}
-
+		"-----": "0",
+	},
+};
 
 /**
 https://morsecode.world/international/morse.html
@@ -168,54 +166,54 @@ Ch Ĥ Š 	----
 **/
 const extended = {
 	name: "european extended",
-  short_name: "EU",
+	short_name: "EU",
 	table: {
-    ...base,
-    ".--.-": "[àå]",
-    ".-.-": "[äąæ]",
-    "-.-..": "[ćĉç]",
-    "----": "[hĥš]",
-    "..-..": "[đéę]",
-    "..--.": "ð",
-    ".-..-": "[èł]",
-    "--.-.": "ĝ",
-    ".---.": "ĵ",
-    "--.--": "[ńñ]",
-    "---.": "[óöø]",
-    "...-...": "ś",
-    "...-.": "ŝ",
-    ".--..": "þ",
-    "..--": "[üŭ]",
-    "--..-.": "ź",
-    "--..-": "ż",
-	}
-}
+		...base,
+		".--.-": "[àå]",
+		".-.-": "[äąæ]",
+		"-.-..": "[ćĉç]",
+		"----": "[hĥš]",
+		"..-..": "[đéę]",
+		"..--.": "ð",
+		".-..-": "[èł]",
+		"--.-.": "ĝ",
+		".---.": "ĵ",
+		"--.--": "[ńñ]",
+		"---.": "[óöø]",
+		"...-...": "ś",
+		"...-.": "ŝ",
+		".--..": "þ",
+		"..--": "[üŭ]",
+		"--..-.": "ź",
+		"--..-": "ż",
+	},
+};
 
 /**
-* This is temporary
-*
-* TODO: integrate prosigns in all dialects, with a custom gui.
-* This implementation of prosigns is kinda useless
-**/
+ * This is temporary
+ *
+ * TODO: integrate prosigns in all dialects, with a custom gui.
+ * This implementation of prosigns is kinda useless
+ **/
 const temp_prosign = {
 	name: "prosign only",
-  short_name: "PRO",
+	short_name: "PRO",
 	table: {
-    ...prosign,
-	}
-}
+		...prosign,
+	},
+};
 
 export const dialects = {
 	international,
-  russian,
-  extended,
-  temp_prosign
-}
+	russian,
+	extended,
+	temp_prosign,
+};
 
-export default function getDialect(dialect){
-	if(dialects.hasOwnProperty(dialect)){
-		return dialects[dialect]
-	}else{
-		return dialects["international"]
+export default function getDialect(dialect) {
+	if (dialects.hasOwnProperty(dialect)) {
+		return dialects[dialect];
+	} else {
+		return dialects["international"];
 	}
 }
