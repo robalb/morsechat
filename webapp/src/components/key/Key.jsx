@@ -164,7 +164,8 @@ function KeyInternal(props){
       down()
     }
     else if(keyMode === "yambic"){
-      let isLeft = e.nativeEvent.which == 1
+      //let isLeft = e.nativeEvent.which == 1
+      let isLeft = props.role == 'dot'
       yambicDown(isLeft)
     }
   }
@@ -177,7 +178,8 @@ function KeyInternal(props){
       up()
     }
     else if(keyMode === "yambic"){
-      let isLeft = e.nativeEvent.which == 1
+      //let isLeft = e.nativeEvent.which == 1
+      let isLeft = props.role == 'dot'
       yambicUp(isLeft)
     }
   }
@@ -266,8 +268,11 @@ function KeyInternal(props){
     };
   }, [settings, up, down]);
 
+  const role = settings.key_mode == 'yambic' ? props.role : '';
+  const cls = settings.key_mode != 'yambic' && props.role == 'dash' ? styles.settings_invisible : styles.key_bt;
+
   return (
-    <button className={styles.key_bt}
+    <button className={cls}
       onTouchStart={e => {
         e.stopPropagation();
         e.preventDefault();
@@ -281,7 +286,7 @@ function KeyInternal(props){
       onMouseDown={mouseDown}
       onMouseUp={mouseUp}
       onContextMenu={e => e.preventDefault()}
-    ></button>
+    >{role}</button>
   )
 
 }
@@ -296,12 +301,14 @@ export function Key({className = "", leftButton, sheetBtHandler}) {
             </IconButton>
         )
     }
+
     return (
         <div className={`${styles.key} ${className}`}>
 
             {leftButton}
 
-            <KeyInternal />
+            <KeyInternal role="dot" />
+            <KeyInternal role="dash" />
 
             <IconButton aria-label="morse table" onClick={sheetBtHandler}>
               <LibraryBooksIcon />

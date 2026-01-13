@@ -7,6 +7,7 @@
     align-items: center;
     padding: 5px;
     box-sizing: border-box;
+    gap: 1em;
 }
 .key_bt{
     width: 70%;
