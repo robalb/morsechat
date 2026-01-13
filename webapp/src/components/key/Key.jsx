@@ -145,26 +145,28 @@ function KeyInternal(props) {
 		else setDashDown(false);
 	}
 
-	function mouseDown(e) {
+	function mouseDown(e, isLeft) {
+		e.stopPropagation();
+		e.preventDefault();
 		//anti-ch3at measure
 		if (!e.isTrusted) return;
 		if (keyMode === "straight") {
 			down();
 		} else if (keyMode === "yambic") {
 			//let isLeft = e.nativeEvent.which == 1
-			let isLeft = props.role == "dot";
 			yambicDown(isLeft);
 		}
 	}
 
-	function mouseUp(e) {
+	function mouseUp(e, isLeft) {
+		e.stopPropagation();
+		e.preventDefault();
 		//anti-ch3at measure
 		if (!e.isTrusted) return;
 		if (keyMode === "straight") {
 			up();
 		} else if (keyMode === "yambic") {
 			//let isLeft = e.nativeEvent.which == 1
-			let isLeft = props.role == "dot";
 			yambicUp(isLeft);
 		}
 	}
@@ -245,31 +247,35 @@ function KeyInternal(props) {
 		};
 	}, [settings, up, down]);
 
-	const role = settings.key_mode == "yambic" ? props.role : "";
-	const cls =
-		settings.key_mode != "yambic" && props.role == "dash"
-			? styles.settings_invisible
-			: styles.key_bt;
+	const leftButtonText = settings.key_mode === "yambic" ? "dot" : "key";
+	const rightButtonText = "dash";
 
 	return (
-		<button
-			className={cls}
-			onTouchStart={(e) => {
-				e.stopPropagation();
-				e.preventDefault();
-				mouseDown(e);
-			}}
-			onTouchEnd={(e) => {
-				e.stopPropagation();
-				e.preventDefault();
-				mouseUp(e);
-			}}
-			onMouseDown={mouseDown}
-			onMouseUp={mouseUp}
-			onContextMenu={(e) => e.preventDefault()}
-		>
-			{role}
-		</button>
+		<>
+			<button
+				className={styles.key_bt}
+				onTouchStart={(e) => mouseDown(e, true)}
+				onTouchEnd={(e) => mouseUp(e, true)}
+				onMouseDown={(e) => mouseDown(e, true)}
+				onMouseUp={(e) => mouseUp(e, true)}
+				onContextMenu={(e) => e.preventDefault()}
+			>
+				{leftButtonText}
+			</button>
+
+			{settings.key_mode === "yambic" && (
+				<button
+					className={styles.key_bt}
+					onTouchStart={(e) => mouseDown(e, false)}
+					onTouchEnd={(e) => mouseUp(e, false)}
+					onMouseDown={(e) => mouseDown(e, false)}
+					onMouseUp={(e) => mouseUp(e, false)}
+					onContextMenu={(e) => e.preventDefault()}
+				>
+					{rightButtonText}
+				</button>
+			)}
+		</>
 	);
 }
 
@@ -291,8 +297,7 @@ export function Key({ className = "", leftButton, sheetBtHandler }) {
 		<div className={`${styles.key} ${className}`}>
 			{leftButton}
 
-			<KeyInternal role="dot" />
-			<KeyInternal role="dash" />
+			<KeyInternal />
 
 			<IconButton aria-label="morse table" onClick={sheetBtHandler}>
 				<LibraryBooksIcon />
