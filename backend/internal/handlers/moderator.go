@@ -280,7 +280,7 @@ func ServeModerationBan(
 
 type ModerationMuteData struct {
 	Callsign string `json:"callsign" validate:"required"`
-	Mute     bool   `json:"mute" validate:"required"`
+	Mute     bool   `json:"mute" validate:"boolean"`
 }
 
 func ServeModerationMute(
