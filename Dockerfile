@@ -30,33 +30,37 @@ RUN go build \
 #------------------------------
 FROM nginx:stable-alpine3.20
 
-RUN apk add --update \
-      supervisor \
-      sqlite \
-    && rm  -rf /tmp/* /var/cache/apk/*
+# Sqlite is used for mainteinance access, it's not a runtime dependency
+RUN apk add --no-cache \
+	  tini \
+	  su-exec \
+      sqlite
 
-#supervisord config
-COPY docker/conf/supervisord.conf /etc/
+COPY docker/conf/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-#nginx config
+# Nginx config
 RUN rm /etc/nginx/conf.d/*
 COPY docker/conf/nginx.conf /etc/nginx/
 COPY docker/conf/webapp.conf /etc/nginx/conf.d/
 RUN chown -R nginx /etc/nginx
 
 USER nginx
-#nginx webapp
+# Nginx webapp
 WORKDIR /app/webapp
 COPY --chown=nginx --from=frontend-builder /app/webapp/dist ./dist/
 
-#backend
+# Backend
 WORKDIR /app/backend
 COPY --chown=nginx --from=backend-builder /app/backend/morsechat .
 
-#database
+# Database
 RUN mkdir /app/backend/db/
 
 ENV APP_ENV=production
+
+# Sadly required by Nginx. TODO: get Nginx to run as non-root
 USER root
-ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
+
+ENTRYPOINT ["tini", "--", "/entrypoint.sh"]
 
