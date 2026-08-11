@@ -42,6 +42,62 @@
  * is what lines the track up with the <p> label above it. */
 .controls .mdc-slider {
   margin: 0;
+
+
+  /* The react sliders are <Slider size="small" />: a 2px rail, a 2px active
+   * track and a 12px thumb, in a 28px high box. mdc's defaults are half again
+   * as thick — 4px, 6px and 20px in a 48px box — which is what makes them look
+   * fat next to the old ones. Track and handle are theme properties, so they
+   * are set here rather than overridden; the box heights below are not, and
+   * have to be spelled out. */
+  --mdc-slider-inactive-track-height: 2px;
+  --mdc-slider-active-track-height: 2px;
+  --mdc-slider-handle-width: 12px;
+  --mdc-slider-handle-height: 12px;
+  height: 28px;
+}
+
+/* Space under a slider. MUI's root is an inline-block, so the line box it sits
+ * in leaves a descender's worth of room beneath it — the ~4px that separates
+ * each slider from the label of the next control in the react panel. mdc's is a
+ * block and butts straight up against it.
+ *
+ * It has to be declared as the whole gap rather than as that 4px, because
+ * adjacent siblings collapse their margins and `.controls p` already brings
+ * 0.6rem of its own: anything under 9.6px here would simply be swallowed. 14px
+ * is what the two add up to in the react panel.
+ *
+ * Only sliders that a label follows. The last one is followed by the
+ * show-letters row, which carries its own spacing. */
+.controls .mdc-slider:has(+ p) {
+  margin-bottom: 14px;
+}
+
+/* mdc gives the thumb a 48px box and centres the knob in it, so the knob keeps
+ * to the middle of the old 48px slider and floats above the shorter track
+ * unless the box is brought down to the same 28px. Its width is left alone: it
+ * is the touch target, and MUI's small slider has one just as wide. */
+.controls .mdc-slider .mdc-slider__thumb {
+  height: 28px;
+  top: 0;
+
+  /* The halo under the thumb: MUI draws it as a 14px box-shadow spread at 16%
+   * around a 12px thumb, so 40px across; mdc rings a 48px ripple at 24%. The
+   * ripple takes its size from this box, so narrowing the box to 40 is what
+   * sizes the halo — hence the matching `left`, which mdc sets to half the
+   * width so the knob stays centred on the value. */
+  width: 40px;
+  left: -20px;
+  --mdc-ripple-hover-opacity: 0.16;
+  --mdc-ripple-focus-opacity: 0.16;
+  --mdc-ripple-press-opacity: 0.16;
+}
+
+/* mdc parks the value bubble 44px up from the bottom of the thumb box, a figure
+ * that assumed the 48px box; against the 28px one it leaves 24px of air where
+ * MUI leaves 10. */
+.controls .mdc-slider__value-indicator-container {
+  bottom: 30px;
 }
 
 /* The value indicator is `surface` text on 60% `on-surface`; on this dark theme
@@ -51,6 +107,15 @@
   background-color: #757575;
   color: #fff;
   opacity: 1;
+
+  /* mdc's bubble is a 32px pill with 14px text; MUI's is a 25px box with 12px
+   * text and a 2px corner. The text metrics are theme properties, the box is
+   * not: its height comes from the padding once the fixed 32px is released. */
+  height: auto;
+  padding: 4px 8px;
+  border-radius: 2px;
+  --mdc-slider-label-label-text-size: 0.75rem;
+  --mdc-slider-label-label-text-line-height: 1.4;
 }
 .controls .mdc-slider__value-indicator::before {
   border-top-color: #757575;

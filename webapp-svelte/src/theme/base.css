@@ -122,10 +122,8 @@ html {
 .mdc-dialog .mdc-dialog__surface {
   transform: none;
 }
-.mdc-dialog:not(.mdc-dialog--open) .mdc-slider--discrete .mdc-slider__thumb,
-.mdc-dialog:not(.mdc-dialog--open)
-  .mdc-slider--discrete
-  .mdc-slider__track--active_fill {
+.mdc-dialog .mdc-slider--discrete .mdc-slider__thumb,
+.mdc-dialog .mdc-slider--discrete .mdc-slider__track--active_fill {
   transition: none;
 }
 
