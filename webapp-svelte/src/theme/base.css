@@ -62,6 +62,32 @@ html {
   --mdc-outlined-button-outline-color: rgba(250, 250, 250, 0.5);
 }
 
+/* Popups. MUI's <Backdrop /> is a flat black at 50%; mdc derives every scrim
+ * from on-surface, which on this dark theme is #efefef — so the page gets
+ * veiled in light instead of dark. The selectors match the ones mdc emits
+ * (`.mdc-dialog .mdc-dialog__scrim`, `.mdc-drawer--modal + .mdc-drawer-scrim`)
+ * class for class, otherwise they lose on specificity. The drawer is in here
+ * because the react app dims the page with the same <Backdrop /> behind its
+ * modal <Drawer /> as behind a <Dialog />. */
+.mdc-dialog .mdc-dialog__scrim,
+.mdc-dialog .mdc-dialog__surface-scrim,
+.mdc-drawer--modal + .mdc-drawer-scrim {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* The other half of the same difference: a dark-mode MUI <Paper> lightens
+ * itself with a white overlay scaled to its elevation, while mdc paints the
+ * surface colour flat. Every dialog in the react app is declared as
+ * elevation 1, whose overlay is white at 5% — hence the popup reading slightly
+ * lighter than the page there. MUI applies it as a background-image over the
+ * surface colour, and so does this. */
+.mdc-dialog .mdc-dialog__surface {
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.05)
+  );
+}
+
 /* MUI's <Button size="small" />. mdc ships one button size, so the two buttons
  * the react app declares as small — Register in the header, Advanced in the
  * side controls — need it spelled out. These are MUI's small metrics: 13px

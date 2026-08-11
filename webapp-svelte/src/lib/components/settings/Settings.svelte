@@ -17,7 +17,6 @@
 <Dialog
   bind:open
   class="settings-dialog"
-  surface$style="elevation: 1"
   aria-labelledby="settings-title"
 >
   <Title id="settings-title">

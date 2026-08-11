@@ -28,7 +28,6 @@
   {open}
   {fullScreen}
   {onClosed}
-  surface$style="elevation: 1"
   aria-label="authentication"
 >
   <Content>
