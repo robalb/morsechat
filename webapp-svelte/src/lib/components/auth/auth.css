@@ -211,10 +211,18 @@
   min-width: 0;
 }
 /* mdc sizes the menu to the anchor, which at 100px wraps "Solomon Islands"
- * over three lines. MUI's menu takes the width of its longest item. */
+ * over three lines. MUI's menu takes the width of its longest item — 326px
+ * against this list.
+ *
+ * `min-width: 100%` would do it under mdc's own absolute positioning, where the
+ * percentage resolves against the select. The menu is fixed (see menu$fixed in
+ * RegisterForm) so that it is not clipped by the dialog, and a percentage then
+ * resolves against the viewport — which is how this menu ended up 1400px wide.
+ * Hence max-content, which needs no containing block at all. */
 .auth-form .callsign .callsign-country .mdc-select__menu {
-  width: auto;
-  min-width: 100%;
+  width: max-content;
+  min-width: 100px;
+  max-width: min(360px, calc(100vw - 2 * var(--dialog-gutter)));
 }
 /* the options carry mdc's deprecated list classes, not .mdc-list-item */
 .auth-form .callsign .callsign-country .mdc-select__menu .mdc-deprecated-list-item {

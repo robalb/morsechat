@@ -146,7 +146,16 @@
       onpointerdown={() => (optionsMounted = true)}
       onfocusin={() => (optionsMounted = true)}
     >
-      <Select bind:value={country} variant="outlined" class="callsign-country">
+      <!-- menu$fixed: the menu is 249 entries and taller than the dialog, and
+           mdc renders it inside .mdc-dialog__content, whose `overflow: auto`
+           cuts off everything above the dialog. Fixed positioning takes it out
+           of that box and mdc keeps it against the anchor itself. -->
+      <Select
+        bind:value={country}
+        variant="outlined"
+        class="callsign-country"
+        menu$fixed={true}
+      >
         {#each options as code (code)}
           <Option value={code}>{countryName(code)}</Option>
         {/each}
