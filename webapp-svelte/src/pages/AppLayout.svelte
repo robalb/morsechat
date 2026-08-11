@@ -115,6 +115,7 @@
         {#snippet settingsButton()}
           <Button
             variant="outlined"
+            class="button-small"
             onclick={() => (settingsOpen = !settingsOpen)}
           >
             <Icon class="material-icons">settings</Icon>

@@ -62,6 +62,21 @@ html {
   --mdc-outlined-button-outline-color: rgba(250, 250, 250, 0.5);
 }
 
+/* MUI's <Button size="small" />. mdc ships one button size, so the two buttons
+ * the react app declares as small — Register in the header, Advanced in the
+ * side controls — need it spelled out. These are MUI's small metrics: 13px
+ * instead of 14, its much tighter tracking, and the padding that follows from
+ * them, which is what makes the button narrower as well as the text smaller.
+ * height must be unset because mdc pins every button to 36px. */
+.mdc-button.button-small {
+  height: auto;
+  min-width: 64px;
+  padding: 3px 9px;
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  letter-spacing: 0.02857em;
+}
+
 body{
   font-family: 'Roboto', 'Arial';
   margin: 0;

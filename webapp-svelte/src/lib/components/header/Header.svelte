@@ -85,10 +85,14 @@
         </List>
       </Menu>
     {:else}
-      <Button onclick={() => (authPage = 'login')}>
+      <Button class="button-small" onclick={() => (authPage = 'login')}>
         <Label>Login</Label>
       </Button>
-      <Button variant="outlined" onclick={() => (authPage = 'register')}>
+      <Button
+        variant="outlined"
+        class="button-small"
+        onclick={() => (authPage = 'register')}
+      >
         <Label>Register</Label>
       </Button>
     {/if}

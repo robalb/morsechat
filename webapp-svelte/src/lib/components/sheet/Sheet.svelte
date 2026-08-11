@@ -57,6 +57,10 @@
     flex-shrink: 0;
     display: flex;
     justify-content: space-between;
+    /* not in the react css, where the dialect button has no height of its own
+       and so stretches to fill the bar. mdc pins its buttons to 36px, which
+       stretch cannot override, leaving it hanging 4px off the bottom. */
+    align-items: center;
   }
   /* MUI's IconButton is 40px with 8px of padding; mdc's is 48/12. */
   .sheet .bar :global(.mdc-icon-button) {
