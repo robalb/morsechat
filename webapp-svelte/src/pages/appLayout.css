@@ -14,6 +14,9 @@
 
 .header-bt-left{
     margin-left: 1em!important;
+    /* The one rule in this file that the react version does not have: there the
+       online users button is 36px in a 48px bar, here it fills the bar. */
+    height: 100%;
 }
 
 

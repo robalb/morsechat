@@ -86,9 +86,16 @@ component, because it lands on markup this component does not own.
   `index.html`, which is how SMUI expects to get its icons.
 - A handful of rules have no counterpart in the react css: they undo an mdc
   default that MUI does not have (the slider's 24px side margin, the near-black
-  value indicator, the `secondary`-coloured radios, the dialog's typographic
-  title and content). They are marked as such where they live —
-  `controls/controls.css` and the `<style>` block of `settings/Settings.svelte`.
+  value indicator, the `secondary`-coloured radios and switch, the dialog's
+  typographic title and content, the outlined-button border). They are marked
+  as such where they live — `controls/controls.css`, `theme/base.css` and the
+  `<style>` blocks of `settings/Settings.svelte` and `header/Header.svelte`.
+- Two class names had to change, because `controls.css` is global where the
+  react `controls.module.css` was hashed. `Sheet`'s inner `controls` div is
+  `bar` here, and the `.controls div { display: flex }` descendant rule is
+  matched to `.control-row` / `.radio-row` instead. Both were reaching markup
+  the react rule never could: SMUI keeps its slider, select and menu internals
+  inside the component, where MUI portals them onto `<body>`.
 - The react app builds three html entrypoints (`index`, `info`, `user`); the
   last two are placeholder stubs, so only `index` is here.
 - `lib/utils/dialects.ts` is a verbatim copy and keeps the duplicate object keys

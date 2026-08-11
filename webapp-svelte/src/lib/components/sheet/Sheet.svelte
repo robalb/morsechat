@@ -22,7 +22,7 @@
 </script>
 
 <div class="sheet {className}">
-  <div class="controls">
+  <div class="bar">
     <IconButton
       class="material-icons"
       aria-label="close morse view"
@@ -47,12 +47,22 @@
     display: flex;
     flex-direction: column;
   }
-  .sheet .controls {
+  /* react calls this div `controls` too, but its sheet.module.css hashes the
+   * name; here controls.css is a plain global stylesheet, and the 1rem padding
+   * and button margins meant for the settings panels were landing on this bar
+   * and tripling its height. Same div, name that cannot collide. */
+  .sheet .bar {
     background-color: var(--gray-80);
     flex-basis: 2em;
     flex-shrink: 0;
     display: flex;
     justify-content: space-between;
+  }
+  /* MUI's IconButton is 40px with 8px of padding; mdc's is 48/12. */
+  .sheet .bar :global(.mdc-icon-button) {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
   }
   .sheet .list {
     display: flex;

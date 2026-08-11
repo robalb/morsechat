@@ -7,8 +7,18 @@
 .controls {
   padding: 1rem;
 }
-.controls div {
+/* The react rule here is `.controls div { display: flex }`. Through css modules
+ * that only ever reached the label-plus-control rows, because MUI renders its
+ * slider and select internals — and its menus — into a portal on <body>. SMUI
+ * nests all of that inside the component, so a blanket descendant rule lands on
+ * markup it was never meant for: an mdc select keeps its menu as a div *inside*
+ * the select, and `display: flex` overrides the `display: none` that holds it
+ * closed, leaving an invisible surface stacked over the anchor to swallow the
+ * click that would open it. So the rows are matched by class instead. */
+.controls .control-row,
+.controls .radio-row {
   display: flex;
+  align-items: center;
 }
 .controls p {
   margin-bottom: 0;
@@ -99,13 +109,10 @@
   --mdc-ripple-fg-scale: 1.25 !important;
 }
 
-/* A label-plus-control row. `.controls div { display: flex }` above makes it a
- * flex row, and flexbox centres margin boxes, so the 0.6rem the label carries
- * from `.controls p` would push it down against the control rather than space
- * the row. The margin belongs to the row; the two children centre on each
- * other. Outer spacing is unchanged. */
+/* Flexbox centres margin boxes, so the 0.6rem the label carries from
+ * `.controls p` would push it down against the control rather than space the
+ * row. The margin belongs to the row. Outer spacing is unchanged. */
 .controls .control-row {
-  align-items: center;
   margin-top: 0.6rem;
 }
 .controls .control-row p {

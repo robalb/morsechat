@@ -53,6 +53,13 @@ html {
 
   /** high-level customization variables */
   --header-height: 3em;
+
+  /** SMUI corrections.
+   * mdc outlines a button at 12% of on-surface, which all but disappears on
+   * these greys; MUI's <Button variant="outlined" /> uses the primary colour at
+   * 50%. Declared here rather than in _smui-theme.scss because it inherits, so
+   * one line covers every outlined button in the app. */
+  --mdc-outlined-button-outline-color: rgba(250, 250, 250, 0.5);
 }
 
 body{
