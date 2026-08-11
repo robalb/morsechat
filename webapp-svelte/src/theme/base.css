@@ -106,6 +106,29 @@ html {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
+/* Sliders in a popup arrive in the wrong place and then walk to the right one.
+ * A closed mdc dialog is display:none, so the sliders inside measure zero and
+ * every thumb sits at its minimum. The dialog then opens with its surface at
+ * scale(0.8), so the first layout that does measure something places each thumb
+ * at 80% of where it belongs — 12.4% of the track instead of 15.6% for the
+ * default wpm — and mdc animates its 80ms transform to get there. It re-measures
+ * once the zoom finishes and animates again, to the right place this time.
+ *
+ * Dropping the zoom (the dialog still fades in) makes the first measurement the
+ * correct one, and suppressing the transform transition until the dialog is
+ * open stops the thumbs from sliding in from the left. MUI positions its thumb
+ * as a percentage, which is why the react popup never showed either half of
+ * this. */
+.mdc-dialog .mdc-dialog__surface {
+  transform: none;
+}
+.mdc-dialog:not(.mdc-dialog--open) .mdc-slider--discrete .mdc-slider__thumb,
+.mdc-dialog:not(.mdc-dialog--open)
+  .mdc-slider--discrete
+  .mdc-slider__track--active_fill {
+  transition: none;
+}
+
 /* The other half of the same difference: a dark-mode MUI <Paper> lightens
  * itself with a white overlay scaled to its elevation, while mdc paints the
  * surface colour flat. Every dialog in the react app is declared as
