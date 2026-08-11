@@ -2,13 +2,14 @@
   /**
    * Port of webapp/src/components/online/Online.jsx.
    *
-   * The user detail dialog opened by clicking a callsign is not ported yet.
    * The sound toggle flips the placeholder state so the two icon states are
    * both reachable while comparing the layouts.
    */
   import IconButton from '@smui/icon-button';
 
+  import User from '../user/User.svelte';
   import { chat } from '$lib/state/placeholder.svelte';
+  import type { OnlineUser } from '$lib/state/types';
 
   let { class: className = '' }: { class?: string } = $props();
 
@@ -17,6 +18,15 @@
    * changes, by alternating between two identical keyframes. Toggling a class
    * is the only way to restart a css animation, hence the pair.
    */
+  /** the user whose card is open, and the card's own open state */
+  let dialogOpen = $state(false);
+  let selectedUser = $state<OnlineUser | null>(null);
+
+  function openDialog(userObj: OnlineUser) {
+    selectedUser = userObj;
+    dialogOpen = true;
+  }
+
   let animationClass = $state(true);
   let firstRender = true;
   $effect(() => {
@@ -47,7 +57,7 @@
     {#each Object.entries(chat.onlineUsers) as [id, userObj] (id)}
       <div>
         <div class="left">
-          <button>
+          <button onclick={() => openDialog(userObj)}>
             <p>{userObj.callsign}{id === chat.myID ? ' (you)' : ''}</p>
           </button>
           {#if userObj.typing}
@@ -69,6 +79,7 @@
       </div>
     {/each}
   </div>
+  <User bind:open={dialogOpen} user={selectedUser} />
 </div>
 
 <style>

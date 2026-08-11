@@ -138,6 +138,14 @@ html {
     rgba(255, 255, 255, 0.05),
     rgba(255, 255, 255, 0.05)
   );
+  /* and the shadow that goes with that elevation. mdc raises its dialogs to
+   * elevation 24, whose umbra reaches 46px and darkens a good part of the page
+   * around the popup; MUI's elevation 1 is the 3px shadow below. Every dialog
+   * in the react app declares it, so this is global like the overlay above. */
+  box-shadow:
+    rgba(0, 0, 0, 0.2) 0px 2px 1px -1px,
+    rgba(0, 0, 0, 0.14) 0px 1px 1px 0px,
+    rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
 }
 
 /* MUI's <Button size="small" />. mdc ships one button size, so the two buttons

@@ -13,12 +13,37 @@
    */
   import Button, { Label } from '@smui/button';
 
+  import ReportMessage from '../report/ReportMessage.svelte';
   import { api, chat, placeholderMessages, user } from '$lib/state/placeholder.svelte';
 
   let {
     class: className = '',
     chatDomNode = $bindable(null),
   }: { class?: string; chatDomNode?: HTMLDivElement | null } = $props();
+
+  /** the message whose report card is open, and the card's own open state */
+  let dialogOpen = $state(false);
+  let selectedMessage = $state<{ signature: string; text: string } | null>(null);
+
+  /**
+   * A click anywhere in the log, read back off the dom: the messages are not
+   * this component's markup, so the paragraph that was hit is the only handle
+   * on which message it was. Only the ones carrying a signature are
+   * reportable — the system messages the socket writes have none.
+   */
+  function handleChatClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.tagName !== 'P' && target.tagName !== 'SPAN') {
+      return;
+    }
+    const p = target.tagName === 'P' ? target : (target.parentNode as HTMLElement);
+    const signature = p.getAttribute('data-signature');
+    if (!signature) {
+      return;
+    }
+    selectedMessage = { signature, text: p.innerText };
+    dialogOpen = true;
+  }
 
   let randomChannel = $derived(
     chat.channels[Math.floor(Math.random() * chat.channels.length)].name,
@@ -58,17 +83,26 @@
       <p>The connection to this channel failed</p>
     </div>
   {:else}
+    <!-- The log is a plain box that happens to hold clickable paragraphs; the
+         click is delegated here because the paragraphs are written into it by
+         the socket, not rendered by this component. -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div
       bind:this={chatDomNode}
+      onclick={handleChatClick}
       class="chatContent"
       class:showText={user.settings.show_readable}
     >
       {#each placeholderMessages as msg, i (i)}
-        <p><span>{msg.callsign}</span><span>{msg.morse}</span><span>{msg.text}</span></p>
+        <p data-signature="placeholder-{i}"><span>{msg.callsign}</span><span
+            >{msg.morse}</span
+          ><span>{msg.text}</span></p>
       {/each}
     </div>
   {/if}
 </div>
+<ReportMessage bind:open={dialogOpen} data={selectedMessage} />
 
 <style>
   .chat {
