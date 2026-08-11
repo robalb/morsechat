@@ -33,9 +33,9 @@
   <p>key volume</p>
   <Slider bind:value={user.settings.volume_key} min={0} max={100} discrete />
 
-  <div>
+  <div class="control-row">
     <p>show letters</p>
-    <Switch bind:checked={user.settings.show_readable} color="secondary" />
+    <Switch bind:checked={user.settings.show_readable} color="secondary" icons={false} />
   </div>
 
   {#if settingsButton}{@render settingsButton()}{/if}

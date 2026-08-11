@@ -20,3 +20,62 @@
 .controls button {
   margin-top: 0.6rem;
 }
+
+/* --- SMUI corrections -----------------------------------------------------
+ * mdc styles these two the way the material spec wants them; MUI styles them
+ * the way this app has always looked. The rules below bring the mdc defaults
+ * back to the MUI ones, and they live here rather than in the theme because
+ * they are only right for the sliders of the controls panels. */
+
+/* mdc reserves 24px on each side of the track so the thumb can overflow the
+ * slider without being clipped. MUI's slider is flush with its container, which
+ * is what lines the track up with the <p> label above it. */
+.controls .mdc-slider {
+  margin: 0;
+}
+
+/* The value indicator is `surface` text on 60% `on-surface`; on this dark theme
+ * that resolves to near-black on near-black. MUI's is grey 600 with white text.
+ * ::before is the little caret under the bubble, so it takes the same colour. */
+.controls .mdc-slider__value-indicator {
+  background-color: #757575;
+  color: #fff;
+  opacity: 1;
+}
+.controls .mdc-slider__value-indicator::before {
+  border-top-color: #757575;
+}
+
+/* mdc radios take the `secondary` colour; MUI's <Radio /> defaults to
+ * `primary`, which is the near-white #fafafa of the theme. */
+.controls .mdc-radio {
+  --mdc-theme-secondary: #fafafa;
+}
+
+/* MUI's <Switch /> is a 38px box: a 20px knob with 12px of padding all round,
+ * so it sits centred against the label beside it. An mdc switch is the bare
+ * 14px track with the knob overflowing it, and it is a <button>, so it also
+ * picks up the `.controls button` margin above. */
+.controls .mdc-switch {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* A label-plus-control row. `.controls div { display: flex }` above makes it a
+ * flex row, and flexbox centres margin boxes, so the 0.6rem the label carries
+ * from `.controls p` would push it down against the control rather than space
+ * the row. The margin belongs to the row; the two children centre on each
+ * other. Outer spacing is unchanged. */
+.controls .control-row {
+  align-items: center;
+  margin-top: 0.6rem;
+}
+.controls .control-row p {
+  margin-top: 0;
+}
+
+/* The Advanced button. The react app leaves it 0.6rem below the show-letters
+ * switch, which is too tight here. */
+.controls > button {
+  margin-top: 1.4rem;
+}

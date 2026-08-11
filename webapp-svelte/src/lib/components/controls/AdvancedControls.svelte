@@ -1,9 +1,16 @@
 <script lang="ts">
-  /** Port of the AdvancedControls export of webapp/src/components/controls/controls.jsx */
+  /**
+   * Port of the AdvancedControls export of
+   * webapp/src/components/controls/controls.jsx.
+   *
+   * One deliberate difference: the react version sets the iambic paddle order
+   * with a single switch flanked by a "left is dit" and a "right is dit" label,
+   * which reads as a toggle for something that is really a choice between two
+   * named options. Here it is a radio pair, the same shape as key mode above.
+   */
   import FormField from '@smui/form-field';
   import Radio from '@smui/radio';
   import Slider from '@smui/slider';
-  import Switch from '@smui/switch';
 
   import { user } from '$lib/state/placeholder.svelte';
   import './controls.css';
@@ -33,20 +40,21 @@
   </div>
 
   <p style="margin-top: 1rem">iambic paddle order</p>
-  <div>
-    <p>left is dit</p>
-    <Switch
-      checked={!user.settings.left_is_dot}
-      onSMUISwitchChange={(e: CustomEvent<{ selected: boolean }>) =>
-        (user.settings.left_is_dot = !e.detail.selected)}
-      color="primary"
-    />
-    <p>right is dit</p>
+  <div class="radio-row">
+    <FormField>
+      <Radio bind:group={user.settings.left_is_dot} value={true} />
+      {#snippet label()}left is dit{/snippet}
+    </FormField>
+    <FormField>
+      <Radio bind:group={user.settings.left_is_dot} value={false} />
+      {#snippet label()}right is dit{/snippet}
+    </FormField>
   </div>
 </div>
 
 <style>
   .radio-row {
     flex-direction: row;
+    align-items: center;
   }
 </style>

@@ -84,6 +84,11 @@ component, because it lands on markup this component does not own.
 
 - The material icons ligature font is loaded from Google Fonts in
   `index.html`, which is how SMUI expects to get its icons.
+- A handful of rules have no counterpart in the react css: they undo an mdc
+  default that MUI does not have (the slider's 24px side margin, the near-black
+  value indicator, the `secondary`-coloured radios, the dialog's typographic
+  title and content). They are marked as such where they live —
+  `controls/controls.css` and the `<style>` block of `settings/Settings.svelte`.
 - The react app builds three html entrypoints (`index`, `info`, `user`); the
   last two are placeholder stubs, so only `index` is here.
 - `lib/utils/dialects.ts` is a verbatim copy and keeps the duplicate object keys
