@@ -1,0 +1,128 @@
+/* Copied unchanged from webapp/src/pages/appLayout.css.
+ *
+ * This file is the layout, and the point of the port is to keep it identical,
+ * so it stays a plain global stylesheet rather than becoming a <style> block:
+ * the grid areas are assigned to classes that AppLayout hands down to child
+ * components, which svelte's scoped styles could not reach. */
+
+.app-container{
+    height:100%;
+    display:flex;
+    flex-direction: column;
+    background-color: var(--gray-70);
+}
+
+.header-bt-left{
+    margin-left: 1em!important;
+}
+
+
+/* base for every size */
+main{
+    height: calc(100% - var(--header-height));
+    background-color: var(--gray-70);
+    overflow: hidden;
+    display: grid;
+}
+
+/* mobile or larger*/
+main {
+    grid-template-columns: 1fr minmax(auto, 38rem) 1fr;
+    grid-template-rows: 4em minmax(calc(100% - 8em - var(--header-height)), 1fr) 5.5em;
+    grid-template-areas: 
+        ". preview ."
+        ". chat ."
+        ". key .";
+}
+main .grid-sheet{
+    grid-area: chat;
+    z-index: 2;
+    overflow: hidden;
+    margin-left: 10rem;
+    border-top: 1px solid var(--gray-70);
+}
+main .grid-preview{
+    border-radius: 3px;
+    grid-area: preview;
+    z-index: 2;
+}
+main .grid-chat{
+    grid-area: chat;
+    z-index: 2;
+}
+main .grid-key{
+    grid-area: key;
+    z-index: 2;
+}
+.sidebar-controls{
+    padding: 1rem;
+    padding-bottom: 0;
+}
+.sidebar-info{
+    max-width: 20rem;
+    margin-right: 1rem;
+}
+
+
+/* tablet or larger*/
+@media (min-width: 800px){
+    main {
+        grid-template-columns:1fr 20rem minmax(auto, 38rem)  1fr;
+        grid-template-areas: 
+            ". side preview ."
+            ". side chat ."
+            ". side key .";
+    }
+
+    main .grid-side{
+        grid-area: side;
+        z-index: 2;
+    }
+
+    main .grid-side{
+        padding-right: 1rem;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+    }
+    .grid-side-online{
+        flex-shrink: 4;
+        min-height:0;
+    }
+    .grid-side-sidecontrols{
+        /* flex-grow: 1; */
+    }
+    main .grid-sheet{
+        margin-left: 15rem;
+    }
+
+}
+
+/* Desktop */
+@media (min-width: 1400px){
+    main{
+        grid-template-columns:minmax(15rem, 2fr) 1fr 20rem 38rem 1fr 15rem;
+        grid-template-areas: 
+            ".    . side preview . sheet"
+            "info . side chat . sheet"
+            "info . side key . sheet";
+    }
+    main .grid-sheet{
+        grid-area: sheet;
+        z-index: 2;
+        margin-left:0;
+    }
+
+    main .grid-info{
+        grid-area: info;
+        z-index: 2;
+    }
+}
+
+/* huge Desktop */
+@media (min-width: 1800px){
+    main{
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+}

@@ -1,0 +1,22 @@
+/* Port of webapp/src/components/controls/controls.module.css.
+ *
+ * Shared by the four controls panels, so it is a plain stylesheet imported by
+ * each of them rather than a <style> block duplicated four times. The rules are
+ * namespaced under .controls, which only these components use. */
+
+.controls {
+  padding: 1rem;
+}
+.controls div {
+  display: flex;
+}
+.controls p {
+  margin-bottom: 0;
+  margin-top: 0.6rem;
+}
+.controls h2 {
+  margin-top: 0;
+}
+.controls button {
+  margin-top: 0.6rem;
+}
