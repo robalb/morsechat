@@ -103,4 +103,31 @@
       min-width: 500px;
     }
   }
+
+  /* Phones. The react version passes fullWidth={mobileView}, which stretches
+   * the paper to `calc(100% - 64px)`; mdc has no such prop, so without this the
+   * surface shrinks to fit its content and the panel comes out far narrower
+   * still. Rather than reproduce that width, this takes the viewport bar an 8px
+   * gutter — on a 360px screen the react dialog leaves 216px for the controls
+   * themselves once the paddings are counted, which is not enough for a slider
+   * with a label beside it.
+   *
+   * The paddings are trimmed to match: 24px of dialog content plus 16px of
+   * .controls on each side is most of a phone's width spent on whitespace. The
+   * breakpoint is the one settings.module.css already draws at 600px. */
+  @media only screen and (max-width: 599px) {
+    /* :global(.mdc-dialog.settings-dialog .mdc-dialog__surface) { */
+    /*   width: calc(100vw - 16px); */
+    /*   max-width: calc(100vw - 16px); */
+    /* } */
+    /* :global(.mdc-dialog.settings-dialog .mdc-dialog__title) { */
+    /*   padding: 8px 12px; */
+    /* } */
+    /* :global(.mdc-dialog.settings-dialog .mdc-dialog__content) { */
+    /*   padding: 12px; */
+    /* } */
+    /* :global(.mdc-dialog.settings-dialog .controls) { */
+    /*   padding: 0.5rem 0; */
+    /* } */
+  }
 </style>
