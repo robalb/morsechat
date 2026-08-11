@@ -60,6 +60,37 @@ html {
    * 50%. Declared here rather than in _smui-theme.scss because it inherits, so
    * one line covers every outlined button in the app. */
   --mdc-outlined-button-outline-color: rgba(250, 250, 250, 0.5);
+
+  /** The gutter a popup leaves between itself and the edge of the viewport.
+   * MUI's <Dialog> keeps 32px there and mdc 16px, which is affordable on a
+   * desktop and not on a phone, where it is a tenth of the screen spent on
+   * nothing. Every dialog sizes itself against this, so the phone value below
+   * moves all of them at once. */
+  --dialog-gutter: 32px;
+}
+
+@media only screen and (max-width: 599px) {
+  html {
+    --dialog-gutter: 8px;
+  }
+
+  /* A phone also needs the popup to take the width it is given. mdc sizes the
+   * surface to its content, so a max-width alone changes nothing: the settings
+   * dialog sat at 289px inside a 400px screen, wasting 55px a side, because
+   * that is what its controls happened to measure. This is the effect of MUI's
+   * fullWidth, which the react app passes on its small breakpoint. */
+  .mdc-dialog .mdc-dialog__surface {
+    width: calc(100vw - 2 * var(--dialog-gutter));
+  }
+}
+
+/* mdc caps a dialog at 560px and pins the gutter at 16px horizontally and 32px
+ * vertically. Same caps, but expressed against --dialog-gutter so a phone gets
+ * the screen. Dialogs that set their own width — .auth-dialog does — override
+ * the 560 and keep the gutter. */
+.mdc-dialog .mdc-dialog__surface {
+  max-width: min(560px, calc(100vw - 2 * var(--dialog-gutter)));
+  max-height: calc(100% - 2 * var(--dialog-gutter));
 }
 
 /* Popups. MUI's <Backdrop /> is a flat black at 50%; mdc derives every scrim

@@ -1,0 +1,238 @@
+/* Shared by LoginForm and RegisterForm, which are the same form twice over: a
+ * close button, a heading, a stack of text fields and a row of actions. A plain
+ * stylesheet imported by both rather than a <style> block duplicated, the same
+ * arrangement the controls panels use in controls.css.
+ *
+ * The react forms lay this out with MUI's <Grid container spacing={3}>, whose
+ * effect on a single-column form is a 24px gap between the items — so that is
+ * what the flow layout below declares. */
+
+/* MUI's <Dialog> defaults to maxWidth="sm", and the react forms fill it: the
+ * paper measures 600px on a desktop, with 32px of margin left when the viewport
+ * cannot hold that. mdc instead sizes the surface to its content and caps it at
+ * 560px, which is what left the login form at 423px — narrow enough to change
+ * every proportion inside it. */
+.mdc-dialog.auth-dialog .mdc-dialog__surface {
+  width: 600px;
+  /* the gutter is --dialog-gutter, set in base.css: 32px as MUI has it, and
+   * 8px on a phone, where the react margins waste most of the screen */
+  max-width: calc(100vw - 2 * var(--dialog-gutter));
+}
+
+/* The react dialog has no DialogContent: the form sits straight on the paper,
+ * inset by the 1rem margin of .auth alone. mdc's content padding would add
+ * another 24px a side and squeeze the form to 520px inside the same 600px
+ * paper. */
+.mdc-dialog.auth-dialog .mdc-dialog__content {
+  padding: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Each field is wrapped in a .field, because SMUI emits the helper line as a
+ * *sibling* of the field rather than a child: without the wrapper the column
+ * sees four items, not two, and spends its 24px gap twice per field — which is
+ * what stretched the 72px pitch of the react form to 96px. */
+.auth-form .field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* MUI's text fields stretch to their Grid item; mdc's shrink to their content,
+ * which is why the register pair sat at 101px inside a 226px column. */
+.auth-form .mdc-text-field,
+.auth-form .mdc-text-field__input {
+  width: 100%;
+}
+
+/* MUI's standard TextField is a 48px box: a floating label over a 32px input.
+ * mdc's is 56px, and its helper line reserves a further 20px underneath. Both
+ * are trimmed here so the fields keep the react form's 72px pitch — 48px of
+ * field plus the 24px the Grid puts between rows. The helper text is rendered
+ * only when there is an error to show (as MUI does), so it costs nothing while
+ * the form is clean. */
+.auth-form .mdc-text-field {
+  height: 48px;
+}
+.auth-form .mdc-text-field-helper-line {
+  padding: 0;
+}
+
+/* MUI's Grid item holding the IconButton: the button sits at the start of a
+ * full width row of its own. */
+.auth-form .close {
+  display: flex;
+}
+
+/* MUI's IconButton is 40px with 8px of padding and a round ripple; mdc's is
+ * 48px and square. */
+.auth-form .close .mdc-icon-button {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 50%;
+  color: #fafafa;
+}
+/* mdc moves focus to the first focusable element when the dialog opens and
+ * paints its ripple on plain :focus, so the close button comes up wearing a
+ * grey disc. MUI's IconButton only rings on :focus-visible, which a
+ * programmatic focus does not match. Same correction Settings.svelte makes. */
+.auth-form
+  .close
+  .mdc-icon-button:not(:focus-visible)
+  .mdc-icon-button__ripple::before {
+  opacity: 0;
+}
+
+/* MUI Typography variant="h5" color="primary". Matches .title in
+ * MainIndexForm.svelte, which is the same element on the menu page. */
+.auth-form .title {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.334;
+  margin: 0;
+  color: var(--mdc-theme-primary, #fafafa);
+}
+
+.auth-form hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0;
+}
+
+/* <Stack direction="row" alignItems="center" spacing={1} sx={{padding: 10px}}>.
+ * Wraps, because "Don't have an account? register" plus the button does not fit
+ * a phone on one line. */
+.auth-form .actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  color: var(--mdc-theme-primary, #fafafa);
+  /* MUI Typography body1. mdc's body1 tracks at 0.5px, which widened the
+   * sentence by 8px and pushed the link out of step with the react row. */
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+}
+
+/* MUI's contained button tracks at 0.02857em; mdc's at 0.0892857143em, which is
+ * what made the submit button 4-7px wider than the react one. */
+.auth-form .actions .mdc-button {
+  letter-spacing: 0.02857em;
+}
+
+/* MUI's <Link component="button">: a button that reads as a link. Declared on a
+ * real <button> so it stays keyboard reachable and announces itself correctly,
+ * which an <a> without an href would not. */
+.auth-form .link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  /* MUI's <Link> takes the primary colour here, not the secondary: in the react
+   * dialog "register" is white and underlined, the same weight as the sentence
+   * beside it. */
+  color: var(--mdc-theme-primary, #fafafa);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.auth-form .link:hover {
+  text-decoration: none;
+}
+
+/* The register form's two fields: stacked on a phone, side by side from MUI's
+ * md breakpoint, which is where it declares md={6}. */
+.auth-form .fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media only screen and (min-width: 900px) {
+  .auth-form .fields {
+    flex-direction: row;
+  }
+  /* md={6} each: two equal columns with the Grid's 24px between them, which on
+   * the 600px paper is what gives the react form its 272px fields. */
+  .auth-form .fields > .field {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+/* The call sign editor. MUI Typography body1 for the preview, then a row of
+ * three size="small" fields — a 40px box each, with the description underneath
+ * in 12px. The three sit flush, as they do in the react editor. */
+.auth-form .callsign-preview {
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+  /* MUI Typography takes text.primary — plain white on this dark palette.
+   * Without this the line inherits mdc's dialog content colour, which is
+   * on-surface at 60% and reads as grey. */
+  color: var(--gray-105, #fff);
+}
+
+.auth-form .callsign {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* MUI size="small" is a 40px box; mdc's outlined field and select are both 56,
+ * and the .auth-form rule above pins the field at the 48 of the standard
+ * variant. Three selectors deep to outrank it. */
+.auth-form .callsign .mdc-text-field,
+.auth-form .callsign .mdc-select .mdc-select__anchor {
+  height: 40px;
+}
+
+/* sx={{minWidth: 100, maxWidth: 250}} with autoWidth on the react select. mdc
+ * gives its anchor a flat 200px, so the width has to be released before the
+ * bounds mean anything. */
+.auth-form .callsign .callsign-country,
+.auth-form .callsign .callsign-country .mdc-select__anchor {
+  width: auto;
+  min-width: 100px;
+  max-width: 250px;
+}
+/* the label itself takes only what it needs, or the min-width above lands on
+ * the text as well and the anchor comes out 60px too wide */
+.auth-form .callsign .callsign-country .mdc-select__selected-text {
+  width: auto;
+  min-width: 0;
+}
+/* mdc sizes the menu to the anchor, which at 100px wraps "Solomon Islands"
+ * over three lines. MUI's menu takes the width of its longest item. */
+.auth-form .callsign .callsign-country .mdc-select__menu {
+  width: auto;
+  min-width: 100%;
+}
+/* the options carry mdc's deprecated list classes, not .mdc-list-item */
+.auth-form .callsign .callsign-country .mdc-select__menu .mdc-deprecated-list-item {
+  white-space: nowrap;
+}
+
+/* sx={{maxWidth: 100}} on the react FormControl */
+.auth-form .callsign .callsign-part,
+.auth-form .callsign .callsign-part .mdc-text-field {
+  width: 100px;
+}
+
+/* MUI FormHelperText: 12px, 3px below the box, 14px in from its edge. The text
+ * is the field's description rather than an error, so it is always on; mdc
+ * turns it the error colour while the field is incomplete, which is what the
+ * react editor does too. */
+.auth-form .callsign .mdc-text-field-helper-text {
+  font-size: 0.75rem;
+  margin: 3px 14px 0;
+  opacity: 1;
+}

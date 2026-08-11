@@ -26,6 +26,7 @@
     "@smui/select": "^9.0.2",
     "@smui/slider": "^9.0.2",
     "@smui/switch": "^9.0.2",
+    "@smui/textfield": "^9.0.2",
     "@smui/tooltip": "^9.0.2",
     "svelte-material-ui": "^9.0.3"
   },
