@@ -157,7 +157,18 @@
         menu$fixed={true}
       >
         {#each options as code (code)}
-          <Option value={code}>{countryName(code)}</Option>
+          <!-- Two labels per option: the closed select shows the country code,
+               the open menu the name with the code after it. SMUI takes the
+               anchor's text from .mdc-deprecated-list-item__primary-text when
+               an option has one, and from the whole option when it does not —
+               so the code goes in that element, hidden from the menu, and the
+               long form is what the list actually renders. -->
+          <Option value={code}>
+            <span class="mdc-deprecated-list-item__primary-text country-code"
+              >{code}</span
+            >
+            <span class="country-name">{countryName(code)} ({code})</span>
+          </Option>
         {/each}
       </Select>
     </div>

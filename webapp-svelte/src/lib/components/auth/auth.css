@@ -224,6 +224,12 @@
   min-width: 100px;
   max-width: min(360px, calc(100vw - 2 * var(--dialog-gutter)));
 }
+/* The code an option carries for the closed select: read for the anchor's
+ * text, never shown in the list itself. */
+.auth-form .callsign .callsign-country .country-code {
+  display: none;
+}
+
 /* the options carry mdc's deprecated list classes, not .mdc-list-item */
 .auth-form .callsign .callsign-country .mdc-select__menu .mdc-deprecated-list-item {
   white-space: nowrap;
