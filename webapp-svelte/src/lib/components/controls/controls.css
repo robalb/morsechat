@@ -61,6 +61,44 @@
   margin-bottom: 0;
 }
 
+/* Switch colours. mdc derives its interaction states from the theme colour by
+ * darkening it, which is built for a light surface: on this palette the knob
+ * dives into the background the moment you touch it. SMUI's secondary switch
+ * drops to #0c6675 on hover/focus/press, and mdc's unselected knob to #212121,
+ * both against a --gray-70/--gray-80 background. MUI goes the other way — it
+ * keeps the selected colour flat across states and pairs a light knob with a
+ * dimmed track — so these are its values, and mdc exposes every one of them as
+ * a custom property, no specificity fight needed. */
+.controls .mdc-switch {
+  /* selected: the same cyan in every state, as MUI does */
+  --mdc-switch-selected-hover-handle-color: var(--mdc-theme-secondary, #0ccaeb);
+  --mdc-switch-selected-focus-handle-color: var(--mdc-theme-secondary, #0ccaeb);
+  --mdc-switch-selected-pressed-handle-color: var(--mdc-theme-secondary, #0ccaeb);
+
+  /* unselected: light knob on a dimmed track, brightening on interaction.
+   * mdc ships the inverse — a near-white track under a near-black knob. */
+  --mdc-switch-unselected-handle-color: #e0e0e0;
+  --mdc-switch-unselected-hover-handle-color: #eeeeee;
+  --mdc-switch-unselected-focus-handle-color: #eeeeee;
+  --mdc-switch-unselected-pressed-handle-color: #ffffff;
+  --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.3);
+  --mdc-switch-unselected-hover-track-color: rgba(255, 255, 255, 0.3);
+  --mdc-switch-unselected-focus-track-color: rgba(255, 255, 255, 0.3);
+  --mdc-switch-unselected-pressed-track-color: rgba(255, 255, 255, 0.3);
+
+  /* and its state layer, which mdc defaults to #424242 — a dark smudge on a
+   * dark surface. MUI ripples white here. */
+  --mdc-switch-unselected-hover-state-layer-color: #ffffff;
+  --mdc-switch-unselected-focus-state-layer-color: #ffffff;
+  --mdc-switch-unselected-pressed-state-layer-color: #ffffff;
+
+  /* The state layer is a 48px disc around a 20px knob, so it haloes well past
+   * the switch itself; MUI's stops at its 38px box. mdc's ripple foundation
+   * writes this scale factor as an inline style and recomputes it on resize,
+   * so !important is the only way to hold a smaller one. 28px * 1.25 = 35px. */
+  --mdc-ripple-fg-scale: 1.25 !important;
+}
+
 /* A label-plus-control row. `.controls div { display: flex }` above makes it a
  * flex row, and flexbox centres margin boxes, so the 0.6rem the label carries
  * from `.controls p` would push it down against the control rather than space
