@@ -4,93 +4,63 @@
    * webapp/src/components/controls/controls.jsx.
    *
    * The react panel is three bare <p>s — "straight key SPACE, C" — with the key
-   * names sitting in the sentence. Here the same three bindings are a table:
-   * one row per action, the action on the left, its keys on the right as <kbd>
-   * caps, which is the shape a shortcut list is usually read in.
+   * names sitting in the sentence. Here the same bindings are a table: one row
+   * per action, the action on the left, its keys on the right as <kbd> caps,
+   * which is the shape a shortcut list is usually read in. Each row is a button
+   * that opens <KeybindingsDialog />, where the keys of that one action can be
+   * added and removed.
    */
   import './controls.css';
+  import './keybindings.css';
+  import KeybindingsDialog from './KeybindingsDialog.svelte';
+  import type { Binding } from './keybindings';
 
   let { class: className = '' }: { class?: string } = $props();
 
-  const bindings: { action: string; keys: string[] }[] = [
+  /** Placeholder state, as everywhere else in this port: the real bindings come
+   * from the settings slice with the state migration. Saving the popup writes
+   * here, so the panel behind it updates. */
+  let bindings = $state<Binding[]>([
     { action: 'straight key', keys: ['space', 'c'] },
     { action: 'left paddle', keys: ['z'] },
     { action: 'right paddle', keys: ['x'] },
     { action: 'transmit', keys: ['w'] },
     { action: 'cancel message', keys: ['p'] },
-  ];
+  ]);
+
+  let editing = $state<Binding | null>(null);
+  let dialogOpen = $state(false);
+
+  function edit(binding: Binding) {
+    editing = binding;
+    dialogOpen = true;
+  }
+
+  function save(keys: string[]) {
+    if (editing) {
+      editing.keys = keys;
+    }
+  }
 </script>
 
 <div class="controls keybindings {className}">
   <h2>Keybindings</h2>
-  <!-- a <dl>, not a <table>: these are term/description pairs, and a screen
-       reader reads them as such without needing a header row that the layout
-       does not draw. -->
-  <dl class="bindings">
-    {#each bindings as { action, keys } (action)}
-      <div class="binding">
-        <dt>{action}</dt>
-        <dd>
-          {#each keys as key (key)}
+  <div class="keybindings-table">
+    {#each bindings as binding (binding.action)}
+      <button
+        class="binding-row"
+        aria-label="edit the keybindings of {binding.action}"
+        onclick={() => edit(binding)}
+      >
+        <span>{binding.action}</span>
+        <span class="binding-keys">
+          {#each binding.keys as key (key)}
             <kbd>{key}</kbd>
           {/each}
-        </dd>
-      </div>
+        </span>
+      </button>
     {/each}
-  </dl>
+  </div>
 </div>
 
-<style>
-  .bindings {
-    margin: 0.6rem 0 0 0;
-  }
-
-  /* One row per binding, ruled off from the next. The rule is the same
-   * hairline the dialog draws under its title, so the table reads as part of
-   * the same card. */
-  .binding {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 2.25rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  }
-  .binding:first-child {
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .binding dt {
-    /* the <p>s this replaces carry the panel's text colour and nothing else */
-    margin: 0;
-  }
-  .binding dd {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  /* The keycap. A light grey hairline all round with a thicker bottom edge, so
-   * the box reads as a key seen slightly from above — the usual shortcut
-   * indicator. The bottom border is part of the box, so the cap is padded one
-   * pixel less at the bottom to keep the glyph centred. */
-  kbd {
-    display: inline-block;
-    min-width: 1.1em;
-    padding: 2px 6px 1px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-bottom-width: 3px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--gray-105, #fff);
-    font-family: 'Roboto', 'Arial', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 500;
-    line-height: 1.4;
-    letter-spacing: 0.05em;
-    text-align: center;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-</style>
+<KeybindingsDialog bind:open={dialogOpen} binding={editing} onsave={save} />
