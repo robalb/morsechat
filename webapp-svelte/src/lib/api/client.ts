@@ -20,6 +20,7 @@ import type {
   RegisterRequest,
   Settings,
   UserInfoResponse,
+  UserStatsResponse,
 } from './types';
 
 // This is a VITE env variable
@@ -163,4 +164,59 @@ export function validateCallsign(callsign: string, signal?: AbortSignal) {
 
 export function userInfo(username: string, signal?: AbortSignal) {
   return request<UserInfoResponse>('user/info', { Username: username }, false, signal);
+}
+
+/* ------------------------------------------------------------------ *
+ * user/stats — stubbed
+ *
+ * The one endpoint here with no handler behind it: the popup that
+ * shows these statistics is new in the svelte app, and the backend has
+ * nothing that counts who has met whom yet.
+ *
+ * It is still written as an endpoint, with the same signature and the
+ * same result type as the rest, so the popup is already written
+ * against the api: when the handler lands, the body of the function
+ * below becomes the one commented line inside it and nothing else in
+ * the app changes.
+ * ------------------------------------------------------------------ */
+
+/** what every profile reports, until the server counts it for real */
+const STUB_STATS = {
+  joined: '2024-11-02',
+  met_users: 412,
+  met_countries: [
+    'GB', 'IE', 'FR', 'DE', 'NL', 'BE', 'ES', 'PT', 'IT', 'CH', 'AT', 'PL',
+    'CZ', 'SE', 'NO', 'FI', 'DK', 'GR', 'RO', 'UA', 'RU', 'TR', 'US', 'CA',
+    'MX', 'BR', 'AR', 'CL', 'ZA', 'MA', 'EG', 'IN', 'JP', 'AU', 'NZ', 'ID',
+    'CN',
+  ],
+};
+
+/**
+ * The public profile of a call sign: when the account joined, how many users
+ * it has met and where they were from.
+ *
+ * STUBBED: there is no user/stats handler. Every call sign is answered with
+ * the same numbers, after a short wait — the wait is deliberate, so that the
+ * popup is written against a request that takes time rather than against a
+ * value it can read synchronously.
+ *
+ * `username` comes back empty: the counts are invented, but a name is a fact
+ * about an account, and inventing one would put a wrong name on screen. The
+ * popup falls back to the name it already knows.
+ */
+export async function userStats(
+  callsign: string,
+  signal?: AbortSignal
+): Promise<ApiResult<UserStatsResponse>> {
+  // return request<UserStatsResponse>('user/stats', { callsign }, false, signal);
+
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  if (signal?.aborted) {
+    return { ok: false, error: 'abort_error', details: '' };
+  }
+  return {
+    ok: true,
+    data: { callsign, username: '', ...STUB_STATS },
+  };
 }

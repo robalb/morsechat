@@ -18,7 +18,7 @@
   import '../dialog/dialog.css';
   import WorldMap from './WorldMap.svelte';
   import { portal } from '$lib/utils/portal';
-  import { placeholderProfiles } from '$lib/state/placeholder.svelte';
+  import { userStats } from '$lib/api/client';
   import { user as currentUser } from '$lib/state/session.svelte';
   import type { OnlineUser, UserProfile } from '$lib/state/types';
 
@@ -33,13 +33,32 @@
    * The statistics of a registered user. New in the svelte app; the react card
    * showed a callsign and a username and stopped there.
    *
-   * Read from the placeholder map for now — when the state migration lands
-   * this is where the profile request goes, keyed by the same callsign. An
-   * anonymous user has none, and keeps the small card the react one had.
+   * Fetched per callsign as the popup opens, rather than held in the state:
+   * it is a page's worth of numbers that nothing on screen needs until someone
+   * asks for them. The request is aborted when the popup closes or the callsign
+   * changes under it, so a card closed quickly leaves nothing running.
+   *
+   * The endpoint is stubbed today (see userStats in lib/api/client.ts) — this
+   * side of it is the real thing and does not change when the handler lands.
+   * An anonymous user has no profile, and keeps the small card the react one
+   * had.
    */
-  let profile = $derived<UserProfile | null>(
-    user && !user.is_anonymous ? (placeholderProfiles[user.callsign] ?? null) : null,
-  );
+  let profile = $state<UserProfile | null>(null);
+
+  $effect(() => {
+    const callsign = user && !user.is_anonymous ? user.callsign : null;
+    if (!open || !callsign) {
+      profile = null;
+      return;
+    }
+    const controller = new AbortController();
+    userStats(callsign, controller.signal).then((res) => {
+      if (res.ok) profile = res.data;
+      // a failure leaves the card as it opened: the callsign and the username,
+      // which is the whole of what the react popup ever showed
+    });
+    return () => controller.abort();
+  });
 
   /** "14 June 2023", the way the popup writes a joined date */
   function formatJoined(date: string): string {
@@ -123,7 +142,9 @@
           <p>(Anonymous user, not logged in)</p>
         {:else}
           <p class="callsign">{user?.callsign ?? ''}</p>
-          <p class="username">{profile?.username ?? user?.username ?? ''}</p>
+          <!-- the stubbed endpoint sends no username; `||` so an empty one
+               falls back to the name the online list already carries -->
+          <p class="username">{profile?.username || user?.username || ''}</p>
           {#if profile}
             <p class="joined">Joined {formatJoined(profile.joined)}</p>
             <p class="met">

@@ -24,6 +24,8 @@
   }: { leftContent?: Snippet; authPage?: AuthPage } = $props();
 
   let accountMenu = $state<Menu>();
+  /** open state of that menu, read only to keep aria-expanded honest */
+  let accountMenuOpen = $state(false);
 
   /** the logged in user's own profile card, opened from the account menu */
   let profileOpen = $state(false);
@@ -96,38 +98,49 @@
         </Button>
       {/if}
 
-      <!-- The react version opens a menu here, whose first item is "View
-           Profile". The profile card is new and is the whole point of the
-           button, so the button opens it directly and the menu keeps what the
-           card cannot do — logging out. -->
-      <Button
-        onclick={() => (profileOpen = true)}
-        aria-haspopup="dialog"
-      >
-        <Icon class="material-icons">account_circle</Icon>
-        <Label>{user.username}</Label>
-      </Button>
-      <Button
-        onclick={() => accountMenu?.setOpen(true)}
-        aria-label="account menu"
-        aria-haspopup="true"
-        aria-controls="account-menu"
-      >
-        <Icon class="material-icons">expand_more</Icon>
-      </Button>
-      <Menu bind:this={accountMenu} id="account-menu">
-        <List>
-          <Item onclick={() => (profileOpen = true)}>
-            <Icon class="material-icons">account_circle</Icon>
-            <Text>View Profile</Text>
-          </Item>
-          <Separator />
-          <Item onclick={handleLogout}>
-            <Icon class="material-icons">logout</Icon>
-            <Text>Logout</Text>
-          </Item>
-        </List>
-      </Menu>
+      <!-- One button, as in the react header: the account name with a caret,
+           opening the menu that holds both of its actions.
+
+           The wrapper is not decoration: @smui/menu-surface anchors itself to
+           its parent element, and without one that parent is the whole right
+           hand slot of the bar — which is what had the menu opening from the
+           edge of the header rather than from under the button.
+
+           fixed: the header is `overflow: hidden`, so an absolutely positioned
+           surface inside it is clipped. Same correction as the channel select
+           above. -->
+      <div class="account">
+        <Button
+          onclick={() => accountMenu?.setOpen(true)}
+          aria-haspopup="menu"
+          aria-controls="account-menu"
+          aria-expanded={accountMenuOpen}
+        >
+          <Icon class="material-icons">account_circle</Icon>
+          <Label>{user.username}</Label>
+          <Icon class="material-icons trailing">expand_more</Icon>
+        </Button>
+        <Menu
+          bind:this={accountMenu}
+          bind:open={accountMenuOpen}
+          id="account-menu"
+          class="account-menu"
+          fixed
+          anchorCorner="BOTTOM_LEFT"
+        >
+          <List>
+            <Item onclick={() => (profileOpen = true)}>
+              <Icon class="material-icons">account_circle</Icon>
+              <Text>View Profile</Text>
+            </Item>
+            <Separator />
+            <Item onclick={handleLogout}>
+              <Icon class="material-icons">logout</Icon>
+              <Text>Logout</Text>
+            </Item>
+          </List>
+        </Menu>
+      </div>
       <User bind:open={profileOpen} user={self} />
     {:else}
       <Button class="button-small" onclick={() => (authPage = 'login')}>
@@ -188,6 +201,47 @@
   :global(.mdc-menu-surface.channel-menu) {
     width: auto;
   }
+  /* The anchor of the account menu. It has to be a flex box of its own height,
+     or the button inside it is measured against the wrapper rather than the
+     bar and sits off the vertical centre. */
+  .account {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  /* mdc's leading icon carries an 8px right margin and no left one, which puts
+     the icon hard against the button's edge and the name a gap away from it.
+     MUI's <Button startIcon> is the other way round. */
+  :global(.account .mdc-button .mdc-button__icon:first-child) {
+    margin-right: 8px;
+    margin-left: 0;
+  }
+  /* the caret: smaller than the account icon, and closer to the name than the
+     name is to the icon, so the two read as one control rather than three */
+  :global(.account .mdc-button .trailing) {
+    margin-left: 4px;
+    margin-right: -4px;
+    font-size: 18px;
+  }
+
+  /* mdc gives a menu surface `min-width: 112px`, which on a short username is
+     narrower than the button it hangs from — the menu ends up looking detached.
+     Its own items are what should size it. */
+  :global(.mdc-menu-surface.account-menu) {
+    min-width: max-content;
+  }
+  /* mdc reserves the leading slot of a list item for a .*__graphic, which an
+     <Icon> inside an <Item> is not — so the icon and its label ended up flush
+     against each other. MUI's <MenuItem> spaces them with a 36px icon column;
+     a gap does the same job here without claiming a fixed width. */
+  :global(.account-menu .mdc-deprecated-list-item__text),
+  :global(.account-menu .mdc-deprecated-list-item) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   .skeleton {
     width: 110px;
     height: 20px;

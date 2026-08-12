@@ -73,6 +73,28 @@ export interface OkResponse {
   ok: string;
 }
 
+/**
+ * The public profile of a registered user, shown by the user popup.
+ *
+ * New in the svelte app: the react popup only ever showed a callsign and a
+ * username. There is no handler for this yet — `userStats()` in client.ts
+ * answers it with fixed numbers — so this is the shape the endpoint should
+ * take rather than one read off a go struct. It is what the popup needs and
+ * no more: the countries arrive as a list because the popup both counts them
+ * for its sentence and paints them on its map.
+ */
+export interface UserStatsResponse {
+  /** acts as the identifier of the user, as everywhere else */
+  callsign: string;
+  username: string;
+  /** ISO date, the day the account was created */
+  joined: string;
+  /** how many distinct users this one has shared a channel with */
+  met_users: number;
+  /** the countries those users came from, as ISO 3166-1 alpha-2 codes */
+  met_countries: string[];
+}
+
 /** user/info and user/me. That handler declares no json tags, so go
  * serializes the field names as they are written, capitalized. */
 export interface UserInfoResponse {

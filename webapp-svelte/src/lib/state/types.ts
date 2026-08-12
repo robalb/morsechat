@@ -46,25 +46,11 @@ export interface OnlineUser {
 }
 
 /**
- * The public profile of a registered user, shown by the user popup.
- *
- * New in the svelte app: the react version's popup only ever showed a callsign
- * and a username. The backend has no endpoint for this yet, so the shape is
- * what the popup needs, and `placeholderProfiles` below stands in for it.
+ * The public profile of a registered user, shown by the user popup. The
+ * response of the (still stubbed) user/stats endpoint, under the name the
+ * components know it by.
  */
-export interface UserProfile {
-  /** acts as the identifier of the user, as everywhere else */
-  callsign: string;
-  username: string;
-  /** ISO date, the day the account was created */
-  joined: string;
-  /** how many distinct users this one has shared a channel with */
-  met_users: number;
-  /** the countries those users came from, as ISO 3166-1 alpha-2 codes. The
-   * popup counts them for its phrase and paints them on its map, so the list
-   * is the only thing the endpoint has to send. */
-  met_countries: string[];
-}
+export type { UserStatsResponse as UserProfile } from '$lib/api/types';
 
 export type ConnectionStatus =
   | 'powering on'
