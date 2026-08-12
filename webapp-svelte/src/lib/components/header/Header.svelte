@@ -13,7 +13,9 @@
   import type { Snippet } from 'svelte';
 
   import User from '../user/User.svelte';
-  import { api, chat, user } from '$lib/state/placeholder.svelte';
+  import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
+  import { chat } from '$lib/state/placeholder.svelte';
+  import { api, logout, user } from '$lib/state/session.svelte';
   import type { AuthPage, OnlineUser } from '$lib/state/types';
 
   let {
@@ -30,6 +32,21 @@
    * only place it was ever opened from. The logged in user is not necessarily
    * in that list — a moderator watching another channel is not — so the two
    * fields it reads are filled from the user state instead. */
+  /**
+   * Logging out replaces the session with an anonymous one, which the server
+   * hands back with a fresh callsign — so there is nothing to reload, and no
+   * page to navigate to, as the react version's menu item had none either.
+   */
+  async function handleLogout() {
+    const res = await logout();
+    if (!res.ok) {
+      enqueueSnackbar(`logout failed. ${res.error} ${res.details ?? ''}`, {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+    }
+  }
+
   let self = $derived<OnlineUser>({
     is_anonymous: false,
     typing: false,
@@ -105,7 +122,7 @@
             <Text>View Profile</Text>
           </Item>
           <Separator />
-          <Item>
+          <Item onclick={handleLogout}>
             <Icon class="material-icons">logout</Icon>
             <Text>Logout</Text>
           </Item>

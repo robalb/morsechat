@@ -34,7 +34,7 @@ func NewServer(
 	mux.Use(middleware.Recoverer)
 	mux.Use(middleware.Heartbeat("/health"))
 	mux.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"https://*", "http://localhost:3000", "ws://localhost:3000", "wss://*"},
+		AllowedOrigins: []string{"https://*", "http://localhost:3000", "ws://localhost:3000", "http://localhost:5173", "ws://localhost:5173", "wss://*"},
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Upgrade", "Cookie"},

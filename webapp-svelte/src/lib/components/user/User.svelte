@@ -18,10 +18,8 @@
   import '../dialog/dialog.css';
   import WorldMap from './WorldMap.svelte';
   import { portal } from '$lib/utils/portal';
-  import {
-    placeholderProfiles,
-    user as currentUser,
-  } from '$lib/state/placeholder.svelte';
+  import { placeholderProfiles } from '$lib/state/placeholder.svelte';
+  import { user as currentUser } from '$lib/state/session.svelte';
   import type { OnlineUser, UserProfile } from '$lib/state/types';
 
   let {

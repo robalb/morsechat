@@ -343,6 +343,12 @@ func ServeLogin(
 			return
 		}
 
+		responseCountry, ok := res.Country.(string)
+		if !ok {
+			logger.Printf("ServeLogin: country type assert failed")
+			responseCountry = ""
+		}
+
 		var userSettings Settings
 		var responseSettings *Settings = nil
 		userSettingsStr, ok := res.Settings.(string)
@@ -377,7 +383,7 @@ func ServeLogin(
 			IsModerator: jwtData.IsModerator,
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
-			Country:     res.Callsign,
+			Country:     responseCountry,
 			Settings:    responseSettings,
 		})
 	}

@@ -9,31 +9,14 @@
  * Reference: webapp/src/redux/{apiSlice,userSlice,chatSlice}.js
  */
 
-export interface Keybinds {
-  straight: string;
-  yambic_left: string;
-  yambic_right: string;
-  cancel_message: string;
-}
-
-export type KeyMode = 'straight' | 'yambic';
-
-export interface Settings {
-  /** 5-50 */
-  wpm: number;
-  key_frequency: number;
-  /** 0-100 */
-  volume_receiver: number;
-  /** 0-100 */
-  volume_key: number;
-  dialect: string;
-  key_mode: KeyMode;
-  show_readable: boolean;
-  left_is_dot: boolean;
-  /** 5-50 */
-  submit_delay: number;
-  keybinds: Keybinds;
-}
+/**
+ * The settings are the api's own type: what the state holds is exactly what
+ * update_settings sends and what sess_init returns, so they are declared once,
+ * with the rest of the schema, and re-exported here for the components that
+ * read them from the state.
+ */
+export type { Keybinds, KeyMode, Settings } from '$lib/api/types';
+import type { Settings } from '$lib/api/types';
 
 export interface UserState {
   authenticated: boolean | null;
@@ -104,8 +87,12 @@ export interface ChatState {
 }
 
 export interface ApiState {
+  /** true until sess_init has answered; only ever cleared */
   loading: boolean;
+  /** the error code sess_init failed with, empty when it did not */
   error: string;
+  /** the `details` string that came with it, often empty */
+  errorDetails: string;
 }
 
 /** the page that the auth dialog is showing. An empty string closes it. */

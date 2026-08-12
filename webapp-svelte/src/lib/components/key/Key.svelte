@@ -11,7 +11,7 @@
   import IconButton from '@smui/icon-button';
   import type { Snippet } from 'svelte';
 
-  import { user } from '$lib/state/placeholder.svelte';
+  import { user } from '$lib/state/session.svelte';
 
   let {
     class: className = '',

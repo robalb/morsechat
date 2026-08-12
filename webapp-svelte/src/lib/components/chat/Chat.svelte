@@ -14,7 +14,8 @@
   import Button, { Label } from '@smui/button';
 
   import ReportMessage from '../report/ReportMessage.svelte';
-  import { api, chat, placeholderMessages, user } from '$lib/state/placeholder.svelte';
+  import { chat, placeholderMessages } from '$lib/state/placeholder.svelte';
+  import { api, user } from '$lib/state/session.svelte';
 
   let {
     class: className = '',

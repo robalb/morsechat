@@ -12,7 +12,7 @@
   import Radio from '@smui/radio';
   import Slider from '@smui/slider';
 
-  import { user } from '$lib/state/placeholder.svelte';
+  import { user } from '$lib/state/session.svelte';
   import './controls.css';
 
   let { class: className = '' }: { class?: string } = $props();

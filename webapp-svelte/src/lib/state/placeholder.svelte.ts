@@ -1,5 +1,5 @@
 /**
- * Stand-in for the redux store, for the duration of the layout port.
+ * Stand-in for the redux store, for the duration of the migration.
  *
  * The react components read the state through `useSelector`. Their svelte
  * counterparts read it from here instead, so that the day the real state
@@ -9,36 +9,12 @@
  * The values are the redux `initialState` of each slice, with enough fake
  * online users and enough of a chat log to make the layout show its real
  * proportions at every breakpoint.
+ *
+ * What is left here is the websocket's half of the state: the chat, the online
+ * users and the profiles. The session — `user` and `api` — has moved to
+ * session.svelte.ts, where it is backed by the rest api for real.
  */
-import type { ApiState, ChatState, UserProfile, UserState } from './types';
-
-export const user: UserState = $state({
-  authenticated: false,
-  isadmin: false,
-  ismoderator: false,
-  callsign: 'IU2ABC',
-  country: 'it',
-  id: null,
-  username: null,
-  show_popup: false,
-  settings: {
-    wpm: 12,
-    key_frequency: 440,
-    volume_receiver: 50,
-    volume_key: 50,
-    dialect: 'international',
-    key_mode: 'straight',
-    show_readable: true,
-    left_is_dot: true,
-    submit_delay: 12,
-    keybinds: {
-      straight: 'c',
-      yambic_left: 'z',
-      yambic_right: 'x',
-      cancel_message: 'p',
-    },
-  },
-});
+import type { ChatState, UserProfile } from './types';
 
 export const chat: ChatState = $state({
   channel: 'presence-ch1',
@@ -82,11 +58,6 @@ export const chat: ChatState = $state({
   },
   messageBuffer: [],
   keyDown: false,
-});
-
-export const api: ApiState = $state({
-  loading: false,
-  error: '',
 });
 
 /** Fake chat log. The real one is written into the dom directly by the socket. */

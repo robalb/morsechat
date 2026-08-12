@@ -25,12 +25,22 @@
   import Settings from '$lib/components/settings/Settings.svelte';
   import Sheet from '$lib/components/sheet/Sheet.svelte';
   import SideControls from '$lib/components/controls/SideControls.svelte';
-  import { api, chat, user } from '$lib/state/placeholder.svelte';
+  import Snackbars from '$lib/components/snackbar/Snackbars.svelte';
+  import { chat } from '$lib/state/placeholder.svelte';
+  import { api, syncSettings, user } from '$lib/state/session.svelte';
   import type { AuthPage } from '$lib/state/types';
   import { mediaQuery } from '$lib/utils/mediaQuery.svelte';
 
   let { chatDomNode = $bindable(null) }: { chatDomNode?: HTMLDivElement | null } =
     $props();
+
+  /**
+   * Saves the settings to the account, four seconds after the last change.
+   * The controls write straight into the state, so this is the whole of what
+   * the react updateSettings() thunk did; it lives here because an effect
+   * belongs to a component, and this one lasts as long as the app does.
+   */
+  syncSettings();
 
   /**
    * Breakpoints definitions.
@@ -72,6 +82,8 @@
 </script>
 
 <div class="app-container">
+  <!-- the notistack provider's equivalent: one queue for the whole app -->
+  <Snackbars />
   <Auth bind:page={authPage} />
   <Settings bind:open={settingsOpen} mobileView={!tablet.matches} />
   <OnlineDialog bind:open={onlineOpen} />

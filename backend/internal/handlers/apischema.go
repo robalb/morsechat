@@ -1,4 +1,6 @@
 //Common types that define the api schema
+// important note: "required" means "not the zero value".
+// A field marked "required" will reject 0 in integers, or false in booleans.
 
 package handlers
 
@@ -13,11 +15,11 @@ type Settings struct {
 	KeyMode        string   `json:"key_mode" validate:"required,min=1,max=20"`
 	WPM            int      `json:"wpm" validate:"required,gte=5,lte=50"`
 	Frequency      int      `json:"key_frequency" validate:"min=200,max=1000"`
-	VolumeReceiver int      `json:"volume_receiver" validate:"required,gte=0,lte=100"`
-	VolumeKey      int      `json:"volume_key" validate:"required,gte=0,lte=100"`
+	VolumeReceiver int      `json:"volume_receiver" validate:"gte=0,lte=100"`
+	VolumeKey      int      `json:"volume_key" validate:"gte=0,lte=100"`
 	SubmitDelay    int      `json:"submit_delay" validate:"required,gte=5,lte=50"`
 	ShowReadable   bool     `json:"show_readable"`
-	LeftIsDot      bool     `json:"left_is_dot" validate:"required"`
+	LeftIsDot      bool     `json:"left_is_dot"`
 	Keybinds       Keybinds `json:"keybinds" validate:"required"`
 }
 

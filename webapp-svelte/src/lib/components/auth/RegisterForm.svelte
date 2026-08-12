@@ -2,10 +2,9 @@
   /**
    * The register page of the auth dialog.
    *
-   * Layout port of webapp/src/components/auth/registerForm.jsx. As in
-   * LoginForm, submitting runs the client side validation and stops — the
-   * registerUser() call and the hop to the verify page land with the state
-   * migration.
+   * Port of webapp/src/components/auth/registerForm.jsx: the same client side
+   * validation, the same call, and the same split between failures that belong
+   * to a field (a taken username) and failures that belong to the snackbar.
    *
    * The call sign editor at the top is the layout of
    * webapp/src/components/callSignEditor/, inlined. The react version drives it
@@ -20,9 +19,11 @@
   import Textfield from '@smui/textfield';
   import HelperText from '@smui/textfield/helper-text';
 
+  import { validateCallsign } from '$lib/api/client';
+  import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
   import type { AuthPage } from '$lib/state/types';
   import { countryCodes } from '$lib/utils/countryCodes';
-  import { user } from '$lib/state/placeholder.svelte';
+  import { register, user } from '$lib/state/session.svelte';
 
   import './auth.css';
 
@@ -30,6 +31,9 @@
 
   let username = $state('');
   let password = $state('');
+
+  /** true while the call is in flight, to keep the button from sending it twice */
+  let pending = $state(false);
 
   /* --- call sign ------------------------------------------------------- */
 
@@ -62,6 +66,30 @@
   let digitsValid = $derived(digits.length === 2);
   let lettersValid = $derived(letters.length === 3);
   let callsignValid = $derived(digitsValid && lettersValid);
+
+  /* Availability check, ported from the effect of callSignEditor.jsx: as soon
+   * as the three parts make a complete call sign, ask the server whether it is
+   * free, and abort that request when the value changes under it — which is
+   * what makes it safe to run on every keystroke, with no debounce, as the
+   * react editor does. `abort_error` is the one failure that must not clear the
+   * indicator: it means a newer request has taken over the state. */
+  type CallsignCheck = 'none' | 'checking' | 'free' | 'taken';
+  let callsignCheck = $state<CallsignCheck>('none');
+
+  $effect(() => {
+    if (!callsignValid) {
+      callsignCheck = 'none';
+      return;
+    }
+    const controller = new AbortController();
+    callsignCheck = 'checking';
+    validateCallsign(callsign, controller.signal).then((res) => {
+      if (res.ok) callsignCheck = 'free';
+      else if (res.error === 'already_taken') callsignCheck = 'taken';
+      else if (res.error !== 'abort_error') callsignCheck = 'none';
+    });
+    return () => controller.abort();
+  });
 
   /* Keystrokes are filtered rather than validated: the fields only ever hold a
    * prefix of something valid, which is what the react modules do too.
@@ -114,11 +142,35 @@
     return !errors.username && !errors.password;
   }
 
-  function handleSubmit(event: SubmitEvent) {
+  async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
-    if (!validate() || !callsignValid) return;
-    // TODO: dispatch the register call with { username, password, callsign },
-    // then `page = 'verify'` on success.
+    if (!validate() || !callsignValid || pending) return;
+
+    pending = true;
+    const res = await register({ username, password, callsign });
+    pending = false;
+
+    if (res.ok) {
+      // registering logs the user in; the verify page is where the react
+      // version goes next, and it is still a placeholder
+      page = 'verify';
+      return;
+    }
+    if (res.error === 'invalid_username') {
+      errors.username = 'invalid username';
+    } else if (res.error === 'username_taken') {
+      errors.username = 'username already registered';
+    } else if (res.error === 'callsign_taken') {
+      enqueueSnackbar('callsign already taken', {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+    } else {
+      enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+    }
   }
 </script>
 
@@ -135,7 +187,20 @@
   <h5 class="title">Create your call sign</h5>
   <p>This is the name you'll be known as when you broadcast messages to the internet</p>
 
-  <div class="callsign-preview">{preview}</div>
+  <!-- the preview and, beside it, what the server says about it — the <Chip>
+       row of the react editor -->
+  <div class="callsign-preview">
+    <span>{preview}</span>
+    {#if callsignCheck === 'checking'}
+      <span class="callsign-status">checking availability</span>
+    {:else if callsignCheck === 'taken'}
+      <span class="callsign-status taken">already taken</span>
+    {:else if callsignCheck === 'free'}
+      <span class="callsign-status free">
+        <span class="material-icons" aria-hidden="true">done</span> available
+      </span>
+    {/if}
+  </div>
 
   <!-- The three inputs sit flush against each other, as the react modules do:
        they read as one value being assembled. -->
@@ -243,7 +308,7 @@
   </div>
 
   <div class="actions">
-    <Button variant="raised" color="secondary" type="submit">
+    <Button variant="raised" color="secondary" type="submit" disabled={pending}>
       <Label>Register</Label>
     </Button>
     <span>Already have an account?</span>

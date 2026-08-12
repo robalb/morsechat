@@ -3,7 +3,7 @@
   import Button, { Label } from '@smui/button';
   import IconButton from '@smui/icon-button';
 
-  import { user } from '$lib/state/placeholder.svelte';
+  import { user } from '$lib/state/session.svelte';
   import getDialect, { dialects } from '$lib/utils/dialects';
 
   let {

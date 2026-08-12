@@ -2,17 +2,18 @@
   /**
    * The login page of the auth dialog.
    *
-   * Layout port of webapp/src/components/auth/loginForm.jsx. The react version
-   * dispatches loginUser() and reports failures through notistack; that is api
-   * work and lands with the state migration, so submitting here runs the client
-   * side validation and stops. The fields, the errors they raise and the switch
-   * to the register page are all real.
+   * Port of webapp/src/components/auth/loginForm.jsx: the same client side
+   * validation, the same call, and the same two ways of reporting a failure —
+   * wrong credentials mark both fields and raise a snackbar, anything else goes
+   * to the snackbar with the code the server sent.
    */
   import Button, { Label } from '@smui/button';
   import IconButton from '@smui/icon-button';
   import Textfield from '@smui/textfield';
   import HelperText from '@smui/textfield/helper-text';
 
+  import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
+  import { login } from '$lib/state/session.svelte';
   import type { AuthPage } from '$lib/state/types';
 
   import './auth.css';
@@ -21,6 +22,9 @@
 
   let username = $state('');
   let password = $state('');
+
+  /** true while the call is in flight, to keep the button from sending it twice */
+  let pending = $state(false);
 
   let errors = $state({ username: '', password: '' });
 
@@ -37,10 +41,33 @@
     return !errors.username && !errors.password;
   }
 
-  function handleSubmit(event: SubmitEvent) {
+  async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
-    if (!validate()) return;
-    // TODO: dispatch the login call, then `page = ''` on success.
+    if (!validate() || pending) return;
+
+    pending = true;
+    const res = await login({ username, password });
+    pending = false;
+
+    if (res.ok) {
+      page = '';
+      return;
+    }
+    if (res.error === 'invalid_credentials') {
+      enqueueSnackbar('wrong username or password', {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+      // a space, not a message: it marks the field without repeating what the
+      // snackbar already says
+      errors.username = ' ';
+      errors.password = ' ';
+    } else {
+      enqueueSnackbar(`login failed. ${res.error} ${res.details ?? ''}`, {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+    }
   }
 </script>
 
@@ -91,7 +118,7 @@
   </div>
 
   <div class="actions">
-    <Button variant="raised" color="secondary" type="submit">
+    <Button variant="raised" color="secondary" type="submit" disabled={pending}>
       <Label>Login</Label>
     </Button>
     <span>Don't have an account?</span>

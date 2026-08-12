@@ -182,6 +182,45 @@
   color: var(--gray-105, #fff);
 }
 
+/* MUI's <Stack direction="row" spacing={1}>: the preview and its availability
+ * chip on one line. */
+.auth-form .callsign-preview {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+/* MUI <Chip size="small">: a 24px pill in 13px text. The react editor renders
+ * one for "checking availability" and one for "already taken", and a bare green
+ * tick for a free call sign; the tick keeps its word here, because an icon on
+ * its own has to be explained by its colour alone. */
+.auth-form .callsign-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.16);
+  font-size: 0.8125rem;
+  line-height: 18px;
+  white-space: nowrap;
+}
+.auth-form .callsign-status.taken {
+  /* MUI color="error" */
+  background-color: #d32f2f;
+  color: #fff;
+}
+.auth-form .callsign-status.free {
+  /* MUI color="success" on the tick itself */
+  background-color: rgba(102, 187, 106, 0.16);
+  color: #66bb6a;
+}
+.auth-form .callsign-status .material-icons {
+  font-size: 16px;
+}
+
 .auth-form .callsign {
   display: flex;
   align-items: flex-start;

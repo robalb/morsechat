@@ -2,7 +2,7 @@
   /** Port of the DialectControls export of webapp/src/components/controls/controls.jsx */
   import Select, { Option } from '@smui/select';
 
-  import { user } from '$lib/state/placeholder.svelte';
+  import { user } from '$lib/state/session.svelte';
   import { dialects } from '$lib/utils/dialects';
   import './controls.css';
 

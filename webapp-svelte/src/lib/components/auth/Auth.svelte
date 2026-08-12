@@ -2,16 +2,20 @@
   /**
    * Port of webapp/src/components/auth/Auth.jsx.
    *
-   * The dialog picks its content from `page`; an empty string closes it. Only
-   * the menu page is ported, because it is the one that is layout. The login,
-   * register and verify forms are api work and land with the state migration —
-   * until then they show a placeholder so the routing is still exercised.
+   * The dialog picks its content from `page`; an empty string closes it. As in
+   * the react version, none of the forms are shown until the session request
+   * has answered — logging in on top of a session that is not open yet would
+   * race it — so while it is in flight the dialog holds <MainDataLoading />
+   * instead, which is also where a failed one is reported. The verify page is
+   * the one that is still a placeholder.
    */
   import Dialog, { Content } from '@smui/dialog';
 
   import LoginForm from './LoginForm.svelte';
+  import MainDataLoading from './MainDataLoading.svelte';
   import MainIndexForm from './MainIndexForm.svelte';
   import RegisterForm from './RegisterForm.svelte';
+  import { api } from '$lib/state/session.svelte';
   import type { AuthPage } from '$lib/state/types';
 
   let {
@@ -33,7 +37,9 @@
 >
   <Content>
     <div class="auth">
-      {#if page === 'menu'}
+      {#if api.loading}
+        <MainDataLoading />
+      {:else if page === 'menu'}
         <MainIndexForm bind:page />
       {:else if page === 'login'}
         <LoginForm bind:page />
