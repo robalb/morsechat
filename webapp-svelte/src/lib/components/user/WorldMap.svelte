@@ -101,6 +101,17 @@
     for (const path of container.querySelectorAll('[data-c]')) {
       path.classList.toggle('visited', visited.has(path.getAttribute('data-c') ?? ''));
     }
+
+    /* An svg has no z-index: it paints in document order, and a stroke sits
+     * half outside its own shape, so whichever country comes later in the file
+     * paints over its neighbour's border. A highlighted country therefore kept
+     * its white outline only on the sides where no later country happened to
+     * touch it. Moving the highlighted ones to the end puts their borders on
+     * top, all the way round. */
+    const svg = container.querySelector('svg');
+    for (const path of container.querySelectorAll('[data-c].visited')) {
+      svg?.appendChild(path);
+    }
   });
 </script>
 

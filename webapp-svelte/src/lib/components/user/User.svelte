@@ -130,7 +130,7 @@
             <p class="joined">Joined {formatJoined(profile.joined)}</p>
             <p class="met">
               Met {profile.met_users.toLocaleString()} users, from
-              {profile.met_countries.length.toLocaleString()} countries in the world.
+              {profile.met_countries.length.toLocaleString()} countries around the world.
             </p>
             <WorldMap countries={profile.met_countries} />
           {/if}
@@ -195,6 +195,6 @@
     color: var(--gray-95);
   }
   .user .met {
-    margin: 1.75rem 0 1.75rem 0;
+    margin: 1.75rem 0 2.75rem 0;
   }
 </style>

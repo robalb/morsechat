@@ -59,7 +59,7 @@ export const chat: ChatState = $state({
   myID: 'IU2ABC',
   onlineUsers: {
     IU2ABC: {
-      is_anonymous: true,
+      is_anonymous: false,
       typing: false,
       allowSound: true,
       username: '',
@@ -158,8 +158,7 @@ export const placeholderProfiles: Record<string, UserProfile> = {
     joined: '2024-11-02',
     met_users: 128,
     met_countries: [
-      'IT', 'FR', 'DE', 'CH', 'AT', 'SI', 'HR', 'ES', 'GB', 'NL', 'BE', 'PL',
-      'SE', 'FI', 'GR', 'US', 'BR', 'JP', 'AU',
+      'IT', 'FR', 'LI', 'US',
     ],
   },
 };
