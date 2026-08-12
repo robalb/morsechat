@@ -16,9 +16,13 @@
   import IconButton from '@smui/icon-button';
 
   import '../dialog/dialog.css';
+  import ActivityGraph from './ActivityGraph.svelte';
   import { portal } from '$lib/utils/portal';
-  import { user as currentUser } from '$lib/state/placeholder.svelte';
-  import type { OnlineUser } from '$lib/state/types';
+  import {
+    placeholderProfiles,
+    user as currentUser,
+  } from '$lib/state/placeholder.svelte';
+  import type { OnlineUser, UserProfile } from '$lib/state/types';
 
   let {
     open = $bindable(false),
@@ -26,6 +30,28 @@
   }: { open?: boolean; user?: OnlineUser | null } = $props();
 
   let isModerator = $derived(currentUser.ismoderator || currentUser.isadmin);
+
+  /**
+   * The statistics of a registered user. New in the svelte app; the react card
+   * showed a callsign and a username and stopped there.
+   *
+   * Read from the placeholder map for now — when the state migration lands
+   * this is where the profile request goes, keyed by the same callsign. An
+   * anonymous user has none, and keeps the small card the react one had.
+   */
+  let profile = $derived<UserProfile | null>(
+    user && !user.is_anonymous ? (placeholderProfiles[user.callsign] ?? null) : null,
+  );
+
+  /** "14 June 2023", the way the popup writes a joined date */
+  function formatJoined(date: string): string {
+    return new Date(date + 'T00:00:00Z').toLocaleDateString(undefined, {
+      timeZone: 'UTC',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }
 
   /** the body of the card, which takes the focus when the dialog opens */
   let body: HTMLDivElement | null = $state(null);
@@ -73,7 +99,7 @@
     use={[portal]}
     onSMUIDialogOpened={() => body?.focus()}
     onSMUIDialogClosed={onClosed}
-    class="mui-dialog"
+    class="mui-dialog {profile ? 'profile-dialog' : ''}"
     aria-labelledby="user-title"
   >
     <Title id="user-title">
@@ -92,11 +118,22 @@
            button from here. (mdc's own data-mdc-dialog-initial-focus is read when
            the dialog mounts, before this markup exists, so it does not help.) -->
       <div class="user" bind:this={body} tabindex="-1">
-        <p><strong>Callsign:</strong> {user?.callsign ?? ''}</p>
         {#if user?.is_anonymous}
+          <!-- the anonymous card is the react one, unchanged: a callsign and a
+               line saying there is nothing else to show -->
+          <p><strong>Callsign:</strong> {user?.callsign ?? ''}</p>
           <p>(Anonymous user, not logged in)</p>
         {:else}
-          <p><strong>Username:</strong> {user?.username ?? ''}</p>
+          <p class="callsign">{user?.callsign ?? ''}</p>
+          <p class="username">{profile?.username ?? user?.username ?? ''}</p>
+          {#if profile}
+            <p class="joined">Joined {formatJoined(profile.joined)}</p>
+            <p class="met">
+              Met {profile.met_users.toLocaleString()} users, from
+              {profile.met_countries.toLocaleString()} countries in the world.
+            </p>
+            <ActivityGraph activity={profile.activity} />
+          {/if}
         {/if}
       </div>
     </Content>
@@ -132,5 +169,27 @@
    * own, which pulls them to 0.75rem and a lighter grey. */
   .user p {
     margin: 16px 0;
+  }
+
+  /* The profile card. The callsign is the identity here, so it is set the way
+   * the app writes callsigns elsewhere — monospace, a step up in size — and
+   * the three lines under it are the supporting detail. */
+  .user .callsign {
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.75rem;
+    letter-spacing: 0.06em;
+  }
+  .user .username {
+    margin: 0.15rem 0 0;
+    color: var(--gray-95);
+  }
+  .user .joined {
+    margin: 0.75rem 0 0;
+    font-size: 0.875rem;
+    color: var(--gray-95);
+  }
+  .user .met {
+    margin: 0.75rem 0 0;
   }
 </style>

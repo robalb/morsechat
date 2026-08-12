@@ -62,6 +62,27 @@ export interface OnlineUser {
   callsign: string;
 }
 
+/**
+ * The public profile of a registered user, shown by the user popup.
+ *
+ * New in the svelte app: the react version's popup only ever showed a callsign
+ * and a username. The backend has no endpoint for this yet, so the shape is
+ * what the popup needs, and `placeholderProfiles` below stands in for it.
+ */
+export interface UserProfile {
+  /** acts as the identifier of the user, as everywhere else */
+  callsign: string;
+  username: string;
+  /** ISO date, the day the account was created */
+  joined: string;
+  /** how many distinct users this one has shared a channel with */
+  met_users: number;
+  /** how many distinct countries those users came from */
+  met_countries: number;
+  /** 'YYYY-MM-DD' -> number of transmissions sent that day (UTC) */
+  activity: Record<string, number>;
+}
+
 export type ConnectionStatus =
   | 'powering on'
   | 'connecting'

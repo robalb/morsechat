@@ -9,7 +9,7 @@
    *
    * Unlike the rest of this migration step the behaviour here is real: the
    * popup edits a draft, `save changes` hands it back to the panel and `undo`
-   * throws it away.
+   * leaves without it.
    */
   import { tick, untrack } from 'svelte';
 
@@ -20,7 +20,7 @@
   import '../dialog/dialog.css';
   import './keybindings.css';
   import { portal } from '$lib/utils/portal';
-  import { letterOptions, type Binding } from './keybindings';
+  import { keyOptions, type Binding } from './keybindings';
 
   let {
     open = $bindable(false),
@@ -80,18 +80,18 @@
       draft.some((key, i) => key !== original[i]),
   );
   /** A binding with no keys at all cannot be saved: the action would have no
-   * way to be triggered. Undo is the way out of that state. */
+   * way to be triggered. Undo — or the close button — is the way out of that
+   * state. */
   let canSave = $derived(dirty && draft.length > 0);
 
   /** the whole keyboard, with the keys of this binding and of the others marked
    * as taken; the picker greys those out rather than dropping them, so the
-   * layout of the letters does not shift as keys are added and removed */
-  let letters = $derived(letterOptions([...draft, ...taken]));
-  let canAdd = $derived(letters.some((l) => !l.taken));
+   * layout of the keys does not shift as they are added and removed */
+  let options = $derived(keyOptions([...draft, ...taken]));
+  let canAdd = $derived(options.some((o) => !o.taken));
 
   function remove(key: string) {
     draft = draft.filter((k) => k !== key);
-    pickerOpen = false;
   }
 
   function add(letter: string) {
@@ -99,21 +99,16 @@
     closePicker();
   }
 
-  function undo() {
-    draft = [...original];
-    pickerOpen = false;
-  }
-
   function save() {
     onsave?.([...draft]);
     open = false;
   }
 
-  /** The letter picker: a panel under the add button rather than an mdc menu,
-   * which would want an anchor of its own inside a dialog that is already a
-   * focus trap. It closes on a pick, on a click outside it, and on escape. */
+  /** The letter picker: a panel in the place of the add button rather than an
+   * mdc menu, which would want an anchor of its own inside a dialog that is
+   * already a focus trap. It closes on a pick or on escape — there is nothing
+   * else in the card it can be in the way of. */
   let pickerOpen = $state(false);
-  let anchor: HTMLDivElement | null = $state(null);
   let picker: HTMLDivElement | null = $state(null);
   let addBt: HTMLButtonElement | null = $state(null);
 
@@ -134,22 +129,6 @@
     tick().then(() => addBt?.focus());
   }
 
-  /** Close on a click outside the picker.
-   *
-   * In the capture phase, which matters: the click that opens the picker lands
-   * on the add button, and the add button is gone by the time a bubbling
-   * handler would see it — svelte flushes the update at the microtask
-   * checkpoint between the two callbacks, so the test would be handed a
-   * detached node, read it as a click from outside, and close the picker in the
-   * same breath that opened it. Capture runs before the button's own handler,
-   * when the picker is still closed and the target is still in the document. */
-  function onWindowClick(event: MouseEvent) {
-    if (!pickerOpen) return;
-    if (anchor && event.target instanceof Node && anchor.contains(event.target))
-      return;
-    pickerOpen = false;
-  }
-
   /** Escape, taken on the window in the capture phase and kept from going any
    * further. mdc listens for it on the *document*, one listener per dialog, so
    * the un-intercepted key closes this popup and the settings dialog under it
@@ -167,7 +146,7 @@
   }
 </script>
 
-<svelte:window onclickcapture={onWindowClick} onkeydowncapture={onWindowKeydown} />
+<svelte:window onkeydowncapture={onWindowKeydown} />
 
 {#if mounted}
   <!-- portaled to <body>: this popup is opened from inside the settings
@@ -208,58 +187,48 @@
              the button is the summary of a disclosure and the grid is its
              details. The button is not a row of the table — it closes the list
              rather than continuing it — so it draws no rule of its own. -->
-        <div bind:this={anchor}>
-          {#if pickerOpen}
-            <!-- The panel opens *into* the table rather than over it: the
-                 dialog content is a scroll container, so an absolutely
-                 positioned menu hanging off the last row is clipped by it. -->
-            <div
-              class="picker"
-              role="listbox"
-              aria-label="available keys"
-              bind:this={picker}
-            >
-              {#each letters as { letter, taken: isTaken } (letter)}
-                <button
-                  role="option"
-                  aria-selected="false"
-                  aria-label={isTaken ? `${letter}, already in use` : letter}
-                  aria-disabled={isTaken}
-                  disabled={isTaken}
-                  title={isTaken ? 'already in use' : undefined}
-                  onclick={() => add(letter)}
-                >
-                  <kbd>{letter}</kbd>
-                </button>
-              {/each}
-            </div>
-          {:else}
-            <div class="add-row">
+        {#if pickerOpen}
+          <!-- The panel opens *into* the table rather than over it: the dialog
+               content is a scroll container, so an absolutely positioned menu
+               hanging off the last row is clipped by it. -->
+          <div
+            class="picker"
+            role="listbox"
+            aria-label="available keys"
+            bind:this={picker}
+          >
+            {#each options as { key, taken: isTaken } (key)}
               <button
-                class="add-bt"
-                bind:this={addBt}
-                aria-haspopup="listbox"
-                aria-expanded={pickerOpen}
-                disabled={!canAdd}
-                onclick={() => (pickerOpen = true)}
+                role="option"
+                class:wide={key === 'space'}
+                aria-selected="false"
+                aria-label={isTaken ? `${key}, already in use` : key}
+                aria-disabled={isTaken}
+                disabled={isTaken}
+                title={isTaken ? 'already in use' : undefined}
+                onclick={() => add(key)}
               >
-                <span class="material-icons" aria-hidden="true">add</span>
-                add new shortcut
+                <kbd>{key}</kbd>
               </button>
-            </div>
-          {/if}
-        </div>
+            {/each}
+          </div>
+        {:else}
+          <div class="add-row">
+            <button
+              class="add-bt"
+              bind:this={addBt}
+              aria-haspopup="listbox"
+              disabled={!canAdd}
+              onclick={() => (pickerOpen = true)}
+            >
+              <span class="material-icons" aria-hidden="true">add</span>
+              add new shortcut
+            </button>
+          </div>
+        {/if}
       </div>
     </Content>
     <Actions>
-      <!-- action={null}: a button inside mdc's action row carries
-           data-mdc-dialog-action="close" unless it is told otherwise, and the
-           foundation closes the dialog on any click that lands on one. Undo has
-           to leave the popup open, and save closes it itself, once it has
-           handed the draft back. -->
-      <Button action={null} variant="outlined" disabled={!dirty} onclick={undo}>
-        <Label>Undo</Label>
-      </Button>
       <Button action={null} variant="raised" disabled={!canSave} onclick={save}>
         <Label>Save changes</Label>
       </Button>
@@ -350,6 +319,17 @@
     border: 0;
     background: none;
     cursor: pointer;
+  }
+  /* space is the one key here whose name does not fit a cell of the grid, so it
+   * takes two — enough for the word, and it stays in line with the letters. */
+  .picker button.wide {
+    grid-column: span 2;
+  }
+  .picker button.wide kbd {
+    display: block;
+    /* the word fills its two cells almost exactly; the tracking the other caps
+     * carry is what would tip it over the edge in a fallback font */
+    letter-spacing: normal;
   }
   .picker button:hover:not(:disabled) kbd,
   .picker button:focus-visible kbd {

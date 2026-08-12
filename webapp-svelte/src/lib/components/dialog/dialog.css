@@ -24,6 +24,15 @@
   max-width: min(600px, calc(100vw - 2 * var(--dialog-gutter)));
 }
 
+/* The profile card is the one popup with something wide in it: a year of the
+ * activity calendar is 53 columns, which does not fit the 600px above. This is
+ * the width that shows a whole year without a horizontal scroll on a desktop;
+ * anything narrower — a phone, a small window — falls back to the gutter rule
+ * and the calendar scrolls inside the card instead. */
+.mdc-dialog.mui-dialog.profile-dialog .mdc-dialog__surface {
+  max-width: min(720px, calc(100vw - 2 * var(--dialog-gutter)));
+}
+
 /* MUI's DialogTitle is a plain 16px/24px box with the h6 typography, and it
  * inherits the paper's white. mdc's is typographic: no top padding, a 40px
  * ::before spacer to sit the baseline on, on-surface at 87%, and its own

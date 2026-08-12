@@ -12,22 +12,19 @@ export interface Binding {
   keys: string[];
 }
 
-/** The letter keys of a keyboard, which is all the popup offers: no modifiers
- * and no special keys, so nothing here can shadow a browser shortcut. `space`
- * is already bound by the react app, so it can appear in a binding — it just
- * cannot be added back once removed. */
-export const KEYBOARD_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+/** What the popup offers: the letters, and the space bar the react app binds to
+ * the straight key. No modifiers and nothing else special, so nothing here can
+ * shadow a browser shortcut. */
+export const KEYBOARD_KEYS = [
+  ...'abcdefghijklmnopqrstuvwxyz'.split(''),
+  'space',
+];
 
 /** The whole keyboard, with the keys already bound — to this action or to
  * another one — marked as taken. The picker draws all of them either way, so a
- * key that is missing from the popup is missing because it is not a letter, not
+ * key missing from the popup is missing because it is not offered at all, not
  * because something else happens to hold it. */
-export function letterOptions(
-  used: string[],
-): { letter: string; taken: boolean }[] {
+export function keyOptions(used: string[]): { key: string; taken: boolean }[] {
   const taken = new Set(used.map((k) => k.toLowerCase()));
-  return KEYBOARD_LETTERS.map((letter) => ({
-    letter,
-    taken: taken.has(letter),
-  }));
+  return KEYBOARD_KEYS.map((key) => ({ key, taken: taken.has(key) }));
 }

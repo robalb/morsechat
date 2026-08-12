@@ -12,8 +12,9 @@
   import Select, { Option } from '@smui/select';
   import type { Snippet } from 'svelte';
 
+  import User from '../user/User.svelte';
   import { api, chat, user } from '$lib/state/placeholder.svelte';
-  import type { AuthPage } from '$lib/state/types';
+  import type { AuthPage, OnlineUser } from '$lib/state/types';
 
   let {
     leftContent,
@@ -21,6 +22,21 @@
   }: { leftContent?: Snippet; authPage?: AuthPage } = $props();
 
   let accountMenu = $state<Menu>();
+
+  /** the logged in user's own profile card, opened from the account menu */
+  let profileOpen = $state(false);
+
+  /** The card is written against an entry of the online list, which is the
+   * only place it was ever opened from. The logged in user is not necessarily
+   * in that list — a moderator watching another channel is not — so the two
+   * fields it reads are filled from the user state instead. */
+  let self = $derived<OnlineUser>({
+    is_anonymous: false,
+    typing: false,
+    allowSound: true,
+    username: user.username ?? '',
+    callsign: user.callsign ?? '',
+  });
 </script>
 
 <header>
@@ -63,17 +79,28 @@
         </Button>
       {/if}
 
+      <!-- The react version opens a menu here, whose first item is "View
+           Profile". The profile card is new and is the whole point of the
+           button, so the button opens it directly and the menu keeps what the
+           card cannot do — logging out. -->
       <Button
-        onclick={() => accountMenu?.setOpen(true)}
-        aria-haspopup="true"
-        aria-controls="account-menu"
+        onclick={() => (profileOpen = true)}
+        aria-haspopup="dialog"
       >
         <Icon class="material-icons">account_circle</Icon>
         <Label>{user.username}</Label>
       </Button>
+      <Button
+        onclick={() => accountMenu?.setOpen(true)}
+        aria-label="account menu"
+        aria-haspopup="true"
+        aria-controls="account-menu"
+      >
+        <Icon class="material-icons">expand_more</Icon>
+      </Button>
       <Menu bind:this={accountMenu} id="account-menu">
         <List>
-          <Item>
+          <Item onclick={() => (profileOpen = true)}>
             <Icon class="material-icons">account_circle</Icon>
             <Text>View Profile</Text>
           </Item>
@@ -84,6 +111,7 @@
           </Item>
         </List>
       </Menu>
+      <User bind:open={profileOpen} user={self} />
     {:else}
       <Button class="button-small" onclick={() => (authPage = 'login')}>
         <Label>Login</Label>
