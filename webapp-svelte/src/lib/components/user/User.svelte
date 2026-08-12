@@ -160,6 +160,11 @@
   /* user.module.css */
   .user {
     margin: 1rem;
+    /* What the map may claim back on each side: this margin plus the 24px
+     * dialog.css leaves on .mdc-dialog__content. The full amount, so the map
+     * runs to the edge of the popup — on a phone that is 80px of a 384px card,
+     * a fifth of the drawing. Everything else in the card keeps the padding. */
+    --map-bleed: 40px;
   }
   /* It only holds the focus so that the close button does not; MUI's paper,
    * which is what takes it there, draws no ring either. */
