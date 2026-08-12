@@ -20,15 +20,18 @@
   import '../dialog/dialog.css';
   import './keybindings.css';
   import { portal } from '$lib/utils/portal';
-  import { availableLetters, type Binding } from './keybindings';
+  import { letterOptions, type Binding } from './keybindings';
 
   let {
     open = $bindable(false),
     binding = null,
+    taken = [],
     onsave,
   }: {
     open?: boolean;
     binding?: Binding | null;
+    /** keys bound to the other actions, which this one cannot take */
+    taken?: string[];
     onsave?: (keys: string[]) => void;
   } = $props();
 
@@ -80,7 +83,11 @@
    * way to be triggered. Undo is the way out of that state. */
   let canSave = $derived(dirty && draft.length > 0);
 
-  let letters = $derived(availableLetters(draft));
+  /** the whole keyboard, with the keys of this binding and of the others marked
+   * as taken; the picker greys those out rather than dropping them, so the
+   * layout of the letters does not shift as keys are added and removed */
+  let letters = $derived(letterOptions([...draft, ...taken]));
+  let canAdd = $derived(letters.some((l) => !l.taken));
 
   function remove(key: string) {
     draft = draft.filter((k) => k !== key);
@@ -89,7 +96,7 @@
 
   function add(letter: string) {
     draft = [...draft, letter];
-    pickerOpen = false;
+    closePicker();
   }
 
   function undo() {
@@ -108,13 +115,34 @@
   let pickerOpen = $state(false);
   let anchor: HTMLDivElement | null = $state(null);
   let picker: HTMLDivElement | null = $state(null);
+  let addBt: HTMLButtonElement | null = $state(null);
 
-  /** it opens at the bottom of a list that may already be scrolled past the
-   * end of the card */
+  /** The button hands its place — and its focus — to the letters. Without this
+   * the keyboard would be left on an element that no longer exists, which is
+   * the one thing a disclosure that replaces its own trigger has to take care
+   * of. The scroll comes with it: the panel opens at the bottom of a list that
+   * may already be scrolled past the end of the card. */
   $effect(() => {
-    picker?.scrollIntoView({ block: 'nearest' });
+    if (!picker) return;
+    picker.scrollIntoView({ block: 'nearest' });
+    picker.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
   });
 
+  /** and takes it back when they close */
+  function closePicker() {
+    pickerOpen = false;
+    tick().then(() => addBt?.focus());
+  }
+
+  /** Close on a click outside the picker.
+   *
+   * In the capture phase, which matters: the click that opens the picker lands
+   * on the add button, and the add button is gone by the time a bubbling
+   * handler would see it — svelte flushes the update at the microtask
+   * checkpoint between the two callbacks, so the test would be handed a
+   * detached node, read it as a click from outside, and close the picker in the
+   * same breath that opened it. Capture runs before the button's own handler,
+   * when the picker is still closed and the target is still in the document. */
   function onWindowClick(event: MouseEvent) {
     if (!pickerOpen) return;
     if (anchor && event.target instanceof Node && anchor.contains(event.target))
@@ -132,14 +160,14 @@
     if (!mounted || event.key !== 'Escape') return;
     event.stopPropagation();
     if (pickerOpen) {
-      pickerOpen = false;
+      closePicker();
     } else {
       open = false;
     }
   }
 </script>
 
-<svelte:window onclick={onWindowClick} onkeydowncapture={onWindowKeydown} />
+<svelte:window onclickcapture={onWindowClick} onkeydowncapture={onWindowKeydown} />
 
 {#if mounted}
   <!-- portaled to <body>: this popup is opened from inside the settings
@@ -176,19 +204,11 @@
                button, with nothing to say why saving is refused -->
           <div class="binding-row empty">no keys bound</div>
         {/if}
+        <!-- The add button and the letters take the same place, one at a time:
+             the button is the summary of a disclosure and the grid is its
+             details. The button is not a row of the table — it closes the list
+             rather than continuing it — so it draws no rule of its own. -->
         <div bind:this={anchor}>
-          <div class="binding-row add-row">
-            <button
-              class="add-bt"
-              aria-haspopup="listbox"
-              aria-expanded={pickerOpen}
-              disabled={letters.length === 0}
-              onclick={() => (pickerOpen = !pickerOpen)}
-            >
-              <span class="material-icons" aria-hidden="true">add</span>
-              add new shortcut
-            </button>
-          </div>
           {#if pickerOpen}
             <!-- The panel opens *into* the table rather than over it: the
                  dialog content is a scroll container, so an absolutely
@@ -199,16 +219,33 @@
               aria-label="available keys"
               bind:this={picker}
             >
-              {#each letters as letter (letter)}
+              {#each letters as { letter, taken: isTaken } (letter)}
                 <button
                   role="option"
                   aria-selected="false"
-                  aria-label={letter}
+                  aria-label={isTaken ? `${letter}, already in use` : letter}
+                  aria-disabled={isTaken}
+                  disabled={isTaken}
+                  title={isTaken ? 'already in use' : undefined}
                   onclick={() => add(letter)}
                 >
                   <kbd>{letter}</kbd>
                 </button>
               {/each}
+            </div>
+          {:else}
+            <div class="add-row">
+              <button
+                class="add-bt"
+                bind:this={addBt}
+                aria-haspopup="listbox"
+                aria-expanded={pickerOpen}
+                disabled={!canAdd}
+                onclick={() => (pickerOpen = true)}
+              >
+                <span class="material-icons" aria-hidden="true">add</span>
+                add new shortcut
+              </button>
             </div>
           {/if}
         </div>
@@ -260,9 +297,15 @@
     font-size: 0.875rem;
   }
 
-  /* The add row: the button is centred in it. */
+  /* The add row. It is not a .binding-row: it closes the table rather than
+   * continuing it, so it carries the row's height and centring but none of its
+   * rules — a line under the last thing in the card made it look like an entry
+   * with its key missing. */
   .add-row {
+    display: flex;
+    align-items: center;
     justify-content: center;
+    min-height: 2.25rem;
   }
   .add-bt {
     display: flex;
@@ -297,7 +340,7 @@
     gap: 0.25rem;
     max-height: 9rem;
     overflow-y: auto;
-    margin: 0.5rem 0;
+    margin: 0.5rem 0 0 0;
     padding: 0.5rem;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.08);
@@ -308,8 +351,19 @@
     background: none;
     cursor: pointer;
   }
-  .picker button:hover kbd,
+  .picker button:hover:not(:disabled) kbd,
   .picker button:focus-visible kbd {
     background: rgba(255, 255, 255, 0.2);
+  }
+  /* a key that is already bound, here or to another action. It keeps its place
+   * in the grid, dimmed — the cap's own colours are what fade, so it still
+   * reads as a key rather than as a hole in the keyboard. */
+  .picker button:disabled {
+    cursor: default;
+  }
+  .picker button:disabled kbd {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: none;
+    color: rgba(255, 255, 255, 0.3);
   }
 </style>

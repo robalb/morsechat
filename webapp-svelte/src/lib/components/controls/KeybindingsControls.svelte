@@ -31,6 +31,13 @@
   let editing = $state<Binding | null>(null);
   let dialogOpen = $state(false);
 
+  /** The keys the other actions hold. A key drives one action or the other, so
+   * the popup has to keep these out of its picker as well as the ones the
+   * binding being edited already has. */
+  let takenElsewhere = $derived(
+    bindings.filter((b) => b !== editing).flatMap((b) => b.keys),
+  );
+
   function edit(binding: Binding) {
     editing = binding;
     dialogOpen = true;
@@ -63,4 +70,9 @@
   </div>
 </div>
 
-<KeybindingsDialog bind:open={dialogOpen} binding={editing} onsave={save} />
+<KeybindingsDialog
+  bind:open={dialogOpen}
+  binding={editing}
+  taken={takenElsewhere}
+  onsave={save}
+/>

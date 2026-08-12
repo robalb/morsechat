@@ -18,8 +18,16 @@ export interface Binding {
  * cannot be added back once removed. */
 export const KEYBOARD_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
-/** The letters not already taken by this binding. */
-export function availableLetters(used: string[]): string[] {
+/** The whole keyboard, with the keys already bound — to this action or to
+ * another one — marked as taken. The picker draws all of them either way, so a
+ * key that is missing from the popup is missing because it is not a letter, not
+ * because something else happens to hold it. */
+export function letterOptions(
+  used: string[],
+): { letter: string; taken: boolean }[] {
   const taken = new Set(used.map((k) => k.toLowerCase()));
-  return KEYBOARD_LETTERS.filter((letter) => !taken.has(letter));
+  return KEYBOARD_LETTERS.map((letter) => ({
+    letter,
+    taken: taken.has(letter),
+  }));
 }
