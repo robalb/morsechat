@@ -56,8 +56,11 @@
   .world-map {
     --land: var(--gray-80);
     --land-border: #5a6169;
-    --visited: #4fc3e8;
-    --visited-border: #a5e4f6;
+    --visited: white;
+    /* a dark border rather than a lighter one: the light blue is the brightest
+     * thing on the card, so a highlight around it made neighbouring visited
+     * countries bleed into one shape instead of separating them */
+    --visited-border: black;
     margin-top: 1rem;
     /* the map keeps its slot while it is being fetched, so the card does not
        jump a couple of hundred pixels when it arrives */

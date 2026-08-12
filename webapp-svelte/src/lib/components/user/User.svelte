@@ -192,6 +192,6 @@
     color: var(--gray-95);
   }
   .user .met {
-    margin: 0.75rem 0 0;
+    margin: 1.75rem 0 1.75rem 0;
   }
 </style>
