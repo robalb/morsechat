@@ -183,17 +183,24 @@ function createClient(initialChannel: string, getChatNode: () => HTMLElement | n
     // refused one arrives in exactly that gap, so the line waits for the dom.
     await tick();
     const node = getChatNode();
+    // Only on an empty log. Joining a channel clears it, so this is what
+    // separates a join the user asked for from one they did not: a
+    // reconnection, or a return to a channel whose history was restored,
+    // leaves the log as it was and says nothing.
+    //
+    // The react version applied this to the ordinary channels only and wrote
+    // the two training lines unconditionally, which repeated them on every
+    // reconnection — on training, where a drop is otherwise invisible, that was
+    // the one place it showed.
+    if (!node || node.childElementCount > 0) return;
+
     const name = channelName();
+    systemMessage(node, `connected to ${name} with callsign: ${user.callsign}`);
     if (chat.channel === TRAINING_CHANNEL) {
-      systemMessage(node, `connected to ${name} with callsign: ${user.callsign}`);
       systemMessage(
         node,
         "This is a training channel. The messages that you type won't be broadcasted"
       );
-    } else if (node && node.childElementCount === 0) {
-      // only on an empty log: a reconnection, or a return to a channel whose
-      // history was restored, should not repeat the line
-      systemMessage(node, `connected to ${name} with callsign: ${user.callsign}`);
     }
   };
 
