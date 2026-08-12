@@ -17,6 +17,7 @@
 
   import '../dialog/dialog.css';
   import ActivityGraph from './ActivityGraph.svelte';
+  import WorldMap from './WorldMap.svelte';
   import { portal } from '$lib/utils/portal';
   import {
     placeholderProfiles,
@@ -130,8 +131,9 @@
             <p class="joined">Joined {formatJoined(profile.joined)}</p>
             <p class="met">
               Met {profile.met_users.toLocaleString()} users, from
-              {profile.met_countries.toLocaleString()} countries in the world.
+              {profile.met_countries.length.toLocaleString()} countries in the world.
             </p>
+            <WorldMap countries={profile.met_countries} />
             <ActivityGraph activity={profile.activity} />
           {/if}
         {/if}

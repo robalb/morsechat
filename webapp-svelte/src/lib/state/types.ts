@@ -77,8 +77,10 @@ export interface UserProfile {
   joined: string;
   /** how many distinct users this one has shared a channel with */
   met_users: number;
-  /** how many distinct countries those users came from */
-  met_countries: number;
+  /** the countries those users came from, as ISO 3166-1 alpha-2 codes. The
+   * popup counts them for its phrase and paints them on its map, so the list
+   * is the only thing the endpoint has to send. */
+  met_countries: string[];
   /** 'YYYY-MM-DD' -> number of transmissions sent that day (UTC) */
   activity: Record<string, number>;
 }

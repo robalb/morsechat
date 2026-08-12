@@ -183,7 +183,12 @@ export const placeholderProfiles: Record<string, UserProfile> = {
     username: 'sparks',
     joined: '2023-06-14',
     met_users: 412,
-    met_countries: 37,
+    met_countries: [
+      'GB', 'IE', 'FR', 'DE', 'NL', 'BE', 'ES', 'PT', 'IT', 'CH', 'AT', 'PL',
+      'CZ', 'SE', 'NO', 'FI', 'DK', 'GR', 'RO', 'UA', 'RU', 'TR', 'US', 'CA',
+      'MX', 'BR', 'AR', 'CL', 'ZA', 'MA', 'EG', 'IN', 'JP', 'AU', 'NZ', 'ID',
+      'CN',
+    ],
     activity: fakeActivity('G4XYZ', [2023, 2024, 2025, 2026]),
   },
   IU2ABC: {
@@ -191,7 +196,10 @@ export const placeholderProfiles: Record<string, UserProfile> = {
     username: 'alberto',
     joined: '2024-11-02',
     met_users: 128,
-    met_countries: 19,
+    met_countries: [
+      'IT', 'FR', 'DE', 'CH', 'AT', 'SI', 'HR', 'ES', 'GB', 'NL', 'BE', 'PL',
+      'SE', 'FI', 'GR', 'US', 'BR', 'JP', 'AU',
+    ],
     activity: fakeActivity('IU2ABC', [2024, 2025, 2026]),
   },
 };
