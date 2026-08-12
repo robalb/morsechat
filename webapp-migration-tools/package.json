@@ -6,7 +6,8 @@
   "description": "Puppeteer tooling used to compare the legacy react webapp against the svelte port",
   "scripts": {
     "snapshot": "node snapshot.js",
-    "compare": "node compare.js"
+    "compare": "node compare.js",
+    "keyer": "node keyer-test.js"
   },
   "dependencies": {
     "puppeteer": "^24.10.0"

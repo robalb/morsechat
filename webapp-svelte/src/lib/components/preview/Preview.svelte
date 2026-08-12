@@ -2,30 +2,30 @@
   /**
    * Port of webapp/src/components/preview/Preview.jsx.
    *
-   * The react version does three things here: translate the key buffer into
-   * morse, run the submit countdown as a requestAnimationFrame animation, and
-   * dispatch the send. Only the box they live in is ported; the progress bar
-   * keeps its element so the 2px strip above the text stays in the layout.
+   * The react version did three jobs here: translate the key buffer into morse,
+   * run the submit countdown as a requestAnimationFrame animation, and dispatch
+   * the send. All three are the keyer's now — they are the same message, and
+   * they were only in the preview because that is where the redux state
+   * happened to be readable from. What is left is the two things the preview
+   * actually is: a line of text and a bar.
    */
   import IconButton from '@smui/icon-button';
 
-  import { chat } from '$lib/state/chat.svelte';
+  import { keyer } from '$lib/morse/keyer.svelte';
 
   let { class: className = '' }: { class?: string } = $props();
-
-  let emptyBuffer = $derived(chat.messageBuffer.length === 0);
 </script>
 
 <div class="preview {className}">
-  <!-- the countdown animation writes this width directly on the node, which is
-       why the react version also ends up at 0% right after mounting -->
-  <div class="progress" style="width: 0%"> </div>
+  <!-- the submit countdown: full when the message goes out -->
+  <div class="progress" style="width: {keyer.progress}%"> </div>
   <div class="text">
-    <p></p>
+    <p data-mig="preview-text">{keyer.text}</p>
     <IconButton
       class="material-icons"
       aria-label="cancel message"
-      disabled={emptyBuffer}>delete_outline</IconButton
+      onclick={() => keyer.clear()}
+      disabled={keyer.empty}>delete_outline</IconButton
     >
   </div>
 </div>
@@ -36,7 +36,7 @@
   }
   .preview .progress {
     height: 2px;
-    width: 100%; /* change this with an animation */
+    width: 100%; /* the keyer's countdown writes this */
     background-color: var(--gray-95);
     opacity: 0.8;
   }

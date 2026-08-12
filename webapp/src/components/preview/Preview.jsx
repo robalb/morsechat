@@ -79,7 +79,8 @@ function TextPreview(){
     }
     let morseString = bufferedMorseToString(buffer, times).replaceAll("-", dashChar)
 
-    return <p>{morseString}</p>
+    // data-mig: how webapp-migration-tools finds this line in both apps
+    return <p data-mig="preview-text">{morseString}</p>
 }
 
 function CountdownPreview({emptyBuffer, chatDomNode}){

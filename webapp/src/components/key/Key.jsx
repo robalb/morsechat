@@ -254,6 +254,7 @@ function KeyInternal(props) {
 		<>
 			<button
 				className={styles.key_bt}
+				data-mig="key-left"
 				onTouchStart={(e) => mouseDown(e, true)}
 				onTouchEnd={(e) => mouseUp(e, true)}
 				onMouseDown={(e) => mouseDown(e, true)}
@@ -266,6 +267,7 @@ function KeyInternal(props) {
 			{settings.key_mode === "yambic" && (
 				<button
 					className={styles.key_bt}
+					data-mig="key-right"
 					onTouchStart={(e) => mouseDown(e, false)}
 					onTouchEnd={(e) => mouseUp(e, false)}
 					onMouseDown={(e) => mouseDown(e, false)}

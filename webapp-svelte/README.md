@@ -41,21 +41,26 @@ the same breakpoints, so the two pages can be diffed with
 | `components/auth/Auth.jsx` | `lib/components/auth/Auth.svelte` |
 | `utils/dialects.js` | `lib/utils/dialects.ts` (copied, typed) |
 
+| `redux/{apiSlice,userSlice}.js` | `lib/state/session.svelte.ts` |
+| `redux/chatSlice.js` | `lib/state/chat.svelte.ts` + `lib/morse/keyer.svelte.ts` |
+| `socket/` | `lib/socket/` |
+| the keyer inside `components/key/Key.jsx` | `lib/morse/keyer.svelte.ts` |
+| `Preview.jsx`'s translation and countdown | `lib/morse/`, same file |
+
 ## What is not ported yet
 
-Everything that is logic, api or state:
-
-- `redux/` — the three slices are described as types in `lib/state/types.ts`,
-  and `lib/state/placeholder.svelte.ts` fakes them so the layout has something
-  to render. That file is the only thing that has to be replaced when the real
-  state arrives.
-- `socket/` — the websocket client, and the code that writes messages into the
-  chat dom node.
-- `hooks/UseSound.jsx` and the iambic keyer inside `components/key/Key.jsx`.
-  `Key.svelte` renders the buttons but they do nothing.
-- The auth forms (login, register, verify), the moderation menu, the user
-  dialog, the report-message dialog.
-- `Preview.jsx`'s morse translation and submit countdown.
+- **The sound engine.** `hooks/UseSound.jsx` (the key's sidetone) and
+  `utils/ReceiverSound.js` (playing a received message into the chat at the
+  sender's speed). The keyer has the seam ready for the first — `keyer.tone` —
+  and `chat.svelte.ts`'s `socket.onMessage` has the TODO for the second, which
+  is why a received message currently only clears its sender's typing dots.
+- The verification form, the moderation menu's actions, and the report-message
+  post.
+- The keybindings panel still edits its own copy of the bindings rather than
+  `user.settings.keybinds`: it holds a list of keys per action, and the api
+  takes one key per action (`min=1,max=2` in the go schema). The keyer reads the
+  settings, so wiring the panel to them is all that is missing — but the wire
+  format has to grow first, or the panel has to lose the extra keys.
 
 ## Conventions
 

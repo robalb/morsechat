@@ -18,7 +18,7 @@
 import { tick, untrack } from 'svelte';
 
 import { SocketClient } from '$lib/socket/client';
-import type { WsUser } from '$lib/socket/types';
+import type { MessageMorseStatus, WsUser } from '$lib/socket/types';
 import { systemMessage } from '$lib/utils/chatDom';
 
 import { api, initSession, user } from './session.svelte';
@@ -42,12 +42,21 @@ export const chat: ChatState = $state({
   connectionStatus: 'powering on',
   onlineUsers: {},
   myID: null,
-  messageBuffer: [],
-  keyDown: false,
 });
 
 /** the channel where nothing is broadcast, and messages stay in the browser */
 const TRAINING_CHANNEL = 'presence-training';
+
+/**
+ * Whether we are in the channel that broadcasts nothing.
+ *
+ * The keyer asks before announcing that it is typing, and the send path asks
+ * before sending: on training both are noise about a message nobody will
+ * receive.
+ */
+export function isTrainingChannel(): boolean {
+  return chat.channel === TRAINING_CHANNEL;
+}
 
 /* ------------------------------------------------------------------ *
  * Channel
@@ -147,6 +156,13 @@ export function getSocket(): SocketClient | null {
 const chatHistory: Record<string, string> = {};
 
 /**
+ * How the log is reached from outside the connection code. The send path writes
+ * its failures into the chat as system lines, and it is called by the keyer,
+ * which has no component and no node of its own.
+ */
+let chatNode: () => HTMLElement | null = () => null;
+
+/**
  * Creates the socket and wires every handler to the state.
  *
  * The handlers are assigned once, and they read `chat` and `user` when they
@@ -225,7 +241,107 @@ function createClient(initialChannel: string, getChatNode: () => HTMLElement | n
     setTyping(message.callsign, false);
   };
 
+  // the acknowledgement of our own broadcast, which sendMorseMessage() is
+  // waiting on. Anything arriving with nobody waiting is an answer to a send
+  // that already gave up, and there is nothing left to tell.
+  socket.onMessageStatus = (status) => {
+    const waiting = pendingStatus;
+    pendingStatus = null;
+    waiting?.(status);
+  };
+
   return socket;
+}
+
+/* ------------------------------------------------------------------ *
+ * Sending
+ * ------------------------------------------------------------------ */
+
+/**
+ * How a send ends: with the server's answer, with nothing after ten seconds, or
+ * with another message having taken its place in the queue.
+ */
+type SendOutcome = MessageMorseStatus | 'timeout' | 'superseded';
+
+/** resolves the send that is waiting for its acknowledgement, if there is one */
+let pendingStatus: ((outcome: SendOutcome) => void) | null = null;
+
+/**
+ * How long to wait for the server to acknowledge a broadcast, in ms. The react
+ * version waited forever — `morseCall` resolves a promise from a handler that a
+ * dropped connection never calls — which leaked a pending thunk per message
+ * sent while the socket was going down.
+ */
+const STATUS_TIMEOUT = 10000;
+
+/** what the errors of a refused broadcast are worth saying, from Preview.jsx */
+function sendErrorMessage(error: string, details: string): string {
+  switch (error) {
+    case 'too_many_requests':
+      return 'You are sending too many messages, please wait some seconds';
+    case 'invalid_message':
+      return 'You may be using an old version of the website. Try refreshing the page';
+    case 'unauthorized':
+      return 'Your session may have expired. Try refreshing the page';
+    default:
+      return `${error} ${details}`;
+  }
+}
+
+/**
+ * Broadcasts a keyed message to the channel and reports what became of it.
+ *
+ * This is the `send` and `morseCall` thunks of chatSlice.js. The keyer calls it
+ * with the buffer it has just cleared; everything it needs besides that buffer
+ * — the channel, the socket, the settings the receivers play it back with — is
+ * read here, so the keyer never has to hold a copy of any of them.
+ *
+ * A failure is written into the chat log as a system line, which is where the
+ * react version put it and the only place the user is looking.
+ */
+export async function sendMorseMessage(message: number[]): Promise<void> {
+  // on training the message was never going anywhere: it stays in this browser
+  if (isTrainingChannel()) return;
+
+  const node = chatNode();
+  if (!client || chat.connectionStatus !== 'connected') {
+    systemMessage(node, 'Failed to reach the server, trying to reconnect...');
+    return;
+  }
+
+  const outcome = await new Promise<SendOutcome>((resolve) => {
+    // A message sent while the one before it is still unanswered ends that
+    // one's wait: there is a single status channel, and what comes back over it
+    // now is about this message. Nothing is said about the superseded one — it
+    // was sent, and the user has moved on.
+    pendingStatus?.('superseded');
+    pendingStatus = resolve;
+    setTimeout(() => {
+      if (pendingStatus === resolve) {
+        pendingStatus = null;
+        resolve('timeout');
+      }
+    }, STATUS_TIMEOUT);
+
+    client!.sendMessage({
+      message,
+      dialect: user.settings.dialect,
+      wpm: user.settings.wpm,
+      frequency: user.settings.key_frequency,
+    });
+  });
+
+  if (outcome === 'superseded') return;
+  if (outcome === 'timeout') {
+    systemMessage(node, 'broadcast failed. The server did not answer');
+    return;
+  }
+  if (!outcome.ok) {
+    systemMessage(
+      node,
+      `broadcast failed. ${sendErrorMessage(outcome.error, outcome.details)}`
+    );
+  }
 }
 
 /**
@@ -241,6 +357,9 @@ function createClient(initialChannel: string, getChatNode: () => HTMLElement | n
  * it appears without any of this having to re-run.
  */
 export function connectSocket(getChatNode: () => HTMLElement | null) {
+  // the send path writes into the log too, and it is called from the keyer
+  chatNode = getChatNode;
+
   /**
    * The connection itself. A change of callsign — logging in, logging out —
    * means the identity the server has for this socket is stale, so the

@@ -76,6 +76,13 @@ export type ConnectionStatus =
   /** the join was refused for any other reason */
   | 'connection failed';
 
+/**
+ * The channel and who is in it.
+ *
+ * The react `chat` slice also held the message being keyed (`messageBuffer`,
+ * `keyDown`, `lastTime`). That belongs to the keyer, which owns the timers that
+ * write it: lib/morse/keyer.svelte.ts.
+ */
 export interface ChatState {
   channel: string;
   channels: Channel[];
@@ -83,9 +90,6 @@ export interface ChatState {
   connectionStatus: ConnectionStatus;
   onlineUsers: Record<string, OnlineUser>;
   myID: string | null;
-  /** alternating key-down / key-up durations in ms */
-  messageBuffer: number[];
-  keyDown: boolean;
 }
 
 export interface ApiState {
