@@ -26,7 +26,7 @@
   import Sheet from '$lib/components/sheet/Sheet.svelte';
   import SideControls from '$lib/components/controls/SideControls.svelte';
   import Snackbars from '$lib/components/snackbar/Snackbars.svelte';
-  import { chat } from '$lib/state/placeholder.svelte';
+  import { chat } from '$lib/state/chat.svelte';
   import { api, syncSettings, user } from '$lib/state/session.svelte';
   import type { AuthPage } from '$lib/state/types';
   import { mediaQuery } from '$lib/utils/mediaQuery.svelte';

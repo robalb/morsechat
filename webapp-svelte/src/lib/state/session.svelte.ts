@@ -119,6 +119,26 @@ export async function initSession(): Promise<ApiResult<AuthResponse>> {
   return res;
 }
 
+/**
+ * Opens the session again after it failed to open.
+ *
+ * Retrying is the only way out of a failed session — every other call needs
+ * the cookie that this one sets — so both places that can show the failure
+ * offer the button, and this is what it does: the react `reload()` of
+ * chat/Chat.jsx and auth/mainDataLoading.jsx, which were the same function
+ * written twice.
+ */
+export async function retrySession(): Promise<ApiResult<AuthResponse>> {
+  const res = await initSession();
+  if (!res.ok) {
+    enqueueSnackbar('Loading failed again', {
+      variant: 'error',
+      preventDuplicate: true,
+    });
+  }
+  return res;
+}
+
 export async function login(data: LoginRequest): Promise<ApiResult<AuthResponse>> {
   const res = await rest.login(data);
   if (res.ok) applyAuthResponse(res.data);

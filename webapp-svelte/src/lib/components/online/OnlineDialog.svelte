@@ -15,13 +15,13 @@
    * sharing (the status pill and a row per user) are restated here against that
    * layout.
    */
-  import { tick } from 'svelte';
+  import { tick, untrack } from 'svelte';
 
   import Dialog, { Content, Title } from '@smui/dialog';
   import IconButton from '@smui/icon-button';
 
   import User from '../user/User.svelte';
-  import { chat } from '$lib/state/placeholder.svelte';
+  import { chat } from '$lib/state/chat.svelte';
   import type { OnlineUser } from '$lib/state/types';
   import '../dialog/dialog.css';
   import { portal } from '$lib/utils/portal';
@@ -73,7 +73,9 @@
     if (firstRender) {
       firstRender = false;
     } else {
-      animationClass = !animationClass;
+      // untracked: the flip reads the value it writes, and a dependency on it
+      // would have this effect re-trigger itself forever
+      animationClass = !untrack(() => animationClass);
     }
   });
 </script>

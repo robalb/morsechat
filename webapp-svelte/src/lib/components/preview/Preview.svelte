@@ -9,7 +9,7 @@
    */
   import IconButton from '@smui/icon-button';
 
-  import { chat } from '$lib/state/placeholder.svelte';
+  import { chat } from '$lib/state/chat.svelte';
 
   let { class: className = '' }: { class?: string } = $props();
 

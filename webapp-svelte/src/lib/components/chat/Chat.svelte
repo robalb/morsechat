@@ -3,19 +3,19 @@
    * Port of webapp/src/components/chat/Chat.jsx.
    *
    * The chat body has four mutually exclusive shapes: loading, load error,
-   * connection error, and the chat itself. All four are ported, driven by the
-   * placeholder state, because each one has to hold the same box.
+   * connection error, and the chat itself.
    *
-   * The messages are not rendered by this component: the socket writes them
-   * into `chatDomNode` directly, which is why it is bound out to App. The
-   * placeholder markup below has the structure that code produces, so the
-   * three-span rule of the stylesheet has something to style.
+   * The messages are not rendered by this component and never will be: the
+   * socket writes them into `chatDomNode` directly, which is why it is bound
+   * out to App. Everything below `.chatContent` in the stylesheet is therefore
+   * `:global` — see the note there — and the log starts empty, the connection
+   * status line being the first thing written into it.
    */
   import Button, { Label } from '@smui/button';
 
   import ReportMessage from '../report/ReportMessage.svelte';
-  import { chat, placeholderMessages } from '$lib/state/placeholder.svelte';
-  import { api, user } from '$lib/state/session.svelte';
+  import { chat } from '$lib/state/chat.svelte';
+  import { api, retrySession, user } from '$lib/state/session.svelte';
 
   let {
     class: className = '',
@@ -46,6 +46,16 @@
     dialogOpen = true;
   }
 
+  /** guards the retry button against a second click while a call is in flight */
+  let retrying = $state(false);
+
+  async function retry() {
+    if (retrying) return;
+    retrying = true;
+    await retrySession();
+    retrying = false;
+  }
+
   let randomChannel = $derived(
     chat.channels[Math.floor(Math.random() * chat.channels.length)].name,
   );
@@ -55,7 +65,7 @@
   {#if api.loading && api.error.length > 0}
     <div class="loading">
       <h2>Error: {api.error}</h2>
-      <Button variant="outlined" color="secondary">
+      <Button variant="outlined" onclick={retry} disabled={retrying}>
         <Label>retry</Label>
       </Button>
     </div>
@@ -94,13 +104,7 @@
       onclick={handleChatClick}
       class="chatContent"
       class:showText={user.settings.show_readable}
-    >
-      {#each placeholderMessages as msg, i (i)}
-        <p data-signature="placeholder-{i}"><span>{msg.callsign}</span><span
-            >{msg.morse}</span
-          ><span>{msg.text}</span></p>
-      {/each}
-    </div>
+    ></div>
   {/if}
 </div>
 <ReportMessage bind:open={dialogOpen} data={selectedMessage} />
@@ -109,6 +113,15 @@
   .chat {
     background-color: var(--gray-70);
     box-shadow: var(--shadow-1);
+  }
+
+  /* The retry button. SMUI colours an outlined button with the theme primary,
+   * and `color="secondary"` — the react version's is `color="error"` — is the
+   * cyan of the palette; on the near-black loading panel both read as a link
+   * rather than as the one thing to press. White, with a matching outline. */
+  .loading :global(.mdc-button) {
+    color: var(--gray-105);
+    --mdc-outlined-button-outline-color: rgba(255, 255, 255, 0.5);
   }
 
   .loading,

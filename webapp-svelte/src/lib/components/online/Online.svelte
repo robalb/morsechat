@@ -2,13 +2,16 @@
   /**
    * Port of webapp/src/components/online/Online.jsx.
    *
-   * The sound toggle flips the placeholder state so the two icon states are
-   * both reachable while comparing the layouts.
+   * The sound toggle writes straight into the member list, which is the whole
+   * of what the react `setAllowSound` reducer did. It is a local decision —
+   * the server is never told who we are not listening to.
    */
+  import { untrack } from 'svelte';
+
   import IconButton from '@smui/icon-button';
 
   import User from '../user/User.svelte';
-  import { chat } from '$lib/state/placeholder.svelte';
+  import { chat } from '$lib/state/chat.svelte';
   import type { OnlineUser } from '$lib/state/types';
 
   let { class: className = '' }: { class?: string } = $props();
@@ -35,7 +38,9 @@
     if (firstRender) {
       firstRender = false;
     } else {
-      animationClass = !animationClass;
+      // untracked: the flip reads the value it writes, and a dependency on it
+      // would have this effect re-trigger itself forever
+      animationClass = !untrack(() => animationClass);
     }
   });
 </script>

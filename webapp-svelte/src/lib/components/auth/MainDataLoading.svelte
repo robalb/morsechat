@@ -9,22 +9,15 @@
    */
   import Button, { Label } from '@smui/button';
 
-  import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
-  import { api, initSession } from '$lib/state/session.svelte';
+  import { api, retrySession } from '$lib/state/session.svelte';
 
   let pending = $state(false);
 
   async function reload() {
     if (pending) return;
     pending = true;
-    const res = await initSession();
+    await retrySession();
     pending = false;
-    if (!res.ok) {
-      enqueueSnackbar('Loading failed again', {
-        variant: 'error',
-        preventDuplicate: true,
-      });
-    }
   }
 </script>
 

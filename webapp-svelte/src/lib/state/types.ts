@@ -18,6 +18,11 @@
 export type { Keybinds, KeyMode, Settings } from '$lib/api/types';
 import type { Settings } from '$lib/api/types';
 
+/** likewise the connection states: they are the socket's own, re-exported for
+ * the components that read them off the state */
+export type { SocketState } from '$lib/socket/types';
+import type { SocketState } from '$lib/socket/types';
+
 export interface UserState {
   authenticated: boolean | null;
   isadmin: boolean;
@@ -52,12 +57,23 @@ export interface OnlineUser {
  */
 export type { UserStatsResponse as UserProfile } from '$lib/api/types';
 
+/**
+ * What the status pill says.
+ *
+ * Two things end up in the same field: the state of the socket itself, which
+ * the client reports as it transitions, and the three ways a channel can turn
+ * a connected socket away. The pill prints whichever it holds verbatim, which
+ * is why the wordings are the state.
+ */
 export type ConnectionStatus =
+  | SocketState
+  /** the state before the socket exists — nothing has been attempted yet */
   | 'powering on'
-  | 'connecting'
-  | 'connected'
+  /** a pro channel, anonymously */
   | 'connection denied'
+  /** the channel, the ip or the device is over its cap */
   | 'connection busy'
+  /** the join was refused for any other reason */
   | 'connection failed';
 
 export interface ChatState {

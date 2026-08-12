@@ -14,7 +14,7 @@
 
   import User from '../user/User.svelte';
   import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
-  import { chat } from '$lib/state/placeholder.svelte';
+  import { chat } from '$lib/state/chat.svelte';
   import { api, logout, user } from '$lib/state/session.svelte';
   import type { AuthPage, OnlineUser } from '$lib/state/types';
 
