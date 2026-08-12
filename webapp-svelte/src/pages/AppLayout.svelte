@@ -20,6 +20,7 @@
   import Info from '$lib/components/info/Info.svelte';
   import Key from '$lib/components/key/Key.svelte';
   import Online from '$lib/components/online/Online.svelte';
+  import OnlineDialog from '$lib/components/online/OnlineDialog.svelte';
   import Preview from '$lib/components/preview/Preview.svelte';
   import Settings from '$lib/components/settings/Settings.svelte';
   import Sheet from '$lib/components/sheet/Sheet.svelte';
@@ -41,6 +42,8 @@
   let sheetOpen = $state(false);
   let sidebarOpen = $state(false);
   let settingsOpen = $state(false);
+  /** the online list popup, which only the small-screen header button opens */
+  let onlineOpen = $state(false);
 
   // the sheet starts open on desktop. An effect rather than an initialiser,
   // because `desktop` is only known once the media query listener has run
@@ -71,6 +74,7 @@
 <div class="app-container">
   <Auth bind:page={authPage} />
   <Settings bind:open={settingsOpen} mobileView={!tablet.matches} />
+  <OnlineDialog bind:open={onlineOpen} />
 
   {#if !desktop.matches}
     <Scrim />
@@ -95,7 +99,14 @@
       >
     {/if}
     {#if !tablet.matches}
-      <Button class="header-bt-left" aria-label="Online users">
+      <!-- in the react version this button does nothing; here it opens the
+           online list, which below this breakpoint has nowhere else to go. -->
+      <Button
+        class="header-bt-left"
+        aria-label="Online users"
+        aria-haspopup="dialog"
+        onclick={() => (onlineOpen = true)}
+      >
         <Icon class="material-icons">people</Icon>
         <Label><output>{onlineCount}</output></Label>
       </Button>
