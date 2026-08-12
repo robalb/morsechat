@@ -24,12 +24,16 @@
   max-width: min(600px, calc(100vw - 2 * var(--dialog-gutter)));
 }
 
-/* The profile card is the one popup with something wide in it: a year of the
- * activity calendar is 53 columns, which does not fit the 600px above. This is
- * the width that shows a whole year without a horizontal scroll on a desktop;
- * anything narrower — a phone, a small window — falls back to the gutter rule
- * and the calendar scrolls inside the card instead. */
+/* The profile card is the one popup with something wide in it: the world map
+ * is a 2000x857 drawing, and the wider the card the more of the small countries
+ * can be told apart. Anything narrower — a phone, a small window — falls back
+ * to the gutter rule above. */
 .mdc-dialog.mui-dialog.profile-dialog .mdc-dialog__surface {
+  /* a width, not only a cap: mdc sizes a surface to its content, and the
+   * content here is a paragraph of text and a picture that takes whatever it
+   * is given — left to itself the card comes out as wide as its longest line
+   * and the map shrinks with it */
+  width: 720px;
   max-width: min(720px, calc(100vw - 2 * var(--dialog-gutter)));
 }
 

@@ -16,7 +16,6 @@
   import IconButton from '@smui/icon-button';
 
   import '../dialog/dialog.css';
-  import ActivityGraph from './ActivityGraph.svelte';
   import WorldMap from './WorldMap.svelte';
   import { portal } from '$lib/utils/portal';
   import {
@@ -134,7 +133,6 @@
               {profile.met_countries.length.toLocaleString()} countries in the world.
             </p>
             <WorldMap countries={profile.met_countries} />
-            <ActivityGraph activity={profile.activity} />
           {/if}
         {/if}
       </div>

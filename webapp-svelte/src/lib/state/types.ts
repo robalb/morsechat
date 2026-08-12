@@ -81,8 +81,6 @@ export interface UserProfile {
    * popup counts them for its phrase and paints them on its map, so the list
    * is the only thing the endpoint has to send. */
   met_countries: string[];
-  /** 'YYYY-MM-DD' -> number of transmissions sent that day (UTC) */
-  activity: Record<string, number>;
 }
 
 export type ConnectionStatus =

@@ -138,44 +138,6 @@ export const placeholderMessages = [
  * day nothing in the components has to change.
  * ------------------------------------------------------------------ */
 
-/** deterministic 32-bit hash, so a callsign always gets the same fake data */
-function hash(s: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-/**
- * A year of plausible on-air activity: quiet most days, busier on the
- * weekend, with a couple of dead months. Keyed 'YYYY-MM-DD' in UTC, and
- * days with no activity are simply absent — which is what an endpoint
- * would send rather than 365 zeroes.
- */
-function fakeActivity(seed: string, years: number[]): Record<string, number> {
-  const activity: Record<string, number> = {};
-  const today = new Date().toISOString().slice(0, 10);
-  for (const year of years) {
-    const day = new Date(Date.UTC(year, 0, 1));
-    while (day.getUTCFullYear() === year) {
-      const key = day.toISOString().slice(0, 10);
-      // nobody has transmitted tomorrow yet: the current year stops at today,
-      // and the rest of its grid stays empty, as github's does
-      if (key > today) break;
-      const r = hash(seed + key) / 0xffffffff;
-      // weekends are roughly twice as likely to carry a session
-      const chance = day.getUTCDay() % 6 === 0 ? 0.55 : 0.28;
-      if (r < chance) {
-        activity[key] = 1 + Math.floor((r / chance) ** 2 * 22);
-      }
-      day.setUTCDate(day.getUTCDate() + 1);
-    }
-  }
-  return activity;
-}
-
 /** The profiles the fake endpoint knows about, by callsign. */
 export const placeholderProfiles: Record<string, UserProfile> = {
   G4XYZ: {
@@ -189,7 +151,6 @@ export const placeholderProfiles: Record<string, UserProfile> = {
       'MX', 'BR', 'AR', 'CL', 'ZA', 'MA', 'EG', 'IN', 'JP', 'AU', 'NZ', 'ID',
       'CN',
     ],
-    activity: fakeActivity('G4XYZ', [2023, 2024, 2025, 2026]),
   },
   IU2ABC: {
     callsign: 'IU2ABC',
@@ -200,6 +161,5 @@ export const placeholderProfiles: Record<string, UserProfile> = {
       'IT', 'FR', 'DE', 'CH', 'AT', 'SI', 'HR', 'ES', 'GB', 'NL', 'BE', 'PL',
       'SE', 'FI', 'GR', 'US', 'BR', 'JP', 'AU',
     ],
-    activity: fakeActivity('IU2ABC', [2024, 2025, 2026]),
   },
 };
