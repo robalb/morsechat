@@ -29,14 +29,19 @@ import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
 import type { ApiState, UserState } from './types';
 
 /** The settings a session starts with, from userSlice.js's initialSettings. A
- * registered account overwrites them with what sess_init or login returns. */
+ * registered account overwrites them with what sess_init or login returns.
+ *
+ * `key_mode` is the one that differs: react starts on the fixed-wpm straight
+ * key, this app starts on the adaptive one (`straight_dynamic`, labelled just
+ * "straight"), which reads a new operator's keying without them having to find
+ * the wpm slider first. */
 const initialSettings: Settings = {
   wpm: 12,
   key_frequency: 440,
   volume_receiver: 50,
   volume_key: 50,
   dialect: 'international',
-  key_mode: 'straight',
+  key_mode: 'straight_dynamic',
   show_readable: true,
   left_is_dot: true,
   submit_delay: 12,

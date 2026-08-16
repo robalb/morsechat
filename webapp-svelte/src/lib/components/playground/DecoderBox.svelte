@@ -3,8 +3,11 @@
    * One algorithm's reading of the message being keyed.
    *
    * It is the chat's <Preview /> with the two things that belong to sending
-   * turned off — there is no countdown here and nothing to cancel — and the
-   * algorithm's name above it. Reusing the real preview rather than drawing a
+   * turned off — there is no countdown here and nothing to cancel — the speed
+   * readout turned on, and the algorithm's name above it. The readout is off in
+   * the chat, where the box is a message and nothing else; here what an
+   * adaptive decoder thinks the speed is is half of what is being judged.
+   * Reusing the real preview rather than drawing a
    * box is deliberate: what is being judged is how a decoder looks to someone
    * keying into the actual chat, and a mockup with different type and different
    * wrapping would not answer that.
@@ -20,7 +23,7 @@
     <span class="name">{slot.name}</span>
     <span class="description">{slot.description}</span>
   </div>
-  <Preview class="box" source={slot} showProgress={false} showClear={false} />
+  <Preview class="box" source={slot} showProgress={false} showClear={false} showWpm />
 </div>
 
 <style>

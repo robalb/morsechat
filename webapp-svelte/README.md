@@ -50,10 +50,13 @@ the same breakpoints, so the two pages can be diffed with
 ## What is new here
 
 **The adaptive straight key**, `lib/morse/window.ts`, offered in the advanced
-settings as "straight (adaptive)" beside "straight" and "iambic A". The react
-app decoded the preview against the wpm slider and nothing else; this mode
+settings as plain "straight", beside "straight (fixed wpm)" and "iambic A". The
+react app decoded the preview against the wpm slider and nothing else; this mode
 measures the speed from the keying instead, so an operator who does not hold a
-steady speed — which is every beginner — reads back as what they meant.
+steady speed — which is every beginner — reads back as what they meant. It is
+the default here, and while it is on there is no wpm slider in the controls: the
+setting is still there and still what a message goes out at, but nothing the
+operator sees moves with it.
 
 What makes it non-trivial is that a live preview cannot re-decode what it has
 already shown. Measure the whole message and decode against the measurement and

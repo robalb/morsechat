@@ -420,7 +420,15 @@ async function runApp(url, viewport, cases, { legacy = false } = {}) {
 				// moment to land before keying against them
 				await sleep(500);
 
-				if (testCase.setup) await testCase.setup(page);
+				if (testCase.setup) {
+					await testCase.setup(page);
+				} else if (!legacy) {
+					// the svelte app starts on the adaptive straight key, the
+					// react app on the fixed-wpm one. A case with no setup is a
+					// case written against react, so put the port in the mode
+					// react is in; the adaptive cases ask for theirs themselves.
+					await selectKeyMode(page, "straight");
+				}
 				const { actual, expected } = await testCase.run(page);
 				results.push({
 					name: testCase.name,

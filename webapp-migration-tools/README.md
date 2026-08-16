@@ -82,7 +82,8 @@ The cases:
 first, because in iambic mode the timing is the app's and not the operator's:
 the paddle only says "keep going".
 
-The last two switch it to "straight (adaptive)" and are svelte-only — the react
+The last two switch it to the adaptive straight key — labelled just "straight"
+in the svelte app, which is also its default — and are svelte-only: the react
 app has no such mode, so they are skipped when driving it rather than counted as
 drift. Both key at a speed the app was never told about, which is the point of
 the mode. `dynamic` only asks for the end of the message: the first character or

@@ -22,7 +22,7 @@
   interface PreviewSource {
     /** the message, read back */
     text: string;
-    /** the speed it is being read at, shown only when `dynamic` */
+    /** the speed it is being read at, shown only when `showWpm` and `dynamic` */
     wpm: number;
     /** whether the speed is measured rather than set, and so worth showing */
     dynamic: boolean;
@@ -38,12 +38,19 @@
     source = keyer,
     showProgress = true,
     showClear = true,
+    showWpm = false,
   }: {
     class?: string;
     source?: PreviewSource;
     /** a box that is not a message being sent has no countdown to draw */
     showProgress?: boolean;
     showClear?: boolean;
+    /**
+     * The measured speed, off in the chat: what belongs in the message box is
+     * the message. The decoder playground turns it on, where the number is
+     * part of what is being compared between the algorithms.
+     */
+    showWpm?: boolean;
   } = $props();
 </script>
 
@@ -54,11 +61,9 @@
   {/if}
   <div class="text">
     <p data-mig="preview-text">{source.text}</p>
-    <!-- The measured speed, in adaptive mode only. In fixed mode it would just
-         be reading the slider back; here it moves while you key, and seeing it
-         move is most of what tells you whether the reading you are getting is
-         the app's fault or your hand's. -->
-    {#if source.dynamic}
+    <!-- The measured speed, where it is asked for and in adaptive mode only. In
+         fixed mode it would just be reading the slider back. -->
+    {#if showWpm && source.dynamic}
       <span class="wpm" data-mig="preview-wpm">{source.wpm} wpm</span>
     {/if}
     {#if showClear}
