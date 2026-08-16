@@ -193,7 +193,7 @@ const CASES = [
 	{
 		name: "iambic",
 		what: "a held paddle sends a stream of dits",
-		setup: selectIambicMode,
+		setup: (page) => selectKeyMode(page, "yambic"),
 		async run(page) {
 			// The app is keying now, not us: the paddle only says "more", and
 			// the element lengths come from its own wpm. One dit plus its space
@@ -207,7 +207,7 @@ const CASES = [
 	{
 		name: "squeeze",
 		what: "both paddles held alternate dit and dah",
-		setup: selectIambicMode,
+		setup: (page) => selectKeyMode(page, "yambic"),
 		async run(page) {
 			// dit at 0, dah at 200 (the machine asks again after the dit and
 			// its space), dit at 600, and the release at 750 lands before it
@@ -218,6 +218,103 @@ const CASES = [
 		},
 	},
 ];
+
+/* ------------------------------------------------------------------ *
+ * The adaptive straight key
+ *
+ * Only the svelte app has it, so these cases are marked `newOnly` and
+ * are skipped for the react app rather than counted as drift.
+ *
+ * Both of them key at a speed the app was not told about, which is the
+ * whole point of the mode: `dynamic` is whether it arrives at the right
+ * reading at all, and `dynamicstable` is the regression that motivated
+ * the mode's design — that the words already on screen stay put when
+ * the operator's speed changes underneath them.
+ * ------------------------------------------------------------------ */
+
+/** how much faster than the app's wpm setting the adaptive cases key */
+const FAST = 2;
+
+const ADAPTIVE_CASES = [
+	{
+		name: "dynamic",
+		what: "a message keyed at twice the slider still reads back",
+		newOnly: true,
+		setup: (page) => selectKeyMode(page, "straight_dynamic"),
+		async run(page) {
+			await keyText(page, "hello world", {
+				wpm: WPM * FAST,
+				key: opts.key,
+				slop: SLOP,
+			});
+			await sleep(TIMES.letterGap + 250);
+			// The first letter or two are decoded against the slider, because
+			// nothing has been measured yet, and cannot be right when it is
+			// this wrong. What has to be right is everything after that.
+			return { actual: await readPreview(page), expected: /world$/ };
+		},
+	},
+	{
+		name: "dynamicstable",
+		what: "slowing down does not rewrite what is already on screen",
+		newOnly: true,
+		setup: (page) => selectKeyMode(page, "straight_dynamic"),
+		async run(page) {
+			// A word at one speed, read while it is still the whole message...
+			await keyText(page, "hello", { wpm: WPM * FAST, key: opts.key, slop: SLOP });
+			await sleep(TIMES.letterGap + 250);
+			const before = await readPreview(page);
+
+			// ...then the same operator, tired, at a third of that speed. The
+			// naive implementation of this mode re-decodes the buffer at the
+			// new measurement and turns the first word into "eeee".
+			await keyText(page, "sos", {
+				wpm: (WPM * FAST) / 3,
+				key: opts.key,
+				slop: SLOP,
+			});
+			await sleep(TIMES.letterGap * 3 + 250);
+			const after = await readPreview(page);
+
+			return {
+				actual: `${before} | ${after}`,
+				// whatever the first word was read as, it is still there
+				expected: new RegExp(`^(.+) \\| ${escapeRegExp(before)}`),
+			};
+		},
+	},
+	{
+		name: "dynamicdrift",
+		what: "a dot-heavy letter still reads after a long message",
+		newOnly: true,
+		setup: (page) => selectKeyMode(page, "straight_dynamic"),
+		async run(page) {
+			// The operator this keys is a person and not a metronome: the hand
+			// comes back up slowly between elements and stops to think between
+			// letters, so the gaps run much longer than the textbook 1 and 3.
+			// That hand is what broke the first version of this mode — the
+			// letter gap estimate had no way to climb, so the split sank until
+			// every element gap read as a letter break and an "h" late in a
+			// message came out as "eeee", with the measured speed climbing as
+			// it went. Hence a long message, with the dot-heavy letters at the
+			// end of it.
+			await keyText(page, "test message with hi and sos", {
+				wpm: WPM,
+				key: opts.key,
+				slop: SLOP,
+				gap: 1.7,
+				letterGap: 5,
+				wordGap: 12,
+			});
+			await sleep(TIMES.letterGap * 2 + 250);
+			return { actual: await readPreview(page), expected: /hi and sos$/ };
+		},
+	},
+];
+
+function escapeRegExp(text) {
+	return text.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+}
 
 /** the two paddle keys, which both apps default to */
 const PADDLE_LEFT = "z";
@@ -238,7 +335,7 @@ async function holdKeys(page, keys, ms) {
  * up with a real radio input carrying the value, and both open it from a button
  * that says "advanced" — which is as much as this needs to know about either.
  */
-async function selectIambicMode(page) {
+async function selectKeyMode(page, value) {
 	const opened = await page.evaluate(() => {
 		const button = [...document.querySelectorAll("button")].find((b) =>
 			(b.textContent ?? "").toLowerCase().includes("advanced"),
@@ -249,7 +346,7 @@ async function selectIambicMode(page) {
 	});
 	if (!opened) throw new Error("no advanced/settings button on the page");
 
-	const radio = 'input[type="radio"][value="yambic"]';
+	const radio = `input[type="radio"][value="${value}"]`;
 	await page.waitForSelector(radio, { timeout: 5000 });
 	// clicked through the dom rather than at its coordinates: both libraries
 	// hide the input under a drawn control, and what is being tested is the
@@ -261,8 +358,12 @@ async function selectIambicMode(page) {
 	// out of the popup, so that the key has the page to itself again
 	await page.keyboard.press("Escape");
 	await sleep(400);
-	await page.waitForSelector('[data-mig="key-right"]', { timeout: 5000 });
+	if (value === "yambic") {
+		await page.waitForSelector('[data-mig="key-right"]', { timeout: 5000 });
+	}
 }
+
+CASES.push(...ADAPTIVE_CASES);
 
 const CASE_NAMES = CASES.map((c) => c.name);
 
@@ -277,7 +378,7 @@ if (opts.help) {
  * The page is reloaded between cases: a case leaves a message half-written or
  * a countdown half-run, and the next one should not have to know about it.
  */
-async function runApp(url, viewport, cases) {
+async function runApp(url, viewport, cases, { legacy = false } = {}) {
 	const browser = await puppeteer.launch({
 		headless: !opts.headful,
 		args: ["--no-sandbox", "--disable-dev-shm-usage"],
@@ -297,6 +398,9 @@ async function runApp(url, viewport, cases) {
 		target.searchParams.set("channel", "training");
 
 		for (const testCase of cases) {
+			// the react app has no adaptive mode to test
+			if (legacy && testCase.newOnly) continue;
+
 			const consoleErrors = [];
 			const onError = (msg) => {
 				if (msg.type?.() === "error") consoleErrors.push(msg.text());
@@ -413,7 +517,7 @@ if (!opts.json) {
 	);
 }
 
-const oldResults = opts.old ? await runApp(opts.old, viewport, cases) : null;
+const oldResults = opts.old ? await runApp(opts.old, viewport, cases, { legacy: true }) : null;
 const newResults = opts.new ? await runApp(opts.new, viewport, cases) : null;
 
 if (opts.json) {

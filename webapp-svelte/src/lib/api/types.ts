@@ -30,8 +30,17 @@ export interface Keybinds {
   cancel_message: string;
 }
 
-/** free-form on the wire (`min=1,max=20`); these are the two values used */
-export type KeyMode = 'straight' | 'yambic';
+/**
+ * Free-form on the wire (`min=1,max=20`); these are the values used.
+ *
+ * `straight_dynamic` is a straight key whose speed is measured from the keying
+ * rather than taken from the slider (lib/morse/adaptive.ts). It is a client-side
+ * experiment for now: the message that goes out is the same buffer of timings
+ * either way, and the receiver and the backend still read it at the sender's
+ * `wpm`, so a message keyed well away from the slider will read differently at
+ * the other end than it did in the preview.
+ */
+export type KeyMode = 'straight' | 'straight_dynamic' | 'yambic';
 
 export interface Settings {
   /** 5-50 */

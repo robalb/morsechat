@@ -98,14 +98,33 @@ export function stretch(times, slop = 0) {
  * Keying 10% slow is well inside both apps' bands, so it is what the harness
  * does by default; `--slop 0` is the textbook timing that tells them apart.
  *
+ * The gap options are how the operator stops being a metronome. Textbook morse
+ * puts one dit between two elements of a letter and three between letters, and
+ * a machine keys exactly that; a hand does not. The hand has to come back up
+ * between elements, and between letters is where the thinking happens, so both
+ * run long — and it is precisely those hands that the adaptive decoder exists
+ * for. A case that only ever keys 1:3:7 is testing the operator, not the app.
+ *
  * @param {string} text  what to key. Lowercased; a space is a word gap.
  * @param {number} wpm   the speed to key it at
  * @param {object} [opts]
  * @param {number} [opts.slop]  fraction to stretch every duration by
+ * @param {number} [opts.gap]        gap between elements, in dits (1)
+ * @param {number} [opts.letterGap]  gap between letters, in dits (3)
+ * @param {number} [opts.wordGap]    gap between words, in dits (7)
  * @returns {number[]}   alternating down/up durations, starting with a down
  */
-export function textToSchedule(text, wpm, { slop = 0 } = {}) {
+export function textToSchedule(
+	text,
+	wpm,
+	{ slop = 0, gap = 1, letterGap = 3, wordGap = 7 } = {},
+) {
 	const t = stretch(morseTimes(wpm), slop);
+	// the dit is the unit the shape is expressed in, and it already carries the
+	// slop, so the gaps stay in proportion to the elements around them
+	t.elementGap = Math.round(t.dot * gap);
+	t.letterGap = Math.round(t.dot * letterGap);
+	t.wordGap = Math.round(t.dot * wordGap);
 	const buffer = [];
 	let firstOfWord = true;
 
@@ -182,8 +201,8 @@ export async function playSchedule(page, buffer, { key = "c" } = {}) {
  * Key a phrase into a page and leave it there, undecided: the last letter is
  * only translated once the app's own letter-gap timer has run.
  */
-export async function keyText(page, text, { wpm = 12, key = "c", slop = 0 } = {}) {
-	const buffer = textToSchedule(text, wpm, { slop });
+export async function keyText(page, text, { wpm = 12, key = "c", ...shape } = {}) {
+	const buffer = textToSchedule(text, wpm, shape);
 	await playSchedule(page, buffer, { key });
 	return buffer;
 }

@@ -47,6 +47,123 @@ the same breakpoints, so the two pages can be diffed with
 | the keyer inside `components/key/Key.jsx` | `lib/morse/keyer.svelte.ts` |
 | `Preview.jsx`'s translation and countdown | `lib/morse/`, same file |
 
+## What is new here
+
+**The adaptive straight key**, `lib/morse/adaptive.ts`, offered in the advanced
+settings as "straight (adaptive)" beside "straight" and "iambic A". The react
+app decoded the preview against the wpm slider and nothing else; this mode
+measures the speed from the keying instead, so an operator who does not hold a
+steady speed — which is every beginner — reads back as what they meant.
+
+Two things make it non-trivial, and they are why the file is mostly prose.
+
+The first is that a live preview cannot re-decode what it has already shown.
+Measure the whole message and decode against the measurement and the first word turns into
+"eeee" the moment the operator slows down. So the decoder is causal: each
+element is classified against what was known before it arrived and is never
+revisited, and the estimate only ever moves what has not been decoded yet. The
+adaptation itself is Yang et al. 2000 (`yang2000.pdf` at the repo root), with
+the differences listed at the top of the file.
+
+The second is that an estimate fed only by its own classifications cannot
+correct itself. Put the split in the wrong place and the values that would move
+it back are exactly the ones being sorted into the wrong pile; the error feeds
+itself, and no choice of weight escapes it. That is what a first version got
+wrong in the most visible way possible: a loose hand — element gaps running
+nearer two dits than one, letter gaps nearer six than three — sank the letter
+split a little further with every letter, so an "h" some way into a message came
+out as four "e"s and the measured speed climbed as it went. The fix is that both
+splits are also measured directly, by grouping the raw durations of a sliding
+window and looking for the clear air between the two things the hand is actually
+making. That estimate never asks the classification what it thinks, so it cannot
+be captured by it.
+
+It is client-side only, deliberately. The buffer that gets sent is the same
+either way, and the receiver and the backend still read a message at the
+sender's `wpm` setting, so a message keyed far from the slider reads differently
+at the other end than it did in the preview. Making the two agree means sending
+a measured speed with the message, which is a wire format change and a separate
+piece of work.
+
+Two harnesses cover it, both in `webapp-migration-tools/`: the `dynamic`,
+`dynamicstable` and `dynamicdrift` cases of `keyer-test.js` drive the real app in
+a browser, and `adaptive-sim.ts` keys hundreds of drifting hands straight into
+the decoder for when a constant in it needs tuning.
+
+**The decoder playground**, `/playground.html` — a second vite entry, not linked
+to from the app, source under `lib/playground/`. It is the workbench the
+adaptive work needs and neither harness provides: one straight key, and every
+decoding algorithm reading it at once, in a column of the real preview boxes.
+
+Its two rules are what make it worth having. Live keying and replay go through
+the same path, so a box cannot tell which it is showing — a hand keyed once can
+be run against an algorithm written a month later. And nothing on screen is
+cleared by a message *ending*; only starting a new one clears, because the
+comparison is the point and one you have to catch mid-flight is no use.
+
+What it is really for is the failure that has no name in an accuracy score:
+a letter that was read correctly, shown to the operator, and then silently
+rewritten two letters later. `global average` is in the register to demonstrate
+it — its estimate is the best single number available for the whole message, and
+that is exactly why speeding up turns the word behind you into "tttt tt".
+
+Seven algorithms are in the register at the moment. The slider, the global
+average and `lib/morse/adaptive.ts`; three built on Guenther's 1973 thesis
+(`786492.pdf`, `lib/morse/guenther.ts`) — his decision boundaries as written,
+those with the silences measured from the silences rather than off the pulse
+average, and that plus two rules against flicker; and the window search.
+
+The Guenther middle variant is the interesting diff of the three: his design
+takes both space boundaries from the pulse average, which is right for his
+operators and wrong for a hand that leaves 100ms between two elements of a 60ms
+dot, and the corpus has three of those.
+
+**The window search** (`lib/morse/window.ts`) is the odd one out and currently
+the best reader on the page — it is the only one that gets all three recordings
+right, including the one every forward decoder opens with a run of `e`s. It does
+not decide an element when the element arrives. It holds a window, tries every
+sensible set of three thresholds (dash, letter gap, word gap) taken from the
+jumps in the window's own durations, and keeps the reading whose clusters are
+tightest *and* whose output is letters — `h` beats four `e`s because four `e`s
+cost more, not because a threshold happened to land right. It pays for that in
+two currencies: the first four letters of a message may be re-read on screen
+(after that the text is frozen behind a one-letter window and never changes),
+and the last letter lands about a second after the key comes up.
+
+Recordings live in `lib/playground/recordings.ts`, in source and not in local
+storage: a corpus that judges an algorithm belongs in git next to it, reviewable
+as a diff, or a tuning change gets compared against a set that quietly differs
+from the one it was tuned on. The loop is manual — key, save, type in what you
+meant, press "copy new recordings", paste into that file. `expected` is the one
+field nothing on the page can fill in, and a recording without it can be
+replayed but not scored.
+
+## Tests
+
+```sh
+npm test        # node --test, no browser, ~1s
+```
+
+`test/decoders.test.ts` runs the playground's corpus through the playground's
+decoders without the playground: `test/harness.ts` types each recording into a
+decoder as the engine does — sound, silence, and the idle ticks in between,
+counted out rather than waited for — and scores the replay on the three things
+the page exists to show. **churn**, text that was on screen and then changed,
+which must be zero for the causal decoder and is the reason it exists;
+**e/t runs**, the `eeee`/`tttt` a message collapses into when the split is in
+the wrong place; and **accuracy** against the hand-typed `expected`, last,
+because accuracy bought with churn is not worth having. A summary table of all
+three algorithms is printed on every run, passing or not.
+
+`global average` is asserted to *fail* — if it ever stops rewriting text, the
+harness has stopped measuring rewrites rather than the algorithm having improved.
+
+The tests import the app's `.ts` modules directly, with node stripping the types
+and `test/loader.mjs` doing the one thing vite does that node does not: resolving
+`$lib/` and extensionless imports. So what runs is the shipped source, not a
+compiled copy of it that can drift — the same approach as
+`webapp-migration-tools/adaptive-sim.ts`.
+
 ## What is not ported yet
 
 - **The sound engine.** `hooks/UseSound.jsx` (the key's sidetone) and

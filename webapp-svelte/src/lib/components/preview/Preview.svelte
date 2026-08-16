@@ -13,20 +13,62 @@
 
   import { keyer } from '$lib/morse/keyer.svelte';
 
-  let { class: className = '' }: { class?: string } = $props();
+  /**
+   * What a preview reads. The chat passes the keyer, which has all six as
+   * `$derived` getters; the decoder playground passes one of these per
+   * algorithm, so that the same box can be stacked once per decoder
+   * (lib/playground/engine.svelte.ts). Nothing here knows which it has.
+   */
+  interface PreviewSource {
+    /** the message, read back */
+    text: string;
+    /** the speed it is being read at, shown only when `dynamic` */
+    wpm: number;
+    /** whether the speed is measured rather than set, and so worth showing */
+    dynamic: boolean;
+    /** the submit countdown, 0 to 100 */
+    progress: number;
+    /** whether there is anything to throw away */
+    empty: boolean;
+    clear(): void;
+  }
+
+  let {
+    class: className = '',
+    source = keyer,
+    showProgress = true,
+    showClear = true,
+  }: {
+    class?: string;
+    source?: PreviewSource;
+    /** a box that is not a message being sent has no countdown to draw */
+    showProgress?: boolean;
+    showClear?: boolean;
+  } = $props();
 </script>
 
 <div class="preview {className}">
   <!-- the submit countdown: full when the message goes out -->
-  <div class="progress" style="width: {keyer.progress}%"> </div>
+  {#if showProgress}
+    <div class="progress" style="width: {source.progress}%"> </div>
+  {/if}
   <div class="text">
-    <p data-mig="preview-text">{keyer.text}</p>
-    <IconButton
-      class="material-icons"
-      aria-label="cancel message"
-      onclick={() => keyer.clear()}
-      disabled={keyer.empty}>delete_outline</IconButton
-    >
+    <p data-mig="preview-text">{source.text}</p>
+    <!-- The measured speed, in adaptive mode only. In fixed mode it would just
+         be reading the slider back; here it moves while you key, and seeing it
+         move is most of what tells you whether the reading you are getting is
+         the app's fault or your hand's. -->
+    {#if source.dynamic}
+      <span class="wpm" data-mig="preview-wpm">{source.wpm} wpm</span>
+    {/if}
+    {#if showClear}
+      <IconButton
+        class="material-icons"
+        aria-label="cancel message"
+        onclick={() => source.clear()}
+        disabled={source.empty}>delete_outline</IconButton
+      >
+    {/if}
   </div>
 </div>
 
@@ -47,5 +89,16 @@
     align-items: center;
     margin-left: 1rem;
     height: 100%;
+  }
+  .preview .text p {
+    /* the message takes the room, the readout takes what it needs */
+    flex: 1;
+    min-width: 0;
+  }
+  .preview .wpm {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    white-space: nowrap;
+    margin-right: 0.5rem;
   }
 </style>

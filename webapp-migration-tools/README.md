@@ -74,10 +74,60 @@ The cases:
 | `cancelheld` | the bin button *while the key is held*, then a letter | that letter alone |
 | `iambic` | the dit paddle held for 750ms | `h`, four dits |
 | `squeeze` | both paddles held for 750ms | `r`, dit-dah-dit |
+| `dynamic` | "hello world" at **twice** the app's wpm | `...world` — it works the speed out |
+| `dynamicstable` | a word fast, then a word at a third of that | the first word, unchanged |
+| `dynamicdrift` | a long message from a loose hand, dot-heavy letters last | those letters, read correctly |
 
-The last two switch the app to iambic mode through the settings popup first,
-because in iambic mode the timing is the app's and not the operator's: the
-paddle only says "keep going".
+`iambic` and `squeeze` switch the app to iambic mode through the settings popup
+first, because in iambic mode the timing is the app's and not the operator's:
+the paddle only says "keep going".
+
+The last two switch it to "straight (adaptive)" and are svelte-only — the react
+app has no such mode, so they are skipped when driving it rather than counted as
+drift. Both key at a speed the app was never told about, which is the point of
+the mode. `dynamic` only asks for the end of the message: the first character or
+two are decoded against the slider, before anything has been measured, and
+cannot be right when the slider is this wrong. `dynamicstable` is the real one —
+it reads the preview, then keys on at a third of the speed, and fails if the
+words already on screen have changed. That is the regression the mode is
+designed around, and the reason its decoder never re-reads a character it has
+already shown.
+
+`dynamicdrift` covers the other one. Its operator is not a metronome: the gaps
+inside a letter run near 1.7 dits instead of 1, and the gaps between letters
+near 5 instead of 3, which is what a hand on a straight key actually does and
+what `textToSchedule`'s `gap`/`letterGap`/`wordGap` options exist for. Against a
+hand like that the first version of the adaptive decoder sank its letter split a
+little further with every letter, so the dot-heavy letters at the end of the
+message came out as strings of "e" — hence the length of the phrase and the
+position of the "hi" and the "sos" in it.
+
+## Keying into the adaptive decoder without a browser
+
+`adaptive-sim.ts` imports `webapp-svelte/src/lib/morse/adaptive.ts` and feeds it
+the way the keyer does, letter timer included, but from an operator whose speed
+drifts across the message and whose slider is set to the wrong number. A browser
+case takes a minute; this takes a second and runs three hundred of them, which
+is what makes the constants in that file tunable rather than guessed:
+
+```sh
+node --experimental-strip-types adaptive-sim.ts
+
+node --experimental-strip-types adaptive-sim.ts \
+  --trace "hello world" --wpm 20 --to 7 --slider 12
+```
+
+The sweep prints three numbers per condition. `unstable` must be zero: it counts
+messages where something already on screen changed afterwards, which is the one
+failure worth refusing. `tail` is how often the message reads correctly once the
+decoder has locked on, ignoring the first two characters — those are decoded
+against the slider, so counting them measures the prior and not the algorithm.
+`chars` is positional agreement across the whole message, which collapses when a
+single letter is dropped early, so read it as a second opinion.
+
+`--trace` runs one message and prints every element with the split it was judged
+against and the estimates afterwards, which is how you find out *why* a reading
+went wrong rather than that it did.
 
 ### Why the operator keys 10% slow
 

@@ -11,6 +11,7 @@
     "dev": "vite --host",
     "build": "npm run smui-theme && vite build",
     "serve": "vite preview",
+    "test": "node --experimental-strip-types --import ./test/loader.mjs --test 'test/*.test.ts'",
     "smui-theme": "smui-theme compile src/theme/smui.css -i src/theme",
     "prepare": "npm run smui-theme"
   },

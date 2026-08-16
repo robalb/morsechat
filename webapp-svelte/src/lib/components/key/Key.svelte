@@ -18,20 +18,37 @@
   import IconButton from '@smui/icon-button';
   import type { Snippet } from 'svelte';
 
-  import { keyer } from '$lib/morse/keyer.svelte';
+  import { keyer as chatKeyer } from '$lib/morse/keyer.svelte';
   import { user } from '$lib/state/session.svelte';
+
+  /**
+   * What this bar drives. The chat drives the keyer; the decoder playground
+   * drives its own engine (lib/playground/engine.svelte.ts), which is the same
+   * three methods and none of the sending. The component cannot tell.
+   */
+  interface KeySource {
+    press(isLeft?: boolean): void;
+    release(isLeft?: boolean): void;
+    /** binds the keyboard, and returns the function that unbinds it */
+    listen(): () => void;
+  }
 
   let {
     class: className = '',
     leftButton,
     sheetBtHandler,
+    keyer = chatKeyer,
+    straight = false,
   }: {
     class?: string;
     leftButton?: Snippet;
     sheetBtHandler?: () => void;
+    keyer?: KeySource;
+    /** forces the single key, whatever the account's key_mode says */
+    straight?: boolean;
   } = $props();
 
-  let yambic = $derived(user.settings.key_mode === 'yambic');
+  let yambic = $derived(!straight && user.settings.key_mode === 'yambic');
 
   /**
    * The keyboard, for as long as the key is on screen. Reading the mode makes a
@@ -93,11 +110,20 @@
     >
   {/if}
 
-  <IconButton
-    class="material-icons"
-    aria-label="morse table"
-    onclick={sheetBtHandler}>library_books</IconButton
-  >
+  {#if sheetBtHandler}
+    <IconButton
+      class="material-icons"
+      aria-label="morse table"
+      onclick={sheetBtHandler}>library_books</IconButton
+    >
+  {:else}
+    <!-- as on the left: the space is part of the layout even when the button
+         is not there -->
+    <IconButton
+      class="material-icons settings_invisible"
+      aria-label="disabled button">library_books</IconButton
+    >
+  {/if}
 </div>
 
 <style>

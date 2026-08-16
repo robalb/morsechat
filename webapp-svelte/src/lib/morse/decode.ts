@@ -17,6 +17,7 @@
 import MorseDecoder from '$lib/morse-pro/morse-pro-decoder';
 import type { Dialect } from '$lib/utils/dialects';
 
+import type { Letter } from './adaptive';
 import { morseTimes } from './timings';
 
 /** what a dash is drawn with: an endash (U+2013), as in the react version */
@@ -60,9 +61,58 @@ export function makeMorse2Text(dialect: Dialect): (morse: string) => string {
     const word = chunk.trimStart().startsWith('/');
     const code = chunk.replace(/[ /]/g, '');
     if (!code) return '';
-    const letter = Object.hasOwn(dialect.table, code) ? dialect.table[code] : ` ${code} `;
-    return (word ? WORD_SPACE : '') + letter;
+    return (word ? WORD_SPACE : '') + lookup(dialect, code);
   };
+}
+
+/**
+ * One code as the dialect reads it.
+ *
+ * An unknown code is shown as itself between spaces, as the react
+ * `translateToReadable` did: keying something the dialect has no letter for
+ * should look like a mistake, not vanish.
+ */
+function lookup(dialect: Dialect, code: string): string {
+  return Object.hasOwn(dialect.table, code) ? dialect.table[code] : ` ${code} `;
+}
+
+export interface RenderOptions {
+  dialect: Dialect;
+  /** `show_readable`: text, or the dots and dashes it was keyed as */
+  showReadable: boolean;
+}
+
+/**
+ * The adaptive decoder's output, as the line under the chat.
+ *
+ * The counterpart of `decodeBuffer` for the dynamic modes: there the durations
+ * are classified here and now, at one fixed speed, so the whole buffer is
+ * decoded on every call; here they were classified as they arrived, once each,
+ * and all that is left to do is look up what they say. Which is exactly why the
+ * dialect and `show_readable` can still be changed in the middle of a message
+ * without disturbing a letter — those are the two things this function does,
+ * and it is the only part of the dynamic path that runs more than once.
+ *
+ * @param letters - the characters already decided
+ * @param pending - the dots and dashes of the character still being keyed
+ */
+export function renderLetters(letters: Letter[], pending: string, options: RenderOptions): string {
+  const { dialect, showReadable } = options;
+
+  let text = '';
+  for (const { code, wordBreak } of letters) {
+    // Readable letters run together and morse does not, which is the spacing
+    // `decodeBuffer` produces: there, one is `morse2text` returning the bare
+    // letter and the other is the decoder's own ' ' between characters.
+    if (wordBreak) text += WORD_SPACE;
+    else if (text && !showReadable) text += ' ';
+    text += showReadable ? lookup(dialect, code) : code;
+  }
+  if (pending) {
+    text += text ? ' ' : '';
+    text += pending;
+  }
+  return text.replaceAll('-', DASH_CHAR);
 }
 
 /**
