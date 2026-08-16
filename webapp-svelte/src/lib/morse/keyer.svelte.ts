@@ -27,6 +27,7 @@ import { user } from '$lib/state/session.svelte';
 import getDialect from '$lib/utils/dialects';
 
 import { decodeBuffer, renderLetters, type Letter } from './decode';
+import { matchAction } from './keybinds';
 import { morseTimes } from './timings';
 import { WindowDecoder } from './window';
 
@@ -393,6 +394,19 @@ class Keyer {
     this.progress = 0;
   }
 
+  /**
+   * Sends what is in the preview now, instead of waiting the message out: the
+   * `transmit` keybinding.
+   *
+   * The countdown is cancelled first, or the bar would keep filling under a
+   * message that has already gone and send the next one early.
+   */
+  async send() {
+    if (this.empty) return;
+    this.#cancelSubmit();
+    await this.#send();
+  }
+
   async #send() {
     const message = [...this.buffer];
     if (message.length === 0) return;
@@ -487,56 +501,35 @@ class Keyer {
     };
   }
 
+  /**
+   * The bindings are read here, on the event, rather than closed over when the
+   * listener is registered: an edit in the settings panel is in force at the
+   * very next key press, with nothing to re-register. What re-registering *is*
+   * for is the key held while its binding is taken away — see Key.svelte.
+   */
   #handleKey(e: KeyboardEvent, isDown: boolean) {
-    // anti-ch3at measure, as in the react version: a synthetic event has not
-    // been keyed by a person
-    if (!e.isTrusted) return;
-    // held keys repeat, and a repeat is not a new press
-    if (e.repeat) return;
-    // Not in the react version, and a bug there: the listeners are on the
-    // window, so keying happened while typing a password into the login dialog
-    // or a callsign into its editor.
-    if (isEditable(e.target)) return;
+    const action = matchAction(e, user.settings.keybinds, {
+      mode: user.settings.key_mode,
+    });
+    if (!action) return;
 
-    const keybinds = user.settings.keybinds;
-    const key = e.key === ' ' ? 'space' : e.key.toLowerCase();
-    const bound = (binding: string) => key === binding.toLowerCase();
-
-    if (bound(keybinds.cancel_message)) {
-      if (isDown) this.clear();
-      return;
-    }
-
-    if (user.settings.key_mode !== 'yambic') {
-      // every key that can be a paddle is also the straight key, so switching
-      // mode never leaves a hand on a key that does nothing. The space bar is
-      // the straight key too, as it has always been.
-      if (
-        key === 'space' ||
-        bound(keybinds.straight) ||
-        bound(keybinds.yambic_left) ||
-        bound(keybinds.yambic_right)
-      ) {
+    switch (action) {
+      case 'cancel':
+        if (isDown) this.clear();
+        return;
+      case 'transmit':
+        if (isDown) void this.send();
+        return;
+      case 'straight':
         if (isDown) this.press();
         else this.release();
-      }
-      return;
+        return;
+      // the paddles, which only match in iambic mode
+      default:
+        if (isDown) this.press(action === 'left');
+        else this.release(action === 'left');
     }
-
-    const isLeft = bound(keybinds.yambic_left);
-    const isRight = bound(keybinds.yambic_right);
-    if (!isLeft && !isRight) return;
-    if (isDown) this.press(isLeft);
-    else this.release(isLeft);
   }
-}
-
-/** whether an event landed in something the user is typing into */
-function isEditable(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
-  const tag = target.tagName;
-  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
 }
 
 /**

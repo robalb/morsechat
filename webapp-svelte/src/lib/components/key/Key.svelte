@@ -51,13 +51,20 @@
   let yambic = $derived(!straight && user.settings.key_mode === 'yambic');
 
   /**
-   * The keyboard, for as long as the key is on screen. Reading the mode makes a
-   * change of it re-run this, and the cleanup lets go of whatever was held: the
-   * paddle you were holding when the mode changed under you never comes up
-   * otherwise.
+   * The keyboard, for as long as the key is on screen. Reading the mode and the
+   * bindings makes a change of either re-run this, and the cleanup lets go of
+   * whatever was held: the paddle you were holding when the mode changed under
+   * you never comes up otherwise, and neither does the key whose binding was
+   * taken away while it was down — its keyup matches nothing now.
+   *
+   * The handler itself reads the bindings on every event, so this is only about
+   * the held key; nothing has to be re-registered for an edit to take effect.
    */
   $effect(() => {
     user.settings.key_mode;
+    // the keys of every action, read deeply enough for a change inside one of
+    // the lists to count as a change
+    JSON.stringify(user.settings.keybinds);
     return keyer.listen();
   });
 

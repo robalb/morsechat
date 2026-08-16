@@ -22,12 +22,23 @@
  * re-exports them from here rather than declaring its own.
  * ------------------------------------------------------------------ */
 
+/**
+ * The keys each action answers to, by the name the picker offers them under: a
+ * letter, or `space` (lib/components/controls/keybindings.ts).
+ *
+ * This is the one place the client is ahead of the wire format. The go struct
+ * still declares one 1-2 character string per action and knows nothing of
+ * `transmit`, so update_settings refuses these until it grows `[]string` fields
+ * — an accepted trade for keeping the change client-side. Everything else about
+ * the settings works as it did.
+ */
 export interface Keybinds {
-  /** 1-2 characters, as are the three below */
-  straight: string;
-  yambic_left: string;
-  yambic_right: string;
-  cancel_message: string;
+  straight: string[];
+  yambic_left: string[];
+  yambic_right: string[];
+  /** sends the message in the preview without waiting for the countdown */
+  transmit: string[];
+  cancel_message: string[];
 }
 
 /**

@@ -22,6 +22,7 @@
  * property the whole page rests on.
  */
 import { decodeBuffer } from '$lib/morse/decode';
+import { matchAction } from '$lib/morse/keybinds';
 import { user } from '$lib/state/session.svelte';
 import getDialect from '$lib/utils/dialects';
 
@@ -510,42 +511,25 @@ export class Playground {
   }
 
   #handleKey(e: KeyboardEvent, isDown: boolean) {
-    if (!e.isTrusted) return;
-    if (e.repeat) return;
-    // the sidebar has text inputs in it, and keying while naming a recording
-    // would record the name
-    if (isEditable(e.target)) return;
+    // The chat's bindings and the chat's guards — including the one that keeps
+    // a key out of the text inputs in the sidebar, where naming a recording
+    // would otherwise key it. The mode is this box's own rather than the
+    // setting: there is one key here and no paddles, and it should not go dead
+    // because the chat was left in iambic. `transmit` is the one action with
+    // nothing to do here, and matches nothing below.
+    const action = matchAction(e, user.settings.keybinds, { mode: 'straight' });
 
-    const keybinds = user.settings.keybinds;
-    const key = e.key === ' ' ? 'space' : e.key.toLowerCase();
-    const bound = (binding: string) => key === binding.toLowerCase();
-
-    if (bound(keybinds.cancel_message)) {
+    if (action === 'cancel') {
       if (isDown) this.clear();
       return;
     }
 
-    // every key that is a key anywhere in the app is the straight key here:
-    // the playground has one key and no paddles
-    if (
-      key === 'space' ||
-      bound(keybinds.straight) ||
-      bound(keybinds.yambic_left) ||
-      bound(keybinds.yambic_right)
-    ) {
+    if (action === 'straight') {
       e.preventDefault();
       if (isDown) this.press();
       else this.release();
     }
   }
-}
-
-/** whether an event landed in something the user is typing into */
-function isEditable(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
-  const tag = target.tagName;
-  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
 }
 
 /** short enough to read in a diff, unique enough for a session's worth */

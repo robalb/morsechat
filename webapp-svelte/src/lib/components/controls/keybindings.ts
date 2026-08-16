@@ -2,10 +2,10 @@
  * The shape the keybindings panel and its edit popup work with, and the set of
  * keys the popup offers.
  *
- * The react app stores one key per action (state/types.ts `Keybinds`, ported
- * from userSlice); the panel here holds a list per action, which is what the
- * popup edits. When the state migration lands, this is the type the settings
- * slice has to satisfy — until then the panel owns its own placeholder copy.
+ * The react app stores one key per action (userSlice); an action here holds a
+ * list, which is what the popup edits and what `Keybinds` (api/types.ts) now
+ * stores. This is only the shape the popup passes around — the panel reads the
+ * settings themselves.
  */
 export interface Binding {
   action: string;

@@ -20,6 +20,7 @@ import * as rest from '$lib/api/client';
 import type {
   ApiResult,
   AuthResponse,
+  Keybinds,
   LoginRequest,
   RegisterRequest,
   Settings,
@@ -30,11 +31,7 @@ import type { ApiState, UserState } from './types';
 
 /** The settings a session starts with, from userSlice.js's initialSettings. A
  * registered account overwrites them with what sess_init or login returns.
- *
- * `key_mode` is the one that differs: react starts on the fixed-wpm straight
- * key, this app starts on the adaptive one (`straight_dynamic`, labelled just
- * "straight"), which reads a new operator's keying without them having to find
- * the wpm slider first. */
+ */
 const initialSettings: Settings = {
   wpm: 12,
   key_frequency: 440,
@@ -46,10 +43,11 @@ const initialSettings: Settings = {
   left_is_dot: true,
   submit_delay: 12,
   keybinds: {
-    straight: 'c',
-    yambic_left: 'z',
-    yambic_right: 'x',
-    cancel_message: 'p',
+    straight: ['space', 'c'],
+    yambic_left: ['z'],
+    yambic_right: ['x'],
+    transmit: ['w'],
+    cancel_message: ['p'],
   },
 };
 
@@ -74,8 +72,38 @@ export const user: UserState = $state({
   id: null,
   username: null,
   show_popup: false,
-  settings: { ...initialSettings, keybinds: { ...initialSettings.keybinds } },
+  // the keybinds are copied a level deeper than the rest: each action holds a
+  // list, and the panel edits those lists in place
+  settings: { ...initialSettings, keybinds: normalizeKeybinds(initialSettings.keybinds) },
 });
+
+/**
+ * The keybinds of a settings object, as this app wants them: one list of keys
+ * per action, and all five actions present.
+ *
+ * What comes back from the server is not necessarily that. Every account saved
+ * before the panel could edit them holds the old shape — one string per action,
+ * and no `transmit` at all — and a bare string where a list is expected reads as
+ * a list of its characters, which would bind `c` to nothing and `space` to five
+ * unrelated letters. So a string is widened to the one key it is, and a missing
+ * action falls back to its default rather than to nothing: an action with no
+ * keys cannot be triggered, and the popup will not let you save one either.
+ */
+function normalizeKeybinds(stored: Partial<Keybinds> | undefined): Keybinds {
+  const keys = (value: unknown, fallback: string[]): string[] => {
+    if (typeof value === 'string') return value ? [value] : [...fallback];
+    if (Array.isArray(value) && value.length > 0) return value.map(String);
+    return [...fallback];
+  };
+  const defaults = initialSettings.keybinds;
+  return {
+    straight: keys(stored?.straight, defaults.straight),
+    yambic_left: keys(stored?.yambic_left, defaults.yambic_left),
+    yambic_right: keys(stored?.yambic_right, defaults.yambic_right),
+    transmit: keys(stored?.transmit, defaults.transmit),
+    cancel_message: keys(stored?.cancel_message, defaults.cancel_message),
+  };
+}
 
 /**
  * Writes an auth response into the user state. login, register, logout and
@@ -89,7 +117,9 @@ function applyAuthResponse(res: AuthResponse) {
   user.isadmin = res.is_admin;
   user.ismoderator = res.is_moderator;
   user.username = res.username || null;
-  if (res.settings) user.settings = res.settings;
+  if (res.settings) {
+    user.settings = { ...res.settings, keybinds: normalizeKeybinds(res.settings.keybinds) };
+  }
 
   // TODO: the react version also assigns a pseudorandom key frequency derived
   // from the callsign when the account has none saved (getFreqencyFromCallsign,
