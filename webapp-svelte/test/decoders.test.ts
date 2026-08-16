@@ -29,7 +29,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { decodeMessage, estimateDot } from '$lib/morse/average';
+import { decodeMessage, measure } from '$lib/morse/average';
 import getDialect from '$lib/utils/dialects';
 import { ALGORITHMS } from '$lib/playground/decoders';
 import { SAVED_RECORDINGS } from '$lib/playground/recordings';
@@ -346,7 +346,7 @@ describe('global average simple', () => {
     const dots = [58, 62, 55, 65, 60, 57, 63, 59];
     const buffer: number[] = [];
     for (const ms of dots) buffer.push(ms, 60);
-    const dot = estimateDot(buffer);
+    const dot = measure(buffer)?.dot ?? null;
     assert.ok(dot !== null && dot > 50 && dot < 70, `${dot}`);
   });
 
@@ -354,7 +354,7 @@ describe('global average simple', () => {
     // 100ms dot, 300ms dash, the gaps where the textbook says: the estimate
     // should land on the dot and not somewhere between the two clusters
     const buffer = [100, 100, 300, 300, 100, 100, 300, 700, 300, 100, 100];
-    const dot = estimateDot(buffer);
+    const dot = measure(buffer)?.dot ?? null;
     assert.ok(dot !== null && dot > 85 && dot < 115, `${dot}`);
   });
 });
