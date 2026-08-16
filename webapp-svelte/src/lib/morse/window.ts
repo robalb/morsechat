@@ -321,7 +321,6 @@ export class WindowDecoder {
       }
     }
     if (best === null) return this.#empty();
-    if (process.env.DBG) console.log('win', JSON.stringify(best.thresholds), 'letters', best.letters.map(l=>l.code+(l.wordBreak?'|W':'')).join(','));
 
     if (learn && best.dot > 0) {
       // the estimate follows the winner rather than jumping to it: one window's

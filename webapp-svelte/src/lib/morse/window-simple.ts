@@ -30,6 +30,18 @@
  * on how tight the clusters they make are, whether the letters that come out are
  * letters, and how plausible the shape of the result is.
  *
+ * One part of the scoring is not the same, and it is the one thing a finished
+ * message knows that a window cannot: **word gaps are measured here.** In
+ * window.ts they join no cluster, because mid-message a long silence is an
+ * operator who stopped to think and a decoder that charged them for it would be
+ * scoring their attention. That exemption leaves nothing on the other side of
+ * `WORD_COST`, and the reading that never breaks a word wins every time — which
+ * is why window.ts effectively never sets a finite word threshold, and why the
+ * spaces in its preview are not word breaks at all but empty codes rendered by
+ * `lookup` as two spaces. Here the word gaps of a finished message are a band
+ * like any other, so the reading that resolves three tight bands of silence can
+ * out-score the one that resolves two, and a space is a space.
+ *
  * The one thing this loses against the live decoder is drift. window.ts
  * re-searches every window, so a hand that speeds up across a message is read at
  * whatever speed it is going at; here one set of thresholds is fitted to the
@@ -59,9 +71,22 @@ const LONE_COST = 0.4;
 const LONE_RUN_COST = 2.5;
 const LONE_RUN_AT = 2;
 
-/** what a word break costs. Word gaps have no scatter cost — a pause for
- * thought can be any length — so without this every letter is its own word. */
-const WORD_COST = 1.2;
+/**
+ * What a word break costs: what stops the search cutting a word out of every
+ * letter, since a threshold that splits any cluster in two makes both halves
+ * tighter than the whole.
+ *
+ * An eighth of window.ts's 1.2, and the difference is the reason this file
+ * scores word gaps at all (see `read`). There the charge is the *only* thing
+ * standing against a break, so it has to be heavy; here the scatter of the word
+ * cluster does that work, and 1.2 turns out to be more than a word gap is worth:
+ * a word gap sitting among letter gaps costs the letter cluster about half a
+ * point of scatter, so at 1.2 no break in a real message ever pays for itself
+ * and every message comes out as one long word. Over the corpus and the
+ * generated hands the whole range 0.15–0.2 puts the spaces in the right places;
+ * under 0.1 the search starts inventing them.
+ */
+const WORD_COST = 0.15;
 
 /** the token a word break is written as, between the codes on either side of it */
 const WORD_BREAK = '/';
@@ -142,6 +167,7 @@ function read(buffer: number[], thresholds: Thresholds, isCharacter: (code: stri
   const dashes: number[] = [];
   const elementGaps: number[] = [];
   const letterGaps: number[] = [];
+  const wordGaps: number[] = [];
 
   const out: string[] = [];
   let cost = 0;
@@ -181,9 +207,18 @@ function read(buffer: number[], thresholds: Thresholds, isCharacter: (code: stri
       elementGaps.push(ms);
       continue;
     }
-    // a word gap is a pause for thought and can be any length, so it joins no
-    // cluster and is charged for by the break it makes instead
-    if (ms < thresholds.word) letterGaps.push(ms);
+    // Word gaps are a cluster here, where in the live decoder they are not.
+    // That is the one place a finished message is genuinely different evidence
+    // rather than more of it: mid-message a word gap is an operator who stopped
+    // to think and can be any length, so charging it for scatter would punish
+    // the reading for something the operator did with their attention. In a
+    // message that is over, the gaps between words were mostly keyed, and they
+    // sit in a band the way the other two classes do — and without measuring
+    // that band nothing can ever pay for a word break: leaving the word gaps in
+    // with the letter gaps only widens one cluster it is already paying
+    // `WORD_COST` to narrow, and the reading that never breaks a word always
+    // wins.
+    (ms < thresholds.word ? letterGaps : wordGaps).push(ms);
     finish(ms >= thresholds.word);
   }
   // the character at the end. Unlike the live decoder there is nothing to wait
@@ -194,7 +229,8 @@ function read(buffer: number[], thresholds: Thresholds, isCharacter: (code: stri
   const dash = scatter(dashes);
   const element = scatter(elementGaps);
   const letter = scatter(letterGaps);
-  cost += dot.cost + dash.cost + element.cost + letter.cost;
+  const word = scatter(wordGaps);
+  cost += dot.cost + dash.cost + element.cost + letter.cost + word.cost;
 
   if (dashes.length && dots.length && dash.centre < dot.centre * MIN_DASH_RATIO) {
     cost += SHAPE_COST;
