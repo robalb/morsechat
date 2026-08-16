@@ -20,9 +20,10 @@
  * at the bottom; the page grows a box for it.
  */
 import { decodeMessage, measure } from '$lib/morse/average';
-import { decodeBuffer, renderLetters } from '$lib/morse/decode';
+import { decodeBuffer, renderLetters, type Letter } from '$lib/morse/decode';
 import { morseTimes } from '$lib/morse/timings';
 import { WindowDecoder } from '$lib/morse/window';
+import { decodeTimings } from '$lib/morse/window-simple';
 
 import type { Algorithm, DecodeContext, Decoder } from './types';
 
@@ -137,7 +138,107 @@ class WindowSlot implements Decoder {
 }
 
 /* ------------------------------------------------------------------ *
- * 3. The whole-message average
+ * 3. The window search, on a finished message
+ * ------------------------------------------------------------------ */
+
+/**
+ * lib/morse/window-simple.ts, wrapped so it can be fed from here.
+ *
+ * The same adapter trick the average box uses: an algorithm that wants the whole
+ * message is given the whole message by keeping its own copy of what it has been
+ * fed, and is run on it. What it cannot be given is the future, so this box
+ * stays empty until the message is over.
+ *
+ * That emptiness is the point of having it next to the window box. The two are
+ * the same search; one of them had to guess where the message was going and the
+ * other did not. When the operator stops keying, the window box has been reading
+ * along the whole time and this one finally says something, and what is being
+ * looked for is whether the two lines agree — where they differ is exactly what
+ * the live decoder paid for reading in real time.
+ *
+ * "Over" is a word gap of silence, measured the way the average box measures one:
+ * seven dots of the speed the presses themselves imply. Before that the operator
+ * may still be in the middle of a message.
+ */
+class SimpleWindowSlot implements Decoder {
+  #buffer: number[] = [];
+  #idle = 0;
+
+  /** the reading, and the buffer length it was made from: the search is run
+   * once per message, not once per animation frame */
+  #letters: Letter[] = [];
+  #read = -1;
+
+  addSound(ms: number) {
+    this.#buffer.push(ms);
+    this.#idle = 0;
+  }
+
+  addSilence(ms: number) {
+    this.#buffer.push(ms);
+    this.#idle = 0;
+  }
+
+  idle(ms: number) {
+    this.#idle = ms;
+  }
+
+  reset() {
+    this.#buffer = [];
+    this.#idle = 0;
+    this.#letters = [];
+    this.#read = -1;
+  }
+
+  measuredWpm(): number | null {
+    // it measures the message inside the search and keeps no estimate of its
+    // own to report — the box shows the reading and nothing else
+    return null;
+  }
+
+  render(ctx: DecodeContext): string {
+    const measured = measure(this.#buffer);
+    const over = measured !== null && this.#idle >= measured.dot * 7;
+
+    if (over && this.#read !== this.#buffer.length) {
+      this.#letters = toLetters(
+        decodeTimings(this.#buffer, {
+          isCharacter: (code) => Object.hasOwn(ctx.dialect.table, code),
+        })
+      );
+      this.#read = this.#buffer.length;
+    }
+    if (!over) return '';
+
+    return renderLetters(this.#letters, '', {
+      dialect: ctx.dialect,
+      showReadable: ctx.showReadable,
+    });
+  }
+}
+
+/**
+ * `decodeTimings`' line of codes, as the letters `renderLetters` draws — so this
+ * box and the window box are rendered by the same function and any difference
+ * between them is a difference between the two algorithms.
+ */
+function toLetters(text: string): Letter[] {
+  const letters: Letter[] = [];
+  let wordBreak = false;
+  for (const token of text.split(' ')) {
+    if (!token) continue;
+    if (token === '/') {
+      wordBreak = true;
+      continue;
+    }
+    letters.push({ code: token, wordBreak });
+    wordBreak = false;
+  }
+  return letters;
+}
+
+/* ------------------------------------------------------------------ *
+ * 4. The whole-message average
  * ------------------------------------------------------------------ */
 
 /**
@@ -249,5 +350,12 @@ export const ALGORITHMS: Algorithm[] = [
     description:
       'reads a window of elements at many candidate speeds and keeps the reading that makes letters. May re-read the first four letters of a message; never a letter after that.',
     create: () => new WindowSlot(),
+  },
+  {
+    id: 'window_simple',
+    name: 'window search, finished message (lib/morse/window-simple.ts)',
+    description:
+      'the same search with the streaming taken out: one set of thresholds fitted to the whole message, once. Shows nothing until the operator stops keying, and should then agree with the box above.',
+    create: () => new SimpleWindowSlot(),
   },
 ];

@@ -1,0 +1,10 @@
+import getDialect from '$lib/utils/dialects';
+import { CASES } from './synth.ts';
+const D = getDialect('international');
+const one = CASES.find(c => c.id === 'long/textbook')!;
+const gaps = one.buffer.filter((_, i) => i % 2 === 1);
+const sorted = [...gaps].sort((a,b)=>a-b);
+console.log('distinct gap values:', [...new Set(sorted.map(Math.round))].join(' '));
+const sounds = one.buffer.filter((_, i) => i % 2 === 0);
+console.log('distinct press values:', [...new Set([...sounds].sort((a,b)=>a-b).map(Math.round))].join(' '));
+console.log('counts: gaps', gaps.length, 'presses', sounds.length);
