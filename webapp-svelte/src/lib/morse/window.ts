@@ -1,29 +1,20 @@
 /**
- * The window decoder: cut the window where the clusters are, and keep the cut
- * that makes letters.
+ * The dynamic decoder: the key, read as it is being pressed.
  *
- * Every other decoder here works forwards, one element at a time, deciding each
- * press before the elements that would have explained it exist — which is why
- * four dots from a hand that pauses inside its letters read as `eeee` and stay
- * that way. This one reads a window of elements as a group, and is allowed to
- * re-read it: freely for the first `FLICKER_LETTERS` letters of a message,
- * where nobody is reading yet, and after that only inside a sliding window of
- * `HORIZON` letters. What leaves the window is a letter and is never touched
- * again.
+ * `WindowDecoder` is fed `addSound`/`addSilence` as the key is released and
+ * `idle` between presses, and exposes what to draw (`visible`, `preview`), the
+ * speed it is measuring (`dot`) and how long a caller must wait before a letter
+ * or a word is over (`letterSplit`, `wordSplit`). Its users are
+ * lib/morse/keyer.svelte.ts, which drives the chat, and the window box in
+ * lib/playground/decoders.ts.
  *
- * What it searches is not a speed but three thresholds — which presses are
- * dashes, which silences end a letter, which end a word — because every reading
- * of the window is exactly one choice of those. The candidates come from the
- * window's own durations (`splits`), which is what lets it follow a hand keying
- * a 60ms dot against a 450ms dash, a ratio no multiple of a dot describes. Each
- * reading is scored on how tight its clusters are, whether the letters that come
- * out are letters in the reader's table, and how far the speed it implies has
- * moved from the hand being tracked (`#read`).
+ * Rather than decide each press as it arrives, it re-reads a window of the last
+ * few elements as a group — which is what lets it prefer an `h` over four `e`s.
+ * The price of that is a letter that changes after it is shown, so it is only
+ * allowed for the first `FLICKER_LETTERS` letters of a message; past that, a
+ * letter leaving the window is frozen and never touched again.
  *
- * That search is ./window-core.ts, shared with ./window-static.ts, which
- * delivers the same algorithm to a message that is already over. What is in this
- * file is the live half: the window, the frontier, the running estimate of the
- * hand, and the rules about what may still be re-read.
+ * The algorithm itself is ./window-core.ts, shared with ./window-static.ts.
  */
 
 import type { Letter } from './decode';
@@ -57,11 +48,9 @@ const MAX_EVENTS = 40;
 const MIN_DOT = 20;
 const MAX_DOT = 600;
 
-/** what a word break costs. Word gaps have no scatter cost here — mid-message a
- * pause for thought can be any length — so without this every letter is its own
- * word. Eight times what the static decoder charges, which can measure the word
- * gaps of a finished message and so has something else on that side of the
- * scales: see ./window-static.ts. */
+/** what a word break costs. Word gaps are not measured here, so this charge is
+ * the only thing standing against a break: without it every letter is its own
+ * word. Eight times what window-static.ts charges, which does measure them. */
 const WORD_COST = 1.2;
 
 /** how hard the running estimate pulls on the search, per element in the
@@ -94,11 +83,9 @@ export class WindowDecoder {
   /** the hand, as currently understood: one dot, in ms */
   #dot: number;
 
-  /**
-   * Whether the message has ever been longer than `FLICKER_LETTERS`. Sticky:
-   * a re-reading that merges two letters would otherwise put a long message
-   * back under the limit and re-open permission to rewrite it.
-   */
+  /** whether the message has ever been longer than `FLICKER_LETTERS`. Sticky:
+   * a re-reading that merges two letters would otherwise put a long message back
+   * under the limit and re-open permission to rewrite it. */
   #settled = false;
 
   readonly #isCharacter: (code: string) => boolean;
@@ -136,13 +123,9 @@ export class WindowDecoder {
 
   /**
    * The silence after which the current reading would end the character being
-   * keyed.
-   *
-   * A reading can put a threshold at `Infinity` — that is the reading where the
-   * class does not occur, and early in a message it is the only candidate there
-   * is. Both splits fall back to a multiple of the dot rather than reporting it,
-   * because a caller waiting for one of them is waiting with a timer, and a
-   * timer set to `Infinity` fires immediately.
+   * keyed. Falls back to a multiple of the dot where the reading puts the
+   * threshold at `Infinity`, because a caller waiting on this is waiting with a
+   * timer, and a timer set to `Infinity` fires immediately.
    */
   get letterSplit(): number {
     const { letter } = this.#reading.thresholds;
@@ -156,12 +139,9 @@ export class WindowDecoder {
     return Number.isFinite(word) ? word : this.letterSplit * 3;
   }
 
-  /**
-   * The letters still inside the window, drawn as their dots and dashes because
-   * they may yet be read differently — plus, once the message is past its
-   * flicker budget, nothing else: early on those letters are shown as letters
-   * by `visible` instead.
-   */
+  /** the letters still inside the window, drawn as their dots and dashes because
+   * they may yet be read differently. Early in a message they are shown as
+   * letters by `visible` instead. */
   get preview(): string {
     const codes = this.#settled ? this.#reading.letters.map((l) => l.code) : [];
     if (this.#reading.pending) codes.push(this.#reading.pending);
@@ -266,16 +246,8 @@ export class WindowDecoder {
     return best;
   }
 
-  /**
-   * The window, read at one set of thresholds: the core's read, plus the one
-   * charge that only exists while a hand is being tracked.
-   *
-   * Word gaps are not measured (`measureWordGaps`), because mid-message a long
-   * silence is an operator who stopped to think and can be any length. The
-   * events in front of the frontier are (`frozen`): their durations are what
-   * the clusters are measured from, but their letters have been shown and
-   * cannot be decided again.
-   */
+  /** the window read at one set of thresholds: the core's read, plus the charge
+   * that only exists while a hand is being tracked */
   #read(thresholds: Thresholds): Reading {
     const reading = read(this.#events, thresholds, {
       isCharacter: this.#isCharacter,
@@ -285,8 +257,7 @@ export class WindowDecoder {
     });
 
     // how far the dot this reading implies is from the hand we believe we are
-    // reading. The whole difference between reading a window and reading a
-    // message: there is a hand here that we were already following.
+    // reading
     if (reading.dot > 0) {
       const drift = Math.log(reading.dot / this.#dot);
       reading.cost += PRIOR_COST * drift * drift * this.#events.length;
