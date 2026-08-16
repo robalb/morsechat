@@ -93,8 +93,21 @@ export interface Result {
   runs: number;
   /** the longest such run, in characters */
   longestRun: number;
-  /** the longest such run in *any* frame — flicker that did not survive to the end */
+  /** the longest such run in any frame's committed text */
   peakRun: number;
+
+  /**
+   * How much longer the longest run of `e`s or `t`s ever shown was than the
+   * longest one in the answer.
+   *
+   * The specific thing an operator complains about, as opposed to the general
+   * one: not "the decoder was wrong", but "my `h` spent a second on screen as
+   * `eeee` and then turned into an `h`". A decoder can be inaccurate without
+   * ever doing this — being wrong from the start and staying wrong is a
+   * different, lesser sin — and it can do it while scoring well. It has its own
+   * number because it has its own fix.
+   */
+  phantomRun: number;
 
   /** positional agreement with `expected`, 0..1 */
   accuracy: number;
@@ -126,7 +139,10 @@ export interface Result {
  * it has not shown the operator a letter to read.
  */
 function committed(text: string): string {
-  return text.replace(/(?:^|\s)[.\-–]+(?:\s+[.\-–]+)*$/, '');
+  // trailing whitespace is not text the operator has been shown: the morse
+  // rendering ends with the word separator, and a promise cannot be broken by a
+  // space appearing after it
+  return text.replace(/(?:^|\s)[.\-–]+(?:\s+[.\-–]+)*\s*$/, '').trimEnd();
 }
 
 /** the same text, comparable to a line typed into `expected` by hand */
@@ -194,9 +210,10 @@ export function replay(decoder: Decoder, recording: Recording, options: { showRe
   const snap = () => {
     const text = decoder.render(ctx);
     frames.push({ at: clock, text });
-    peakRun = Math.max(peakRun, runsOf(text).longest);
 
     const done = committed(text);
+    // only committed text counts: a run of dots and dashes is not a run of `e`s
+    peakRun = Math.max(peakRun, runsOf(done).longest);
     if (!done.startsWith(shown)) {
       // find how much of the promise survived, so that a decoder that rewrote
       // one letter is not scored like one that rewrote the sentence
@@ -256,6 +273,8 @@ export function replay(decoder: Decoder, recording: Recording, options: { showRe
     runs: count,
     longestRun: longest,
     peakRun,
+    // a run that is in the answer is not a flash, however ugly it is
+    phantomRun: Math.max(0, peakRun - longest),
     accuracy: agreement(final, recording.expected),
     tailLag: Math.max(0, (settled?.at ?? 0) - lastPress),
   };

@@ -13,6 +13,7 @@
  * at the bottom; the page grows a box for it.
  */
 import { AdaptiveDecoder, basesFromWpm, wpmOf } from '$lib/morse/adaptive';
+import { decodeMessage, measure } from '$lib/morse/average';
 import { decodeBuffer, renderLetters } from '$lib/morse/decode';
 import {
   GuentherDecoder,
@@ -372,6 +373,97 @@ class WindowSlot implements Decoder {
 }
 
 /* ------------------------------------------------------------------ *
+ * 6. The whole-message average
+ * ------------------------------------------------------------------ */
+
+/**
+ * lib/morse/average.ts: the receiver's decoder, shown here mid-message.
+ *
+ * It does not belong on a page about live previews and is here anyway, because
+ * the question it answers is one the page keeps raising — how much of what the
+ * live decoders get wrong is *hard*, and how much of it is only hard because
+ * the future has not happened yet. This is the same global average with the
+ * streaming taken out, and the gap between its box and the `global average` box
+ * two rows up is the cost of not knowing how the message ends.
+ *
+ * Letters appear as they are keyed, like every other box. The one thing it will
+ * not do is show a letter it is in no position to know: until a dash has
+ * arrived there is only one cluster of presses, every one of them is being read
+ * as a dot, and the reading on offer is `eeee` for what is about to be an `h`.
+ * So while that is true the elements stay dots and dashes, and they become
+ * letters the moment there is something to measure them against. That is the
+ * whole difference from `global average`, which shows the `eeee` and takes it
+ * back a second later.
+ */
+class WholeMessageDecoder implements Decoder {
+  #buffer: number[] = [];
+  #idle = 0;
+
+  /**
+   * Whether the text has been shown as letters yet.
+   *
+   * Sticky. Going back from letters to dots and dashes is a flash of its own —
+   * and it is what happens without this, because a message that has been quiet
+   * long enough to be read is not necessarily finished: the operator keys the
+   * next letter and the reading that was on screen is not available any more.
+   */
+  #reading = false;
+
+
+  addSound(ms: number) {
+    this.#buffer.push(ms);
+    this.#idle = 0;
+  }
+
+  addSilence(ms: number) {
+    this.#buffer.push(ms);
+    this.#idle = 0;
+  }
+
+  idle(ms: number) {
+    this.#idle = ms;
+  }
+
+  reset() {
+    this.#buffer = [];
+    this.#idle = 0;
+    this.#reading = false;
+  }
+
+  measuredWpm(): number | null {
+    const measured = measure(this.#buffer);
+    return measured === null ? null : Math.round(1200 / measured.dot);
+  }
+
+  render(ctx: DecodeContext): string {
+    const measured = measure(this.#buffer);
+    if (measured === null) return '';
+
+    // the last letter is finished once the key has been up for a letter gap,
+    // the same rule every other box here follows
+    const complete = this.#idle >= measured.dot * 3;
+
+    // A message of one cluster is a message with no dash in it *yet*. On the
+    // wire that means an operator who really did key nothing but dots and it is
+    // read as such; here it usually means the dash has not been keyed yet, so
+    // the elements stay elements rather than being shown as a run of `e`s that
+    // is about to turn into an `h`. A message that has ended without one is
+    // read anyway: there is nothing else coming.
+    if ((measured.separated && measured.dashes >= 2) || (complete && this.#idle >= measured.dot * 7)) {
+      this.#reading = true;
+    }
+
+
+    return decodeMessage(this.#buffer, {
+      dialect: ctx.dialect,
+      showReadable: ctx.showReadable && this.#reading,
+      wpm: ctx.wpm,
+      complete,
+    });
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * The register
  * ------------------------------------------------------------------ */
 
@@ -429,6 +521,13 @@ export const ALGORITHMS: Algorithm[] = [
         wordCorrection: true,
         errorCorrection: true,
       }),
+  },
+  {
+    id: 'global_average_simple',
+    name: 'global average simple (average.ts)',
+    description:
+      'the receiver and the server: measures the whole message once, then decodes it once. Reads nothing until the operator stops.',
+    create: () => new WholeMessageDecoder(),
   },
   {
     id: 'window',

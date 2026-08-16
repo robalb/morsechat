@@ -107,8 +107,9 @@ rewritten two letters later. `global average` is in the register to demonstrate
 it — its estimate is the best single number available for the whole message, and
 that is exactly why speeding up turns the word behind you into "tttt tt".
 
-Seven algorithms are in the register at the moment. The slider, the global
-average and `lib/morse/adaptive.ts`; three built on Guenther's 1973 thesis
+Eight algorithms are in the register at the moment. The slider, the global
+average, the whole-message average and `lib/morse/adaptive.ts`; three built on
+Guenther's 1973 thesis
 (`786492.pdf`, `lib/morse/guenther.ts`) — his decision boundaries as written,
 those with the silences measured from the silences rather than off the pulse
 average, and that plus two rules against flicker; and the window search.
@@ -118,9 +119,32 @@ takes both space boundaries from the pulse average, which is right for his
 operators and wrong for a hand that leaves 100ms between two elements of a 60ms
 dot, and the corpus has three of those.
 
+**The whole-message average** (`lib/morse/average.ts`, box `global average
+simple`) is not a live decoder at all: it is what the receiver and the server
+should run. A message arrives complete, so it is measured once and decoded once
+— `estimateDot` then `decodeBuffer` — and there is no adapting, no window and no
+state. It is the `global average` algorithm with the streaming taken out, which
+is the whole point: that one re-measures after every element, so its `h` spends
+the first second of a message as `eeee` because at that moment the four dots
+*are* the message. The only change to the arithmetic is that the split between
+short and long presses is iterated to a fixed point and refused when the two
+sides are less than 1.8 apart — a message of nothing but dots has a mean too,
+and splitting at it reports a hand twice as fast as the one that keyed it.
+
+Its box reads out as letters while the message is being keyed, like every other
+translator, with one exception: it will not show letters until the presses have
+fallen into two groups. Before the first dash there is nothing to measure a dot
+against, so every press is a dot and the only reading available is `eeee` for
+what is about to be an `h` — so the elements stay elements for that first second
+and become letters the moment there is something to decide them with. The
+harness measures this directly as `phantom`, the longest run of `e`s or `t`s
+ever shown that is not in the final answer: `global average` scores 1 there and
+this scores 0, at the same accuracy.
+
 **The window search** (`lib/morse/window.ts`) is the odd one out and currently
-the best reader on the page — it is the only one that gets all three recordings
-right, including the one every forward decoder opens with a run of `e`s. It does
+the best reader on the page — 98% against the corpus where nothing else clears
+81%, and the only one that reads the fast-hand recording every other decoder
+opens with a run of `e`s. It does
 not decide an element when the element arrives. It holds a window, tries every
 sensible set of three thresholds (dash, letter gap, word gap) taken from the
 jumps in the window's own durations, and keeps the reading whose clusters are
