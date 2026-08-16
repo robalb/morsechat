@@ -102,33 +102,6 @@ little further with every letter, so the dot-heavy letters at the end of the
 message came out as strings of "e" — hence the length of the phrase and the
 position of the "hi" and the "sos" in it.
 
-## Keying into the adaptive decoder without a browser
-
-`adaptive-sim.ts` imports `webapp-svelte/src/lib/morse/adaptive.ts` and feeds it
-the way the keyer does, letter timer included, but from an operator whose speed
-drifts across the message and whose slider is set to the wrong number. A browser
-case takes a minute; this takes a second and runs three hundred of them, which
-is what makes the constants in that file tunable rather than guessed:
-
-```sh
-node --experimental-strip-types adaptive-sim.ts
-
-node --experimental-strip-types adaptive-sim.ts \
-  --trace "hello world" --wpm 20 --to 7 --slider 12
-```
-
-The sweep prints three numbers per condition. `unstable` must be zero: it counts
-messages where something already on screen changed afterwards, which is the one
-failure worth refusing. `tail` is how often the message reads correctly once the
-decoder has locked on, ignoring the first two characters — those are decoded
-against the slider, so counting them measures the prior and not the algorithm.
-`chars` is positional agreement across the whole message, which collapses when a
-single letter is dropped early, so read it as a second opinion.
-
-`--trace` runs one message and prints every element with the split it was judged
-against and the estimates afterwards, which is how you find out *why* a reading
-went wrong rather than that it did.
-
 ### Why the operator keys 10% slow
 
 `--slop` is how much longer than textbook every duration is, and it defaults to

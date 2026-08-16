@@ -21,7 +21,7 @@
  * speed it implies has moved from the hand being tracked (`#read`).
  */
 
-import type { Letter } from './adaptive';
+import type { Letter } from './decode';
 
 export type { Letter };
 
@@ -192,11 +192,26 @@ export class WindowDecoder {
     return this.#dot;
   }
 
-  /** the silence after which the current reading would end a word: the
-   * playground's idle tick uses it to know when nothing more is coming */
+  /**
+   * The silence after which the current reading would end the character being
+   * keyed.
+   *
+   * A reading can put a threshold at `Infinity` — that is the reading where the
+   * class does not occur, and early in a message it is the only candidate there
+   * is. Both splits fall back to a multiple of the dot rather than reporting it,
+   * because a caller waiting for one of them is waiting with a timer, and a
+   * timer set to `Infinity` fires immediately.
+   */
+  get letterSplit(): number {
+    const { letter } = this.#reading.thresholds;
+    return Number.isFinite(letter) ? letter : this.#dot * 3;
+  }
+
+  /** the silence after which the current reading would end a word: the keyer
+   * and the playground use it to know when nothing more is coming */
   get wordSplit(): number {
-    const { word, letter } = this.#reading.thresholds;
-    return Number.isFinite(word) ? word : letter * 3;
+    const { word } = this.#reading.thresholds;
+    return Number.isFinite(word) ? word : this.letterSplit * 3;
   }
 
   /**

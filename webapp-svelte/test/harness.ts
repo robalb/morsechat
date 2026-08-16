@@ -12,7 +12,7 @@
  * It is the same event stream lib/playground/engine.svelte.ts feeds: sound,
  * silence, and the idle ticks in between. The ticks are not an implementation
  * detail that can be skipped — the last letter of a message is only decoded
- * once its silence has outlasted a letter gap, and the causal decoder closes
+ * once its silence has outlasted a letter gap, and the window search closes
  * every letter on an idle tick — so a harness that fed only the buffer would
  * measure a decoder the app never runs. What is dropped is real time: the ticks
  * are counted out rather than waited for, which is why this takes no longer
@@ -22,7 +22,7 @@
  * built to ask, in the order they matter:
  *
  *   churn      Did text that was already on screen change afterwards? This is
- *              the failure the causal decoder exists to prevent, and it is
+ *              the failure the live decoders exist to prevent, and it is
  *              worse than a wrong reading: the operator is keying the next
  *              letter while trusting the ones behind it.
  *   runs       How much of the output is "eeee" or "tttt" — the shape a message
@@ -78,8 +78,8 @@ export interface Result {
 
   /**
    * Every time committed text changed after being shown. Empty is the only
-   * acceptable value for a causal decoder; for the averaging one it is the
-   * whole point of having it on the page.
+   * acceptable value for a live decoder past its flicker budget; for the
+   * whole-message one it is the price of re-reading the message each time.
    */
   rewrites: Rewrite[];
 
@@ -162,8 +162,8 @@ function runsOf(text: string): { count: number; longest: number } {
 }
 
 /**
- * Character-for-character agreement, as webapp-migration-tools/adaptive-sim.ts
- * scores it: matching positions over the longer of the two.
+ * Character-for-character agreement: matching positions over the longer of the
+ * two.
  *
  * It is a rough number and is meant to be. A dropped letter early on shifts
  * everything after it and the score collapses, which flatters nobody and is

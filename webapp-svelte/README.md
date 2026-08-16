@@ -49,34 +49,31 @@ the same breakpoints, so the two pages can be diffed with
 
 ## What is new here
 
-**The adaptive straight key**, `lib/morse/adaptive.ts`, offered in the advanced
+**The adaptive straight key**, `lib/morse/window.ts`, offered in the advanced
 settings as "straight (adaptive)" beside "straight" and "iambic A". The react
 app decoded the preview against the wpm slider and nothing else; this mode
 measures the speed from the keying instead, so an operator who does not hold a
 steady speed — which is every beginner — reads back as what they meant.
 
-Two things make it non-trivial, and they are why the file is mostly prose.
+What makes it non-trivial is that a live preview cannot re-decode what it has
+already shown. Measure the whole message and decode against the measurement and
+the first word turns into "eeee" the moment the operator slows down. Every
+forward decoder tried here — a causal adaptation of Yang et al. 2000, three
+variants of Guenther 1973 — pays for that promise by deciding each element at
+the worst possible moment, before the elements that would have explained it
+exist, and four dots from a hand that pauses inside its letters read as "eeee"
+and stay that way.
 
-The first is that a live preview cannot re-decode what it has already shown.
-Measure the whole message and decode against the measurement and the first word turns into
-"eeee" the moment the operator slows down. So the decoder is causal: each
-element is classified against what was known before it arrived and is never
-revisited, and the estimate only ever moves what has not been decoded yet. The
-adaptation itself is Yang et al. 2000 (`yang2000.pdf` at the repo root), with
-the differences listed at the top of the file.
-
-The second is that an estimate fed only by its own classifications cannot
-correct itself. Put the split in the wrong place and the values that would move
-it back are exactly the ones being sorted into the wrong pile; the error feeds
-itself, and no choice of weight escapes it. That is what a first version got
-wrong in the most visible way possible: a loose hand — element gaps running
-nearer two dits than one, letter gaps nearer six than three — sank the letter
-split a little further with every letter, so an "h" some way into a message came
-out as four "e"s and the measured speed climbed as it went. The fix is that both
-splits are also measured directly, by grouping the raw durations of a sliding
-window and looking for the clear air between the two things the hand is actually
-making. That estimate never asks the classification what it thinks, so it cannot
-be captured by it.
+The window search buys the promise a different way. It reads a window of
+elements as a group and searches three thresholds — which presses are dashes,
+which silences end a letter, which end a word — taking the candidates from the
+window's own durations and keeping the reading whose clusters are tightest and
+whose letters are letters. It is allowed to change its mind on screen for the
+first four letters of a message, where the speed is genuinely unknown and nobody
+has started reading; after that a letter is frozen one letter behind the
+frontier and never touched again. That is a letter of latency in exchange for
+being able to prefer an "h" over four "e"s, which nothing deciding one element
+at a time can do.
 
 It is client-side only, deliberately. The buffer that gets sent is the same
 either way, and the receiver and the backend still read a message at the
@@ -85,15 +82,15 @@ at the other end than it did in the preview. Making the two agree means sending
 a measured speed with the message, which is a wire format change and a separate
 piece of work.
 
-Two harnesses cover it, both in `webapp-migration-tools/`: the `dynamic`,
-`dynamicstable` and `dynamicdrift` cases of `keyer-test.js` drive the real app in
-a browser, and `adaptive-sim.ts` keys hundreds of drifting hands straight into
-the decoder for when a constant in it needs tuning.
+Two harnesses cover it: the `dynamic`, `dynamicstable` and `dynamicdrift` cases
+of `webapp-migration-tools/keyer-test.js` drive the real app in a browser, and
+`test/window.test.ts` keys a hundred generated hands straight into the decoder
+for when a constant in it needs tuning.
 
 **The decoder playground**, `/playground.html` — a second vite entry, not linked
-to from the app, source under `lib/playground/`. It is the workbench the
-adaptive work needs and neither harness provides: one straight key, and every
-decoding algorithm reading it at once, in a column of the real preview boxes.
+to from the app, source under `lib/playground/`. It is the workbench the dynamic
+work needs and neither harness provides: one straight key, and every decoding
+algorithm reading it at once, in a column of the real preview boxes.
 
 Its two rules are what make it worth having. Live keying and replay go through
 the same path, so a box cannot tell which it is showing — a hand keyed once can
@@ -107,23 +104,18 @@ rewritten two letters later. `global average` is in the register to demonstrate
 it — its estimate is the best single number available for the whole message, and
 that is exactly why speeding up turns the word behind you into "tttt tt".
 
-Eight algorithms are in the register at the moment. The slider, the global
-average, the whole-message average and `lib/morse/adaptive.ts`; three built on
-Guenther's 1973 thesis
-(`786492.pdf`, `lib/morse/guenther.ts`) — his decision boundaries as written,
-those with the silences measured from the silences rather than off the pulse
-average, and that plus two rules against flicker; and the window search.
-
-The Guenther middle variant is the interesting diff of the three: his design
-takes both space boundaries from the pulse average, which is right for his
-operators and wrong for a hand that leaves 100ms between two elements of a 60ms
-dot, and the corpus has three of those.
+Three algorithms are in the register: the slider, the whole-message average and
+the window search. Five more were there while the choice was being made — a
+streaming global average, a causal adaptation of Yang et al. 2000, and three
+variants of Guenther's 1973 thesis (`786492.pdf`) — and are in the history if
+the comparison ever needs re-running. Keeping them meant maintaining five
+algorithms nothing was going to ship.
 
 **The whole-message average** (`lib/morse/average.ts`, box `global average
 simple`) is not a live decoder at all: it is what the receiver and the server
 should run. A message arrives complete, so it is measured once and decoded once
-— `estimateDot` then `decodeBuffer` — and there is no adapting, no window and no
-state. It is the `global average` algorithm with the streaming taken out, which
+— `measure` then `decodeBuffer` — and there is no adapting, no window and no
+state. It is a streaming global average with the streaming taken out, which
 is the whole point: that one re-measures after every element, so its `h` spends
 the first second of a message as `eeee` because at that moment the four dots
 *are* the message. The only change to the arithmetic is that the split between
@@ -185,8 +177,7 @@ harness has stopped measuring rewrites rather than the algorithm having improved
 The tests import the app's `.ts` modules directly, with node stripping the types
 and `test/loader.mjs` doing the one thing vite does that node does not: resolving
 `$lib/` and extensionless imports. So what runs is the shipped source, not a
-compiled copy of it that can drift — the same approach as
-`webapp-migration-tools/adaptive-sim.ts`.
+compiled copy of it that can drift.
 
 ## What is not ported yet
 

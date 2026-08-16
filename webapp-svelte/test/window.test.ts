@@ -22,14 +22,18 @@ import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
 import getDialect from '$lib/utils/dialects';
+import { WindowDecoder } from '$lib/morse/window';
+import { renderLetters } from '$lib/morse/decode';
 
 import { ALL_CASES, read, GOLDEN_PATH, type Reading } from './window-cases.ts';
 import { CASES } from './synth.ts';
+import { SAVED_RECORDINGS } from '$lib/playground/recordings';
 
 const GOLDEN: Reading[] = JSON.parse(readFileSync(GOLDEN_PATH, 'utf8'));
 const READINGS = new Map(ALL_CASES.map((one) => [one.id, read(one)]));
 
 const DIALECT = getDialect('international');
+const isCharacter = (code: string) => Object.hasOwn(DIALECT.table, code);
 
 const reading = (id: string): Reading => {
   const found = READINGS.get(id);
@@ -217,9 +221,93 @@ describe('the search', () => {
     assert.ok(Math.abs(dots[dots.length - 1] - end) < 0.35 * end, `${dots[dots.length - 1]}ms against ${end}ms`);
   });
 
+  test('always reports a finite split', () => {
+    // What the keyer waits on. A reading is allowed to put a threshold at
+    // `Infinity` — that is the reading where the class does not occur, and
+    // before any gap has been keyed it is the only candidate there is — but a
+    // caller waits for a split with a timer, and `setTimeout(fn, Infinity)`
+    // fires immediately. That is not a hypothetical: it read the first dot of
+    // every message as a finished `e`, so an `h` came out as `eeee` in the app
+    // while the playground, which compares against the split instead of timing
+    // on it, read it correctly.
+    for (const id of ['single/textbook', 'pair/textbook', 'hello/textbook', 'dots/sloppy']) {
+      const one = CASES.find((c) => c.id === id)!;
+      const decoder = new WindowDecoder(1200 / one.wpm, { isCharacter });
+      for (const [i, ms] of one.buffer.entries()) {
+        if (i % 2 === 0) decoder.addSound(ms);
+        else decoder.addSilence(ms);
+        assert.ok(Number.isFinite(decoder.letterSplit), `${id}: letterSplit ${decoder.letterSplit}`);
+        assert.ok(Number.isFinite(decoder.wordSplit), `${id}: wordSplit ${decoder.wordSplit}`);
+      }
+    }
+  });
+
   test('says nothing about an empty message', () => {
     const empty = reading('edge/empty');
     assert.equal(empty.visible, '');
     assert.equal(empty.preview, '');
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * The way the chat's key drives it
+ *
+ * lib/morse/keyer.svelte.ts feeds the same decoder from a real key: elements as
+ * they are keyed, and an animation frame telling it how long the key has been
+ * up in between. That path has no unit test of its own — it is svelte state and
+ * a rAF loop — so its call pattern is reproduced here, because it is the one
+ * the app ships and a decoder that only reads well under the playground's
+ * pattern is a decoder that reads well nowhere it matters.
+ * ------------------------------------------------------------------ */
+
+describe('the keyer pattern', () => {
+  const TICK = 16;
+
+  /** what the preview would show, keyed and ticked as the keyer does it */
+  const keyed = (buffer: number[], wpm: number): string => {
+    const decoder = new WindowDecoder(1200 / wpm, { isCharacter });
+
+    const quiet = (total: number) => {
+      for (let elapsed = TICK; elapsed <= total; elapsed += TICK) {
+        decoder.idle(elapsed);
+        if (elapsed >= decoder.wordSplit) {
+          decoder.flush();
+          return;
+        }
+      }
+    };
+
+    for (const [i, ms] of buffer.entries()) {
+      if (i % 2 === 0) decoder.addSound(ms);
+      else {
+        quiet(ms);
+        decoder.addSilence(ms);
+      }
+    }
+    quiet(4000);
+    return renderLetters(decoder.visible, decoder.preview, {
+      dialect: DIALECT,
+      showReadable: true,
+    });
+  };
+
+  for (const recording of SAVED_RECORDINGS.filter((r) => r.expected.trim() !== '')) {
+    test(`reads ${recording.id} the way the playground box does`, () => {
+      // against the playground's own reading of the same recording, not against
+      // what the operator meant: the corpus has a message nothing reads
+      // correctly, and what is being checked here is that the app's way of
+      // driving the decoder is the playground's way of driving it
+      assert.equal(flat(keyed(recording.buffer, recording.wpm)), flat(letters(reading(`corpus/${recording.id}`).visible)));
+    });
+  }
+
+  test('does not turn an h into eeee', () => {
+    // the shape of the bug this pattern was written for: four dots keyed as one
+    // letter, read as four
+    for (const id of ['hello/textbook', 'hello/sloppy', 'dots/textbook', 'pangram/hesitant']) {
+      const one = CASES.find((c) => c.id === id)!;
+      const got = keyed(one.buffer, one.wpm);
+      assert.ok(!/(e{3,}|t{3,})/i.test(got.replace(/\s+/g, '')), `${id}: "${got}"`);
+    }
   });
 });

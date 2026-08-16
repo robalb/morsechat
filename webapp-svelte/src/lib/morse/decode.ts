@@ -17,8 +17,14 @@
 import MorseDecoder from '$lib/morse-pro/morse-pro-decoder';
 import type { Dialect } from '$lib/utils/dialects';
 
-import type { Letter } from './adaptive';
 import { morseTimes } from './timings';
+
+/** one decoded character, and whether the silence before it ended a word */
+export interface Letter {
+  /** its dots and dashes, e.g. `-...` */
+  code: string;
+  wordBreak: boolean;
+}
 
 /** what a dash is drawn with: an endash (U+2013), as in the react version */
 const DASH_CHAR = '–';
@@ -83,7 +89,7 @@ export interface RenderOptions {
 }
 
 /**
- * The adaptive decoder's output, as the line under the chat.
+ * The dynamic decoder's output, as the line under the chat.
  *
  * The counterpart of `decodeBuffer` for the dynamic modes: there the durations
  * are classified here and now, at one fixed speed, so the whole buffer is

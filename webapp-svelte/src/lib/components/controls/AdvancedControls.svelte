@@ -10,7 +10,7 @@
    *
    * "straight (adaptive)" is new and not in the react version: a straight key
    * read at the speed it is being keyed at rather than at the slider's, for
-   * operators who do not hold a steady speed. See lib/morse/adaptive.ts.
+   * operators who do not hold a steady speed. See lib/morse/window.ts.
    */
   import FormField from '@smui/form-field';
   import Radio from '@smui/radio';
