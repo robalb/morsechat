@@ -23,7 +23,7 @@ import { decodeMessage, measure } from '$lib/morse/average';
 import { decodeBuffer, renderLetters, type Letter } from '$lib/morse/decode';
 import { morseTimes } from '$lib/morse/timings';
 import { WindowDecoder } from '$lib/morse/window';
-import { decodeTimings } from '$lib/morse/window-simple';
+import { decodeTimings } from '$lib/morse/window-static';
 
 import type { Algorithm, DecodeContext, Decoder } from './types';
 
@@ -142,7 +142,7 @@ class WindowSlot implements Decoder {
  * ------------------------------------------------------------------ */
 
 /**
- * lib/morse/window-simple.ts, wrapped so it can be fed from here.
+ * lib/morse/window-static.ts, wrapped so it can be fed from here.
  *
  * The same adapter trick the average box uses: an algorithm that wants the whole
  * message is given the whole message by keeping its own copy of what it has been
@@ -160,7 +160,7 @@ class WindowSlot implements Decoder {
  * seven dots of the speed the presses themselves imply. Before that the operator
  * may still be in the middle of a message.
  */
-class SimpleWindowSlot implements Decoder {
+class StaticWindowSlot implements Decoder {
   #buffer: number[] = [];
   #idle = 0;
 
@@ -352,10 +352,10 @@ export const ALGORITHMS: Algorithm[] = [
     create: () => new WindowSlot(),
   },
   {
-    id: 'window_simple',
-    name: 'window search, finished message (lib/morse/window-simple.ts)',
+    id: 'window_static',
+    name: 'window search, finished message (lib/morse/window-static.ts)',
     description:
       'the same search with the streaming taken out: one set of thresholds fitted to the whole message, once. Shows nothing until the operator stops keying, and should then agree with the box above.',
-    create: () => new SimpleWindowSlot(),
+    create: () => new StaticWindowSlot(),
   },
 ];

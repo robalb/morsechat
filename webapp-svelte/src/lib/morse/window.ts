@@ -14,16 +14,29 @@
  * What it searches is not a speed but three thresholds — which presses are
  * dashes, which silences end a letter, which end a word — because every reading
  * of the window is exactly one choice of those. The candidates come from the
- * window's own durations (`#splits`), which is what lets it follow a hand
- * keying a 60ms dot against a 450ms dash, a ratio no multiple of a dot
- * describes. Each reading is scored on how tight its clusters are, whether the
- * letters that come out are letters in the reader's table, and how far the
- * speed it implies has moved from the hand being tracked (`#read`).
+ * window's own durations (`splits`), which is what lets it follow a hand keying
+ * a 60ms dot against a 450ms dash, a ratio no multiple of a dot describes. Each
+ * reading is scored on how tight its clusters are, whether the letters that come
+ * out are letters in the reader's table, and how far the speed it implies has
+ * moved from the hand being tracked (`#read`).
+ *
+ * That search is ./window-core.ts, shared with ./window-static.ts, which
+ * delivers the same algorithm to a message that is already over. What is in this
+ * file is the live half: the window, the frontier, the running estimate of the
+ * hand, and the rules about what may still be re-read.
  */
 
 import type { Letter } from './decode';
+import {
+  read,
+  search,
+  type KeyEvent,
+  type Reading,
+  type Thresholds,
+  type WindowOptions,
+} from './window-core';
 
-export type { Letter };
+export type { Letter, WindowOptions };
 
 /** how many letters into a message re-reading is allowed */
 const FLICKER_LETTERS = 4;
@@ -44,27 +57,11 @@ const MAX_EVENTS = 40;
 const MIN_DOT = 20;
 const MAX_DOT = 600;
 
-/** the least a dash may be over a dot, and a letter gap over an element gap.
- * Below this it is not two clusters, it is one cluster cut in half. */
-const MIN_DASH_RATIO = 1.8;
-const MIN_GAP_RATIO = 1.5;
-
-/** what breaking one of those ratios costs */
-const SHAPE_COST = 8;
-
-/** what a code that is not in the table costs, per element in it. Per element,
- * because a flat charge is cheapest to pay once and a search scored that way
- * runs the whole window into one unreadable blob. */
-const UNKNOWN_COST = 1.2;
-
-/** what a one-element letter costs, and what each one past the second in a row
- * costs on top: `e` and `t` are common, `eee` is a hand being cut up */
-const LONE_COST = 0.4;
-const LONE_RUN_COST = 2.5;
-const LONE_RUN_AT = 2;
-
-/** what a word break costs. Word gaps have no scatter cost — a pause for
- * thought can be any length — so without this every letter is its own word. */
+/** what a word break costs. Word gaps have no scatter cost here — mid-message a
+ * pause for thought can be any length — so without this every letter is its own
+ * word. Eight times what the static decoder charges, which can measure the word
+ * gaps of a finished message and so has something else on that side of the
+ * scales: see ./window-static.ts. */
 const WORD_COST = 1.2;
 
 /** how hard the running estimate pulls on the search, per element in the
@@ -76,63 +73,8 @@ const PRIOR_COST = 0.8;
 const ALPHA = 0.4;
 const MAX_STEP = 0.25;
 
-/** how many candidate thresholds are taken from each set of durations */
-const CANDIDATES = 5;
-
-/** one press or one silence, as it arrived */
-interface Event {
-  ms: number;
-  sound: boolean;
-}
-
-/** a letter the search produced, and how many of `#events` it and everything
- * before it consumed. An index, because the frontier is an index too. */
-interface Segment extends Letter {
-  end: number;
-}
-
-/** the three numbers that are one reading of the window */
-interface Thresholds {
-  /** a press at least this long is a dash */
-  dash: number;
-  /** a silence at least this long ends the letter */
-  letter: number;
-  /** a silence at least this long ends the word */
-  word: number;
-}
-
-/** one candidate's reading of the window, and what it costs */
-interface Reading {
-  cost: number;
-  letters: Segment[];
-  /** the elements of the character still being keyed */
-  pending: string;
-  /** the dot this reading implies: the centre of its dot cluster */
-  dot: number;
-  thresholds: Thresholds;
-}
-
-export interface WindowOptions {
-  /** whether a code is a character in the reader's table. Without it the search
-   * is only fitting durations. */
-  isCharacter: (code: string) => boolean;
-}
-
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
-}
-
-/**
- * How spread out a group of durations is about its own centre, in log space —
- * morse is multiplicative, and a cost in ms would call a slow hand four times
- * looser than an equally tight fast one.
- */
-function scatter(values: number[]): { cost: number; centre: number } {
-  if (values.length === 0) return { cost: 0, centre: 0 };
-  const logs = values.map((ms) => Math.log(Math.max(ms, 1)));
-  const mean = logs.reduce((a, b) => a + b, 0) / logs.length;
-  const cost = logs.reduce((sum, x) => sum + (x - mean) * (x - mean), 0);
-  return { cost, centre: Math.exp(mean) };
 }
 
 export class WindowDecoder {
@@ -141,7 +83,7 @@ export class WindowDecoder {
 
   /** the elements not yet frozen, and `#kept` older ones in front of them that
    * are only there to be measured */
-  #events: Event[] = [];
+  #events: KeyEvent[] = [];
   #kept = 0;
 
   /** how long the key has been up since the last release */
@@ -311,15 +253,7 @@ export class WindowDecoder {
     const sounds = this.#events.filter((e) => e.sound).map((e) => e.ms);
     const gaps = this.#events.filter((e) => !e.sound).map((e) => e.ms);
 
-    let best: Reading | null = null;
-    for (const dash of this.#splits(sounds)) {
-      for (const letter of this.#splits(gaps)) {
-        for (const word of this.#splits(gaps, letter)) {
-          const reading = this.#read({ dash, letter, word });
-          if (best === null || reading.cost < best.cost) best = reading;
-        }
-      }
-    }
+    const best = search(sounds, gaps, (thresholds) => this.#read(thresholds));
     if (best === null) return this.#empty();
 
     if (learn && best.dot > 0) {
@@ -333,127 +267,30 @@ export class WindowDecoder {
   }
 
   /**
-   * Where a threshold could sensibly go: the widest few jumps between
-   * neighbouring durations, which is where a boundary between two clusters is
-   * if there is one. `Infinity` is always a candidate — it is the reading where
-   * the class does not occur at all.
+   * The window, read at one set of thresholds: the core's read, plus the one
+   * charge that only exists while a hand is being tracked.
    *
-   * @param above - only splits over this one, for the word threshold, which has
-   * to sit above the letter threshold to mean anything
-   */
-  #splits(values: number[], above = 0): number[] {
-    const sorted = [...values].filter((ms) => ms > above).sort((a, b) => a - b);
-    const out = [Infinity];
-    if (sorted.length < 2) return out;
-
-    const jumps: { at: number; ratio: number }[] = [];
-    for (let i = 1; i < sorted.length; i++) {
-      jumps.push({
-        // geometric midpoint: the boundary between two multiplicative clusters
-        at: Math.sqrt(sorted[i - 1] * sorted[i]),
-        ratio: sorted[i] / sorted[i - 1],
-      });
-    }
-    jumps.sort((a, b) => b.ratio - a.ratio);
-    for (const jump of jumps.slice(0, CANDIDATES)) {
-      if (jump.ratio > 1.05) out.push(jump.at);
-    }
-    return out;
-  }
-
-  /**
-   * The window, read at one set of thresholds, and what that reading costs: one
-   * pass that splits the elements into letters and collects each class of
-   * duration as it goes.
-   *
-   * The elements in front of the frontier are classified too — they are what
-   * the clusters are measured from — but not read: their letters have been
-   * shown and cannot be decided again.
+   * Word gaps are not measured (`measureWordGaps`), because mid-message a long
+   * silence is an operator who stopped to think and can be any length. The
+   * events in front of the frontier are (`frozen`): their durations are what
+   * the clusters are measured from, but their letters have been shown and
+   * cannot be decided again.
    */
   #read(thresholds: Thresholds): Reading {
-    const letters: Segment[] = [];
-    const dots: number[] = [];
-    const dashes: number[] = [];
-    const elementGaps: number[] = [];
-    const letterGaps: number[] = [];
-
-    let cost = 0;
-    let code = '';
-    let seen = 0;
-    let wordBreak = false;
-    let loneRun = 0;
-
-    /** close the character being read: what it costs is whether it is a letter
-     * at all, and whether it is one of a run of lone elements that used to be */
-    const finish = (endsWord: boolean) => {
-      if (code) {
-        if (!this.#isCharacter(code)) cost += UNKNOWN_COST * code.length;
-        if (code.length === 1) cost += loneRun >= LONE_RUN_AT ? LONE_COST + LONE_RUN_COST : LONE_COST;
-      }
-      if (endsWord) cost += WORD_COST;
-      loneRun = code.length === 1 ? loneRun + 1 : 0;
-      letters.push({ code, wordBreak, end: seen });
-      code = '';
-      wordBreak = endsWord;
-    };
-
-    for (const event of this.#events) {
-      seen++;
-      const settled = seen <= this.#kept;
-
-      if (event.sound) {
-        const dash = event.ms >= thresholds.dash;
-        (dash ? dashes : dots).push(event.ms);
-        if (!settled) code += dash ? '-' : '.';
-        continue;
-      }
-
-      if (event.ms < thresholds.letter) {
-        elementGaps.push(event.ms);
-        continue;
-      }
-      // a word gap is a pause for thought and can be any length, so it joins no
-      // cluster and is charged for by the break it makes instead
-      if (event.ms < thresholds.word) letterGaps.push(event.ms);
-      if (settled) {
-        // the gap between the frozen text and the window still decides whether
-        // the window starts a new word, and is charged for like any other break
-        wordBreak = event.ms >= thresholds.word;
-        if (wordBreak) cost += WORD_COST;
-        continue;
-      }
-      finish(event.ms >= thresholds.word);
-    }
-
-    // the character at the end: closed if the key has been up longer than this
-    // reading calls a letter gap, still being keyed if not
-    let pending = code;
-    if (code && this.#idle >= thresholds.letter) {
-      finish(false);
-      pending = '';
-    }
-
-    const dot = scatter(dots);
-    const dash = scatter(dashes);
-    const element = scatter(elementGaps);
-    const letter = scatter(letterGaps);
-    cost += dot.cost + dash.cost + element.cost + letter.cost;
-
-    if (dashes.length && dots.length && dash.centre < dot.centre * MIN_DASH_RATIO) {
-      cost += SHAPE_COST;
-    }
-    if (letterGaps.length && elementGaps.length && letter.centre < element.centre * MIN_GAP_RATIO) {
-      cost += SHAPE_COST;
-    }
+    const reading = read(this.#events, thresholds, {
+      isCharacter: this.#isCharacter,
+      wordCost: WORD_COST,
+      frozen: this.#kept,
+      idle: this.#idle,
+    });
 
     // how far the dot this reading implies is from the hand we believe we are
-    // reading
-    const implied = dots.length ? dot.centre : dash.centre / 3;
-    if (implied > 0) {
-      const drift = Math.log(implied / this.#dot);
-      cost += PRIOR_COST * drift * drift * this.#events.length;
+    // reading. The whole difference between reading a window and reading a
+    // message: there is a hand here that we were already following.
+    if (reading.dot > 0) {
+      const drift = Math.log(reading.dot / this.#dot);
+      reading.cost += PRIOR_COST * drift * drift * this.#events.length;
     }
-
-    return { cost, letters, pending, dot: implied, thresholds };
+    return reading;
   }
 }
