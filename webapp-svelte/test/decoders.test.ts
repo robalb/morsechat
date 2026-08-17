@@ -39,8 +39,14 @@ import { SAVED_RECORDINGS } from '$lib/playground/recordings';
 
 import { replay, type Result } from './harness.ts';
 
-/** the recordings worth scoring: one without `expected` cannot be marked */
-const CORPUS = SAVED_RECORDINGS.filter((r) => r.expected.trim() !== '');
+/**
+ * The recordings worth scoring: one without `expected` cannot be marked, and a
+ * lone `-` is the same thing written down — a recording keyed into the corpus
+ * whose text has not been typed in yet. Scoring against a placeholder would
+ * measure whoever has not filled it in.
+ */
+const UNMARKED = ['', '-'];
+const CORPUS = SAVED_RECORDINGS.filter((r) => !UNMARKED.includes(r.expected.trim()));
 
 /** every algorithm against the whole corpus, replayed once and reused below */
 const RESULTS = new Map<string, Result[]>(
@@ -137,6 +143,18 @@ describe('the promise', () => {
       assert.equal(r.churnedChars, 0);
     });
 
+    test(`scale only re-reads the first ${FLICKER_LETTERS} letters — ${recording.id}`, () => {
+      // the same deal as the window search below, and the same budget: while a
+      // message is that short nobody has started reading it, and from the
+      // moment it is longer every character it has shown is permanent
+      for (const rewrite of results('scale')[i].rewrites) {
+        assert.ok(
+          letters(rewrite.from).length <= FLICKER_LETTERS,
+          `took back "${rewrite.from}" at ${rewrite.at}ms, past the ${FLICKER_LETTERS}-letter budget`
+        );
+      }
+    });
+
     test(`window only re-reads the first ${FLICKER_LETTERS} letters — ${recording.id}`, () => {
       // The deal that decoder is built on. It may change its mind while the
       // message is still a few letters long, because the speed is genuinely
@@ -152,6 +170,48 @@ describe('the promise', () => {
       }
     });
   }
+});
+
+/* ------------------------------------------------------------------ *
+ * The fitted scale
+ * ------------------------------------------------------------------ */
+
+describe('one fitted scale', () => {
+  test('reads all but at most one recording of the corpus exactly', () => {
+    // The allowance of one is for the corpus growing — it is a set of
+    // hand-keyed messages and it is meant to keep growing, so a threshold that
+    // only passes while every single one is read is one that fails on whichever
+    // recording is added next. It currently reads all seven.
+    const rs = results('scale');
+    const missed = rs.filter((r) => letters(r.final) !== letters(r.expected));
+    assert.ok(
+      missed.length <= 1,
+      missed.map((r) => `${r.recording.id} read "${flat(r.final)}"`).join('; ')
+    );
+    assert.ok(mean('scale', (r) => r.accuracy) >= 0.9, `${mean('scale', (r) => r.accuracy)}`);
+  });
+
+  test('produces no eeee and no tttt at all', () => {
+    assert.equal(total('scale', (r) => r.runs), 0);
+    assert.equal(total('scale', (r) => r.peakRun), 0);
+  });
+
+  test('pays under a second and a half of latency for it', () => {
+    // R9. It commits a character as soon as a silence ends it rather than
+    // holding one back, so this sits well under the bound — which is the half
+    // of the bargain that the churn numbers above do not show.
+    const lag = mean('scale', (r) => r.tailLag);
+    assert.ok(lag < 1500, `${lag.toFixed(0)}ms`);
+  });
+
+  test('agrees with itself run over the finished buffer', () => {
+    // R14: the same fit, one of which had to guess where the message was going.
+    // Where they differ is what reading in real time cost.
+    const live = results('scale').map((r) => letters(r.final));
+    const still = results('scale_static').map((r) => letters(r.final));
+    const differ = live.filter((got, i) => got !== still[i]);
+    assert.ok(differ.length <= 1, live.map((got, i) => `"${got}" / "${still[i]}"`).join('; '));
+  });
 });
 
 /* ------------------------------------------------------------------ *

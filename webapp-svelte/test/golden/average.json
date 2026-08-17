@@ -1218,5 +1218,35 @@
   "text": "th  e  q  u  i  k",
   "morse": "– ....  .  ––.–  ..–  ..  –.–",
   "partial": "th  e  q  u  i –.–"
+ },
+ {
+  "id": "corpus/rmswf47vv65",
+  "dot": 97.7,
+  "separated": true,
+  "dashes": 11,
+  "wpm": 12.3,
+  "text": "m  y  n  a  m  e  i  s  a  l",
+  "morse": "––  –.––  –.  .–  ––  .  ..  ...  .–  .–..",
+  "partial": "m  y  n  a  m  e  i  s  a .–.."
+ },
+ {
+  "id": "corpus/rmswfbdgp6s",
+  "dot": 121.2,
+  "separated": true,
+  "dashes": 5,
+  "wpm": 9.9,
+  "text": "mnat",
+  "morse": "–– –. .– –",
+  "partial": "mna –"
+ },
+ {
+  "id": "corpus/rmswwaq0ex9",
+  "dot": 103,
+  "separated": true,
+  "dashes": 3,
+  "wpm": 11.7,
+  "text": "nn  a  si  hi  eeee  i  eeee  i  eeee  ee  eeei  eeeei",
+  "morse": "–. –.  .–  ... ..  .... ..  . . . .  ..  . . . .  ..  . . . .  . .  . . . ..  . . . . ..",
+  "partial": "nn  a  si  hi  eeee  i  eeee  i  eeee  ee  eeei  eeee .."
  }
 ]

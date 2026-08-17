@@ -11,10 +11,11 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 
 import * as average from './average-cases.ts';
+import * as scale from './scale-cases.ts';
 import * as window from './window-cases.ts';
 
 mkdirSync(new URL('./golden/', import.meta.url), { recursive: true });
-for (const { GOLDEN_PATH, snapshot } of [average, window]) {
+for (const { GOLDEN_PATH, snapshot } of [average, scale, window]) {
   writeFileSync(GOLDEN_PATH, `${JSON.stringify(snapshot(), null, 1)}\n`);
   console.log(`wrote ${GOLDEN_PATH.pathname}`);
 }

@@ -21,9 +21,10 @@
  */
 import { decodeMessage, measure } from '$lib/morse/average';
 import { decodeBuffer, renderLetters, type Letter } from '$lib/morse/decode';
+import { ScaleDecoder, decodeTimings as decodeScale } from '$lib/morse/scale';
 import { morseTimes } from '$lib/morse/timings';
 import { WindowDecoder } from '$lib/morse/window';
-import { decodeTimings } from '$lib/morse/window-static';
+import { decodeTimings as decodeWindow } from '$lib/morse/window-static';
 
 import type { Algorithm, DecodeContext, Decoder } from './types';
 
@@ -83,26 +84,31 @@ class FixedDecoder implements Decoder {
 }
 
 /* ------------------------------------------------------------------ *
- * 2. The window search
+ * 2. The live decoders
  * ------------------------------------------------------------------ */
 
+/** what a decoder that reads the key as it is pressed exposes: the same members
+ * on lib/morse/window.ts and lib/morse/scale.ts, which is what lets one slot
+ * drive either of them */
+type LiveDecoder = WindowDecoder | ScaleDecoder;
+
 /**
- * lib/morse/window.ts, wrapped so it can be fed from here.
+ * A live decoder, wrapped so it can be fed from here.
  *
- * The one box on the page that is allowed to change its mind on screen, and
- * only for the first few letters of a message. What it buys with that is the
- * ability to read a group of elements as a group — to prefer the reading that
- * makes an `h` over the one that makes four `e`s — which nothing that decides
- * one element at a time can do.
+ * These are the boxes on the page that are allowed to change their mind on
+ * screen, and only for the first few letters of a message. What they buy with
+ * that is the ability to read a group of elements as a group — to prefer the
+ * reading that makes an `h` over the one that makes four `e`s — which nothing
+ * that decides one element at a time can do.
  */
-class WindowSlot implements Decoder {
-  #decoder: WindowDecoder;
+class LiveSlot implements Decoder {
+  #decoder: LiveDecoder;
   #dialect: DecodeContext['dialect'] | null = null;
 
-  constructor() {
-    this.#decoder = new WindowDecoder(100, {
-      isCharacter: (code) => (this.#dialect ? Object.hasOwn(this.#dialect.table, code) : false),
-    });
+  constructor(make: (isCharacter: (code: string) => boolean) => LiveDecoder) {
+    this.#decoder = make((code) =>
+      this.#dialect ? Object.hasOwn(this.#dialect.table, code) : false
+    );
   }
 
   addSound(ms: number) {
@@ -138,29 +144,36 @@ class WindowSlot implements Decoder {
 }
 
 /* ------------------------------------------------------------------ *
- * 3. The window search, on a finished message
+ * 3. The same searches, on a finished message
  * ------------------------------------------------------------------ */
 
+/** what both whole-message decoders are: a complete buffer in, a line of codes
+ * out, once, with nothing kept between calls */
+type DecodeWholeMessage = (
+  buffer: number[],
+  options: { isCharacter: (code: string) => boolean }
+) => string;
+
 /**
- * lib/morse/window-static.ts, wrapped so it can be fed from here.
+ * A whole-message decoder, wrapped so it can be fed from here.
  *
  * The same adapter trick the average box uses: an algorithm that wants the whole
  * message is given the whole message by keeping its own copy of what it has been
  * fed, and is run on it. What it cannot be given is the future, so this box
  * stays empty until the message is over.
  *
- * That emptiness is the point of having it next to the window box. The two are
- * the same search; one of them had to guess where the message was going and the
- * other did not. When the operator stops keying, the window box has been reading
- * along the whole time and this one finally says something, and what is being
- * looked for is whether the two lines agree — where they differ is exactly what
- * the live decoder paid for reading in real time.
+ * That emptiness is the point of having it next to the live box that shares its
+ * algorithm. The two are the same reading; one of them had to guess where the
+ * message was going and the other did not. When the operator stops keying, the
+ * live box has been reading along the whole time and this one finally says
+ * something, and what is being looked for is whether the two lines agree — where
+ * they differ is exactly what the live decoder paid for reading in real time.
  *
  * "Over" is a word gap of silence, measured the way the average box measures one:
  * seven dots of the speed the presses themselves imply. Before that the operator
  * may still be in the middle of a message.
  */
-class StaticWindowSlot implements Decoder {
+class StaticSlot implements Decoder {
   #buffer: number[] = [];
   #idle = 0;
 
@@ -168,6 +181,13 @@ class StaticWindowSlot implements Decoder {
    * once per message, not once per animation frame */
   #letters: Letter[] = [];
   #read = -1;
+
+  /** the algorithm this box runs: `decodeTimings` from window-static or scale */
+  readonly #decode: DecodeWholeMessage;
+
+  constructor(decode: DecodeWholeMessage) {
+    this.#decode = decode;
+  }
 
   addSound(ms: number) {
     this.#buffer.push(ms);
@@ -202,7 +222,7 @@ class StaticWindowSlot implements Decoder {
 
     if (over && this.#read !== this.#buffer.length) {
       this.#letters = toLetters(
-        decodeTimings(this.#buffer, {
+        this.#decode(this.#buffer, {
           isCharacter: (code) => Object.hasOwn(ctx.dialect.table, code),
         })
       );
@@ -218,9 +238,9 @@ class StaticWindowSlot implements Decoder {
 }
 
 /**
- * `decodeTimings`' line of codes, as the letters `renderLetters` draws — so this
- * box and the window box are rendered by the same function and any difference
- * between them is a difference between the two algorithms.
+ * `decodeTimings`' line of codes, as the letters `renderLetters` draws — so
+ * every box on the page is rendered by the same function and any difference
+ * between them is a difference between the algorithms.
  */
 function toLetters(text: string): Letter[] {
   const letters: Letter[] = [];
@@ -348,14 +368,28 @@ export const ALGORITHMS: Algorithm[] = [
     id: 'window',
     name: 'window search (lib/morse/window.ts)',
     description:
-      'reads a window of elements at many candidate speeds and keeps the reading that makes letters. May re-read the first four letters of a message; never a letter after that.',
-    create: () => new WindowSlot(),
+      'reads a window of elements at many candidate speeds and keeps the reading that makes letters. May re-read the first four letters of a message; never a letter after that. Reads a message that opens with a dash at the wrong speed and never recovers, and never finishes a message too short to show it a letter gap.',
+    create: () => new LiveSlot((isCharacter) => new WindowDecoder(100, { isCharacter })),
   },
   {
     id: 'window_static',
     name: 'window search, finished message (lib/morse/window-static.ts)',
     description:
       'the same search with the streaming taken out: one set of thresholds fitted to the whole message, once. Shows nothing until the operator stops keying, and should then agree with the box above.',
-    create: () => new StaticWindowSlot(),
+    create: () => new StaticSlot(decodeWindow),
+  },
+  {
+    id: 'scale',
+    name: 'one fitted scale (lib/morse/scale.ts)',
+    description:
+      'fits one dot and one set of ratios to the hand, so every reading it considers is a coherent one, and weighs what is being keyed now far above what it has already shown, so an operator who changes pace is followed. Same four-letter flicker budget as the window search. Cannot tell `et` from `a`, or any other message with one silence in it to measure, and commits each character the moment a silence ends it — so a pause inside a letter, taken past the budget, is a letter break it cannot take back.',
+    create: () => new LiveSlot((isCharacter) => new ScaleDecoder(100, { isCharacter })),
+  },
+  {
+    id: 'scale_static',
+    name: 'one fitted scale, finished message (lib/morse/scale.ts)',
+    description:
+      'the same fit over a finished buffer, with no speed to anchor it. Reads a message of nothing but dashes as one of nothing but dots — `m` comes out as `i` — because at that point the two are the same durations and only the sender knows which.',
+    create: () => new StaticSlot(decodeScale),
   },
 ];
