@@ -5,10 +5,11 @@
 package handlers
 
 type Keybinds struct {
-	Straight      string `json:"straight" validate:"required,min=1,max=2"`
-	YambicLeft    string `json:"yambic_left" validate:"required,min=1,max=2"`
-	YambicRight   string `json:"yambic_right" validate:"required,min=1,max=2"`
-	CancelMessage string `json:"cancel_message" validate:"required,min=1,max=2"`
+	Straight      []string `json:"straight" validate:"required,min=1,max=10,dive,min=1,max=5"`
+	YambicLeft    []string `json:"yambic_left" validate:"required,min=1,max=10,dive,min=1,max=5"`
+	YambicRight   []string `json:"yambic_right" validate:"required,min=1,max=10,dive,min=1,max=5"`
+	Transmit      []string `json:"transmit" validate:"required,min=1,max=10,dive,min=1,max=5"`
+	CancelMessage []string `json:"cancel_message" validate:"required,min=1,max=10,dive,min=1,max=5"`
 }
 type Settings struct {
 	Dialect        string   `json:"dialect" validate:"required,min=1,max=20"`

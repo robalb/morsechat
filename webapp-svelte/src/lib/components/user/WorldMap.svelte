@@ -135,9 +135,8 @@
        how much of that padding it may take back on each side; the card sets it,
        because the card is what knows its own padding. */
     margin-inline: calc(-1 * var(--map-bleed, 0px));
-    /* the map keeps its slot while it is being fetched, so the card does not
-       jump a couple of hundred pixels when it arrives */
-    min-height: 40px;
+    /* the drawing's own viewBox: the empty box is the size the map will be */
+    aspect-ratio: 2000 / 857;
   }
 
   :global(.world-map svg) {

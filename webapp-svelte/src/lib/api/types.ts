@@ -26,11 +26,12 @@
  * The keys each action answers to, by the name the picker offers them under: a
  * letter, or `space` (lib/components/controls/keybindings.ts).
  *
- * This is the one place the client is ahead of the wire format. The go struct
- * still declares one 1-2 character string per action and knows nothing of
- * `transmit`, so update_settings refuses these until it grows `[]string` fields
- * — an accepted trade for keeping the change client-side. Everything else about
- * the settings works as it did.
+ * The go struct matches this: five `[]string` fields, each holding 1 to 10 keys
+ * of at most 5 characters — the length of `space`, the longest name the picker
+ * offers. It used to declare one 1-2 character string per action and no
+ * `transmit` at all, which is the shape settings saved by the react app still
+ * hold: those no longer unmarshal, so the server answers such an account with
+ * no settings and the client keeps its defaults.
  */
 export interface Keybinds {
   straight: string[];
