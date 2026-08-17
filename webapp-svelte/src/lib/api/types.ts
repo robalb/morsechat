@@ -44,14 +44,12 @@ export interface Keybinds {
 /**
  * Free-form on the wire (`min=1,max=20`); these are the values used.
  *
- * `straight_dynamic` is a straight key whose speed is measured from the keying
- * rather than taken from the slider (lib/morse/window.ts). It is a client-side
- * experiment for now: the message that goes out is the same buffer of timings
- * either way, and the receiver and the backend still read it at the sender's
- * `wpm`, so a message keyed well away from the slider will read differently at
- * the other end than it did in the preview.
+ * `straight_dynamic` — a straight key read at the speed it is keyed at
+ * (lib/morse/scale.ts) — is commented out rather than deleted: the receiver and
+ * the backend decode at the sender's `wpm`, so the mode could only ever be
+ * right on the sender's screen. The algorithm is still in the playground.
  */
-export type KeyMode = 'straight' | 'straight_dynamic' | 'yambic';
+export type KeyMode = 'straight' | 'yambic'; // | 'straight_dynamic'
 
 export interface Settings {
   /** 5-50 */

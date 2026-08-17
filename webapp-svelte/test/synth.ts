@@ -29,7 +29,7 @@ for (const [code, char] of Object.entries(DIALECT.table)) {
 }
 
 /** mulberry32: small, seeded, and identical everywhere */
-function random(seed: number): () => number {
+export function random(seed: number): () => number {
   let state = seed >>> 0;
   return () => {
     state = (state + 0x6d2b79f5) >>> 0;
@@ -48,6 +48,13 @@ export interface Hand {
   jitter: number;
   /** a dash, in dots. The textbook says 3; the corpus has hands at 7 */
   dash: number;
+  /**
+   * the silence between two elements of one letter, in dots. Textbook 1, and
+   * measured at 1.7 to 3.4 over the corpus (test/difficulty.ts) — a hand that
+   * lifts the key properly between elements keys this longer than the book
+   * says, and the decoder's letter boundary has to land above it
+   */
+  elementGap: number;
   /** the silence that ends a letter, in dots. Textbook 3 */
   letterGap: number;
   /** the silence that ends a word, in dots. Textbook 7 */
@@ -56,7 +63,7 @@ export interface Hand {
   drift: number;
 }
 
-const TEXTBOOK: Hand = { wpm: 15, jitter: 0, dash: 3, letterGap: 3, wordGap: 7, drift: 0 };
+const TEXTBOOK: Hand = { wpm: 15, jitter: 0, dash: 3, elementGap: 1, letterGap: 3, wordGap: 7, drift: 0 };
 
 export function hand(over: Partial<Hand> = {}): Hand {
   return { ...TEXTBOOK, ...over };
@@ -102,7 +109,7 @@ export function synth(text: string, h: Hand, seed = 1): number[] {
               ? dot * h.wordGap
               : endsLetter
                 ? dot * h.letterGap
-                : dot,
+                : dot * h.elementGap,
         });
       }
     }

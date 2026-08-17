@@ -38,7 +38,7 @@ const TICK = 16;
 const toText = (line: string) =>
   line.split(' ').filter((c) => c && c !== '/').map((c) => DIALECT.table[c] ?? `[${c}]`).join('');
 
-function live(buffer: number[], wpm: number): string {
+function live(buffer: number[], wpm: number, withWords = false): string {
   const d = new ScaleDecoder(100, { isCharacter });
   d.reset(1200 / clamp(wpm, 1, 200));
   const idle = (total: number) => {
@@ -52,12 +52,13 @@ function live(buffer: number[], wpm: number): string {
     else { idle(ms); d.addSilence(ms); }
   }
   idle(4000);
-  return toText(d.visible.map((l) => l.code).join(' '));
+  if (!withWords) return toText(d.visible.map((l) => l.code).join(' '));
+  return d.visible.map((l) => (l.wordBreak ? ' ' : '') + (DIALECT.table[l.code] ?? `[${l.code}]`)).join('').trim();
 }
 
 const still = (buffer: number[]) => toText(decodeTimings(buffer, { isCharacter }));
 
-interface Case { id: string; buffer: number[]; wpm: number; want: string }
+interface Case { id: string; buffer: number[]; wpm: number; want: string; spaced?: string }
 
 /* ---- the generated hands ---- */
 const MESSAGES = ['m','mnat','to','ton','oat','omen','tom','meno','no more','go to town','e','et','is',
@@ -70,13 +71,14 @@ const HANDS: Record<string, Hand> = {
 const SYNTHETIC: Case[] = [];
 for (const msg of MESSAGES) for (const [name, h] of Object.entries(HANDS)) {
   const seed = [...`${msg}/${name}`].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
-  SYNTHETIC.push({ id: `${msg}/${name}`, buffer: synth(msg, h, seed), wpm: h.wpm, want: msg.replace(/\s+/g, '') });
+  SYNTHETIC.push({ id: `${msg}/${name}`, buffer: synth(msg, h, seed), wpm: h.wpm, want: msg.replace(/\s+/g, ''), spaced: msg });
 }
 
 /* ---- the corpus. `-` is a recording whose expected text has not been typed in
  * yet: it is shown, not scored ---- */
 const CORPUS: Case[] = SAVED_RECORDINGS.filter((r) => r.expected.trim() && r.expected.trim() !== '-').map((r) => ({
   id: r.id, buffer: r.buffer, wpm: r.wpm, want: r.expected.replace(/\s+/g, ''),
+  spaced: r.expected.trim().toLowerCase().replace(/\s+/g, ' '),
 }));
 const UNMARKED = SAVED_RECORDINGS.filter((r) => r.expected.trim() === '-');
 
@@ -123,19 +125,71 @@ for (const gaps of [2, 3, 4]) {
   }
 }
 
+/* ---- a message keyed after a faster or slower one, which is what
+ * keyer.svelte.ts seeds each message from (`#seedDot`) ---- */
+function seeded(first: string, firstWpm: number, second: string, secondWpm: number): string {
+  const d = new ScaleDecoder(1200 / clamp(firstWpm, 1, 200), { isCharacter });
+  const play = (buffer: number[]) => {
+    const idle = (total: number) => {
+      for (let e = TICK; e <= total; e += TICK) {
+        d.idle(e);
+        if (e >= d.wordSplit) { d.flush(); return; }
+      }
+    };
+    for (const [i, ms] of buffer.entries()) {
+      if (i % 2 === 0) d.addSound(ms);
+      else { idle(ms); d.addSilence(ms); }
+    }
+    idle(4000);
+  };
+  play(synth(first, hand({ wpm: firstWpm, jitter: 0.1 }), 11));
+  d.reset(d.dot); // what the keyer does between two messages
+  play(synth(second, hand({ wpm: secondWpm, jitter: 0.1 }), 22));
+  return toText(d.visible.map((l) => l.code).join(' '));
+}
+
+function scoreSeeded() {
+  let ok = 0;
+  let of = 0;
+  const bad: string[] = [];
+  for (const [one, two] of [[25, 10], [25, 8], [25, 6], [30, 12], [20, 10], [12, 25], [10, 30], [15, 15]]) {
+    for (const [first, second] of [['hello', 'hi'], ['sos', 'hi'], ['test', 'sos'], ['hello world', 'hi al'],
+                                   ['cq', 'test'], ['sos', 'm']]) {
+      of++;
+      const got = seeded(first, one, second, two);
+      const want = second.replace(/\s+/g, '');
+      if (got === want) ok++;
+      else bad.push(`    ${one}->${two}wpm "${first}" then "${second}" -> "${got}"`);
+    }
+  }
+  console.log(`seeded      live ${String(ok).padStart(3)}/${of}`);
+  if (process.argv.includes('--show') && bad.length) console.log(bad.join('\n'));
+}
+
 function score(name: string, cases: Case[], show = false) {
   let liveOk = 0;
   let stillOk = 0;
+  let spacedOk = 0;
+  let spacedOf = 0;
   for (const c of cases) {
     const got = live(c.buffer, c.wpm);
     const fixed = still(c.buffer);
     if (got === c.want) liveOk++;
     if (fixed === c.want) stillOk++;
+    // where the words divide, scored on its own: only messages that have a
+    // word break in them to get right
+    if (c.spaced !== undefined && c.spaced.includes(' ')) {
+      spacedOf++;
+      if (live(c.buffer, c.wpm, true) === c.spaced) spacedOk++;
+    }
     if (show && got !== c.want) {
       console.log(`  ${c.id.padEnd(26)} want=${c.want.padEnd(14)} live=${got.padEnd(16)} static=${fixed}`);
     }
   }
-  console.log(`${name.padEnd(11)} live ${String(liveOk).padStart(3)}/${cases.length}   static ${String(stillOk).padStart(3)}/${cases.length}`);
+  console.log(
+    `${name.padEnd(11)} live ${String(liveOk).padStart(3)}/${cases.length}   static ${String(stillOk).padStart(3)}/${cases.length}` +
+      (spacedOf ? `   words ${String(spacedOk).padStart(3)}/${spacedOf}` : '')
+  );
 }
 
 const show = process.argv.includes('--show');
@@ -145,9 +199,10 @@ if (show) console.log('--- pause, where the live decoder misses');
 score('pause', PAUSE, show);
 score('synthetic', SYNTHETIC);
 score('generated', GOLDEN_CASES.filter((c) => !c.id.startsWith('edge/')).map((c) => ({
-  id: c.id, buffer: c.buffer, wpm: c.wpm, want: c.text.replace(/\s+/g, ''),
+  id: c.id, buffer: c.buffer, wpm: c.wpm, want: c.text.replace(/\s+/g, ''), spaced: c.text,
 })), show);
 score('corpus', CORPUS);
+scoreSeeded();
 for (const r of UNMARKED) {
   console.log(`\n${r.id} (not scored: no expected text)`);
   console.log(`  live   ${live(r.buffer, r.wpm)}`);

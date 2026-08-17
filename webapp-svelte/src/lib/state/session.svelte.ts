@@ -20,12 +20,14 @@ import * as rest from '$lib/api/client';
 import type {
   ApiResult,
   AuthResponse,
+  KeyMode,
   Keybinds,
   LoginRequest,
   RegisterRequest,
   Settings,
 } from '$lib/api/types';
 import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
+import { frequencyFromCallsign } from '$lib/sound/audio';
 
 import type { ApiState, UserState } from './types';
 
@@ -38,7 +40,7 @@ const initialSettings: Settings = {
   volume_receiver: 50,
   volume_key: 50,
   dialect: 'international',
-  key_mode: 'straight_dynamic',
+  key_mode: 'straight',
   show_readable: true,
   left_is_dot: true,
   submit_delay: 12,
@@ -106,9 +108,24 @@ function normalizeKeybinds(stored: Partial<Keybinds> | undefined): Keybinds {
 }
 
 /**
+ * Maps the free-form `key_mode` of the wire to a mode this app still has:
+ * accounts saved while `straight_dynamic` existed still send it back.
+ *
+ * @param stored - the value the server returned
+ * @returns the mode to use, straight for anything unknown
+ */
+function normalizeKeyMode(stored: string | undefined): KeyMode {
+  return stored === 'yambic' ? 'yambic' : 'straight';
+}
+
+/**
  * Writes an auth response into the user state. login, register, logout and
  * sess_init all return the same object, and the four extraReducers of
  * userSlice.js did the same four things with it.
+ *
+ * An account with no key frequency saved is given one derived from its
+ * callsign, before the settings are marked saved so that it is not pushed back
+ * to the server as a choice the user made.
  */
 function applyAuthResponse(res: AuthResponse) {
   user.authenticated = !res.is_anonymous;
@@ -118,13 +135,16 @@ function applyAuthResponse(res: AuthResponse) {
   user.ismoderator = res.is_moderator;
   user.username = res.username || null;
   if (res.settings) {
-    user.settings = { ...res.settings, keybinds: normalizeKeybinds(res.settings.keybinds) };
+    user.settings = {
+      ...res.settings,
+      key_mode: normalizeKeyMode(res.settings.key_mode),
+      keybinds: normalizeKeybinds(res.settings.keybinds),
+    };
   }
 
-  // TODO: the react version also assigns a pseudorandom key frequency derived
-  // from the callsign when the account has none saved (getFreqencyFromCallsign,
-  // utils/ReceiverSound.js). That function is part of the sound engine, which
-  // is not ported yet, so the default 440 stands until it is.
+  if (!res.settings || res.settings.key_frequency === 0) {
+    user.settings.key_frequency = frequencyFromCallsign(res.callsign);
+  }
 
   // whatever the server just sent is by definition what the server holds
   markSettingsSaved();

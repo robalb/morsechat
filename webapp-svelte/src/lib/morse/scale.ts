@@ -195,6 +195,18 @@ const SPREAD_COST = 1.5;
 const MIN_DASH_RATIO = 1.8;
 const MIN_GAP_RATIO = 1.5;
 
+/**
+ * The least a dash may be over the silence inside a letter.
+ *
+ * Not a cluster being cut in half but a reading that is not morse at all: a hand
+ * whose dashes are no longer than the gaps between its own elements is drumming,
+ * not keying. It is the reading a slow `hi` collapses into when the speed
+ * carried over from a faster message says those presses are too long to be dots
+ * — `----` and `--` at a dot of half the truth, with element gaps as long as the
+ * dashes. Nothing else in the pricing had an opinion about it.
+ */
+const MIN_DASH_GAP_RATIO = 1.5;
+
 /** what breaking one of those ratios costs */
 const SHAPE_COST = 8;
 
@@ -228,18 +240,21 @@ const WORD_COST = 0.3;
 const PRIOR_COST = 3;
 
 /**
- * What a duration whose character has been committed counts for, against one
+ * What a *press* whose character has been committed counts for, against one
  * being keyed now.
  *
  * Almost nothing, and that is the point. An operator who starts fast and slows
  * down keys an `h` whose presses are longer than the dashes of a moment ago, and
  * a reading that weighs the two halves equally can only explain the new presses
- * as dashes of the old speed — which is what it did, and what the operator sees
- * as their `h` coming out as `tttt` or `eeee`. Weighted this low, the committed
- * durations stop arguing with the hand and do the one job they are still good
- * for: breaking a tie between two readings of what is being keyed now. At zero
- * they stop doing even that, and the fit loses the thread of a long message
- * (77/110 of the generated hands against 103).
+ * as dashes of the old speed — which is what the operator sees as their `h`
+ * coming out as `tttt`.
+ *
+ * Presses only. Discounting the silences too was tried and it is what broke the
+ * word breaks: what tells a word gap from a letter gap is the other silences
+ * this hand has keyed, all of which are behind the frontier by then, so the
+ * word boundary was free to drift upwards until no gap could reach it. Measured
+ * over the generated hands, the words land right in 67 of 80 messages with the
+ * silences counted in full and in 6 of 80 with them discounted.
  */
 const COMMITTED_WEIGHT = 0.02;
 
@@ -306,8 +321,8 @@ function readAt(events: KeyEvent[], scale: Scale, options: ReadOptions): Reading
   const letterGaps: number[] = [];
   const wordGaps: number[] = [];
   const letters: Character[] = [];
-  /** how many of each class came from behind the frontier — see `cluster` */
-  const done = { dots: 0, dashes: 0, elementGaps: 0, letterGaps: 0, wordGaps: 0 };
+  /** how many presses of each kind came from behind the frontier — see `cluster` */
+  const done = { dots: 0, dashes: 0 };
 
   let cost = 0;
   let code = '';
@@ -342,14 +357,12 @@ function readAt(events: KeyEvent[], scale: Scale, options: ReadOptions): Reading
     }
     if (event.ms < scale.letter) {
       elementGaps.push(event.ms);
-      if (shown) done.elementGaps++;
       continue;
     }
     // a silence that ends a word is reported at both ends of it: it closes the
     // character before it, and it is the break in front of the character after
     const endsWord = event.ms >= scale.word;
     (endsWord ? wordGaps : letterGaps).push(event.ms);
-    if (shown) (endsWord ? done.wordGaps++ : done.letterGaps++);
     close(endsWord);
   }
 
@@ -361,11 +374,15 @@ function readAt(events: KeyEvent[], scale: Scale, options: ReadOptions): Reading
     pending = '';
   }
 
+  // Only the presses discount what has been shown. A silence counts in full
+  // however old it is, because what tells a word gap from a letter gap is the
+  // other silences this hand has keyed, and there is nothing else to measure a
+  // new one against — see `COMMITTED_WEIGHT`.
   const dot = cluster(dots, done.dots);
   const dash = cluster(dashes, done.dashes);
-  const element = cluster(elementGaps, done.elementGaps);
-  const letter = cluster(letterGaps, done.letterGaps);
-  const word = cluster(wordGaps, done.wordGaps);
+  const element = cluster(elementGaps);
+  const letter = cluster(letterGaps);
+  const word = cluster(wordGaps);
 
   cost += SPREAD_COST * (dot.spread + dash.spread + element.spread + letter.spread + word.spread);
   cost += WORD_COST * wordGaps.length;
@@ -379,6 +396,12 @@ function readAt(events: KeyEvent[], scale: Scale, options: ReadOptions): Reading
     cost += SHAPE_COST;
   }
   if (letterGaps.length && wordGaps.length && word.centre < letter.centre * MIN_GAP_RATIO) {
+    cost += SHAPE_COST;
+  }
+  // a hand whose dashes are no longer than the silences inside its own letters
+  // is not keying morse, it is drumming: in every hand there is, a dash is
+  // several times the gap between two elements of one character
+  if (dashes.length && elementGaps.length && dash.centre < element.centre * MIN_DASH_GAP_RATIO) {
     cost += SHAPE_COST;
   }
 
@@ -482,6 +505,39 @@ export function decodeTimings(buffer: number[], options: ScaleOptions): string {
  */
 const FLICKER_LETTERS = 4;
 
+/**
+ * How many characters the reading holds back before committing them.
+ *
+ * A character is finished the moment a silence outlasts this hand's letter gap,
+ * but finished is not the same as certain: the elements of the *next* character,
+ * and the gap that ends it, are more evidence about the scale, and at one
+ * character of hold the fit can still change its mind about the one before. What
+ * is held is drawn as its dots and dashes, never as a letter, so nothing held is
+ * a promise and R8 is untouched.
+ *
+ * Zero, and the measurement is why. lib/morse/window.ts holds one back and it
+ * reads visibly better for doing so — but that decoder's estimate ran away, so a
+ * letter it showed early was often a letter it showed wrong (four rewrites over
+ * the corpus, and 90% of it read), and the holding was covering for that. This
+ * one commits nothing it has to take back: over the corpus it reads 100% with a
+ * single rewrite, and holding a character back changes neither number. There is
+ * nothing left for the waiting to catch.
+ *
+ * What it would cost is latency, on every character of every message: the last
+ * character of a message appears 1093ms after the key comes up at one character
+ * of hold against 405ms at none. And it costs accuracy where the hand is
+ * drifting rather than wobbling — a mid-message change of speed reads 4 of the
+ * 42 cases in test/probe-slowdown.tmp.ts held back against 8 not held — because
+ * a character kept back is re-read at a scale that has moved on since.
+ *
+ * What it buys is two hands in a hundred and ten, both of them wobbling by a
+ * third of a dot, where one borderline call decides the message. If a real hand
+ * turns out to want that trade, this is the whole of the change: at `1` a
+ * finished character waits for the next one and is drawn as its dots and dashes
+ * until then, which is never a promise, so R8 holds either way.
+ */
+const HORIZON = 1;
+
 /** how many committed events are kept behind the frontier as evidence. Without
  * them a decoder that has just committed a letter has no idea what a letter gap
  * looks like for this hand — and with `COMMITTED_WEIGHT` as low as it is, more
@@ -503,11 +559,11 @@ function clamp(value: number, min: number, max: number): number {
  * The same fit, run on the key as it is being pressed.
  *
  * Fed `addSound`/`addSilence` as the key is released and `idle` between presses.
- * What it draws is two channels: `visible`, the characters it has read, shown as
- * letters, and `preview`, the character still being keyed, shown as its dots and
- * dashes. A character moves from one to the other when a silence longer than
- * this hand's letter gap ends it — `letterSplit` is that silence, and
- * `wordSplit` the longer one that ends a word.
+ * What it draws is two channels: `visible`, the characters it has committed,
+ * shown as letters, and `preview`, the ones it has not, shown as their dots and
+ * dashes. A character crosses from one to the other a `HORIZON` of characters
+ * after a silence longer than this hand's letter gap ended it — `letterSplit` is
+ * that silence, and `wordSplit` the longer one that ends a word.
  *
  * The reading is made over the tail of the message: everything since the last
  * committed character, with `KEEP_EVENTS` older events kept in front of it as
@@ -576,12 +632,17 @@ export class ScaleDecoder {
 
   /** what to draw as letters: everything the reading has finished */
   get visible(): Letter[] {
-    return [...this.letters, ...this.#reading.letters];
+    // Early in a message the whole reading is drawn as letters and may still
+    // change — that is the flicker budget. Past it, only what is committed is
+    // drawn as letters, and what the horizon is holding goes to `preview`.
+    return this.#settled ? this.letters : [...this.letters, ...this.#reading.letters];
   }
 
   /** what to draw as dots and dashes: the character still being keyed */
   get preview(): string {
-    return this.#reading.pending;
+    const codes = this.#settled ? this.#reading.letters.map((l) => l.code) : [];
+    if (this.#reading.pending) codes.push(this.#reading.pending);
+    return codes.join(' ');
   }
 
   /** a press ended, having lasted `ms` */
@@ -660,7 +721,7 @@ export class ScaleDecoder {
     }
 
     if (this.letters.length + this.#reading.letters.length > FLICKER_LETTERS) this.#settled = true;
-    if (this.#settled) this.#commit(this.#reading.letters.length);
+    if (this.#settled) this.#commit(this.#reading.letters.length - HORIZON);
 
     if (this.#events.length > MAX_EVENTS) {
       // A hand that has keyed this far without one silence any scale would read

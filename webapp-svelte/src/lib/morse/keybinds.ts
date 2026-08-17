@@ -52,9 +52,9 @@ function bound(keys: string[] | undefined, key: string): boolean {
 
 export interface MatchOptions {
   /**
-   * Which keys are keys. In `yambic` only the paddles key; in the two straight
-   * modes only the straight key does — a binding for the other kind does
-   * nothing, rather than doubling as a straight key the way it used to.
+   * Which keys are keys. In `yambic` only the paddles key; in any other mode
+   * only the straight key does — a binding for the other kind does nothing,
+   * rather than doubling as a straight key the way it used to.
    *
    * The playground passes a straight mode of its own rather than the setting:
    * it has one key and no paddles, and its key should not go dead because the

@@ -382,7 +382,7 @@ export const ALGORITHMS: Algorithm[] = [
     id: 'scale',
     name: 'one fitted scale (lib/morse/scale.ts)',
     description:
-      'fits one dot and one set of ratios to the hand, so every reading it considers is a coherent one, and weighs what is being keyed now far above what it has already shown, so an operator who changes pace is followed. Same four-letter flicker budget as the window search. Cannot tell `et` from `a`, or any other message with one silence in it to measure, and commits each character the moment a silence ends it — so a pause inside a letter, taken past the budget, is a letter break it cannot take back.',
+      'fits one dot and one set of ratios to the hand, so every reading it considers is a coherent one, and weighs what is being keyed now far above what it has already shown, so an operator who changes pace is followed. Same four-letter flicker budget as the window search, and unlike it commits every character the moment a silence ends it rather than holding one back. Cannot follow a hand that changes speed by more than about three times in the middle of a message, and reads a hand that wobbles by a third of a dot a little worse than a decoder that waits would.',
     create: () => new LiveSlot((isCharacter) => new ScaleDecoder(100, { isCharacter })),
   },
   {

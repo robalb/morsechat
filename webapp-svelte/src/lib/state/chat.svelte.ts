@@ -9,9 +9,7 @@
  * read, and the socket handlers below write into it.
  *
  * `connectSocket()` at the bottom is AppLogic.jsx — the three effects that own
- * the connection. Two things it did are deliberately not here yet: playing a
- * received message into the chat, and sending one. That is the sound engine and
- * the keyer, and they land together.
+ * the connection.
  *
  * Reference: webapp/src/redux/chatSlice.js, webapp/src/pages/AppLogic.jsx
  */
@@ -19,6 +17,7 @@ import { tick, untrack } from 'svelte';
 
 import { SocketClient } from '$lib/socket/client';
 import type { MessageMorseStatus, WsUser } from '$lib/socket/types';
+import { playMessage, stopPlayback } from '$lib/sound/receiver';
 import { systemMessage } from '$lib/utils/chatDom';
 
 import { api, initSession, user } from './session.svelte';
@@ -232,13 +231,9 @@ function createClient(initialChannel: string, getChatNode: () => HTMLElement | n
     updateOnline([]);
   };
 
-  // A message means its sender has stopped keying, which is the half of the
-  // message path that belongs to the typing indicator. The other half — playing
-  // the message into the log at the sender's own speed — is the receiver, and
-  // it arrives with the sound engine.
-  // TODO: handleMessage(), see AppLogic.jsx
   socket.onMessage = (message) => {
     setTyping(message.callsign, false);
+    playMessage(message, getChatNode(), (callsign) => chat.onlineUsers[callsign]?.allowSound);
   };
 
   // the acknowledgement of our own broadcast, which sendMorseMessage() is
@@ -391,6 +386,8 @@ export function connectSocket(getChatNode: () => HTMLElement | null) {
     if (!client) return;
 
     untrack(() => {
+      stopPlayback();
+
       // What is on screen belongs to the channel we are leaving, and it has to
       // be read now, before anything replaces it.
       const node = getChatNode();

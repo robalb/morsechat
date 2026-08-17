@@ -27,7 +27,7 @@ export interface Letter {
 }
 
 /** what a dash is drawn with: an endash (U+2013), as in the react version */
-const DASH_CHAR = '–';
+export const DASH_CHAR = '–';
 
 /** the two spaces the react version put between words */
 const WORD_SPACE = '  ';
@@ -77,8 +77,11 @@ export function makeMorse2Text(dialect: Dialect): (morse: string) => string {
  * An unknown code is shown as itself between spaces, as the react
  * `translateToReadable` did: keying something the dialect has no letter for
  * should look like a mistake, not vanish.
+ *
+ * Also used by lib/sound/receiver.ts, which reads a message one letter at a
+ * time and must agree with the rest of this file on what a code says.
  */
-function lookup(dialect: Dialect, code: string): string {
+export function lookup(dialect: Dialect, code: string): string {
   return Object.hasOwn(dialect.table, code) ? dialect.table[code] : ` ${code} `;
 }
 
@@ -89,15 +92,13 @@ export interface RenderOptions {
 }
 
 /**
- * The dynamic decoder's output, as the line under the chat.
+ * A live decoder's output, as a line of text.
  *
- * The counterpart of `decodeBuffer` for the dynamic modes: there the durations
- * are classified here and now, at one fixed speed, so the whole buffer is
- * decoded on every call; here they were classified as they arrived, once each,
- * and all that is left to do is look up what they say. Which is exactly why the
- * dialect and `show_readable` can still be changed in the middle of a message
- * without disturbing a letter — those are the two things this function does,
- * and it is the only part of the dynamic path that runs more than once.
+ * The counterpart of `decodeBuffer` for the decoders that measure as they read
+ * (lib/morse/scale.ts, lib/morse/window.ts): there the whole buffer is
+ * classified on every call at one fixed speed, here the codes were classified
+ * as they arrived and only have to be looked up. Which is why the dialect and
+ * `show_readable` can change mid-message without disturbing a letter.
  *
  * @param letters - the characters already decided
  * @param pending - the dots and dashes of the character still being keyed

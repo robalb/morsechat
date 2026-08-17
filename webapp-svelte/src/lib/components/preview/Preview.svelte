@@ -14,23 +14,24 @@
   import { keyer } from '$lib/morse/keyer.svelte';
 
   /**
-   * What a preview reads. The chat passes the keyer, which has all six as
-   * `$derived` getters; the decoder playground passes one of these per
+   * What a preview reads. The chat passes the keyer, which has the required
+   * ones as `$derived` getters; the decoder playground passes one of these per
    * algorithm, so that the same box can be stacked once per decoder
-   * (lib/playground/engine.svelte.ts). Nothing here knows which it has.
+   * (lib/playground/engine.svelte.ts). Nothing here knows which it has. The
+   * optional two are the playground's: nothing in the chat measures a speed.
    */
   interface PreviewSource {
     /** the message, read back */
     text: string;
-    /** the speed it is being read at, shown only when `showWpm` and `dynamic` */
-    wpm: number;
-    /** whether the speed is measured rather than set, and so worth showing */
-    dynamic: boolean;
     /** the submit countdown, 0 to 100 */
     progress: number;
     /** whether there is anything to throw away */
     empty: boolean;
     clear(): void;
+    /** the speed it is being read at, shown only when `showWpm` and `dynamic` */
+    wpm?: number;
+    /** whether the speed is measured rather than set, and so worth showing */
+    dynamic?: boolean;
   }
 
   let {
@@ -46,9 +47,8 @@
     showProgress?: boolean;
     showClear?: boolean;
     /**
-     * The measured speed, off in the chat: what belongs in the message box is
-     * the message. The decoder playground turns it on, where the number is
-     * part of what is being compared between the algorithms.
+     * The measured speed. Only the decoder playground has one to show, where
+     * the number is part of what is compared between the algorithms.
      */
     showWpm?: boolean;
   } = $props();
@@ -61,8 +61,7 @@
   {/if}
   <div class="text">
     <p data-mig="preview-text">{source.text}</p>
-    <!-- The measured speed, where it is asked for and in adaptive mode only. In
-         fixed mode it would just be reading the slider back. -->
+    <!-- the measured speed, where it is asked for and where there is one -->
     {#if showWpm && source.dynamic}
       <span class="wpm" data-mig="preview-wpm">{source.wpm} wpm</span>
     {/if}

@@ -86,9 +86,10 @@ describe('the mode decides which keys key', () => {
     assert.equal(straight(press('x')), null);
   });
 
-  test('and both straight modes read the straight key', () => {
-    assert.equal(matchAction(press('c'), BINDS, { mode: 'straight_dynamic' }), 'straight');
-  });
+  // out with the mode it drives (lib/api/types.ts):
+  // test('and both straight modes read the straight key', () => {
+  //   assert.equal(matchAction(press('c'), BINDS, { mode: 'straight_dynamic' }), 'straight');
+  // });
 
   test('in iambic the paddles key and the straight key does not', () => {
     assert.equal(iambic(press('z')), 'left');

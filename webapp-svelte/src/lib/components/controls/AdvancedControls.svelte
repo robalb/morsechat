@@ -8,11 +8,8 @@
    * which reads as a toggle for something that is really a choice between two
    * named options. Here it is a radio pair, the same shape as key mode above.
    *
-   * The plain "straight" mode is new and not in the react version: a straight
-   * key read at the speed it is being keyed at rather than at the slider's, for
-   * operators who do not hold a steady speed. See lib/morse/window.ts. It is
-   * the default, and the react behaviour — decoding at the wpm slider — is the
-   * one that now carries a qualifier, "straight (fixed wpm)".
+   * A third mode, the adaptive straight key, is commented out below; see
+   * `KeyMode` in lib/api/types.ts for why.
    */
   import FormField from '@smui/form-field';
   import Radio from '@smui/radio';
@@ -24,16 +21,11 @@
 
   let { class: className = '' }: { class?: string } = $props();
 
-  /**
-   * What each mode does, in the note under the radios. Three modes is one too
-   * many for the labels to carry on their own — "straight" and "straight (fixed
-   * wpm)" are the same key, and what separates them is where the speed comes
-   * from, which is not something a label can say.
-   */
+  /** what each mode does, in the note under the radios */
   const modeDescriptions: Record<KeyMode, string> = {
-    straight_dynamic:
-	  'You type with one key. press it for a dit, hold it longer for a dah.' +
-	  'The letters you type are detected automatically.',
+    // straight_dynamic:
+    //   'You type with one key. press it for a dit, hold it longer for a dah.' +
+    //   'The letters you type are detected automatically.',
     straight:
       'You type with one key. Press it for a dit, hold it longer for a dah.' +
       'The letters you type are detected only if you type exactly at the speed you set with the WMP (words per minute) slider',
@@ -56,10 +48,12 @@
 
   <p>key mode</p>
   <div class="radio-row">
+    <!-- the adaptive straight key, out of the app for now:
     <FormField>
       <Radio bind:group={user.settings.key_mode} value="straight_dynamic" />
       {#snippet label()}straight{/snippet}
     </FormField>
+    -->
     <FormField>
       <Radio bind:group={user.settings.key_mode} value="straight" />
       {#snippet label()}straight (fixed wpm){/snippet}

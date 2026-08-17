@@ -26,10 +26,9 @@ import { getSocket, isTrainingChannel, sendMorseMessage } from '$lib/state/chat.
 import { user } from '$lib/state/session.svelte';
 import getDialect from '$lib/utils/dialects';
 
-import { decodeBuffer, renderLetters, type Letter } from './decode';
+import { decodeBuffer } from './decode';
 import { matchAction } from './keybinds';
 import { morseTimes } from './timings';
-import { WindowDecoder } from './window';
 
 /**
  * How many key releases go by before the channel is told we are typing. The
@@ -83,44 +82,12 @@ class Keyer {
   /** true once the letter being keyed has been silent long enough to be read */
   #letterComplete = $state(false);
 
-  /**
-   * The straight-dynamic decoder (lib/morse/window.ts): it reads the key as it
-   * is keyed and works out the speed as it goes, which is why it is fed the
-   * elements as they happen rather than run over the buffer afterwards.
-   *
-   * It is fed in every mode but only read in `straight_dynamic`, which costs
-   * nothing and means the estimate is already warm when the mode is switched
-   * on. What it produces is mirrored into the `$state` fields below — the
-   * decoder itself is a plain object, so that it can be tested outside svelte,
-   * and these are what the preview watches.
-   */
-  #window = new WindowDecoder(100, {
-    isCharacter: (code) => Object.hasOwn(getDialect(user.settings.dialect).table, code),
-  });
-  #letters = $state<Letter[]>([]);
-  #pending = $state('');
-  #measuredWpm = $state(12);
-
-  /**
-   * The dot the next message will start from, and the slider setting it was
-   * seeded from.
-   *
-   * An operator does not change hands between two messages, so what was
-   * measured from the last one is a far better prior than the slider, and
-   * carrying it over is what keeps the first letter of the second message
-   * readable. Moving the slider throws it away: that is the user saying they
-   * know better.
-   */
-  #seedDot: number | null = null;
-  #seedWpm = 0;
-
   /** when the key last changed state, the clock the buffer is measured against */
   #lastTime = 0;
 
   #paddles: Record<Paddle, boolean> = { dot: false, dash: false };
 
   #letterTimer: ReturnType<typeof setTimeout> | undefined;
-  #idleTick: number | undefined;
   #releaseTimer: ReturnType<typeof setTimeout> | undefined;
   #submitTimer: ReturnType<typeof setTimeout> | undefined;
   #animation: number | undefined;
@@ -140,37 +107,15 @@ class Keyer {
     elementEnd: () => this.#up(),
   });
 
-  /**
-   * Whether the key is read at the speed the slider says or at the speed it is
-   * actually being keyed at.
-   *
-   * Only for a straight key: on a paddle the app makes the timing, so there is
-   * nothing to measure and the slider is the answer by construction.
-   */
-  dynamic = $derived(user.settings.key_mode === 'straight_dynamic');
-
   /** what the preview shows: what has been keyed, read back through the dialect */
-  text = $derived.by(() => {
-    const dialect = getDialect(user.settings.dialect);
-    const showReadable = user.settings.show_readable;
-    if (this.dynamic) {
-      return renderLetters(this.#letters, this.#pending, { dialect, showReadable });
-    }
-    return decodeBuffer(this.buffer, {
+  text = $derived.by(() =>
+    decodeBuffer(this.buffer, {
       wpm: user.settings.wpm,
-      dialect,
-      showReadable,
+      dialect: getDialect(user.settings.dialect),
+      showReadable: user.settings.show_readable,
       letterComplete: this.#letterComplete,
-    });
-  });
-
-  /**
-   * The speed the message is being read at, for the readout in the preview.
-   *
-   * In dynamic mode this is the measurement and it moves while you key; in
-   * fixed mode it is the slider, and the preview does not show it.
-   */
-  wpm = $derived(this.dynamic ? this.#measuredWpm : user.settings.wpm);
+    })
+  );
 
   /** nothing has been keyed, so there is nothing to send or to clear */
   empty = $derived(this.buffer.length === 0);
@@ -237,24 +182,11 @@ class Keyer {
   #down() {
     if (this.keyDown) return;
 
-    // A message that is starting takes the speed estimate it inherits — from
-    // the message before it, or from the slider if that has moved since. This
-    // is here rather than only in `reset()` so that the first message of a page
-    // is seeded too, and so that a slider moved between two messages is picked
-    // up by the second one.
-    if (this.#lastTime === 0) {
-      this.#window.reset(this.#seed());
-      this.#sync();
-    }
-
     const now = Date.now();
     // the first press of a message starts the clock and records nothing: there
     // is no silence before the beginning of a message
     if (this.#lastTime > 0) {
-      const silence = now - this.#lastTime;
-      this.buffer.push(silence);
-      this.#window.addSilence(silence);
-      this.#sync();
+      this.buffer.push(now - this.#lastTime);
     }
     this.#lastTime = now;
     this.keyDown = true;
@@ -263,7 +195,6 @@ class Keyer {
     // not finished either
     this.#letterComplete = false;
     clearTimeout(this.#letterTimer);
-    this.#stopTicking();
     this.#cancelSubmit();
 
     this.tone?.on();
@@ -286,15 +217,8 @@ class Keyer {
     // recording it would put the length of the held press against a clock that
     // was reset to zero, and start the next message with a silence.
     if (this.#lastTime > 0) {
-      const sound = now - this.#lastTime;
-      this.buffer.push(sound);
+      this.buffer.push(now - this.#lastTime);
       this.#lastTime = now;
-      // a press cut off at MAX_PRESS is a press nobody meant to key that long,
-      // and the search is told about it like any other: one duration out of a
-      // window of them, in log space, against a prior that will not let the
-      // estimate jump
-      this.#window.addSound(sound);
-      this.#sync();
     }
     this.keyDown = false;
 
@@ -307,54 +231,13 @@ class Keyer {
 
     // The silence that ends a letter is not in the buffer — it ends when the
     // next press arrives, and the point is to read the letter before that. So
-    // it is timed here, and the fixed-mode preview re-decodes when it elapses;
-    // the dynamic decoder is told about the silence by `#startTicking` instead.
+    // it is timed here, and the preview re-decodes when it elapses.
     clearTimeout(this.#letterTimer);
     this.#letterTimer = setTimeout(() => {
       this.#letterComplete = true;
     }, morseTimes(user.settings.wpm).letterGap);
 
-    this.#startTicking();
     this.#scheduleSubmit();
-  }
-
-  /* ---------------------------------------------------------------- *
-   * The silence
-   * ---------------------------------------------------------------- */
-
-  /**
-   * Tells the decoder how long the key has been up, once per frame, until it
-   * has read everything it is going to.
-   *
-   * The window decoder has to be *ticked* rather than handed a deadline: what
-   * it calls a letter gap is a property of the reading it currently has, that
-   * reading changes as the silence grows, and before a gap has been keyed at
-   * all its thresholds are `Infinity` — the reading where the class does not
-   * occur. This is the same stream lib/playground/engine.svelte.ts feeds it,
-   * which is why the preview here reads a hand the way the playground box does.
-   */
-  #startTicking() {
-    this.#stopTicking();
-    if (!this.dynamic) return;
-
-    const from = Date.now();
-    const tick = () => {
-      const elapsed = Date.now() - from;
-      this.#window.idle(elapsed);
-      // past a word gap of silence no letter is going to arrive to push the
-      // window along, so what is in it is as read as it will ever be — and once
-      // it is frozen there is nothing left for a tick to change
-      const done = elapsed >= this.#window.wordSplit;
-      if (done) this.#window.flush();
-      this.#sync();
-      this.#idleTick = done ? undefined : requestAnimationFrame(tick);
-    };
-    this.#idleTick = requestAnimationFrame(tick);
-  }
-
-  #stopTicking() {
-    if (this.#idleTick !== undefined) cancelAnimationFrame(this.#idleTick);
-    this.#idleTick = undefined;
   }
 
   /* ---------------------------------------------------------------- *
@@ -436,47 +319,7 @@ class Keyer {
     this.#lastTime = 0;
     this.#letterComplete = false;
     clearTimeout(this.#letterTimer);
-    this.#stopTicking();
     this.#cancelSubmit();
-
-    // what the message just ended taught us outlives it. A message too short to
-    // have taught anything leaves the estimate where it started, so there is
-    // nothing to guard against: the search moves its dot by a fraction of the
-    // way towards each window it reads, never in one jump.
-    this.#seedDot = this.#window.dot;
-    this.#window.reset(this.#seed());
-    this.#sync();
-  }
-
-  /* ---------------------------------------------------------------- *
-   * The speed estimate
-   * ---------------------------------------------------------------- */
-
-  /** the dot a message starts from, in ms: the last one, or the slider's */
-  #seed(): number {
-    const wpm = user.settings.wpm;
-    // Moving the slider is the one thing that overrules what was measured. It
-    // is also how a user gets out of a bad estimate — one message keyed badly
-    // enough to poison the next one — without reloading the page.
-    if (this.#seedDot === null || this.#seedWpm !== wpm) {
-      this.#seedWpm = wpm;
-      this.#seedDot = 1200 / wpm;
-    }
-    return this.#seedDot;
-  }
-
-  /**
-   * Copies the decoder's output into the reactive fields the preview reads.
-   *
-   * The decoder is deliberately a plain object — it is the piece worth testing
-   * on its own — so this is the one place where what it knows becomes something
-   * svelte can see. `letters` is copied rather than aliased because the decoder
-   * pushes into its own array in place, which `$state` would not notice.
-   */
-  #sync() {
-    this.#letters = [...this.#window.visible];
-    this.#pending = this.#window.preview;
-    this.#measuredWpm = Math.round(1200 / this.#window.dot);
   }
 
   /* ---------------------------------------------------------------- *

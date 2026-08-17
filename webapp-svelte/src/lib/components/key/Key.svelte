@@ -50,6 +50,9 @@
 
   let yambic = $derived(!straight && user.settings.key_mode === 'yambic');
 
+  let leftLabel = $derived(user.settings.left_is_dot ? 'dit' : 'dah');
+  let rightLabel = $derived(user.settings.left_is_dot ? 'dah' : 'dit');
+
   /**
    * The keyboard, for as long as the key is on screen. Reading the mode and the
    * bindings makes a change of either re-run this, and the cleanup lets go of
@@ -104,7 +107,7 @@
     onpointercancel={(e) => release(e, true)}
     oncontextmenu={(e) => e.preventDefault()}
   >
-    {yambic ? 'dot' : 'key'}
+    {yambic ? leftLabel : 'key'}
   </button>
   {#if yambic}
     <button
@@ -113,7 +116,7 @@
       onpointerdown={(e) => press(e, false)}
       onpointerup={(e) => release(e, false)}
       onpointercancel={(e) => release(e, false)}
-      oncontextmenu={(e) => e.preventDefault()}>dash</button
+      oncontextmenu={(e) => e.preventDefault()}>{rightLabel}</button
     >
   {/if}
 

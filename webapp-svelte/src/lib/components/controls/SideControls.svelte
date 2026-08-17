@@ -8,10 +8,7 @@
    * `onChangeCommitted`. Svelte updates only what changed, so the memo has no
    * equivalent; the api call is state work and comes later.
    *
-   * The wpm slider is hidden in the adaptive straight mode, which is the
-   * default: there the sending speed is measured from the keying itself
-   * (lib/morse/window.ts) and the slider would do nothing the operator can see.
-   * The setting is kept, not reset, so switching back restores the old speed.
+   * The wpm slider is always shown: every key mode is keyed and read at it.
    */
   import Slider from '@smui/slider';
   import Switch from '@smui/switch';
@@ -29,10 +26,8 @@
 <div class="controls {className}">
   <h2>Controls</h2>
 
-  {#if user.settings.key_mode !== 'straight_dynamic'}
-    <p>wpm</p>
-    <Slider bind:value={user.settings.wpm} min={5} max={50} discrete />
-  {/if}
+  <p>wpm</p>
+  <Slider bind:value={user.settings.wpm} min={5} max={50} discrete />
 
   <p>receiver volume</p>
   <Slider bind:value={user.settings.volume_receiver} min={0} max={100} discrete />

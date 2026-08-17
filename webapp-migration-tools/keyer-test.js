@@ -363,7 +363,10 @@ async function selectKeyMode(page, value) {
 	}
 }
 
-CASES.push(...ADAPTIVE_CASES);
+// not run: the mode they drive is commented out of the app, so their setup
+// waits for a radio button that is not there
+// CASES.push(...ADAPTIVE_CASES);
+void ADAPTIVE_CASES;
 
 const CASE_NAMES = CASES.map((c) => c.name);
 

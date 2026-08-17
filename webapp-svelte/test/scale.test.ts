@@ -63,23 +63,6 @@ const FLICKER_LETTERS = 4;
  */
 const CLEAN = ['textbook', 'fast', 'slow', 'heavy_dash', 'hesitant', 'drifting', 'very_fast', 'very_slow'];
 
-/**
- * The two hands it does not read, and why each is the ambiguity of §3 rather
- * than a bug to fix.
- *
- * `all_dash` is `moot to`, which has no dot in it anywhere, so the only thing
- * that says it is not `issees` is the speed it was declared at (R4) — and
- * `drifting` moves that speed by a third across the message, so by the end the
- * declared speed is a third wrong and the last `o` comes out as `s`. The two
- * ambiguities compound, and nothing in the buffer resolves either.
- *
- * `pair` is `et`: two elements with one silence between them. `et` and `a` are
- * the same durations, and neither the buffer nor the declared speed separates
- * them.
- */
-const AMBIGUOUS = ['all_dash/drifting', 'pair/'];
-const ambiguous = (id: string) => AMBIGUOUS.some((prefix) => id.startsWith(prefix));
-
 const cases = (profiles: string[], texts?: string[]) =>
   CASES.filter((one) => {
     const [text, profile] = one.id.split('/');
@@ -144,12 +127,12 @@ describe('the promise', () => {
 
 describe('the fit', () => {
   test('reads back every well-formed hand it is given', () => {
-    // Everything else — including the hand with seven-dot dashes, the one that
-    // pauses inside letters, and the messages of nothing but dashes — reads
-    // exactly.
+    // All eighty of them: every text, including the messages of nothing but
+    // dashes and the two-element `et`, against every profile there is no excuse
+    // for missing — the seven-dot dashes, the hand that pauses inside letters,
+    // the one that speeds up by a third, and both ends of the speed range.
     const missed: string[] = [];
     for (const one of cases(CLEAN)) {
-      if (ambiguous(one.id)) continue;
       const got = letters(reading(one.id).visible);
       if (got !== flat(one.text)) missed.push(`${one.id}: "${got}"`);
     }
@@ -161,12 +144,11 @@ describe('the fit', () => {
     // the same reason: `dash_heavy` is fifteen dashes with one dot among them,
     // and at a third of a dot of wobble the two clouds genuinely overlap.
     //
-    // The floor is set by `numbers/sloppy`, where the `7` of `sos 73 88` —
-    // `--...`, five elements with one gap in the middle of them to get right —
-    // comes apart into `gi`. The rest read exactly.
+    // The floor is set by `mixed/sloppy`, where the `de` of `cq de morsechat`
+    // runs together into an `s`. Four of the six read exactly.
     for (const one of cases(['sloppy'], ['hello', 'pangram', 'dots', 'mixed', 'numbers', 'long'])) {
       const got = letters(reading(one.id).visible);
-      assert.ok(agreement(got, flat(one.text)) >= 0.75, `${one.id}: "${got}" for "${one.text}"`);
+      assert.ok(agreement(got, flat(one.text)) >= 0.9, `${one.id}: "${got}" for "${one.text}"`);
     }
   });
 
@@ -203,10 +185,7 @@ describe('the speed', () => {
   test('reads a message of nothing but dashes, which only the speed can', () => {
     // The ambiguity of §3: `moot to` and `issees` are the same durations at two
     // speeds, and the live decoder is the one with a speed to tell them apart.
-    // Every clean hand but the drifting one, whose speed does not stay where it
-    // was declared long enough to settle it — see `AMBIGUOUS` above.
     for (const one of cases(CLEAN, ['all_dash'])) {
-      if (ambiguous(one.id)) continue;
       assert.equal(letters(reading(one.id).visible), 'mootto', one.id);
     }
   });
@@ -319,7 +298,7 @@ describe('the two readings', () => {
       // `all_dash` is the one message they cannot agree on, because only one of
       // them is told the speed that would settle it — and `pair` is two
       // elements, which nothing settles
-      if (one.id.startsWith('all_dash/') || ambiguous(one.id)) continue;
+      if (one.id.startsWith('all_dash/') || one.id.startsWith('pair/')) continue;
       const live = letters(reading(one.id).visible);
       const still = letters(decodeTimings(one.buffer, { isCharacter }));
       if (live !== still) differ.push(`${one.id}: live "${live}", finished "${still}"`);
