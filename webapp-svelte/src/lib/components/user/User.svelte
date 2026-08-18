@@ -2,20 +2,18 @@
   /**
    * Port of webapp/src/components/user/User.jsx.
    *
-   * The card shown when a callsign in the online list is clicked. Layout only:
-   * the moderator actions are rendered with the same look and the same
-   * conditions as the react ones, but the ban dialog and the mute api call they
-   * open belong to the state migration. They are behind `ismoderator ||
-   * isadmin`, which the placeholder state leaves false, exactly as the react
-   * dialog is for an ordinary visitor.
+   * The card shown when a callsign in the online list is clicked. The ban and
+   * mute actions at the bottom are behind `ismoderator || isadmin`, as the
+   * react ones are.
    */
   import { tick } from 'svelte';
 
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
-  import Button, { Label } from '@smui/button';
   import IconButton from '@smui/icon-button';
 
   import '../dialog/dialog.css';
+  import BanButton from '../moderation/BanButton.svelte';
+  import MuteButton from '../moderation/MuteButton.svelte';
   import WorldMap from './WorldMap.svelte';
   import { portal } from '$lib/utils/portal';
   import { userStats } from '$lib/api/client';
@@ -184,17 +182,19 @@
       </div>
     </Content>
     <Actions>
-      <!-- TODO: BanButton opens the ban dialog, MuteButton posts
-           moderation/mute. Both land with the state migration. -->
       {#if isModerator && !user?.is_anonymous}
-        <Button variant="raised" class="button-error">
-          <Label>Ban</Label>
-        </Button>
+        <BanButton
+          variant="raised"
+          class="button-error"
+          username={user?.username ?? ''}
+        >
+          Ban
+        </BanButton>
       {/if}
       {#if isModerator}
-        <Button variant="raised">
-          <Label>Mute</Label>
-        </Button>
+        <MuteButton variant="raised" callsign={user?.callsign ?? ''}>
+          Mute
+        </MuteButton>
       {/if}
     </Actions>
   </Dialog>

@@ -16,8 +16,12 @@ import type {
   ApiResult,
   AuthResponse,
   LoginRequest,
+  ModerationBanRequest,
+  ModerationListResponse,
+  ModerationMuteRequest,
   OkResponse,
   RegisterRequest,
+  ReportRequest,
   Settings,
   UserInfoResponse,
   UserStatsResponse,
@@ -164,6 +168,31 @@ export function validateCallsign(callsign: string, signal?: AbortSignal) {
 
 export function userInfo(username: string, signal?: AbortSignal) {
   return request<UserInfoResponse>('user/info', { Username: username }, false, signal);
+}
+
+/** An anonymous session may report too; the report records its device. */
+export function reportMessage(data: ReportRequest, signal?: AbortSignal) {
+  return request<OkResponse>('chat/report', data, false, signal);
+}
+
+/**
+ * The four lists behind the moderation dashboard.
+ *
+ * @param query - a substring of a username or a device id; anything shorter
+ * than 2 characters returns the most recent rows of each list.
+ */
+export function moderationList(query: string, signal?: AbortSignal) {
+  return request<ModerationListResponse>('moderation/list', { query }, false, signal);
+}
+
+/** Moderators only. */
+export function moderationBan(data: ModerationBanRequest, signal?: AbortSignal) {
+  return request<string>('moderation/ban', data, false, signal);
+}
+
+/** Lasts as long as the call sign stays connected. */
+export function moderationMute(data: ModerationMuteRequest, signal?: AbortSignal) {
+  return request<string>('moderation/mute', data, false, signal);
 }
 
 /* ------------------------------------------------------------------ *

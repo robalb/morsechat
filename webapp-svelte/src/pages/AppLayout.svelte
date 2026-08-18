@@ -19,6 +19,7 @@
   import Header from '$lib/components/header/Header.svelte';
   import Info from '$lib/components/info/Info.svelte';
   import Key from '$lib/components/key/Key.svelte';
+  import BanUserDialog from '$lib/components/moderation/BanUserDialog.svelte';
   import Online from '$lib/components/online/Online.svelte';
   import OnlineDialog from '$lib/components/online/OnlineDialog.svelte';
   import Preview from '$lib/components/preview/Preview.svelte';
@@ -87,6 +88,7 @@
   <Auth bind:page={authPage} />
   <Settings bind:open={settingsOpen} mobileView={!tablet.matches} />
   <OnlineDialog bind:open={onlineOpen} />
+  <BanUserDialog />
 
   {#if !desktop.matches}
     <Scrim />

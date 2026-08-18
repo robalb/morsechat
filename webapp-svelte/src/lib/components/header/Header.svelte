@@ -2,9 +2,7 @@
   /**
    * Port of webapp/src/components/header/Header.jsx.
    *
-   * The moderation dialog and the account menu actions are state and api work,
-   * left for a later step. What is here is the bar itself: left slot, channel
-   * select, right slot.
+   * The bar itself: left slot, channel select, right slot.
    */
   import Button, { Label, Icon } from '@smui/button';
   import Menu from '@smui/menu';
@@ -12,6 +10,7 @@
   import Select, { Option } from '@smui/select';
   import type { Snippet } from 'svelte';
 
+  import ModerationDialog from '../moderation/ModerationDialog.svelte';
   import User from '../user/User.svelte';
   import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
   import { chat } from '$lib/state/chat.svelte';
@@ -29,6 +28,8 @@
 
   /** the logged in user's own profile card, opened from the account menu */
   let profileOpen = $state(false);
+
+  let moderationOpen = $state(false);
 
   /** The card is written against an entry of the online list, which is the
    * only place it was ever opened from. The logged in user is not necessarily
@@ -92,10 +93,14 @@
       <div class="skeleton" aria-hidden="true"></div>
     {:else if user.authenticated}
       {#if user.isadmin || user.ismoderator}
-        <Button>
+        <Button
+          onclick={() => (moderationOpen = true)}
+          aria-haspopup="dialog"
+        >
           <Icon class="material-icons">shield</Icon>
           <Label>Moderation</Label>
         </Button>
+        <ModerationDialog bind:open={moderationOpen} />
       {/if}
 
       <!-- One button, as in the react header: the account name with a caret,

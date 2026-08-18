@@ -39,10 +39,14 @@ the same breakpoints, so the two pages can be diffed with
 | `components/sheet/Sheet.jsx` | `lib/components/sheet/Sheet.svelte` |
 | `components/settings/Settings.jsx` | `lib/components/settings/Settings.svelte` |
 | `components/auth/Auth.jsx` | `lib/components/auth/Auth.svelte` |
+| `components/user/User.jsx` | `lib/components/user/User.svelte` |
+| `components/report/ReportMessage.jsx` | `lib/components/report/ReportMessage.svelte` |
+| `components/moderation/*.jsx` | `lib/components/moderation/*.svelte` |
 | `utils/dialects.js` | `lib/utils/dialects.ts` (copied, typed) |
 
 | `redux/{apiSlice,userSlice}.js` | `lib/state/session.svelte.ts` |
 | `redux/chatSlice.js` | `lib/state/chat.svelte.ts` + `lib/morse/keyer.svelte.ts` |
+| `redux/dialogSlice.ts` | `lib/components/moderation/banDialog.svelte.ts` |
 | `socket/` | `lib/socket/` |
 | the keyer inside `components/key/Key.jsx` | `lib/morse/keyer.svelte.ts` |
 | `Preview.jsx`'s translation and countdown | `lib/morse/`, same file |
@@ -189,8 +193,7 @@ compiled copy of it that can drift.
   sender's speed). The keyer has the seam ready for the first — `keyer.tone` —
   and `chat.svelte.ts`'s `socket.onMessage` has the TODO for the second, which
   is why a received message currently only clears its sender's typing dots.
-- The verification form, the moderation menu's actions, and the report-message
-  post.
+- The verification form.
 - The keybindings panel still edits its own copy of the bindings rather than
   `user.settings.keybinds`: it holds a list of keys per action, and the api
   takes one key per action (`min=1,max=2` in the go schema). The keyer reads the
@@ -238,6 +241,10 @@ component, because it lands on markup this component does not own.
   inside the component, where MUI portals them onto `<body>`.
 - The react app builds three html entrypoints (`index`, `info`, `user`); the
   last two are placeholder stubs, so only `index` is here.
+- SMUI marks every `<Button>` inside a dialog's `<Actions>` with
+  `data-mdc-dialog-action="close"`, so mdc closes the dialog on any click in
+  that row. MUI does not, so the buttons that act rather than dismiss —
+  ban, mute, report — pass `action={null}`.
 - `lib/utils/dialects.ts` is a verbatim copy and keeps the duplicate object keys
   the original has. esbuild warns about them on every build. They are a bug in
   the morse tables (`-.-.-` and `-...-` are each defined twice), worth fixing,

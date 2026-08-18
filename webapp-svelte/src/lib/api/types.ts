@@ -144,6 +144,97 @@ export interface ValidateCallsignRequest {
 }
 
 /* ------------------------------------------------------------------ *
+ * Moderation
+ *
+ * backend/internal/handlers/apischema.go  ModerationListResponse
+ * backend/internal/handlers/moderator.go  the requests
+ * ------------------------------------------------------------------ */
+
+export interface ModerationUser {
+  id: number;
+  username: string;
+  callsign: string;
+  country: string | null;
+  is_verified: boolean;
+  is_moderator: boolean;
+}
+
+/** A banned user with no account: the device is all that identifies it. */
+export interface ModerationAnonUser {
+  id: number;
+  last_session: string;
+}
+
+export interface ModerationBanAction {
+  id: number;
+  moderator_id: number;
+  moderator_username: string;
+  /** unix seconds */
+  event_timestamp: number;
+  /** 0 when the banned user was anonymous */
+  baduser_id: number;
+  baduser_username: string;
+  baduser_session: string;
+  moderator_notes: string | null;
+  reason: string | null;
+  is_ban_revert: boolean;
+}
+
+export interface ModerationReportAction {
+  id: number;
+  /** 0 when the reporter was anonymous */
+  reporter_user_id: number;
+  reporter_username: string;
+  reporter_session: string;
+  /** unix seconds, when the report was filed */
+  event_timestamp: number;
+  /** 0 when the reported user was anonymous */
+  baduser_id: number;
+  baduser_username: string;
+  baduser_session: string;
+  reason: string | null;
+  badmessage_transcript: string;
+  /** unix seconds, when the reported message was sent */
+  badmessage_timestamp: number;
+}
+
+export interface ModerationListResponse {
+  users: ModerationUser[];
+  anon_users: ModerationAnonUser[];
+  ban_actions: ModerationBanAction[];
+  report_actions: ModerationReportAction[];
+}
+
+/** A query shorter than 2 characters is answered with the most recent rows. */
+export interface ModerationListRequest {
+  query: string;
+}
+
+/**
+ * At least one identifier is required. Sending both bans the account and the
+ * device together, which is what the server recommends.
+ */
+export interface ModerationBanRequest {
+  baduser_username: string;
+  baduser_session: string;
+  /** kept in the ban log */
+  notes: string;
+  is_revert: boolean;
+}
+
+/** The mute is applied by the websocket hub and leaves no db record. */
+export interface ModerationMuteRequest {
+  callsign: string;
+  mute: boolean;
+}
+
+/** The signature is what the server reads the reported user out of. */
+export interface ReportRequest {
+  text: string;
+  signature: string;
+}
+
+/* ------------------------------------------------------------------ *
  * Errors
  *
  * Every failing endpoint answers with the same two-field envelope,

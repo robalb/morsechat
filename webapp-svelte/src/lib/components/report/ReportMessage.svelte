@@ -2,10 +2,8 @@
   /**
    * Port of webapp/src/components/report/ReportMessage.jsx.
    *
-   * The card shown when a chat message is clicked. Layout only: the react
-   * version posts chat/report and reports the outcome through notistack, which
-   * is api work and lands with the state migration — so Report only closes the
-   * card here.
+   * The card shown when a chat message is clicked. The server reads the
+   * reported user out of the signature the message was sent with.
    */
   import { tick } from 'svelte';
 
@@ -14,6 +12,8 @@
   import IconButton from '@smui/icon-button';
 
   import '../dialog/dialog.css';
+  import { reportMessage } from '$lib/api/client';
+  import { enqueueSnackbar } from '$lib/components/snackbar/snackbar.svelte';
   import { portal } from '$lib/utils/portal';
 
   interface ReportData {
@@ -51,6 +51,34 @@
     open = false;
     mounted = false;
   }
+
+  let pending = $state(false);
+
+  async function handleReport() {
+    if (!data?.text || !data?.signature) {
+      enqueueSnackbar('Failed to generate report', {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+      return;
+    }
+    if (pending) return;
+    pending = true;
+    const res = await reportMessage({ text: data.text, signature: data.signature });
+    pending = false;
+    if (!res.ok) {
+      enqueueSnackbar(`Report failed: ${res.error}`, {
+        variant: 'error',
+        preventDuplicate: true,
+      });
+      return;
+    }
+    enqueueSnackbar('Message reported', {
+      variant: 'success',
+      preventDuplicate: true,
+    });
+    open = false;
+  }
 </script>
 
 {#if mounted}
@@ -79,8 +107,15 @@
       </div>
     </Content>
     <Actions>
-      <!-- TODO: post chat/report. Lands with the state migration. -->
-      <Button variant="raised" class="button-error" onclick={() => (open = false)}>
+      <!-- action={null}: SMUI would close the card on click, before the call
+           answers; a failed report has to leave it open -->
+      <Button
+        variant="raised"
+        class="button-error"
+        disabled={pending}
+        action={null}
+        onclick={handleReport}
+      >
         <Label>Report</Label>
       </Button>
       <Button variant="raised" onclick={() => (open = false)}>
