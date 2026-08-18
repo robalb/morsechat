@@ -25,11 +25,26 @@
   let accountMenu = $state<Menu>();
   /** open state of that menu, read only to keep aria-expanded honest */
   let accountMenuOpen = $state(false);
+  let accountMenuOpenAtPress = false;
 
   /** the logged in user's own profile card, opened from the account menu */
   let profileOpen = $state(false);
 
   let moderationOpen = $state(false);
+
+  /**
+   * Toggles the account menu, from the button that anchors it.
+   *
+   * The menu closes itself on any click outside its surface — the button
+   * included — before this runs, so the state to toggle is the one as of
+   * pointerdown rather than `accountMenuOpen`. A keyboard activation sends no
+   * pointerdown, and is what an empty `event.detail` marks.
+   */
+  function toggleAccountMenu(event: MouseEvent) {
+    const wasOpen =
+      event.detail === 0 ? accountMenuOpen : accountMenuOpenAtPress;
+    accountMenu?.setOpen(!wasOpen);
+  }
 
   /** The card is written against an entry of the online list, which is the
    * only place it was ever opened from. The logged in user is not necessarily
@@ -116,7 +131,8 @@
            above. -->
       <div class="account">
         <Button
-          onclick={() => accountMenu?.setOpen(true)}
+          onpointerdown={() => (accountMenuOpenAtPress = accountMenuOpen)}
+          onclick={toggleAccountMenu}
           aria-haspopup="menu"
           aria-controls="account-menu"
           aria-expanded={accountMenuOpen}
@@ -133,13 +149,16 @@
           fixed
           anchorCorner="BOTTOM_LEFT"
         >
-          <List>
-            <Item onclick={() => (profileOpen = true)}>
+          <!-- tabindex: mdc moves focus to the list root when the menu opens,
+               and a <ul> takes focus only with one. onSMUIAction: raised by a
+               click and by Enter, where onclick is the click alone. -->
+          <List tabindex={-1}>
+            <Item onSMUIAction={() => (profileOpen = true)}>
               <Icon class="material-icons">account_circle</Icon>
               <Text>View Profile</Text>
             </Item>
             <Separator />
-            <Item onclick={handleLogout}>
+            <Item onSMUIAction={handleLogout}>
               <Icon class="material-icons">logout</Icon>
               <Text>Logout</Text>
             </Item>
@@ -245,6 +264,18 @@
     display: flex;
     align-items: center;
     gap: 12px;
+  }
+  /* a menu row, not a list row: 36px, as MUI's <MenuItem> is above its sm
+     breakpoint, instead of mdc's 48px touch target */
+  :global(.account-menu .mdc-deprecated-list-item) {
+    height: auto;
+    padding: 6px 16px;
+  }
+  :global(.account-menu .mdc-deprecated-list-item .material-icons) {
+    font-size: 20px;
+  }
+  :global(.account-menu .mdc-deprecated-list-divider) {
+    margin: 4px 0;
   }
 
   .skeleton {
