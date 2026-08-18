@@ -233,7 +233,12 @@ function createClient(initialChannel: string, getChatNode: () => HTMLElement | n
 
   socket.onMessage = (message) => {
     setTyping(message.callsign, false);
-    playMessage(message, getChatNode(), (callsign) => chat.onlineUsers[callsign]?.allowSound);
+    playMessage(
+      message,
+      getChatNode(),
+      (callsign) => chat.onlineUsers[callsign]?.allowSound,
+      chat.onlineUsers[message.callsign]?.username ?? ''
+    );
   };
 
   // the acknowledgement of our own broadcast, which sendMorseMessage() is

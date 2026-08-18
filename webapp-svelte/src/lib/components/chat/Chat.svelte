@@ -14,8 +14,10 @@
   import Button, { Label } from '@smui/button';
 
   import ReportMessage from '../report/ReportMessage.svelte';
+  import User from '../user/User.svelte';
   import { chat } from '$lib/state/chat.svelte';
   import { api, retrySession, user } from '$lib/state/session.svelte';
+  import type { OnlineUser } from '$lib/state/types';
 
   let {
     class: className = '',
@@ -24,7 +26,17 @@
 
   /** the message whose report card is open, and the card's own open state */
   let dialogOpen = $state(false);
-  let selectedMessage = $state<{ signature: string; text: string } | null>(null);
+  let selectedMessage = $state<{
+    signature: string;
+    text: string;
+    callsign: string;
+    /** empty when the sender is anonymous */
+    username: string;
+  } | null>(null);
+
+  /** the sender whose profile card is open, and that card's own open state */
+  let profileOpen = $state(false);
+  let profileUser = $state<OnlineUser | null>(null);
 
   /**
    * A click anywhere in the log, read back off the dom: the messages are not
@@ -42,8 +54,31 @@
     if (!signature) {
       return;
     }
-    selectedMessage = { signature, text: p.innerText };
+    selectedMessage = {
+      signature,
+      text: p.innerText,
+      callsign: p.getAttribute('data-callsign') ?? '',
+      username: p.getAttribute('data-username') ?? '',
+    };
     dialogOpen = true;
+  }
+
+  /**
+   * Opens the profile card for the sender of the message the report card is
+   * showing. Built from what the message carries rather than from the online
+   * list: the sender may have left the channel since.
+   */
+  function viewProfile() {
+    if (!selectedMessage) return;
+    const { callsign, username } = selectedMessage;
+    profileUser = {
+      callsign,
+      username,
+      is_anonymous: !username,
+      typing: false,
+      allowSound: false,
+    };
+    profileOpen = true;
   }
 
   /** guards the retry button against a second click while a call is in flight */
@@ -107,7 +142,12 @@
     ></div>
   {/if}
 </div>
-<ReportMessage bind:open={dialogOpen} data={selectedMessage} />
+<ReportMessage
+  bind:open={dialogOpen}
+  data={selectedMessage}
+  onViewProfile={viewProfile}
+/>
+<User bind:open={profileOpen} user={profileUser} />
 
 <style>
   .chat {

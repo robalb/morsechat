@@ -19,12 +19,20 @@
   interface ReportData {
     signature: string;
     text: string;
+    callsign: string;
+    /** empty when the sender is anonymous */
+    username: string;
   }
 
   let {
     open = $bindable(false),
     data = null,
-  }: { open?: boolean; data?: ReportData | null } = $props();
+    onViewProfile,
+  }: {
+    open?: boolean;
+    data?: ReportData | null;
+    onViewProfile?: () => void;
+  } = $props();
 
   /** the body of the card, which takes the focus when the dialog opens */
   let body: HTMLDivElement | null = $state(null);
@@ -102,6 +110,17 @@
       <!-- takes the focus when the dialog opens, as MUI's paper does. See the
            same comment in User.svelte. -->
       <div bind:this={body} tabindex="-1">
+        <p>
+          This message was typed by
+          {#if data?.username}
+            <button class="link" type="button" onclick={() => onViewProfile?.()}
+              >{data?.callsign ?? ''}</button
+            >
+          {:else}
+            <span class="callsign">{data?.callsign ?? ''}</span>
+            (anonymous user, not logged in)
+          {/if}
+        </p>
         <p>Do you believe this message is spam or contains inappropriate content?</p>
         <code>{data?.text ?? ''}</code>
       </div>
@@ -142,5 +161,25 @@
   code {
     font-family: monospace;
     font-size: 13px;
+  }
+  /* the callsign is set the way the app writes callsigns elsewhere */
+  .callsign {
+    font-family: 'Courier New', Courier, monospace;
+  }
+  /* the sender's profile, on the callsign itself: the button that reads as a
+   * link of auth.css, with the callsign's own typeface */
+  .link {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: inherit;
+    color: var(--mdc-theme-primary, #fafafa);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .link:hover {
+    text-decoration: none;
   }
 </style>

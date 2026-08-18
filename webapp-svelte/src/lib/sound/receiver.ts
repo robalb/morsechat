@@ -199,22 +199,27 @@ const active = new Set<Playback>();
 /**
  * Appends a received message to the chat log and plays it out at the speed it
  * was keyed, sounding a tone at the sender's frequency. The paragraph carries
- * the `data-signature` that marks it as reportable and the three spans the
- * stylesheet of <Chat /> expects: callsign, morse, text.
+ * the sender's identity — `data-signature`, which marks it as reportable, plus
+ * `data-callsign` and `data-username` — and the three spans the stylesheet of
+ * <Chat /> expects: callsign, morse, text.
  *
  * @param message - the broadcast, as it came off the socket
  * @param node - the chat log; nothing is shown or played when it is null
  * @param allowSound - reads the sender's mute flag, asked once per element
+ * @param username - the sender's account name, empty when they are anonymous
  */
 export function playMessage(
   message: MessageMorse,
   node: HTMLElement | null,
-  allowSound: SoundPermission
+  allowSound: SoundPermission,
+  username: string
 ) {
   if (!node) return;
 
   const paragraph = document.createElement('p');
   paragraph.setAttribute('data-signature', message.signature);
+  paragraph.setAttribute('data-callsign', message.callsign);
+  paragraph.setAttribute('data-username', username);
 
   const label = document.createElement('span');
   const short = getDialect(message.dialect).short_name;
