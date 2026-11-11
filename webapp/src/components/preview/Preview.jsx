@@ -4,7 +4,7 @@ import * as React from "react";
 
 import styles from './preview.module.css';
 import { useSelector, useDispatch } from 'react-redux'
-import { resetMessage, setTyping } from "../../redux/chatSlice";
+import { resetMessage, setTyping, selectShowReadable } from "../../redux/chatSlice";
 import getDialect from '../../utils/dialects'
 import {send} from '../../redux/chatSlice'
 import { selectMorseTimes } from "../../redux/userSlice";
@@ -16,7 +16,7 @@ let dashChar = "–" // endash (U+2013)
 function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
     let times = useSelector(selectMorseTimes)
-    let showReadable = useSelector(state => state.user.settings.show_readable)
+    let showReadable = useSelector(selectShowReadable)
     let dialectName = useSelector(state => state.user.settings.dialect)
     let dialect = getDialect(dialectName)
 

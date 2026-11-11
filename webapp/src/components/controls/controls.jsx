@@ -4,6 +4,7 @@ import Slider from "@mui/material/Slider";
 import MenuItem from "@mui/material/MenuItem";
 import { useSelector, useDispatch } from "react-redux";
 import { updateSettings } from "../../redux/userSlice";
+import { selectChannelMorseOnly } from "../../redux/chatSlice";
 import styles from "./controls.module.css";
 import { useSnackbar } from "notistack";
 
@@ -49,6 +50,7 @@ export function SideControls({ className = "", settingsButton = "" }) {
 	const { enqueueSnackbar } = useSnackbar();
 	const dispatch = useDispatch();
 	let settings = useSelector((state) => state.user.settings);
+	let morseOnly = useSelector(selectChannelMorseOnly);
 
 	function update(data) {
 		dispatch(updateSettings(data))
@@ -99,9 +101,15 @@ export function SideControls({ className = "", settingsButton = "" }) {
 			/>
 
 			<div>
-				<p>show letters</p>
+				<p>
+					show letters
+					{morseOnly && (
+						<span className={styles.forcedOff}> (always off in this channel)</span>
+					)}
+				</p>
 				<MemoSwitch
-					checked={settings.show_readable}
+					checked={!morseOnly && settings.show_readable}
+					disabled={morseOnly}
 					color="secondary"
 					onChange={React.useCallback(
 						(e) => update({ show_readable: e.target.checked }),

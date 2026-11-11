@@ -30,6 +30,7 @@ var (
 		"presence-pro-1":    true,
 		"presence-pro-2":    true,
 		"presence-pro-3":    true,
+		"presence-pro-4":    true,
 	}
 	config_wpmMin               = 5
 	config_wpmMax               = 50

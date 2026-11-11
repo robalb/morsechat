@@ -6,6 +6,7 @@ import styles from './chat.module.css';
 import { useSelector, useDispatch } from 'react-redux'
 
 import { fetchAllData } from '../../redux/apiSlice';
+import { selectShowReadable } from '../../redux/chatSlice';
 import { useSnackbar } from 'notistack';
 
 import { ReportMessage } from "../report/ReportMessage"; 
@@ -15,7 +16,7 @@ export function Chat({className = "", chatDomNode}) {
     const dispatch = useDispatch()
     const connectionStatus = useSelector(state => state.chat.connectionStatus)
     const channels = useSelector(state => state.chat.channels)
-    let showReadable = useSelector(state => state.user.settings.show_readable)
+    let showReadable = useSelector(selectShowReadable)
     let {loading, error} = useSelector(state => state.api)
     const [dialogOpen, setDialogOpen] = React.useState(false);
     const [selectedMessage, setSelectedMessage] = React.useState(null);

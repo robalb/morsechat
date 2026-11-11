@@ -44,6 +44,9 @@ const initialState = {
 		{ ch: "presence-pro-1", name: "pro1" },
 		{ ch: "presence-pro-2", name: "pro2" },
 		{ ch: "presence-pro-3", name: "pro3" },
+		// pro4 is a Morse-only channel: readable letter previews are always
+		// disabled there, regardless of the user's show_readable setting.
+		{ ch: "presence-pro-4", name: "pro4", morse_only: true },
 	],
 	connected: false,
 	connectionStatus: "powering on",
@@ -218,6 +221,26 @@ export function selectChannelName(state) {
 		return filtered[0].name;
 	}
 	return undefined;
+}
+
+/**
+ * True when the current channel forces Morse-only output, hiding the readable
+ * letter previews even if the user has enabled show_readable in their settings.
+ */
+export function selectChannelMorseOnly(state) {
+	let channel = state.chat.channels.find(
+		(current) => current.ch == state.chat.channel,
+	);
+	return Boolean(channel && channel.morse_only);
+}
+
+/**
+ * The effective value of the show_readable setting for the current channel.
+ */
+export function selectShowReadable(state) {
+	return selectChannelMorseOnly(state)
+		? false
+		: state.user.settings.show_readable;
 }
 
 export const {
