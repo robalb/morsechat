@@ -20,6 +20,22 @@
 
 }
 
+.keybindHelp{
+    opacity: .8;
+    font-size: .85em;
+}
+
+.keybindRow{
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin: .4rem 0;
+}
+
+.keybindRow > span{
+    flex: 1;
+}
+
 .forcedOff{
     opacity: .7;
     font-size: .85em;
