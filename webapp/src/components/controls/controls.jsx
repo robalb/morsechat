@@ -14,7 +14,7 @@ import {
 	defaultKeybinds,
 	isBindableKey,
 	keyLabel,
-	keybindLabels,
+	keybindLabelsFor,
 	normalizeKey,
 } from "../../utils/keybinds.mjs";
 
@@ -181,18 +181,25 @@ export function AdvancedControls({ className = "" }) {
 				<FormControlLabel value="yambic" control={<Radio />} label="iambic A" />
 			</RadioGroup>
 			<p style={{ marginTop: "1rem" }}>iambic paddle order</p>
-			<div>
-				<p>left is dit</p>
-				<MemoSwitch
-					checked={!settings.left_is_dot}
-					color="primary"
-					onChange={React.useCallback(
-						(e) => update({ left_is_dot: !e.target.checked }),
-						[],
-					)}
+			<RadioGroup
+				row
+				name="iambic-paddle-order"
+				value={settings.left_is_dot ? "left_dit" : "right_dit"}
+				onChange={(e) =>
+					update({ left_is_dot: e.target.value === "left_dit" })
+				}
+			>
+				<FormControlLabel
+					value="left_dit"
+					control={<Radio />}
+					label="left = dit, right = dash"
 				/>
-				<p>right is dit</p>
-			</div>
+				<FormControlLabel
+					value="right_dit"
+					control={<Radio />}
+					label="left = dash, right = dit"
+				/>
+			</RadioGroup>
 		</div>
 	);
 }
@@ -201,6 +208,7 @@ export function KeybindingsControls({ className }) {
 	const dispatch = useDispatch();
 	const settings = useSelector((state) => state.user.settings);
 	const keybinds = settings.keybinds || defaultKeybinds;
+	const labels = keybindLabelsFor(settings.left_is_dot);
 	const [capturing, setCapturing] = React.useState(null);
 	const [error, setError] = React.useState("");
 
@@ -245,7 +253,7 @@ export function KeybindingsControls({ className }) {
 			if (conflict) {
 				setError(
 					`${keyLabel(key)} is already bound to ${
-						keybindLabels[conflict[0]] || conflict[0]
+						labels[conflict[0]] || conflict[0]
 					}.`,
 				);
 				return;
@@ -288,9 +296,9 @@ export function KeybindingsControls({ className }) {
 					{error}
 				</Alert>
 			)}
-			{Object.keys(keybindLabels).map((name) => (
+			{Object.keys(labels).map((name) => (
 				<div className={styles.keybindRow} key={name}>
-					<span>{keybindLabels[name]}</span>
+					<span>{labels[name]}</span>
 					<Button
 						size="small"
 						variant={capturing === name ? "contained" : "outlined"}

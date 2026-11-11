@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { createIambicKeyer } from "../src/utils/iambicKeyer.mjs";
 import {
 	isBindableKey,
+	keybindLabelsFor,
 	mergeKeybinds,
 	normalizeKey,
 } from "../src/utils/keybinds.mjs";
@@ -255,6 +256,13 @@ test("keybinding helpers normalize and sanitize values", () => {
 	assert.equal(mergeKeybinds({ straight: "" }).straight, "c");
 	assert.equal(mergeKeybinds({ straight: "toolong" }).straight, "c");
 	assert.equal(mergeKeybinds({ straight: " " }).straight, "c");
+
+	const normalLabels = keybindLabelsFor(true);
+	assert.equal(normalLabels.yambic_left, "Left key (dit)");
+	assert.equal(normalLabels.yambic_right, "Right key (dash)");
+	const swappedLabels = keybindLabelsFor(false);
+	assert.equal(swappedLabels.yambic_left, "Left key (dash)");
+	assert.equal(swappedLabels.yambic_right, "Right key (dit)");
 });
 
 let failures = 0;

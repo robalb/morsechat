@@ -21,6 +21,19 @@ export const keybindLabels = {
 };
 
 /**
+ * Labels for the keybinding UI. The paddle labels include the element each
+ * paddle currently sends, so the mapping is explicit even when the paddles are
+ * swapped.
+ */
+export function keybindLabelsFor(leftIsDot) {
+	return {
+		...keybindLabels,
+		yambic_left: `Left key (${leftIsDot ? "dit" : "dash"})`,
+		yambic_right: `Right key (${leftIsDot ? "dash" : "dit"})`,
+	};
+}
+
+/**
  * Normalize a keyboard event key for comparisons. Single characters are
  * compared case-insensitively, so Shift+C and c both trigger a "c" binding.
  */

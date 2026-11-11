@@ -192,8 +192,9 @@ function KeyInternal() {
 		}
 	}
 
-	const leftButtonText = keyMode === "yambic" ? "dot" : "key";
-	const rightButtonText = "dash";
+	const leftButtonText =
+		keyMode === "yambic" ? (leftIsDot ? "dit" : "dash") : "key";
+	const rightButtonText = leftIsDot ? "dash" : "dit";
 
 	return (
 		<>
