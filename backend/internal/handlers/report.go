@@ -9,13 +9,14 @@ import (
 	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
 	deviceid "github.com/robalb/morsechat/internal/godeviceid"
+	"github.com/robalb/morsechat/internal/monitoring"
 	"github.com/robalb/morsechat/internal/morse"
 	"github.com/robalb/morsechat/internal/validation"
 )
 
 type ServeReport_req struct {
 	Text      string `json:"text" validate:"required,min=1"`
-	Signature string `json:"signature" validate:"required,min=1"` //TODO
+	Signature string `json:"signature" validate:"required,min=1"`
 }
 
 func ServeReport(
@@ -24,6 +25,7 @@ func ServeReport(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 	deviceIdConfig *deviceid.Config,
+	metrics *monitoring.Metrics,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req ServeReport_req
@@ -78,6 +80,7 @@ func ServeReport(
 			logger.Printf("ServeReport: query error: %v", err.Error())
 			return
 		}
+		metrics.Reports.Inc()
 
 		validation.RespondOk(w, OkResponse{Ok: "ok"})
 	}

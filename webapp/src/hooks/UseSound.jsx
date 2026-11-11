@@ -11,6 +11,10 @@ export function useSound(note = 880, volume = 100) {
 	let [g, setG] = React.useState(null);
 	const [o, setO] = React.useState(null); // store oscillator
 	let [isOn, setIsOn] = React.useState(false);
+	// Refs keep the on/off callbacks correct even when they are called from an
+	// effect cleanup that was registered before the oscillator was created.
+	const gainRef = React.useRef(null);
+	const oscillatorRef = React.useRef(null);
 
 	//update the volume in real time
 	React.useEffect(() => {
@@ -27,39 +31,52 @@ export function useSound(note = 880, volume = 100) {
 	//initialize the audio context - in chrome this will throw a warning
 	//because user action is required but it still works
 	React.useEffect(() => {
-		console.log("AUDIO NODE CREATED");
 		//https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
-		let o = ctx.createOscillator();
-		o.frequency.value = note;
-		o.type = "triangle";
-		let g = ctx.createGain();
-		o.connect(g);
-		g.connect(ctx.destination);
-		setO(o);
-		setG(g);
+		let oscillator = ctx.createOscillator();
+		oscillator.frequency.value = note;
+		oscillator.type = "triangle";
+		let gain = ctx.createGain();
+		oscillator.connect(gain);
+		gain.connect(ctx.destination);
+		oscillatorRef.current = oscillator;
+		gainRef.current = gain;
+		setO(oscillator);
+		setG(gain);
 
-		g.gain.setValueAtTime(baseVolume, ctx.currentTime);
-		o.start();
+		gain.gain.setValueAtTime(baseVolume, ctx.currentTime);
+		oscillator.start();
 
 		return () => {
-			console.log("CLOSING AUDIO OSCILLATOR");
-			g.disconnect();
+			// React 18 StrictMode mounts, cleans up, and mounts again. The
+			// cleanup can run before the state updates above are committed, so
+			// only touch nodes that actually exist.
+			if (oscillatorRef.current) {
+				oscillatorRef.current.disconnect();
+				oscillatorRef.current = null;
+			}
+			if (gainRef.current) {
+				gainRef.current.disconnect();
+				gainRef.current = null;
+			}
 		};
 	}, []);
 
 	return [
 		function on() {
+			const gain = gainRef.current;
+			if (!gain) return;
 			if (ctx.state != "running") {
-				console.log("resuming global audiocontext from useSound hook");
 				ctx.resume();
 			}
 			setIsOn(true);
-			g.gain.setValueAtTime(volume, ctx.currentTime);
+			gain.gain.setValueAtTime(volume, ctx.currentTime);
 		},
 		function off() {
+			const gain = gainRef.current;
+			if (!gain) return;
 			if (ctx.state == "running") {
 				setIsOn(false);
-				g.gain.setValueAtTime(baseVolume, ctx.currentTime);
+				gain.gain.setValueAtTime(baseVolume, ctx.currentTime);
 			}
 		},
 	];

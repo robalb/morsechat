@@ -2,10 +2,7 @@ package server
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
@@ -40,14 +37,14 @@ func AddRoutes(
 
 	//Non authenticated routes
 	v1.Group(func(r chi.Router) {
-		r.Post("/register", handlers.ServeRegister(logger, tokenAuth, dbReadPool, dbWritePool, deviceIdConfig))
-		r.Post("/login", handlers.ServeLogin(logger, tokenAuth, dbReadPool, dbWritePool, deviceIdConfig))
+		r.Post("/register", handlers.ServeRegister(logger, tokenAuth, dbReadPool, dbWritePool, deviceIdConfig, metrics))
+		r.Post("/login", handlers.ServeLogin(logger, tokenAuth, dbReadPool, dbWritePool, deviceIdConfig, metrics))
 		r.Post("/sess_init", handlers.ServeSessInit(logger, tokenAuth, dbReadPool, deviceIdConfig))
 		r.Post("/validate_callsign", handlers.ServeValidateCallsign(logger, dbReadPool))
 
 		r.Route("/chat", func(r chi.Router) {
 			r.Use(middleware.RequireValidSession(tokenAuth))
-			r.Post("/report", handlers.ServeReport(logger, config, dbReadPool, dbWritePool, deviceIdConfig))
+			r.Post("/report", handlers.ServeReport(logger, config, dbReadPool, dbWritePool, deviceIdConfig, metrics))
 		})
 	})
 
@@ -58,17 +55,17 @@ func AddRoutes(
 		r.Post("/update_settings", handlers.ServeUpdateSettings(logger, dbReadPool, dbWritePool))
 
 		r.Route("/moderation", func(r chi.Router) {
-			r.Use(middleware.RequireModerator(tokenAuth))
+			r.Use(middleware.RequireModerator(tokenAuth, dbReadPool))
 			r.Post("/list", handlers.ServeModerationList(logger, tokenAuth, dbReadPool, dbWritePool, deviceIdConfig))
 			r.Post("/ban", handlers.ServeModerationBan(logger, tokenAuth, dbReadPool, dbWritePool, hub, deviceIdConfig))
 			r.Post("/mute", handlers.ServeModerationMute(logger, tokenAuth, dbReadPool, dbWritePool, hub, deviceIdConfig))
 		})
 		r.Route("/admin", func(r chi.Router) {
-			r.Use(middleware.RequireAdmin(tokenAuth))
-			r.Get("/list_moderators", serveTODO)
-			r.Post("/set_moderator", serveTODO)
-			r.Post("/remove_moderator", serveTODO)
-			r.Get("/list_ban_activity", serveTODO)
+			r.Use(middleware.RequireAdmin(tokenAuth, dbReadPool))
+			r.Get("/list_moderators", handlers.ServeAdminListModerators(logger, dbReadPool))
+			r.Post("/set_moderator", handlers.ServeAdminSetModerator(logger, dbReadPool, dbWritePool))
+			r.Post("/remove_moderator", handlers.ServeAdminRemoveModerator(logger, dbReadPool, dbWritePool))
+			r.Get("/list_ban_activity", handlers.ServeAdminListBanActivity(logger, dbReadPool))
 		})
 
 		r.Route("/user", func(r chi.Router) {
@@ -77,31 +74,4 @@ func AddRoutes(
 		})
 
 	})
-
-	//TODO remove
-	v1.Route("/test", func(r chi.Router) {
-		r.Get("/time", serveTestCtx)
-	})
-
-}
-
-//TODO: move to dedicated file anything below this line
-//---------
-
-func serveTestCtx(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	select {
-	case <-ctx.Done():
-		log.Println("ctx done, abrupt end. reason:")
-		log.Println(ctx.Err())
-		http.Error(w, ctx.Err().Error(), http.StatusInternalServerError)
-	case <-time.After(4 * time.Second):
-		log.Println("10s elapsed")
-		fmt.Fprintf(w, "10s elapsed")
-	}
-
-}
-
-func serveTODO(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Api endpoint not implemented", http.StatusInternalServerError)
 }

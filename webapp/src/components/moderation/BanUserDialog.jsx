@@ -44,13 +44,11 @@ export const BanUserDialog = () => {
     setApiPromise(livePromise)
     livePromise.unwrap()
       .then(ret => {
-        console.log(ret)
-        let actionName = revert ? "ban REVERT successfull." : "ban succesfful"
+        let actionName = revert ? "ban REVERT successful." : "ban successful"
         enqueueSnackbar(actionName, {variant: "success", preventDuplicate:true})
         dispatch(closeDialog());
       })
       .catch(ret => {
-        console.log(ret)
         let actionName = revert ? "ban REVERT failed." : "ban failed"
       enqueueSnackbar(actionName, {variant: "error", preventDuplicate:true})
       dispatch(closeDialog());

@@ -186,10 +186,8 @@ export function AppLogic({ chatDomNode }) {
 	React.useEffect(() => {
 		if (loading == false) {
 			if (pusher.current != null) {
-				console.log(">> effect: refreshing ws connection");
 				pusher.current.refresh();
 			} else {
-				console.log(">> effect: initializing ws");
 				//initialize the socket client
 				pusher.current = new SocketClient(channel);
 				setInstance(pusher.current);
@@ -267,7 +265,6 @@ export function AppLogic({ chatDomNode }) {
 	 */
 	React.useEffect(() => {
 		if (pusher.current) {
-			console.log(">> effect: subscribing to channel " + channel);
 			//save / restore the chat state
 			if (chatDomNode.current) {
 				let oldChannel = pusher.current.channel;

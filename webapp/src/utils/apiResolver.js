@@ -38,29 +38,47 @@
    * other errors are defined by every api endpoint. common ones are
    * bad_schema
    * unauthorized
+   *
+   * GET requests serialize the data object into the query string, while all
+   * other methods send it as a JSON body.
    */
- export async function request(url, data={}, csrf=false, signal=false){
+ export async function request(url, data={}, csrf=false, signal=false, method='POST'){
    let optional = {}
    if(signal) optional.signal = signal
 
+    const upperMethod = method.toUpperCase()
+    let requestUrl = url
+    let body = null
+    if(upperMethod === 'GET'){
+      const params = new URLSearchParams()
+      Object.entries(data || {}).forEach(([key, value]) => {
+        if(value !== undefined && value !== null)
+          params.append(key, value)
+      })
+      const query = params.toString()
+      if(query)
+        requestUrl += (url.includes('?') ? '&' : '?') + query
+    }else{
+      body = JSON.stringify(data)
+    }
+
     let response = {}
     //prepare request headers
-    let headers = {
-      'Content-Type': 'application/json',
-    }
+    let headers = {}
+    if(body !== null) headers['Content-Type'] = 'application/json'
     if(csrf) headers['X-Csrf-Magic'] = csrf
     //attempt to make an api call.
     try{
-      response = await fetch(url, {
+      response = await fetch(requestUrl, {
         ...optional,
-        method: 'POST',
+        method: upperMethod,
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'include', // include, *same-origin, omit
         headers: headers,
         redirect: 'follow', // manual, *follow, error
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(data) // body data type must match "Content-Type" header
+        body: body // body data type must match "Content-Type" header
       });
     }
     catch(e){

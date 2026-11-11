@@ -12,13 +12,14 @@ import (
 )
 
 type ServeUserInfo_req struct {
-	Username string
+	Username string `json:"username" validate:"required,min=3,max=20"`
 }
 type ServeUserInfo_ok struct {
-	Username              string
-	Callsign              string
-	LastOnlineTimestamp   int64
-	RegistrationTimestamp int64
+	Username              string `json:"username"`
+	Callsign              string `json:"callsign"`
+	Country               string `json:"country"`
+	LastOnlineTimestamp   int64  `json:"last_online_timestamp"`
+	RegistrationTimestamp int64  `json:"registration_timestamp"`
 }
 
 func ServeUserInfo(
@@ -36,7 +37,10 @@ func ServeUserInfo(
 		queries := db.New(dbReadPool)
 		res, err := queries.GetUser(r.Context(), req.Username)
 
-		if err != nil {
+		if err == sql.ErrNoRows {
+			validation.RespondError(w, "user_not_found", "", http.StatusNotFound)
+			return
+		} else if err != nil {
 			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
 			logger.Printf("ServeUserInfo: query error: %v", err.Error())
 			return
@@ -45,6 +49,7 @@ func ServeUserInfo(
 		resp := ServeUserInfo_ok{
 			Username:              res.Username,
 			Callsign:              res.Callsign,
+			Country:               countryString(res.Country),
 			LastOnlineTimestamp:   res.LastOnlineTimestamp,
 			RegistrationTimestamp: res.RegistrationTimestamp,
 		}
@@ -68,7 +73,10 @@ func ServeMe(
 		queries := db.New(dbReadPool)
 		res, err := queries.GetUserFromId(r.Context(), jwtData.UserId)
 
-		if err != nil {
+		if err == sql.ErrNoRows {
+			validation.RespondError(w, "user_not_found", "", http.StatusNotFound)
+			return
+		} else if err != nil {
 			validation.RespondError(w, "Query failed", "", http.StatusInternalServerError)
 			logger.Printf("ServeMe: query error: %v", err.Error())
 			return
@@ -77,6 +85,7 @@ func ServeMe(
 		resp := ServeUserInfo_ok{
 			Username:              res.Username,
 			Callsign:              res.Callsign,
+			Country:               countryString(res.Country),
 			LastOnlineTimestamp:   res.LastOnlineTimestamp,
 			RegistrationTimestamp: res.RegistrationTimestamp,
 		}

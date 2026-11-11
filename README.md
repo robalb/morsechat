@@ -23,9 +23,10 @@ h 500 400
 
 ## configuration
 
-Copy the file env.example into .env
+Copy the file `.env.example` into `.env`
 
-in the .env configure your app secret
+in the `.env` configure your app secret. You can generate a new one with
+`cd backend && go run cmd/secrets/main.go`.
 
 
 ## development
@@ -36,10 +37,31 @@ navigate into the repository `cd morsechat`
 
 start the backend server in development mode `cd backend && go run -race cmd/morsechat/main.go`
 
-start vite in development mode `cd web && npm run dev`
+start vite in development mode `cd webapp && npm run dev`
 
 These steps are enough to get a local version of the app running.
 The backend also includes unit, e2e, and fuzz tests, which you can run with the command `go test ./...`
+
+### administrators
+
+Administrators are stored in the database (`users.is_admin`), not in
+environment variables, so that a leaked or mistyped variable can never grant
+admin rights. Promote an existing account with the admin bootstrap command:
+
+```bash
+cd backend
+go run cmd/admin/main.go -username <username> -sqlite_path db.sqlite
+```
+
+Use `-revoke` to remove the role again. In a container, run the bundled binary:
+
+```bash
+docker compose exec morse /app/backend/morsechat-admin -username <username>
+```
+
+The `SQLITE_PATH` environment variable is used when `-sqlite_path` is omitted.
+Role changes take effect immediately: the API re-checks the database on every
+moderator and admin request.
 
 ## production
 

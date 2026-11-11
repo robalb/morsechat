@@ -95,6 +95,9 @@ func ServeModerationList(
 			logger.Printf("%s: query error: %v", errCtx, err.Error())
 		}
 		bannedResAnon, err := queries.GetLastBannedAnon(r.Context(), query)
+		if err != nil {
+			logger.Printf("%s: query error: %v", errCtx, err.Error())
+		}
 
 		validation.RespondOk(w, ModerationListResponse{
 			Users:      adaptUsers(bannedRes),
@@ -174,7 +177,10 @@ func ServeModerationBan(
 		baduserId := int64(0)
 		if len(reqData.Badusername) > 0 {
 			res, err := queriesRead.GetUser(r.Context(), reqData.Badusername)
-			if err != nil {
+			if err == sql.ErrNoRows {
+				validation.RespondError(w, "user_not_found", "", http.StatusNotFound)
+				return
+			} else if err != nil {
 				logger.Printf("%s: username query error: %v", errCtx, err.Error())
 				validation.RespondError(w, "Data query error", "", http.StatusInternalServerError)
 				return
@@ -280,7 +286,7 @@ func ServeModerationBan(
 
 type ModerationMuteData struct {
 	Callsign string `json:"callsign" validate:"required"`
-	Mute     *bool   `json:"mute" validate:"required"`
+	Mute     *bool  `json:"mute" validate:"required"`
 }
 
 func ServeModerationMute(
@@ -292,7 +298,7 @@ func ServeModerationMute(
 	deviceIdConfig *deviceid.Config,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		errCtx := "ServeModerationBan"
+		errCtx := "ServeModerationMute"
 
 		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
@@ -339,9 +345,9 @@ func ServeModerationMute(
 		case <-time.After(300 * time.Millisecond):
 			logger.Printf("%s: Hub SystemRequest failed, timeout.", errCtx)
 		}
-		var un string=""
-		if (! *reqData.Mute){
-		un="un"
+		var un string = ""
+		if !*reqData.Mute {
+			un = "un"
 		}
 		//basic audit log of the events
 		logger.Printf("Moderation: (%s): %smuted user: %s",

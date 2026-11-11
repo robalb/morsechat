@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS users (
   is_banned              INTEGER NOT NULL DEFAULT 0, -- BOOLEAN
   is_verified            INTEGER NOT NULL DEFAULT 0, -- BOOLEAN
   is_moderator           INTEGER NOT NULL DEFAULT 0, -- BOOLEAN
+  is_admin               INTEGER NOT NULL DEFAULT 0, -- BOOLEAN
   registration_session   TEXT NOT NULL,    -- UUIDv4
   registration_timestamp INTEGER NOT NULL DEFAULT (unixepoch()),
   last_online_timestamp  INTEGER NOT NULL DEFAULT (unixepoch())

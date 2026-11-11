@@ -22,12 +22,10 @@ const BanButton = ({ callsign="", mute=true, children, ...props }) => {
     setApiPromise(livePromise)
     livePromise.unwrap()
       .then(ret => {
-        console.log(ret)
-        let actionName = mute ? "MUTE successfull." : "mute REVERT succesfful"
+        let actionName = mute ? "MUTE successful." : "mute REVERT successful"
         enqueueSnackbar(actionName, {variant: "success", preventDuplicate:true})
       })
       .catch(ret => {
-        console.log(ret)
         let actionName = mute ? "MUTE failed." : "mute REVERT failed"
       enqueueSnackbar(actionName, {variant: "error", preventDuplicate:true})
       })

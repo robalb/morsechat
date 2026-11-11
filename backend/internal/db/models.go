@@ -65,6 +65,7 @@ type User struct {
 	IsBanned              int64
 	IsVerified            int64
 	IsModerator           int64
+	IsAdmin               int64
 	RegistrationSession   string
 	RegistrationTimestamp int64
 	LastOnlineTimestamp   int64

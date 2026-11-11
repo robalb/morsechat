@@ -59,7 +59,7 @@ export class SocketClient {
       try {
         data = JSON.parse(event.data);
       } catch {
-        console.log("received invalid json from websocket");
+        console.error("received invalid json from websocket");
         return;
       }
 

@@ -76,7 +76,7 @@ const LoginForm = ({setPage}) =>{
         setError('password', ' ')
       }
       else
-        enqueueSnackbar(`registration failed. ${res.error} ${res.details ?? ''}`, { variant: "error", preventDuplicate: true })
+        enqueueSnackbar(`login failed. ${res.error} ${res.details ?? ''}`, { variant: "error", preventDuplicate: true })
     }
   }
 

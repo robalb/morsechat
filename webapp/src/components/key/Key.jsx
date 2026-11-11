@@ -35,7 +35,6 @@ function KeyInternal(props) {
 			interval.current = null;
 			//dispatch up
 			up();
-			console.log("key is unmounting, releasing key to avoid bugs");
 		};
 	}, []);
 

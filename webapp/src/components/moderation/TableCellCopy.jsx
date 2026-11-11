@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { TableCell, Typography, Fade, Box } from '@mui/material';
 
-const TableCellWithCopy = ({ text, maxLength = 30 }) => {
+const TableCellWithCopy = ({ text = '', maxLength = 30 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
+    if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

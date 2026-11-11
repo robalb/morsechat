@@ -13,6 +13,7 @@ import (
 	"github.com/robalb/morsechat/internal/auth"
 	"github.com/robalb/morsechat/internal/db"
 	deviceid "github.com/robalb/morsechat/internal/godeviceid"
+	"github.com/robalb/morsechat/internal/monitoring"
 	"github.com/robalb/morsechat/internal/morse"
 	"github.com/robalb/morsechat/internal/validation"
 )
@@ -29,8 +30,17 @@ func ServeRegister(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 	deviceIdConfig *deviceid.Config,
+	metrics *monitoring.Metrics,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		registered := false
+		defer func() {
+			result := "failure"
+			if registered {
+				result = "success"
+			}
+			metrics.Registrations.WithLabelValues(result).Inc()
+		}()
 
 		var regData RegisterData
 		if err := validation.Bind(w, r, &regData); err != nil {
@@ -120,6 +130,7 @@ func ServeRegister(
 			logger.Printf("ServeRegister: Jwt creation error: %v", err.Error())
 			return
 		}
+		registered = true
 		validation.RespondOk(w, AuthResponse{
 			IsAnonymous: jwtData.IsAnonymous,
 			IsAdmin:     jwtData.IsAdmin,
@@ -156,7 +167,9 @@ func ServeSessInit(
 		currentJwtData, err := auth.GetJwtData(r.Context())
 		if err == nil {
 			var responseSettings *Settings = nil
-			responseCountry := "us"
+			responseCountry := "US"
+			responseIsAdmin := currentJwtData.IsAdmin
+			responseIsModerator := currentJwtData.IsModerator
 			//get user settings and country from the db if the user is not anonymous
 			if !currentJwtData.IsAnonymous {
 				queries := db.New(dbReadPool)
@@ -176,7 +189,11 @@ func ServeSessInit(
 					device.SetBanned()
 				}
 
-				responseCountry = res.Country.(string)
+				responseCountry = countryString(res.Country)
+				// Roles are stored in the database and can change after the jwt
+				// was issued, so always refresh them from the source of truth.
+				responseIsAdmin = res.IsAdmin != 0
+				responseIsModerator = res.IsModerator != 0
 				//parse json field
 				var userSettings Settings
 				userSettingsStr, ok := res.Settings.(string)
@@ -193,8 +210,8 @@ func ServeSessInit(
 
 			validation.RespondOk(w, AuthResponse{
 				IsAnonymous: currentJwtData.IsAnonymous,
-				IsAdmin:     currentJwtData.IsAdmin,
-				IsModerator: currentJwtData.IsModerator,
+				IsAdmin:     responseIsAdmin,
+				IsModerator: responseIsModerator,
 				Username:    currentJwtData.Username,
 				Callsign:    currentJwtData.Callsign,
 				Country:     responseCountry,
@@ -289,8 +306,17 @@ func ServeLogin(
 	dbReadPool *sql.DB,
 	dbWritePool *sql.DB,
 	deviceIdConfig *deviceid.Config,
+	metrics *monitoring.Metrics,
 ) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		loggedIn := false
+		defer func() {
+			result := "failure"
+			if loggedIn {
+				result = "success"
+			}
+			metrics.Logins.WithLabelValues(result).Inc()
+		}()
 
 		device, err := deviceid.New(deviceIdConfig, r)
 		if err != nil {
@@ -359,7 +385,7 @@ func ServeLogin(
 		jwtData := auth.JwtData{
 			UserId:      res.ID,
 			IsAnonymous: false,
-			IsAdmin:     false,
+			IsAdmin:     res.IsAdmin != 0,
 			IsVerified:  res.IsVerified != 0,
 			IsModerator: res.IsModerator != 0,
 			Username:    res.Username,
@@ -371,13 +397,14 @@ func ServeLogin(
 			logger.Printf("ServeLogin: Jwt creation error: %v", err.Error())
 			return
 		}
+		loggedIn = true
 		validation.RespondOk(w, AuthResponse{
 			IsAnonymous: jwtData.IsAnonymous,
 			IsAdmin:     jwtData.IsAdmin,
 			IsModerator: jwtData.IsModerator,
 			Username:    jwtData.Username,
 			Callsign:    jwtData.Callsign,
-			Country:     res.Callsign,
+			Country:     countryString(res.Country),
 			Settings:    responseSettings,
 		})
 	}
@@ -406,9 +433,8 @@ func ServeValidateCallsign(
 		}
 
 		queries := db.New(dbReadPool)
-		res, err := queries.GetCallsign(r.Context(), reqData.Callsign)
+		_, err := queries.GetCallsign(r.Context(), reqData.Callsign)
 
-		logger.Printf("res: %v", res)
 		if err == sql.ErrNoRows {
 			resp := OkResponse{
 				Ok: "ok",

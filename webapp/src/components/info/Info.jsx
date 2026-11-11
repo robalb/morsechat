@@ -23,6 +23,9 @@ export function Info({className="", ...props}) {
             <a href="https://github.com/robalb/morsechat" title="github">
                 <img src={githubUrl}/>
             </a>
+            <p>
+                <a href="/info/">About MorseChat</a>
+            </p>
         </div>
     )
 }

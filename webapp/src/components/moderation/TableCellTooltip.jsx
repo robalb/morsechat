@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { TableCell, Tooltip, tooltipClasses, Typography, Fade, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-const TableCellTooltip = ({ text, maxLength = 30 }) => {
+const TableCellTooltip = ({ text = '', maxLength = 30 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
+    if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

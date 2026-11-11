@@ -23,7 +23,12 @@ RUN go build \
     -o morsechat \
     -tags 'osusergo,netgo,static,' \
     -ldflags '-extldflags "-static"' \
-    cmd/morsechat/main.go
+    cmd/morsechat/main.go && \
+    go build \
+    -o morsechat-admin \
+    -tags 'osusergo,netgo,static,' \
+    -ldflags '-extldflags "-static"' \
+    cmd/admin/main.go
 
 #------------------------------
 #  Third step: production image
@@ -53,6 +58,7 @@ COPY --chown=nginx --from=frontend-builder /app/webapp/dist ./dist/
 # Backend
 WORKDIR /app/backend
 COPY --chown=nginx --from=backend-builder /app/backend/morsechat .
+COPY --chown=nginx --from=backend-builder /app/backend/morsechat-admin .
 
 # Database
 RUN mkdir /app/backend/db/

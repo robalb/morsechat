@@ -38,7 +38,6 @@ function MobileOnlineUsers(){
 export function AppLayout({chatDomNode}) {
     let loading = useSelector(state => state.api.loading)
     let authenticated = useSelector(state => state.user.authenticated)
-    let show_popup = useSelector(state => state.user.show_popup)
 
     /**
      * Breakpoints definitions.
@@ -68,14 +67,6 @@ export function AppLayout({chatDomNode}) {
      * auth popup
      */
     const authState = React.useState("");
-    const setAuthPage = authState[1];
-
-    React.useEffect(() => {
-        if (!loading && !authenticated && show_popup) {
-            setAuthPage("menu")
-        }
-    }, [loading, authenticated, show_popup])
-
 
     return (
         <div className="app-container">

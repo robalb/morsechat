@@ -98,7 +98,6 @@ function CountdownPreview({emptyBuffer, chatDomNode}){
     async function sendMessage(){
       const res = await dispatch(send()).unwrap()
       if(res.error){
-        console.log(res.payload)
         let err = res.payload
         let msg = ""
         //handle error messages

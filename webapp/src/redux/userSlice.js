@@ -154,6 +154,10 @@ const userSlice = createSlice({
 			state.isadmin = apidata.is_admin;
 			state.ismoderator = apidata.is_moderator;
 			state.username = apidata.username;
+			// Do not leak the previous account's preferences into the anonymous
+			// session: the backend does not return settings on logout.
+			state.settings = initialSettings;
+			state.id = null;
 		});
 		//..
 		//logout

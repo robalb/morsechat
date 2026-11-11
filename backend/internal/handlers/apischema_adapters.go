@@ -2,6 +2,13 @@ package handlers
 
 import "github.com/robalb/morsechat/internal/db"
 
+// countryString safely converts the interface{} returned by sqlc for TEXT
+// columns into a string, without panicking on unexpected database values.
+func countryString(value any) string {
+	country, _ := value.(string)
+	return country
+}
+
 func adaptUsers(dbUsers []db.User) []ModerationUserResponse {
 	users := make([]ModerationUserResponse, 0, len(dbUsers))
 	for _, u := range dbUsers {

@@ -68,11 +68,16 @@ export const apiCall = createAsyncThunk(
     }
 })
 
-export const morseCall = createAsyncThunk(
-  'api/morsecall',
+/**
+ * thunk apiGet
+ * Makes an authenticated GET api call. The data object is serialized into
+ * the query string. Usage is identical to apiCall.
+ */
+export const apiGet = createAsyncThunk(
+  'api/get',
   async ({endpoint, data={}}, {getState, rejectWithValue, signal}) => {
     const csrf = getState().api.csrf
-    const response = await request(baseApiUrl + endpoint, data, csrf, signal)
+    const response = await request(baseApiUrl + endpoint, data, csrf, signal, 'GET')
     if(response.error){
       return rejectWithValue({
         error: response.error,
@@ -87,7 +92,8 @@ export const morseCall = createAsyncThunk(
 const initialState = {
   loading: true,
   error: "",
-  errorDetails: ""
+  errorDetails: "",
+  csrf: false
 }
 
 const apiSlice = createSlice({
