@@ -111,12 +111,7 @@ func TestAdminModerationFlow(t *testing.T) {
 	}
 	baseUrl := fmt.Sprintf("http://localhost:%d", port)
 
-	args := []string{
-		"morsechat",
-		"--port", fmt.Sprintf("%d", port),
-		"--sqlite_path", tempdb,
-		"--metrics_enabled", "false",
-	}
+	args := testServerArgs(port, tempdb)
 	go func() {
 		if err := server.Run(ctx, os.Stdout, os.Stderr, args, func(string) string { return "" }); err != nil {
 			cancel()

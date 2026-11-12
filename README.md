@@ -23,10 +23,26 @@ h 500 400
 
 ## configuration
 
-Copy the file `.env.example` into `.env`
+The backend has no built-in defaults. Every setting must be provided through
+its environment variable or the matching command-line flag. When a required
+value is missing the server refuses to start and lists everything that is not
+configured.
 
-in the `.env` configure your app secret. You can generate a new one with
-`cd backend && go run cmd/secrets/main.go`.
+| Environment variable | Flag | Description |
+| --- | --- | --- |
+| `HOST` | `-host` | Interface to bind, for example `127.0.0.1` or `0.0.0.0` |
+| `PORT` | `-port` | API port |
+| `SQLITE_PATH` | `-sqlite_path` | Path to the sqlite database |
+| `SECRET` | `-secret` | Base64-encoded 32-byte encryption secret |
+| `METRICS_ENABLED` | `-metrics_enabled` | `true` or `false` |
+| `METRICS_PORT` | `-metrics_port` | Prometheus port, required when metrics are enabled |
+
+Flags take precedence over environment variables.
+
+Generate a secret with `cd backend && go run cmd/secrets/main.go`.
+
+For Docker, copy `.env.example` into `.env` and set `SECRET`; the compose file
+provides the remaining values and refuses to start when `SECRET` is empty.
 
 
 ## development
@@ -35,7 +51,37 @@ clone this repository `git clone https://github.com/robalb/morsechat.git`
 
 navigate into the repository `cd morsechat`
 
-start the backend server in development mode `cd backend && go run -race cmd/morsechat/main.go`
+configure and start the backend (flags work too, see the table above):
+
+```bash
+cd backend
+
+# Generate a secret and copy the value printed after "Secret: "
+go run cmd/secrets/main.go
+
+export HOST=127.0.0.1
+export PORT=8080
+export SQLITE_PATH=db.sqlite
+export METRICS_ENABLED=false
+export SECRET="<paste the generated secret>"
+go run -race cmd/morsechat/main.go
+```
+
+PowerShell:
+
+```powershell
+cd backend
+
+# Generate a secret and copy the value printed after "Secret: "
+go run cmd/secrets/main.go
+
+$env:HOST = "127.0.0.1"
+$env:PORT = "8080"
+$env:SQLITE_PATH = "db.sqlite"
+$env:METRICS_ENABLED = "false"
+$env:SECRET = "<paste the generated secret>"
+go run -race cmd/morsechat/main.go
+```
 
 start vite in development mode `cd webapp && npm run dev`
 

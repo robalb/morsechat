@@ -33,12 +33,7 @@ func TestHealthEndpoint(t *testing.T) {
 	baseUrl := fmt.Sprintf("http://localhost:%d", port)
 	healthUrl := fmt.Sprintf("%v/health", baseUrl)
 
-	args := []string{
-		"morsechat",
-		"--port", fmt.Sprintf("%d", port),
-		"--sqlite_path", tempdb,
-		"--metrics_enabled", "false",
-	}
+	args := testServerArgs(port, tempdb)
 	getenv := func(key string) string {
 		return ""
 	}

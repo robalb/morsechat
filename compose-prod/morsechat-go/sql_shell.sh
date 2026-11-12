@@ -4,7 +4,8 @@
 
 # name of the docker compose service running the sqlite db
 SERVICE="morse"
-SQLITE_PATH="/app/backend/db/master.sqlite"
 
 
-docker compose exec -it $SERVICE sqlite3 $SQLITE_PATH
+# SQLITE_PATH comes from the container environment, so the database location
+# is only configured in docker-compose.yml.
+docker compose exec -it "$SERVICE" sh -c 'sqlite3 "$SQLITE_PATH"'

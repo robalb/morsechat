@@ -63,8 +63,6 @@ COPY --chown=nginx --from=backend-builder /app/backend/morsechat-admin .
 # Database
 RUN mkdir /app/backend/db/
 
-ENV APP_ENV=production
-
 # Sadly required by Nginx. TODO: get Nginx to run as non-root
 USER root
 
