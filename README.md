@@ -53,25 +53,35 @@ cd backend
 go run cmd/admin/main.go -username <username> -sqlite_path db.sqlite
 ```
 
-The database path defaults to `SQLITE_PATH`, then to `db.sqlite` next to
-`backend/go.mod`. This means the command also works when run from
-`backend/cmd/admin`:
+The database path must be configured explicitly. Either pass `-sqlite_path` or
+set `SQLITE_PATH` to the same value used by the server; the flag takes
+precedence:
 
 ```bash
-cd backend/cmd/admin
-go run main.go -username <username>
+cd backend
+export SQLITE_PATH=db.sqlite
+go run cmd/admin/main.go -username <username>
 ```
 
-If the server was started with a custom `-sqlite_path` or `SQLITE_PATH`, pass
-the same value to the admin command.
+PowerShell:
 
-Use `-revoke` to remove the role again. In a container, run the bundled binary:
+```powershell
+cd backend
+$env:SQLITE_PATH = "db.sqlite"
+go run cmd/admin/main.go -username <username>
+```
+
+The command never guesses a database path. If neither the flag nor the
+environment variable is set, it exits with an error instead of opening (and
+possibly creating) the wrong database.
+
+Use `-revoke` to remove the role again. In a container, the bundled binary
+already receives `SQLITE_PATH` from the compose environment:
 
 ```bash
 docker compose exec morse /app/backend/morsechat-admin -username <username>
 ```
 
-The `SQLITE_PATH` environment variable is used when `-sqlite_path` is omitted.
 Role changes take effect immediately: the API re-checks the database on every
 moderator and admin request.
 

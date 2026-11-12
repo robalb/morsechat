@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,50 +23,85 @@ grant administrative rights to an account.
 
 Usage:
 
-	go run cmd/admin/main.go -username <username>
-	go run cmd/admin/main.go -username <username> -revoke
+	go run cmd/admin/main.go -username <username> -sqlite_path <database>
+	SQLITE_PATH=<database> go run cmd/admin/main.go -username <username>
+	go run cmd/admin/main.go -username <username> -revoke [same path options]
 
-The database path defaults to SQLITE_PATH, then to db.sqlite in the Go module
-root (normally backend/), matching the server configuration even when the
-command is run from cmd/admin.
+The database path must be configured explicitly, either with -sqlite_path or
+with the SQLITE_PATH environment variable. The flag takes precedence, matching
+the server configuration order.
+
+The command never guesses a database path: silently opening a different file
+would promote the wrong account, or create an empty database and report the
+user as missing.
 */
 func main() {
-	defaultPath := defaultSqlitePath(os.Getenv)
+	os.Exit(run(os.Args[1:], os.Getenv, os.Stdout, os.Stderr))
+}
 
-	fs := flag.NewFlagSet("admin", flag.ExitOnError)
-	sqlitePath := fs.String("sqlite_path", defaultPath, "Path to the sqlite database")
+func run(
+	args []string,
+	getenv func(string) string,
+	stdout io.Writer,
+	stderr io.Writer,
+) int {
+	fs := flag.NewFlagSet("admin", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	sqlitePath := fs.String("sqlite_path", "", "Path to the sqlite database (required unless SQLITE_PATH is set)")
 	username := fs.String("username", "", "Username of the account to promote or demote")
 	revoke := fs.Bool("revoke", false, "Remove admin rights instead of granting them")
-	_ = fs.Parse(os.Args[1:])
+
+	if err := fs.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return 0
+		}
+		return 2
+	}
 
 	name := strings.TrimSpace(*username)
 	if name == "" {
-		fmt.Fprintln(os.Stderr, "admin: -username is required")
+		fmt.Fprintln(stderr, "admin: -username is required")
 		fs.Usage()
-		os.Exit(2)
+		return 2
 	}
 
-	dbPath, err := filepath.Abs(*sqlitePath)
+	dbPath, err := resolveSqlitePath(*sqlitePath, getenv)
 	if err != nil {
-		dbPath = *sqlitePath
+		fmt.Fprintf(stderr, "admin: %v\n", err)
+		fs.Usage()
+		return 2
 	}
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "admin: database %q does not exist\n", dbPath)
-		fmt.Fprintln(os.Stderr, "admin: use -sqlite_path or SQLITE_PATH to point at the server database")
-		os.Exit(1)
+
+	dbPath, err = filepath.Abs(dbPath)
+	if err != nil {
+		fmt.Fprintf(stderr, "admin: could not resolve database path %q: %v\n", dbPath, err)
+		return 1
+	}
+	info, err := os.Stat(dbPath)
+	if errors.Is(err, os.ErrNotExist) {
+		fmt.Fprintf(stderr, "admin: database %q does not exist\n", dbPath)
+		return 1
+	}
+	if err != nil {
+		fmt.Fprintf(stderr, "admin: could not access database %q: %v\n", dbPath, err)
+		return 1
+	}
+	if info.IsDir() {
+		fmt.Fprintf(stderr, "admin: database path %q is a directory\n", dbPath)
+		return 1
 	}
 
 	ctx := context.Background()
 	conn, err := db.NewWritePool(dbPath, ctx)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "admin: could not open database %q: %v\n", dbPath, err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "admin: could not open database %q: %v\n", dbPath, err)
+		return 1
 	}
 	defer conn.Close()
 
 	if err := db.ApplyMigrations(conn, ctx); err != nil {
-		fmt.Fprintf(os.Stderr, "admin: could not apply migrations: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "admin: could not apply migrations: %v\n", err)
+		return 1
 	}
 
 	queries := db.New(conn)
@@ -78,54 +115,38 @@ func main() {
 		Username: name,
 	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "admin: could not update user: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "admin: could not update user: %v\n", err)
+		return 1
 	}
 
 	affected, err := result.RowsAffected()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "admin: could not verify update: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "admin: could not verify update: %v\n", err)
+		return 1
 	}
 	if affected == 0 {
-		fmt.Fprintf(os.Stderr, "admin: user %q not found in %q\n", name, dbPath)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "admin: user %q not found in %q\n", name, dbPath)
+		return 1
 	}
 
 	if *revoke {
-		fmt.Printf("Removed admin rights from %q in %q\n", name, dbPath)
-		return
+		fmt.Fprintf(stdout, "Removed admin rights from %q in %q\n", name, dbPath)
+		return 0
 	}
-	fmt.Printf("Granted admin rights to %q in %q\n", name, dbPath)
+	fmt.Fprintf(stdout, "Granted admin rights to %q in %q\n", name, dbPath)
+	return 0
 }
 
-// defaultSqlitePath mirrors the server default: SQLITE_PATH when set,
-// otherwise db.sqlite in the Go module root. Resolving the module root instead
-// of the current directory means "go run main.go" also works from cmd/admin,
-// where a bare db.sqlite would create a new empty database.
-func defaultSqlitePath(getenv func(string) string) string {
-	if path := getenv("SQLITE_PATH"); path != "" {
-		return path
+// resolveSqlitePath returns the explicitly configured database path. The flag
+// wins over the environment variable, matching the server configuration order.
+// There is deliberately no fallback: a guessed path would open the wrong
+// database.
+func resolveSqlitePath(flagValue string, getenv func(string) string) (string, error) {
+	if path := strings.TrimSpace(flagValue); path != "" {
+		return path, nil
 	}
-	if root, ok := findModuleRoot(); ok {
-		return filepath.Join(root, "db.sqlite")
+	if path := strings.TrimSpace(getenv("SQLITE_PATH")); path != "" {
+		return path, nil
 	}
-	return "db.sqlite"
-}
-
-func findModuleRoot() (string, bool) {
-	dir, err := os.Getwd()
-	if err != nil {
-		return "", false
-	}
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir, true
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return "", false
-		}
-		dir = parent
-	}
+	return "", errors.New("database path is not configured: pass -sqlite_path or set SQLITE_PATH")
 }
