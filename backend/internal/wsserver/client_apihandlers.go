@@ -312,6 +312,7 @@ func handleMorseCommand(
 			logger,
 		)
 		metrics.BadMessages.Add(1)
+		metrics.ChamberedMessages.Add(1)
 	} else {
 		client.hub.broadcastChannel(msgBytes, client.channel, logger)
 		metrics.Messages.Add(1)

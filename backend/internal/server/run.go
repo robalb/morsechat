@@ -49,8 +49,7 @@ func Run(
 	//--------------------
 	config, err := config.MakeConfig(args, getenv)
 	if err != nil {
-		logger.Printf("Failed to init app config: %v", err.Error())
-		return err
+		return fmt.Errorf("failed to init app config: %w", err)
 	}
 	logger.Printf("Starting server with config: %v", config.LogSafeSummary())
 
@@ -64,18 +63,14 @@ func Run(
 	//--------------------
 	dbWritePool, err := db.NewWritePool(config.SqlitePath, ctx)
 	if err != nil {
-		logger.Printf("Failed to init database write pool: %v", err.Error())
-		return err
+		return fmt.Errorf("failed to init database write pool: %w", err)
 	}
 	dbReadPool, err := db.NewReadPool(config.SqlitePath, ctx)
 	if err != nil {
-		logger.Printf("Failed to init database read pool: %v", err.Error())
-		return err
+		return fmt.Errorf("failed to init database read pool: %w", err)
 	}
-	err = db.ApplyMigrations(dbWritePool, ctx)
-	if err != nil {
-		logger.Printf("Failed to apply database migrations: %v", err.Error())
-		return err
+	if err := db.ApplyMigrations(dbWritePool, ctx); err != nil {
+		return fmt.Errorf("failed to apply database migrations: %w", err)
 	}
 
 	//--------------------

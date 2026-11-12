@@ -10,16 +10,15 @@ const (
 )
 
 type Metrics struct {
-	ConnectedUsers       *prometheus.GaugeVec
-	ConnectedShadowUsers prometheus.Gauge
-	ConnectionDenied     *prometheus.CounterVec
-	ConnectionDeniedIP   prometheus.Counter
-	// report *prometheus.Counter
-	// login *prometheus.Counter
-	// register *prometheus.Counter
-	BadMessages prometheus.Counter
-	Messages    prometheus.Counter
-	MessagesWpm prometheus.Histogram
+	ConnectedUsers    *prometheus.GaugeVec
+	ConnectionDenied  *prometheus.CounterVec
+	Logins            *prometheus.CounterVec
+	Registrations     *prometheus.CounterVec
+	Reports           prometheus.Counter
+	BadMessages       prometheus.Counter
+	ChamberedMessages prometheus.Counter
+	Messages          prometheus.Counter
+	MessagesWpm       prometheus.Histogram
 }
 
 func NewMetrics(registerer prometheus.Registerer) *Metrics {
@@ -33,12 +32,6 @@ func NewMetrics(registerer prometheus.Registerer) *Metrics {
 		}, []string{
 			"channel",
 		}),
-		//deprecated, todo: remove
-		ConnectedShadowUsers: r.NewGauge(prometheus.GaugeOpts{
-			Namespace: MetricsNamespace,
-			Name:      "connected_shadow_users",
-			Help:      "Total connected users that are shadow banned",
-		}),
 		ConnectionDenied: r.NewCounterVec(prometheus.CounterOpts{
 			Namespace: MetricsNamespace,
 			Name:      "connection_denied",
@@ -46,10 +39,34 @@ func NewMetrics(registerer prometheus.Registerer) *Metrics {
 		}, []string{
 			"reason",
 		}),
+		Logins: r.NewCounterVec(prometheus.CounterOpts{
+			Namespace: MetricsNamespace,
+			Name:      "logins",
+			Help:      "number of login attempts",
+		}, []string{
+			"result",
+		}),
+		Registrations: r.NewCounterVec(prometheus.CounterOpts{
+			Namespace: MetricsNamespace,
+			Name:      "registrations",
+			Help:      "number of registration attempts",
+		}, []string{
+			"result",
+		}),
+		Reports: r.NewCounter(prometheus.CounterOpts{
+			Namespace: MetricsNamespace,
+			Name:      "reports",
+			Help:      "number of messages reported by users",
+		}),
 		BadMessages: r.NewCounter(prometheus.CounterOpts{
 			Namespace: MetricsNamespace,
 			Name:      "bad_messages",
 			Help:      "number of bad messages sent",
+		}),
+		ChamberedMessages: r.NewCounter(prometheus.CounterOpts{
+			Namespace: MetricsNamespace,
+			Name:      "chambered_messages",
+			Help:      "number of messages that were only broadcast to their own device cluster",
 		}),
 		Messages: r.NewCounter(prometheus.CounterOpts{
 			Namespace: MetricsNamespace,

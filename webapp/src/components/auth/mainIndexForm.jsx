@@ -1,24 +1,9 @@
-import {FormControl, Grid, InputLabel, MenuItem, Select, Typography} from "@mui/material";
+import {Grid, Typography} from "@mui/material";
 import * as React from "react";
-import CurrentUserChip from "../currentUserChip";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
-import { useDispatch, useSelector} from 'react-redux'
-import { apiCall } from "../../redux/apiSlice";
-
 export const MainIndexForm = ({setPage}) => {
-    const dispatch = useDispatch()
-    const show_popup = useSelector(state => state.user.show_popup)
-    //make an api call to disable this popup
-    React.useEffect(() => {
-        if (show_popup) {
-            dispatch(apiCall({
-                endpoint: "no_popup"
-            }))
-        }
-    }, [])
-
     return (
         <>
             <Grid container spacing={3}>
@@ -46,7 +31,7 @@ Press space or the key at the bottom of the page to transmit a dot, hold it to t
                 </Grid>
                 <Grid item xs={12}>
                     <Button size="medium" variant="contained" onClick={e => setPage("")}>
-                        Join anonimously
+                        Join anonymously
                     </Button>
                 </Grid>
             </Grid>

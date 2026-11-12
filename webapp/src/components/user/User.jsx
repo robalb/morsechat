@@ -41,6 +41,14 @@ export function User({ open, onClose, user }) {
         </div>
       </DialogContent>
       <DialogActions>
+        {!user?.is_anonymous && user?.username && (
+          <Button
+            href={`/user/?username=${encodeURIComponent(user.username)}`}
+            color="primary"
+          >
+            View profile
+          </Button>
+        )}
         {(ismoderator || isadmin) && !user?.is_anonymous && (
             <BanButton color="error" variant="contained"
               username={user?.username || ""}

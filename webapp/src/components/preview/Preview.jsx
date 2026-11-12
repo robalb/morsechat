@@ -4,10 +4,11 @@ import * as React from "react";
 
 import styles from './preview.module.css';
 import { useSelector, useDispatch } from 'react-redux'
-import { resetMessage, setTyping } from "../../redux/chatSlice";
+import { resetMessage, setTyping, selectShowReadable } from "../../redux/chatSlice";
 import getDialect from '../../utils/dialects'
 import {send} from '../../redux/chatSlice'
 import { selectMorseTimes } from "../../redux/userSlice";
+import { morseBufferToString } from "../../utils/morse.mjs";
 import {systemMessage} from '../../utils/chatDom'
 import {getInstance} from '../../socket/global.js'
 
@@ -16,7 +17,7 @@ let dashChar = "–" // endash (U+2013)
 function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
     let times = useSelector(selectMorseTimes)
-    let showReadable = useSelector(state => state.user.settings.show_readable)
+    let showReadable = useSelector(selectShowReadable)
     let dialectName = useSelector(state => state.user.settings.dialect)
     let dialect = getDialect(dialectName)
 
@@ -43,41 +44,11 @@ function TextPreview(){
             return dialect.table[letter];
         return " " + letter + " ";
     }
-    function bufferedMorseToString(buffer, times){
-        let out = ""
-        let down = true;
-        let letter = ""
-        for(let i=0; i<buffer.length; i++){
-            let t = buffer[i]
-            //released after t millis
-            if(down){
-                if(t < times.dash){
-                    letter += "."
-                }else{
-                    letter += "-"
-                }
-            }
-            //pressed after t millis
-            else{
-                if(t > times.wordGap){
-                    if(showReadable) letter = translateToReadable(letter);
-                    out += letter + (showReadable ? "" : " ") + "  "
-                    letter = ""
-                }
-                else if(t > times.letterGap){
-                    if(showReadable) letter = translateToReadable(letter);
-                    out += letter + (showReadable ? "" : " ")
-                    letter = ""
-                }
-            }
-            down = !down
-        }
-        //if there is a letter left, we translate it only if a certain time has passed since the last keypress
-        if(showReadable && canTranslateLast)
-            return out + translateToReadable(letter);
-        return out + (showReadable ? " " : "")+ letter
-    }
-    let morseString = bufferedMorseToString(buffer, times).replaceAll("-", dashChar)
+    let morseString = morseBufferToString(buffer, times, {
+        showReadable,
+        canTranslateLast,
+        translate: translateToReadable,
+    }).replaceAll("-", dashChar)
 
     return <p>{morseString}</p>
 }
@@ -98,7 +69,6 @@ function CountdownPreview({emptyBuffer, chatDomNode}){
     async function sendMessage(){
       const res = await dispatch(send()).unwrap()
       if(res.error){
-        console.log(res.payload)
         let err = res.payload
         let msg = ""
         //handle error messages

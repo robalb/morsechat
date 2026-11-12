@@ -8,6 +8,7 @@ require (
 	github.com/go-chi/jwtauth/v5 v5.3.1
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/gorilla/websocket v1.5.3
+	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/prometheus/client_golang v1.21.1
 	golang.org/x/crypto v0.31.0

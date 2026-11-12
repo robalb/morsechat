@@ -7,6 +7,10 @@ import {
 import { getFreqencyFromCallsign } from "../utils/ReceiverSound.js";
 
 import createDebouncedAsyncThunk from "../utils/createDebouncedAsyncThunk";
+import { defaultKeybinds, mergeKeybinds } from "../utils/keybinds.mjs";
+import { wpmToMorseTimes } from "../utils/morse.mjs";
+
+export { wpmToMorseTimes };
 
 import { apiCall, payloadCreatorCreator } from "./apiSlice";
 
@@ -71,12 +75,29 @@ const initialSettings = {
 	left_is_dot: true,
 	submit_delay: 12, //5-50
 	keybinds: {
-		straight: "c",
-		yambic_left: "z",
-		yambic_right: "x",
-		cancel_message: "p",
+		...defaultKeybinds,
 	},
 };
+
+/**
+ * Merge settings returned by the backend with the app defaults. In particular
+ * this fills in keybindings for accounts that saved their settings before the
+ * keybinding feature existed.
+ */
+function normalizeSettings(settings) {
+	if (!settings || typeof settings !== "object") {
+		return {
+			...initialSettings,
+			keybinds: { ...defaultKeybinds },
+		};
+	}
+	return {
+		...initialSettings,
+		...settings,
+		keybinds: mergeKeybinds(settings.keybinds),
+	};
+}
+
 const initialState = {
 	authenticated: null,
 	isadmin: false,
@@ -84,7 +105,7 @@ const initialState = {
 	callsign: null,
 	country: null,
 	//can remain empty after api initialization
-	settings: initialSettings,
+	settings: normalizeSettings(null),
 	id: null,
 	username: null,
 };
@@ -98,10 +119,17 @@ const userSlice = createSlice({
 		 * see updateSettings for more info
 		 */
 		updateSettingsLocal(state, action) {
-			state.settings = {
+			const next = {
 				...state.settings,
 				...action.payload,
 			};
+			if (action.payload.keybinds) {
+				next.keybinds = {
+					...state.settings.keybinds,
+					...action.payload.keybinds,
+				};
+			}
+			state.settings = next;
 		},
 	},
 	extraReducers(builder) {
@@ -114,7 +142,7 @@ const userSlice = createSlice({
 			state.isadmin = apidata.is_admin;
 			state.ismoderator = apidata.is_moderator;
 			state.username = apidata.username;
-			if (apidata.settings) state.settings = apidata.settings;
+			state.settings = normalizeSettings(apidata.settings);
 			// assign pseudorandom frequency if not set in the settings
 			if (!apidata.settings || apidata.settings.key_frequency === 0) {
 				state.settings.key_frequency = getFreqencyFromCallsign(state.callsign);
@@ -129,7 +157,7 @@ const userSlice = createSlice({
 			state.isadmin = apidata.is_admin;
 			state.ismoderator = apidata.is_moderator;
 			state.username = apidata.username;
-			if (apidata.settings) state.settings = apidata.settings;
+			state.settings = normalizeSettings(apidata.settings);
 			// assign pseudorandom frequency if not set in the settings
 			if (!apidata.settings || apidata.settings.key_frequency === 0) {
 				state.settings.key_frequency = getFreqencyFromCallsign(state.callsign);
@@ -154,6 +182,10 @@ const userSlice = createSlice({
 			state.isadmin = apidata.is_admin;
 			state.ismoderator = apidata.is_moderator;
 			state.username = apidata.username;
+			// Do not leak the previous account's preferences into the anonymous
+			// session: the backend does not return settings on logout.
+			state.settings = normalizeSettings(null);
+			state.id = null;
 		});
 		//..
 		//logout
@@ -162,19 +194,6 @@ const userSlice = createSlice({
 		//..
 	},
 });
-
-export const wpmToMorseTimes = (wpm) => {
-	if (wpm < 1) wpm = 1;
-	if (wpm > 200) wpm = 200;
-	const dotTime = Math.ceil(1200 / wpm);
-	return {
-		dot: dotTime,
-		dash: dotTime * 3,
-		elementGap: dotTime,
-		letterGap: dotTime * 3,
-		wordGap: dotTime * 7,
-	};
-};
 
 export const selectMorseTimes = createSelector(
 	(state) => state.user.settings.wpm,

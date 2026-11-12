@@ -91,8 +91,11 @@ func ContainsBadLanguage(input string) bool {
 	input = truncate(input, 2)
 
 	// remove false positives
+	// The input has already been normalized and truncated, so the good words
+	// must go through the exact same transformations. Truncating only the input
+	// caused false positives such as "skill" -> "skii" matching a bad word.
 	for _, goodWord := range falsePositiveWordsList {
-		normalized := normalize(goodWord)
+		normalized := truncate(normalize(goodWord), 2)
 		input = strings.ReplaceAll(input, normalized, " ")
 	}
 

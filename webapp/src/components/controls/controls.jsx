@@ -4,11 +4,19 @@ import Slider from "@mui/material/Slider";
 import MenuItem from "@mui/material/MenuItem";
 import { useSelector, useDispatch } from "react-redux";
 import { updateSettings } from "../../redux/userSlice";
+import { selectChannelMorseOnly } from "../../redux/chatSlice";
 import styles from "./controls.module.css";
 import { useSnackbar } from "notistack";
 
 import { useStateDep } from "../../hooks/useStateDep";
-import { Switch } from "@mui/material";
+import { Alert, Button, Switch } from "@mui/material";
+import {
+	defaultKeybinds,
+	isBindableKey,
+	keyLabel,
+	keybindLabelsFor,
+	normalizeKey,
+} from "../../utils/keybinds.mjs";
 
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -49,6 +57,7 @@ export function SideControls({ className = "", settingsButton = "" }) {
 	const { enqueueSnackbar } = useSnackbar();
 	const dispatch = useDispatch();
 	let settings = useSelector((state) => state.user.settings);
+	let morseOnly = useSelector(selectChannelMorseOnly);
 
 	function update(data) {
 		dispatch(updateSettings(data))
@@ -99,9 +108,15 @@ export function SideControls({ className = "", settingsButton = "" }) {
 			/>
 
 			<div>
-				<p>show letters</p>
+				<p>
+					show letters
+					{morseOnly && (
+						<span className={styles.forcedOff}> (always off in this channel)</span>
+					)}
+				</p>
 				<MemoSwitch
-					checked={settings.show_readable}
+					checked={!morseOnly && settings.show_readable}
+					disabled={morseOnly}
 					color="secondary"
 					onChange={React.useCallback(
 						(e) => update({ show_readable: e.target.checked }),
@@ -166,29 +181,141 @@ export function AdvancedControls({ className = "" }) {
 				<FormControlLabel value="yambic" control={<Radio />} label="iambic A" />
 			</RadioGroup>
 			<p style={{ marginTop: "1rem" }}>iambic paddle order</p>
-			<div>
-				<p>left is dit</p>
-				<MemoSwitch
-					checked={!settings.left_is_dot}
-					color="primary"
-					onChange={React.useCallback(
-						(e) => update({ left_is_dot: !e.target.checked }),
-						[],
-					)}
+			<RadioGroup
+				row
+				name="iambic-paddle-order"
+				value={settings.left_is_dot ? "left_dit" : "right_dit"}
+				onChange={(e) =>
+					update({ left_is_dot: e.target.value === "left_dit" })
+				}
+			>
+				<FormControlLabel
+					value="left_dit"
+					control={<Radio />}
+					label="left = dit, right = dash"
 				/>
-				<p>right is dit</p>
-			</div>
+				<FormControlLabel
+					value="right_dit"
+					control={<Radio />}
+					label="left = dash, right = dit"
+				/>
+			</RadioGroup>
 		</div>
 	);
 }
 
 export function KeybindingsControls({ className }) {
+	const dispatch = useDispatch();
+	const settings = useSelector((state) => state.user.settings);
+	const keybinds = settings.keybinds || defaultKeybinds;
+	const labels = keybindLabelsFor(settings.left_is_dot);
+	const [capturing, setCapturing] = React.useState(null);
+	const [error, setError] = React.useState("");
+
+	function update(data) {
+		dispatch(updateSettings(data)).unwrap().catch(() => {});
+	}
+
+	// While capturing, listen in the capture phase and stop the event before
+	// the Morse key handler on window sees it. Otherwise pressing the new key
+	// would also transmit a dot/dash.
+	React.useEffect(() => {
+		if (!capturing) return;
+
+		function downHandler(e) {
+			e.stopPropagation();
+			if (typeof e.stopImmediatePropagation === "function")
+				e.stopImmediatePropagation();
+			if (e.key === "Escape") {
+				e.preventDefault();
+				setCapturing(null);
+				setError("");
+				return;
+			}
+			if (e.repeat) return;
+			if (e.ctrlKey || e.metaKey || e.altKey) return;
+			const key = normalizeKey(e.key);
+			if (key === " ") {
+				// Space already has a fixed meaning: it is always a straight key.
+				// Binding it to another action would make that guarantee false.
+				e.preventDefault();
+				setError("Space is reserved for the straight key.");
+				return;
+			}
+			if (!isBindableKey(key)) {
+				setError("Use a single printable character.");
+				return;
+			}
+			const conflict = Object.entries(keybinds).find(
+				([name, value]) =>
+					name !== capturing && normalizeKey(value) === key,
+			);
+			if (conflict) {
+				setError(
+					`${keyLabel(key)} is already bound to ${
+						labels[conflict[0]] || conflict[0]
+					}.`,
+				);
+				return;
+			}
+			e.preventDefault();
+			update({ keybinds: { ...keybinds, [capturing]: key } });
+			setCapturing(null);
+			setError("");
+		}
+
+		function upHandler(e) {
+			e.stopPropagation();
+			if (typeof e.stopImmediatePropagation === "function")
+				e.stopImmediatePropagation();
+		}
+
+		window.addEventListener("keydown", downHandler, true);
+		window.addEventListener("keyup", upHandler, true);
+		return () => {
+			window.removeEventListener("keydown", downHandler, true);
+			window.removeEventListener("keyup", upHandler, true);
+		};
+	}, [capturing, keybinds]);
+
+	function resetKeybinds() {
+		setCapturing(null);
+		setError("");
+		update({ keybinds: { ...defaultKeybinds } });
+	}
+
 	return (
 		<div className={`${styles.controls} ${styles.keybindings} ${className}`}>
 			<h2>Keybindings</h2>
-			<p>straight key SPACE, C</p>
-			<p>left paddle Z</p>
-			<p>right paddle X</p>
+			<p className={styles.keybindHelp}>
+				Click a binding, then press the key you want. Escape cancels.
+				Space is always available as a straight key in straight mode.
+			</p>
+			{error && (
+				<Alert severity="error" sx={{ mt: 1, mb: 1 }}>
+					{error}
+				</Alert>
+			)}
+			{Object.keys(labels).map((name) => (
+				<div className={styles.keybindRow} key={name}>
+					<span>{labels[name]}</span>
+					<Button
+						size="small"
+						variant={capturing === name ? "contained" : "outlined"}
+						onClick={() => {
+							setCapturing(name);
+							setError("");
+						}}
+					>
+						{capturing === name
+							? "Press a key..."
+							: keyLabel(keybinds[name])}
+					</Button>
+				</div>
+			))}
+			<Button size="small" variant="text" onClick={resetKeybinds}>
+				Reset to defaults
+			</Button>
 		</div>
 	);
 }

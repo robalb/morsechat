@@ -1,22 +1,27 @@
-import React, { useState } from 'react';
-import { 
-    Tabs, Tab, TextField, Button, Box, Typography, Table, TableBody, IconButton,
-    TableCell, TableContainer, TableHead, TableRow, Paper 
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+    Tabs, Tab, TextField, Button, Box, Typography, Table, TableBody,
+    TableCell, TableContainer, TableHead, TableRow, Paper, Stack, Alert,
 } from '@mui/material';
 
-import CloseIcon from '@mui/icons-material/Close';
-import SearchIcon from '@mui/icons-material/Search';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { useDispatch, useSelector } from 'react-redux'
-import { apiCall } from '../../redux/apiSlice';
+import { apiCall, apiGet } from '../../redux/apiSlice';
 import useDebounce from '../../hooks/UseDebounce';
 import TableCellTooltip from './TableCellTooltip.jsx'
 import TableCellWithCopy from './TableCellCopy.jsx'
 import BanButton from './BanButton.jsx'
 import ManualBanForm from './ManualBanForm.jsx'
 
+const LOADING_STATES = {
+    LOADING: "loading",
+    DONE: "done",
+    ERROR: "error",
+};
+
 function formatDate(date){
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '-';
     const now = new Date();
     const yesterday = new Date(now);
     yesterday.setDate(now.getDate() - 1);
@@ -27,24 +32,20 @@ function formatDate(date){
 
 export default function ModerationMenu() {
     const dispatch = useDispatch()
+    const isadmin = useSelector(state => state.user.isadmin)
     const [tabIndex, setTabIndex] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
-    const loadingStates = {
-      LOADING: "loading",
-      DONE: "done",
-      ERROR: "error"
-    }
-    const [loading, setLoading] = useState(loadingStates.LOADING);
+    const [loading, setLoading] = useState(LOADING_STATES.LOADING);
     const debouncedSearchTerm = useDebounce(searchTerm, 1000);
 
     //moderation data fetching state
-    let [modData, setModData] = React.useState({})
-    let [modPromise, setModPromise] = React.useState(undefined)
+    const [modData, setModData] = React.useState({})
+    const modPromiseRef = useRef(undefined)
 
-    React.useEffect(()=>{
-      setLoading(loadingStates.LOADING)
+    useEffect(()=>{
+      setLoading(LOADING_STATES.LOADING)
       let query = "%"
-      if(debouncedSearchTerm != ""){
+      if(debouncedSearchTerm !== ""){
         query = debouncedSearchTerm
       }
       // perform an api call to the mod data endpoint
@@ -53,33 +54,26 @@ export default function ModerationMenu() {
         data: {query: query}
       }))
       // we need to preserve this promise during rerenders if we want to abort it
-      setModPromise(livePromise)
+      modPromiseRef.current = livePromise
       livePromise.unwrap()
         .then(ret => {
-          console.log(ret)
-          //TODO: apply transformations to some fields
           setModData(ret)
-          setLoading(loadingStates.DONE)
+          setLoading(LOADING_STATES.DONE)
         })
         .catch(ret => {
-          console.log(ret)
-          setLoading(loadingStates.ERROR)
+          if (ret?.error === 'abort_error') return
+          setLoading(LOADING_STATES.ERROR)
         })
 
       //cleanup function
       return function cleanUp(){
-        modPromise?.abort()
+        modPromiseRef.current?.abort()
       }
-    }, [debouncedSearchTerm])
+    }, [debouncedSearchTerm, dispatch])
 
 
     const handleTabChange = (event, newValue) => {
         setTabIndex(newValue);
-    };
-
-    const handleRemoveBan = (callsign) => {
-        console.log("Remove ban on:", callsign);
-        // Implement removal logic later
     };
 
     return (
@@ -96,29 +90,31 @@ export default function ModerationMenu() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <Box sx={{ ml: 6, display: 'flex'}}>
-                  {loading == loadingStates.LOADING && (
+                  {loading === LOADING_STATES.LOADING && (
                     <CircularProgress size="30px" />
                   )}
-                  {loading == loadingStates.ERROR && (
+                  {loading === LOADING_STATES.ERROR && (
                     <p>Loading error</p>
                   )}
-                  {loading == loadingStates.DONE && (
+                  {loading === LOADING_STATES.DONE && (
                     <p>{(
-                    modData.users.length + 
-                    modData.anon_users.length +
-                    modData.ban_actions.length +
-                    modData.report_actions.length
+                    (modData.users?.length || 0) +
+                    (modData.anon_users?.length || 0) +
+                    (modData.ban_actions?.length || 0) +
+                    (modData.report_actions?.length || 0)
                   )} results</p>
                   )}
                 </Box>
             </Box>
 
             {/* Tabs */}
-            <Tabs value={tabIndex} onChange={handleTabChange}>
+            <Tabs value={tabIndex} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
                 <Tab label="Moderation Logs" />
                 <Tab label="Banned users" />
                 <Tab label="Reports" />
                 <Tab label="Manual operations" />
+                {isadmin && <Tab label="Moderators" />}
+                {isadmin && <Tab label="Ban activity" />}
             </Tabs>
 
             {/* Moderation Logs Tab */}
@@ -184,6 +180,14 @@ export default function ModerationMenu() {
             {/* Manual operations Tab */}
             {tabIndex === 3 && (
               <ManualBanForm />
+            )}
+
+            {/* Admin-only tabs */}
+            {tabIndex === 4 && isadmin && (
+              <AdminModeratorsTab />
+            )}
+            {tabIndex === 5 && isadmin && (
+              <AdminBanActivityTab />
             )}
         </Box>
     );
@@ -269,3 +273,200 @@ const ReportActionsTable = React.memo(({ data }) => {
     </TableBody>
   )
 });
+
+/**
+ * Admin-only tab: list moderators and promote/demote accounts.
+ */
+const AdminModeratorsTab = () => {
+  const dispatch = useDispatch()
+  const [moderators, setModerators] = useState([])
+  const [username, setUsername] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  const [updating, setUpdating] = useState(false)
+  const requestRef = useRef(undefined)
+
+  const loadModerators = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    const promise = dispatch(apiGet({ endpoint: "admin/list_moderators" }))
+    requestRef.current = promise
+    try {
+      const ret = await promise.unwrap()
+      setModerators(ret.moderators || [])
+    } catch (err) {
+      if (err?.name !== 'AbortError' && err?.error !== 'abort_error') {
+        setError(err?.error || err?.message || 'loading error')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    loadModerators()
+    return () => requestRef.current?.abort()
+  }, [loadModerators])
+
+  async function updateModerator(name, promote) {
+    const trimmed = name.trim()
+    if (trimmed.length < 3) {
+      setError('username must be at least 3 characters')
+      return
+    }
+    setError('')
+    setNotice('')
+    setUpdating(true)
+    try {
+      await dispatch(apiCall({
+        endpoint: promote ? "admin/set_moderator" : "admin/remove_moderator",
+        data: { username: trimmed },
+      })).unwrap()
+      setNotice(promote
+        ? `${trimmed} is now a moderator`
+        : `${trimmed} is no longer a moderator`)
+      if (promote) setUsername('')
+      await loadModerators()
+    } catch (err) {
+      setError(err?.error || 'update failed')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  return (
+    <Paper elevation={0} sx={{ p: 3, mt: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        Moderators
+      </Typography>
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+        <TextField
+          label="Username"
+          size="small"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          sx={{ minWidth: 260 }}
+        />
+        <Button
+          variant="contained"
+          disabled={updating}
+          onClick={() => updateModerator(username, true)}
+        >
+          Promote
+        </Button>
+      </Stack>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {notice && <Alert severity="success" sx={{ mb: 2 }}>{notice}</Alert>}
+      {loading ? (
+        <CircularProgress size="30px" />
+      ) : (
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Username</TableCell>
+                <TableCell>Callsign</TableCell>
+                <TableCell>Country</TableCell>
+                <TableCell>Verified</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {moderators.map((moderator) => (
+                <TableRow key={moderator.id}>
+                  <TableCellWithCopy text={moderator.username} />
+                  <TableCell>{moderator.callsign}</TableCell>
+                  <TableCell>{moderator.country}</TableCell>
+                  <TableCell>{moderator.is_verified ? "YES" : "no"}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="warning"
+                      disabled={updating}
+                      onClick={() => updateModerator(moderator.username, false)}
+                    >
+                      Demote
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {moderators.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5}>No moderators</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </Paper>
+  )
+}
+
+/**
+ * Admin-only tab: read the global ban activity log.
+ */
+const AdminBanActivityTab = () => {
+  const dispatch = useDispatch()
+  const [query, setQuery] = useState('')
+  const [banActions, setBanActions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const debouncedQuery = useDebounce(query, 1000)
+  const requestRef = useRef(undefined)
+
+  useEffect(() => {
+    setLoading(true)
+    setError('')
+    const promise = dispatch(apiGet({
+      endpoint: "admin/list_ban_activity",
+      data: { query: debouncedQuery === '' ? '%' : debouncedQuery },
+    }))
+    requestRef.current = promise
+    promise.unwrap()
+      .then(ret => setBanActions(ret.ban_actions || []))
+      .catch(err => {
+        if (err?.name !== 'AbortError' && err?.error !== 'abort_error') {
+          setError(err?.error || err?.message || 'loading error')
+        }
+      })
+      .finally(() => setLoading(false))
+    return () => requestRef.current?.abort()
+  }, [debouncedQuery, dispatch])
+
+  return (
+    <Paper elevation={0} sx={{ p: 3, mt: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        Ban activity
+      </Typography>
+      <TextField
+        label="Search..."
+        size="small"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        sx={{ mb: 2, width: 300 }}
+      />
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {loading ? (
+        <CircularProgress size="30px" />
+      ) : (
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Date & Time</TableCell>
+                <TableCell>Info</TableCell>
+                <TableCell>Action</TableCell>
+                <TableCell>User</TableCell>
+                <TableCell>Device</TableCell>
+              </TableRow>
+            </TableHead>
+            <BanActionsTable data={banActions} />
+          </Table>
+        </TableContainer>
+      )}
+    </Paper>
+  )
+}

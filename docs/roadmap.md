@@ -1,6 +1,6 @@
 
 # week 3
-- [] add .dockerignore
+- [x] add .dockerignore
 - [x] clean files: and remove home.html
 - [x] create docker container
 - [x] create build pipeline with github actions
@@ -9,7 +9,7 @@
 - [] integrate ip-only fingerprint
 - [] add ip-only fingerprint to ws client struct, use it for 
      a better chamber functionality
-- [] prometheus metrics
+- [x] prometheus metrics
 - [] stress test
 
 # week2
@@ -29,13 +29,13 @@
        the mesage signature
   - [x] modify backend and ws api to associate an encrpyted blob signature to each message
        that is broadcasted (blocking: need server side morse translation)
-- [] prometheus metrics: 
-   - rejections (for all kinds of rejections provided by the auth middlewares)
-   - logins
-   - messages
-   - chambered messages
-   - reports
-   - ws connections gauge
+- [x] prometheus metrics: 
+   - [x] rejections (for all kinds of rejections provided by the auth middlewares)
+   - [x] logins
+   - [x] messages
+   - [x] chambered messages
+   - [x] reports
+   - [x] ws connections gauge
 
 # backlog 
 
@@ -53,13 +53,13 @@ Api endpoints
 
 Crud Api endpoints
 
-- admin list moderators
-- admin set moderator
-- admin remove moderator
-- admin list ban activity
+- [x] admin list moderators
+- [x] admin set moderator
+- [x] admin remove moderator
+- [x] admin list ban activity
 
-- moderator list banned
-- moderator ban
-- moderator unban
+- [x] moderator list banned
+- [x] moderator ban
+- [x] moderator unban
 
 

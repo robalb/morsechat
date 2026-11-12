@@ -6,6 +6,7 @@ import Select from "@mui/material/Select";
 import Skeleton from "@mui/material/Skeleton"
 import MenuItem from "@mui/material/MenuItem";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import InfoIcon from '@mui/icons-material/Info';
 import ShieldIcon from '@mui/icons-material/Shield';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
@@ -84,11 +85,17 @@ export function Header({ leftContent = "", authState }) {
                     onClose={handleClose}
                     onClick={handleClose}
                 >
-                    <MenuItem>
+                    <MenuItem component="a" href="/user/">
                         <ListItemIcon>
                             <AccountCircleIcon fontSize="small" />
                         </ListItemIcon>
                         View Profile
+                    </MenuItem>
+                    <MenuItem component="a" href="/info/">
+                        <ListItemIcon>
+                            <InfoIcon fontSize="small" />
+                        </ListItemIcon>
+                        About MorseChat
                     </MenuItem>
                     <MenuItem onClick={logoutHandler}>
                         <ListItemIcon>

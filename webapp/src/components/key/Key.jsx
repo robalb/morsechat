@@ -5,250 +5,240 @@ import IconButton from "@mui/material/IconButton";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import { useDispatch, useSelector } from "react-redux";
-import { keyDown, keyUp } from "../../redux/chatSlice";
+import { keyDown, keyUp, resetMessage } from "../../redux/chatSlice";
 import { useSound } from "../../hooks/UseSound";
+import { getInstance } from "../../socket/global.js";
+import { normalizeKey } from "../../utils/keybinds.mjs";
+import { createIambicKeyer } from "../../utils/iambicKeyer.mjs";
 
-function KeyInternal(props) {
+function getTimes(wpm) {
+	if (wpm < 1) wpm = 1;
+	if (wpm > 200) wpm = 200;
+	const dotTime = Math.ceil(1200 / wpm);
+	return {
+		dot: dotTime,
+		dash: dotTime * 3,
+		elementGap: dotTime,
+	};
+}
+
+function isEditableTarget(target) {
+	if (!target || typeof target.tagName !== "string") return false;
+	const tag = target.tagName.toLowerCase();
+	if (tag === "input" || tag === "textarea" || tag === "select") return true;
+	return Boolean(target.isContentEditable);
+}
+
+function KeyInternal() {
 	const dispatch = useDispatch();
 
-	let settings = useSelector((state) => state.user.settings);
-	let keyMode = settings.key_mode;
-	let keyFrequency = settings.key_frequency;
-	let wpm = settings.wpm;
-	let keyVolume = settings.volume_key;
-	let leftIsDot = settings.left_is_dot;
-	let keybinds = settings.keybinds;
-	//state used by the yambic keyer.
-	let [dotDown, setDotDown] = React.useState(false);
-	let [dashDown, setDashDown] = React.useState(false);
-	let [yambicEvent, setYambicEvent] = React.useState(false);
-	const interval = React.useRef(null);
+	const settings = useSelector((state) => state.user.settings);
+	const keyMode = settings.key_mode;
+	const keyFrequency = settings.key_frequency;
+	const wpm = settings.wpm;
+	const keyVolume = settings.volume_key;
+	const leftIsDot = settings.left_is_dot;
+
+	// Keep the latest settings available to timers and the window listeners
+	// without re-registering them on every render.
+	const settingsRef = React.useRef(settings);
+	settingsRef.current = settings;
+
+	const [on, off] = useSound(keyFrequency, keyVolume);
+	const soundRef = React.useRef({ on, off });
+	soundRef.current = { on, off };
+
 	const dashReleaseTimer = React.useRef(null);
 
-	let [on, off] = useSound(keyFrequency, keyVolume);
+	function down() {
+		soundRef.current.on();
+		dispatch(keyDown());
+		// Safety net: never leave the tone on if a keyup event is lost.
+		clearTimeout(dashReleaseTimer.current);
+		dashReleaseTimer.current = setTimeout(() => up(), 1500);
+	}
 
-	//handle component leave
+	function up() {
+		soundRef.current.off();
+		dispatch(keyUp());
+		clearTimeout(dashReleaseTimer.current);
+		dashReleaseTimer.current = null;
+	}
+
+	// The keyer callbacks are routed through a ref so the state machine keeps
+	// working across renders and always uses the latest sound/dispatch handlers.
+	const callbacksRef = React.useRef(null);
+	const keyerRef = React.useRef(null);
+	// Which paddles are currently held by the mouse. A mouseup can happen
+	// outside the button (for example when the pointer is dragged away), so the
+	// window-level handler below uses this to release the paddle.
+	const mouseHeld = React.useRef({ dot: false, dash: false, straight: false });
+	callbacksRef.current = { onDown: down, onUp: up };
+	if (keyerRef.current === null) {
+		keyerRef.current = createIambicKeyer({
+			getTimes: () => getTimes(settingsRef.current.wpm),
+			onDown: () => callbacksRef.current.onDown(),
+			onUp: () => callbacksRef.current.onUp(),
+		});
+	}
+
+	function keyHandler({ key, event, repeat }) {
+		const current = settingsRef.current;
+		const keybinds = current.keybinds || {};
+		const pressed = normalizeKey(key);
+
+		const cancelKey = normalizeKey(keybinds.cancel_message);
+		if (event === "down" && !repeat && cancelKey && pressed === cancelKey) {
+			dispatch(resetMessage());
+			if (getInstance()) getInstance().sendTyping(false);
+			return true;
+		}
+
+		if (current.key_mode === "straight") {
+			const straight = normalizeKey(keybinds.straight);
+			const left = normalizeKey(keybinds.yambic_left);
+			const right = normalizeKey(keybinds.yambic_right);
+			if (
+				pressed === " " ||
+				(straight && pressed === straight) ||
+				(left && pressed === left) ||
+				(right && pressed === right)
+			) {
+				if (event === "up") up();
+				else down();
+				return true;
+			}
+		} else if (current.key_mode === "yambic") {
+			const left = normalizeKey(keybinds.yambic_left);
+			const right = normalizeKey(keybinds.yambic_right);
+			const isLeftDot = Boolean(current.left_is_dot);
+			if (left && pressed === left) {
+				if (event === "up") keyerRef.current.paddleUp(isLeftDot);
+				else keyerRef.current.paddleDown(isLeftDot);
+				return true;
+			}
+			if (right && pressed === right) {
+				if (event === "up") keyerRef.current.paddleUp(!isLeftDot);
+				else keyerRef.current.paddleDown(!isLeftDot);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// The window listeners are registered once. handlerRef always points at the
+	// handler from the latest render, so it sees current settings and keybinds.
+	const handlerRef = React.useRef(null);
+	handlerRef.current = keyHandler;
+
 	React.useEffect(() => {
-		return function () {
-			//cancel yambicLoop
-			clearTimeout(interval.current);
-			interval.current = null;
-			//dispatch up
-			up();
-			console.log("key is unmounting, releasing key to avoid bugs");
+		function downHandler(e) {
+			// anti-ch3at measure
+			if (!e.isTrusted) return;
+			// Don't transmit while typing in a form field.
+			if (isEditableTarget(e.target)) return;
+			if (e.ctrlKey || e.metaKey || e.altKey) return;
+			if (handlerRef.current({ key: e.key, event: "down", repeat: e.repeat }))
+				e.preventDefault();
+		}
+		function upHandler(e) {
+			// anti-ch3at measure
+			if (!e.isTrusted) return;
+			// Keyup is always processed so a key held while focus moves cannot
+			// leave a tone or paddle stuck.
+			if (handlerRef.current({ key: e.key, event: "up", repeat: e.repeat }))
+				e.preventDefault();
+		}
+		window.addEventListener("keydown", downHandler);
+		window.addEventListener("keyup", upHandler);
+		return () => {
+			window.removeEventListener("keydown", downHandler);
+			window.removeEventListener("keyup", upHandler);
 		};
 	}, []);
 
-	//the space after a dot
-	const SPACE_DOT = "space_dot";
-	//the space after a dash
-	const SPACE_DASH = "space_dash";
-	const DOT = "dot";
-	const DASH = "dash";
-
-	//TODO: put this in a function somewhere accessible, maybe in a selector
-	function getTimes(wpm) {
-		if (wpm < 1) wpm = 1;
-		if (wpm > 200) wpm = 200;
-		const dotTime = Math.ceil(1200 / wpm);
-		return {
-			[SPACE_DOT]: dotTime,
-			[SPACE_DASH]: dotTime,
-			[DOT]: dotTime,
-			[DASH]: dotTime * 3,
+	// Safety nets for lost input events: a mouse release outside the paddle
+	// button, or the window losing focus while a paddle/key is held, must not
+	// leave the keyer stuck sending an element.
+	React.useEffect(() => {
+		function releaseMousePaddles() {
+			const held = mouseHeld.current;
+			if (held.straight) callbacksRef.current.onUp();
+			if (held.dot) keyerRef.current.paddleUp(true);
+			if (held.dash) keyerRef.current.paddleUp(false);
+			held.straight = false;
+			held.dot = false;
+			held.dash = false;
+		}
+		function mouseUpHandler() {
+			releaseMousePaddles();
+		}
+		function blurHandler() {
+			releaseMousePaddles();
+			keyerRef.current.stop();
+		}
+		function visibilityHandler() {
+			if (document.hidden) blurHandler();
+		}
+		// Capture phase: run even if another handler stops propagation.
+		window.addEventListener("mouseup", mouseUpHandler, true);
+		window.addEventListener("blur", blurHandler);
+		document.addEventListener("visibilitychange", visibilityHandler);
+		return () => {
+			window.removeEventListener("mouseup", mouseUpHandler, true);
+			window.removeEventListener("blur", blurHandler);
+			document.removeEventListener("visibilitychange", visibilityHandler);
 		};
-	}
-	const times = getTimes(wpm);
+	}, []);
 
-	function scheduleYambicEvent(event) {
-		if (interval.current) {
-			console.warn(
-				"WARNING weird state: setting timer while another is running",
-			);
-		} else {
-			interval.current = setTimeout(() => {
-				setYambicEvent(event);
-			}, times[event]);
-		}
-	}
-
-	//start the timer
+	// Stop the keyer when leaving iambic mode or unmounting.
+	const previousKeyMode = React.useRef(keyMode);
 	React.useEffect(() => {
-		if (!interval.current) {
-			if (dotDown && dashDown) {
-				console.warn(
-					"WARNING weird state: bot dot and dash down, no interval running",
-				);
-			} else if (dotDown) {
-				down();
-				scheduleYambicEvent(DOT);
-			} else if (dashDown) {
-				down();
-				scheduleYambicEvent(DASH);
-			}
-		}
-	}, [dotDown, dashDown]);
+		const previous = previousKeyMode.current;
+		previousKeyMode.current = keyMode;
+		if (previous !== keyMode) keyerRef.current.stop();
+	}, [keyMode]);
 
-	//react to a yambic event end
 	React.useEffect(() => {
-		// console.log(yambicEvent)
-		interval.current = null;
-		//one of the following events has terminated
-		if (yambicEvent === DOT) {
-			up();
-			scheduleYambicEvent(SPACE_DOT);
-		} else if (yambicEvent === DASH) {
-			up();
-			scheduleYambicEvent(SPACE_DASH);
-		} else {
-			if (dotDown && dashDown) {
-				down();
-				const alternate = yambicEvent == SPACE_DASH ? DOT : DASH;
-				scheduleYambicEvent(alternate);
-			} else if (dotDown) {
-				down();
-				scheduleYambicEvent(DOT);
-			} else if (dashDown) {
-				down();
-				scheduleYambicEvent(DASH);
-			}
-		}
-	}, [yambicEvent]);
-
-	/**
-	 * yambic paddle interface
-	 *
-	 * @param {boolean} isLeft - set the left paddle to down. If false it's the right paddle
-	 */
-	function yambicDown(isLeft) {
-		let isDot = isLeft == leftIsDot; //xor logic operation
-		// console.log("yambic down")
-		if (isDot) setDotDown(true);
-		else setDashDown(true);
-	}
-
-	/**
-	 * yambic paddle interface
-	 *
-	 * @param {boolean} isLeft - set the left paddle to up. If false it's the right paddle
-	 */
-	function yambicUp(isLeft) {
-		let isDot = isLeft == leftIsDot; //xor logic operation
-		// console.log("yambic up")
-		if (isDot)
-			//idea: set the down state as a integer with 3 values: 0,1,2 isntead of a bool.
-			//we consider down something that is not 0,
-			//yambic up sets to 1 (careful: sets, not decrement: decrementing causes raceconditions)
-			//the scheduler sets to zero or to 2
-			//this should solve the "key must stay pressed until scheduler sees it"
-			setDotDown(false);
-		else setDashDown(false);
-	}
+		return function cleanup() {
+			clearTimeout(dashReleaseTimer.current);
+			keyerRef.current.stop();
+		};
+	}, []);
 
 	function mouseDown(e, isLeft) {
 		e.stopPropagation();
 		e.preventDefault();
-		//anti-ch3at measure
+		// anti-ch3at measure
 		if (!e.isTrusted) return;
 		if (keyMode === "straight") {
+			mouseHeld.current.straight = true;
 			down();
 		} else if (keyMode === "yambic") {
-			//let isLeft = e.nativeEvent.which == 1
-			yambicDown(isLeft);
+			const isDot = isLeft == leftIsDot;
+			mouseHeld.current[isDot ? "dot" : "dash"] = true;
+			keyerRef.current.paddleDown(isDot);
 		}
 	}
 
 	function mouseUp(e, isLeft) {
 		e.stopPropagation();
 		e.preventDefault();
-		//anti-ch3at measure
+		// anti-ch3at measure
 		if (!e.isTrusted) return;
 		if (keyMode === "straight") {
+			mouseHeld.current.straight = false;
 			up();
 		} else if (keyMode === "yambic") {
-			//let isLeft = e.nativeEvent.which == 1
-			yambicUp(isLeft);
+			const isDot = isLeft == leftIsDot;
+			mouseHeld.current[isDot ? "dot" : "dash"] = false;
+			keyerRef.current.paddleUp(isDot);
 		}
 	}
 
-	function down(e) {
-		//start key sound
-		on();
-		//dispatch keyDown
-		dispatch(keyDown());
-		//start up timer, to prevent annoying infinite dashes
-		clearTimeout(dashReleaseTimer.current);
-		let maxDashTime = 1500; // 2 seconds, which is times[DASH] * 2 at 5 wpm
-		dashReleaseTimer.current = setTimeout(up, maxDashTime);
-	}
-
-	function up(e) {
-		//stop key sound
-		off();
-		//dispatch keyUp
-		dispatch(keyUp());
-		//reset up timer
-		clearTimeout(dashReleaseTimer.current);
-	}
-
-	const keyHandler = (e) => {
-		if (keyMode === "straight") {
-			if (
-				e.key == " " ||
-				e.key == keybinds.straight ||
-				e.key == keybinds.yambic_left ||
-				e.key == keybinds.yambic_right
-			)
-				if (e.event == "up") up();
-				else down();
-		} else {
-			let isLeft = e.key == keybinds.yambic_left;
-			let isRight = e.key == keybinds.yambic_right;
-			if (isLeft || isRight)
-				if (e.event == "up") yambicUp(isLeft);
-				else yambicDown(isLeft);
-		}
-	};
-
-	const downHandler = (e) => {
-		//anti-ch3at measure
-		if (!e.isTrusted) return;
-		keyHandler({
-			key: e.key,
-			event: "down",
-		});
-	};
-	const upHandler = (e) => {
-		//anti-ch3at measure
-		if (!e.isTrusted) return;
-		keyHandler({
-			key: e.key,
-			event: "up",
-		});
-	};
-
-	// add key events event listeners
-	// this is where the code gets ugly:
-	// the listeners, and every other function that is called by them will keep
-	// a binding to the current state at the time of their declaration.
-	// in a react component with many state updates, this is bad because
-	// accessing the state from within one of those functions will return the state
-	// at the time of the addEventListener execution
-	// The naiive solution is to navigate the tree of funcalls that start from
-	// these listeners, and manually add every reactive element to the useEffect dependencies
-	// This is slow, and a sign that a refactor was needed long ago
-	React.useEffect(() => {
-		window.addEventListener("keydown", downHandler);
-		window.addEventListener("keyup", upHandler);
-		// Remove event listeners on cleanup
-		return () => {
-			window.removeEventListener("keydown", downHandler);
-			window.removeEventListener("keyup", upHandler);
-		};
-	}, [settings, up, down]);
-
-	const leftButtonText = settings.key_mode === "yambic" ? "dot" : "key";
-	const rightButtonText = "dash";
+	const leftButtonText =
+		keyMode === "yambic" ? (leftIsDot ? "dit" : "dash") : "key";
+	const rightButtonText = leftIsDot ? "dash" : "dit";
 
 	return (
 		<>
@@ -256,6 +246,7 @@ function KeyInternal(props) {
 				className={styles.key_bt}
 				onTouchStart={(e) => mouseDown(e, true)}
 				onTouchEnd={(e) => mouseUp(e, true)}
+				onTouchCancel={(e) => mouseUp(e, true)}
 				onMouseDown={(e) => mouseDown(e, true)}
 				onMouseUp={(e) => mouseUp(e, true)}
 				onContextMenu={(e) => e.preventDefault()}
@@ -263,11 +254,12 @@ function KeyInternal(props) {
 				{leftButtonText}
 			</button>
 
-			{settings.key_mode === "yambic" && (
+			{keyMode === "yambic" && (
 				<button
 					className={styles.key_bt}
 					onTouchStart={(e) => mouseDown(e, false)}
 					onTouchEnd={(e) => mouseUp(e, false)}
+					onTouchCancel={(e) => mouseUp(e, false)}
 					onMouseDown={(e) => mouseDown(e, false)}
 					onMouseUp={(e) => mouseUp(e, false)}
 					onContextMenu={(e) => e.preventDefault()}

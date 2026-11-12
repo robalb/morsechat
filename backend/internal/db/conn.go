@@ -12,9 +12,50 @@ import (
 var initscript string
 
 // Temporary solution. We don't actually have migrations right now.
-// We just execute the content of schema.sql every time
+// We just execute the content of schema.sql every time, then apply the
+// additive migrations that are required by databases created before the
+// column was introduced. schema.sql uses CREATE TABLE IF NOT EXISTS, so it
+// cannot add columns to an existing table by itself.
 func ApplyMigrations(db *sql.DB, ctx context.Context) error {
-	_, err := db.ExecContext(ctx, initscript)
+	if _, err := db.ExecContext(ctx, initscript); err != nil {
+		return err
+	}
+	return ensureColumn(ctx, db, "users", "is_admin", "INTEGER NOT NULL DEFAULT 0")
+}
+
+// ensureColumn adds a column to an existing table when it is missing.
+// Table and column names are always constants controlled by the caller.
+func ensureColumn(ctx context.Context, db *sql.DB, table string, column string, definition string) error {
+	rows, err := db.QueryContext(ctx, fmt.Sprintf("PRAGMA table_info(%s)", table))
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cid int
+		var name string
+		var columnType string
+		var notNull int
+		var defaultValue sql.NullString
+		var primaryKey int
+		if err := rows.Scan(&cid, &name, &columnType, &notNull, &defaultValue, &primaryKey); err != nil {
+			return err
+		}
+		if name == column {
+			return nil
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	_, err = db.ExecContext(ctx, fmt.Sprintf(
+		"ALTER TABLE %s ADD COLUMN %s %s",
+		table,
+		column,
+		definition,
+	))
 	return err
 }
 

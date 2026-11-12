@@ -11,9 +11,12 @@ services:
       - '80'
     restart: unless-stopped
     environment:
+      HOST: 0.0.0.0
       PORT: 8080
       SQLITE_PATH: /app/backend/db/master.sqlite
-      SECRET: ${SECRET}
+      SECRET: "${SECRET:?SECRET must be set, copy .env.example to .env}"
+      METRICS_ENABLED: "true"
+      METRICS_PORT: 8081
     volumes:
       - morsechatgodb:/app/backend/db
       - ./filters/:/app/backend/filters

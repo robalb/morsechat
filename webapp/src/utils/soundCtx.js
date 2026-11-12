@@ -23,7 +23,6 @@ window.addEventListener('mousedown', resumeCtx, {
 function resumeCtx(){
     // check if context is in suspended state (autoplay policy)
     if (ctx.state === 'suspended') {
-        console.log("global audiocontext resumed")
         ctx.resume();
     }
 }

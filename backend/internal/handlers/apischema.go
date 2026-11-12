@@ -9,16 +9,18 @@ type Keybinds struct {
 	CancelMessage string `json:"cancel_message" validate:"required,min=1,max=2"`
 }
 type Settings struct {
-	Dialect        string   `json:"dialect" validate:"required,min=1,max=20"`
-	KeyMode        string   `json:"key_mode" validate:"required,min=1,max=20"`
-	WPM            int      `json:"wpm" validate:"required,gte=5,lte=50"`
-	Frequency      int      `json:"key_frequency" validate:"min=200,max=1000"`
-	VolumeReceiver int      `json:"volume_receiver" validate:"required,gte=0,lte=100"`
-	VolumeKey      int      `json:"volume_key" validate:"required,gte=0,lte=100"`
-	SubmitDelay    int      `json:"submit_delay" validate:"required,gte=5,lte=50"`
-	ShowReadable   bool     `json:"show_readable"`
-	LeftIsDot      bool     `json:"left_is_dot" validate:"required"`
-	Keybinds       Keybinds `json:"keybinds" validate:"required"`
+	Dialect        string `json:"dialect" validate:"required,min=1,max=20"`
+	KeyMode        string `json:"key_mode" validate:"required,min=1,max=20"`
+	WPM            int    `json:"wpm" validate:"required,gte=5,lte=50"`
+	Frequency      int    `json:"key_frequency" validate:"min=200,max=1000"`
+	VolumeReceiver int    `json:"volume_receiver" validate:"required,gte=0,lte=100"`
+	VolumeKey      int    `json:"volume_key" validate:"required,gte=0,lte=100"`
+	SubmitDelay    int    `json:"submit_delay" validate:"required,gte=5,lte=50"`
+	ShowReadable   bool   `json:"show_readable"`
+	// LeftIsDot must not use `required`: false is a valid value and means the
+	// right paddle sends dits.
+	LeftIsDot bool     `json:"left_is_dot"`
+	Keybinds  Keybinds `json:"keybinds" validate:"required"`
 }
 
 // response object used by both login, register, and sess_init

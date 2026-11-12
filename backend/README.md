@@ -2,7 +2,12 @@
 
 ## development
 
-To start the app: `go run cmd/morsechat/main.go`
+The server has no configuration defaults: every value must be provided through
+its environment variable or flag, and startup fails with a list of anything
+missing. See the [configuration table](../README.md#configuration) for the
+required values. `go run cmd/morsechat/main.go` loads `.env` from this directory
+when the file exists, so you can copy `../.env.example` to `.env`, set `SECRET`,
+and start the app.
 
 To run all tests: `go test ./...`
 

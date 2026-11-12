@@ -108,6 +108,22 @@ FROM users
 WHERE id == ?
 LIMIT 1;
 
+/* name: IsAdmin :one */
+SELECT is_admin
+FROM users
+WHERE id == ?
+LIMIT 1;
+
+/* name: SetModerator :execresult */
+UPDATE users
+SET is_moderator = ?
+WHERE username = ?;
+
+/* name: SetAdmin :execresult */
+UPDATE users
+SET is_admin = ?
+WHERE username = ?;
+
 /* name: UpdateSettings :execresult */
 UPDATE users SET settings = ? WHERE id = ?;
 

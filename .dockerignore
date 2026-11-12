@@ -1,0 +1,24 @@
+# Version control and CI
+.git
+.github
+
+# Local secrets and configuration
+.env
+*.local
+
+# Frontend dependencies and build output. The image builds these itself.
+webapp/node_modules
+webapp/dist
+
+# Backend build output and local databases
+backend/tmp
+backend/morsechat
+backend/morsechat-admin
+backend/filters
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Deployment-specific compose files are not needed inside the image
+compose-prod
+compose-staging

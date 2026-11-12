@@ -3,12 +3,29 @@ package e2e
 import (
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"math/big"
 	"net/http"
 	"os"
 	"time"
 )
+
+// testSecret is a valid app secret (base64 of 32 bytes) for the test servers.
+var testSecret = base64.StdEncoding.EncodeToString(make([]byte, 32))
+
+// testServerArgs returns the explicit configuration for an e2e server. The
+// server has no defaults, so every value the tests need is provided here.
+func testServerArgs(port int, dbPath string) []string {
+	return []string{
+		"morsechat",
+		"--host", "127.0.0.1",
+		"--port", fmt.Sprintf("%d", port),
+		"--sqlite_path", dbPath,
+		"--secret", testSecret,
+		"--metrics_enabled=false",
+	}
+}
 
 // waitForReady calls the specified endpoint until it gets a 200
 // response or until the context is cancelled or the timeout is

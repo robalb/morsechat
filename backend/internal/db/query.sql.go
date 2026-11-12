@@ -241,7 +241,7 @@ func (q *Queries) GetLastBanEvents(ctx context.Context, arg GetLastBanEventsPara
 }
 
 const getLastBanned = `-- name: GetLastBanned :many
-SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp
+SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, is_admin, registration_session, registration_timestamp, last_online_timestamp
 FROM users
 WHERE is_banned == 1
 AND username LIKE ?
@@ -267,6 +267,7 @@ func (q *Queries) GetLastBanned(ctx context.Context, username string) ([]User, e
 			&i.IsBanned,
 			&i.IsVerified,
 			&i.IsModerator,
+			&i.IsAdmin,
 			&i.RegistrationSession,
 			&i.RegistrationTimestamp,
 			&i.LastOnlineTimestamp,
@@ -374,7 +375,7 @@ func (q *Queries) GetLastReports(ctx context.Context, arg GetLastReportsParams) 
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, is_admin, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE username = ? LIMIT 1
 `
 
@@ -391,6 +392,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 		&i.IsBanned,
 		&i.IsVerified,
 		&i.IsModerator,
+		&i.IsAdmin,
 		&i.RegistrationSession,
 		&i.RegistrationTimestamp,
 		&i.LastOnlineTimestamp,
@@ -399,7 +401,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 }
 
 const getUserFromId = `-- name: GetUserFromId :one
-SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, is_admin, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE id = ? LIMIT 1
 `
 
@@ -416,11 +418,26 @@ func (q *Queries) GetUserFromId(ctx context.Context, id int64) (User, error) {
 		&i.IsBanned,
 		&i.IsVerified,
 		&i.IsModerator,
+		&i.IsAdmin,
 		&i.RegistrationSession,
 		&i.RegistrationTimestamp,
 		&i.LastOnlineTimestamp,
 	)
 	return i, err
+}
+
+const isAdmin = `-- name: IsAdmin :one
+SELECT is_admin
+FROM users
+WHERE id == ?
+LIMIT 1
+`
+
+func (q *Queries) IsAdmin(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, isAdmin, id)
+	var is_admin int64
+	err := row.Scan(&is_admin)
+	return is_admin, err
 }
 
 const isModerator = `-- name: IsModerator :one
@@ -438,7 +455,7 @@ func (q *Queries) IsModerator(ctx context.Context, id int64) (int64, error) {
 }
 
 const listModerators = `-- name: ListModerators :many
-SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, registration_session, registration_timestamp, last_online_timestamp FROM users
+SELECT id, username, password, callsign, country, settings, is_banned, is_verified, is_moderator, is_admin, registration_session, registration_timestamp, last_online_timestamp FROM users
 WHERE is_moderator == 1
 `
 
@@ -461,6 +478,7 @@ func (q *Queries) ListModerators(ctx context.Context) ([]User, error) {
 			&i.IsBanned,
 			&i.IsVerified,
 			&i.IsModerator,
+			&i.IsAdmin,
 			&i.RegistrationSession,
 			&i.RegistrationTimestamp,
 			&i.LastOnlineTimestamp,
@@ -521,6 +539,36 @@ func (q *Queries) RecordBanAction(ctx context.Context, arg RecordBanActionParams
 		arg.Reason,
 		arg.IsBanRevert,
 	)
+}
+
+const setAdmin = `-- name: SetAdmin :execresult
+UPDATE users
+SET is_admin = ?
+WHERE username = ?
+`
+
+type SetAdminParams struct {
+	IsAdmin  int64
+	Username string
+}
+
+func (q *Queries) SetAdmin(ctx context.Context, arg SetAdminParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, setAdmin, arg.IsAdmin, arg.Username)
+}
+
+const setModerator = `-- name: SetModerator :execresult
+UPDATE users
+SET is_moderator = ?
+WHERE username = ?
+`
+
+type SetModeratorParams struct {
+	IsModerator int64
+	Username    string
+}
+
+func (q *Queries) SetModerator(ctx context.Context, arg SetModeratorParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, setModerator, arg.IsModerator, arg.Username)
 }
 
 const updateBanned = `-- name: UpdateBanned :execresult
