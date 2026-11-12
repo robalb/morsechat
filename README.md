@@ -37,12 +37,18 @@ configured.
 | `METRICS_ENABLED` | `-metrics_enabled` | `true` or `false` |
 | `METRICS_PORT` | `-metrics_port` | Prometheus port, required when metrics are enabled |
 
-Flags take precedence over environment variables.
+Flags take precedence over environment variables, and real environment
+variables take precedence over `.env`.
 
 Generate a secret with `cd backend && go run cmd/secrets/main.go`.
 
-For Docker, copy `.env.example` into `.env` and set `SECRET`; the compose file
-provides the remaining values and refuses to start when `SECRET` is empty.
+For local development, copy `.env.example` to `backend/.env` and set `SECRET`.
+The server and the admin command load `backend/.env` automatically when they are
+started from `backend/`.
+
+For Docker, copy `.env.example` into `.env` in the repository root and set
+`SECRET`; the compose file provides the remaining values and refuses to start
+when `SECRET` is empty.
 
 
 ## development
@@ -51,19 +57,15 @@ clone this repository `git clone https://github.com/robalb/morsechat.git`
 
 navigate into the repository `cd morsechat`
 
-configure and start the backend (flags work too, see the table above):
+configure and start the backend:
 
 ```bash
 cd backend
+cp ../.env.example .env
 
-# Generate a secret and copy the value printed after "Secret: "
+# Generate a secret and copy the value printed after "Secret: " into .env
 go run cmd/secrets/main.go
 
-export HOST=127.0.0.1
-export PORT=8080
-export SQLITE_PATH=db.sqlite
-export METRICS_ENABLED=false
-export SECRET="<paste the generated secret>"
 go run -race cmd/morsechat/main.go
 ```
 
@@ -71,17 +73,16 @@ PowerShell:
 
 ```powershell
 cd backend
+Copy-Item ..\.env.example .env
 
-# Generate a secret and copy the value printed after "Secret: "
+# Generate a secret and copy the value printed after "Secret: " into .env
 go run cmd/secrets/main.go
 
-$env:HOST = "127.0.0.1"
-$env:PORT = "8080"
-$env:SQLITE_PATH = "db.sqlite"
-$env:METRICS_ENABLED = "false"
-$env:SECRET = "<paste the generated secret>"
 go run -race cmd/morsechat/main.go
 ```
+
+The `.env` file is git-ignored. You can also provide the values through the
+environment or flags (see the table above); both override the file.
 
 start vite in development mode `cd webapp && npm run dev`
 
@@ -119,7 +120,8 @@ go run cmd/admin/main.go -username <username>
 
 The command never guesses a database path. If neither the flag nor the
 environment variable is set, it exits with an error instead of opening (and
-possibly creating) the wrong database.
+possibly creating) the wrong database. When run from `backend/`, the command
+reads `backend/.env`, so the `SQLITE_PATH` defined there is used automatically.
 
 Use `-revoke` to remove the role again. In a container, the bundled binary
 already receives `SQLITE_PATH` from the compose environment:

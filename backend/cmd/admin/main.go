@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/robalb/morsechat/internal/config"
 	"github.com/robalb/morsechat/internal/db"
 )
 
@@ -36,6 +37,12 @@ would promote the wrong account, or create an empty database and report the
 user as missing.
 */
 func main() {
+	// Load .env from the working directory (normally backend/) when present.
+	// Real environment variables and command line flags keep precedence.
+	if err := config.LoadDotEnv(".env"); err != nil {
+		fmt.Fprintf(os.Stderr, "admin: %v\n", err)
+		os.Exit(1)
+	}
 	os.Exit(run(os.Args[1:], os.Getenv, os.Stdout, os.Stderr))
 }
 
