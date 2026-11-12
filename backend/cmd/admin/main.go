@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -23,14 +24,12 @@ Usage:
 	go run cmd/admin/main.go -username <username>
 	go run cmd/admin/main.go -username <username> -revoke
 
-The database path defaults to SQLITE_PATH, then to db.sqlite, matching the
-server configuration.
+The database path defaults to SQLITE_PATH, then to db.sqlite in the Go module
+root (normally backend/), matching the server configuration even when the
+command is run from cmd/admin.
 */
 func main() {
-	defaultPath := os.Getenv("SQLITE_PATH")
-	if defaultPath == "" {
-		defaultPath = "db.sqlite"
-	}
+	defaultPath := defaultSqlitePath(os.Getenv)
 
 	fs := flag.NewFlagSet("admin", flag.ExitOnError)
 	sqlitePath := fs.String("sqlite_path", defaultPath, "Path to the sqlite database")
@@ -45,10 +44,20 @@ func main() {
 		os.Exit(2)
 	}
 
-	ctx := context.Background()
-	conn, err := db.NewWritePool(*sqlitePath, ctx)
+	dbPath, err := filepath.Abs(*sqlitePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "admin: could not open database: %v\n", err)
+		dbPath = *sqlitePath
+	}
+	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "admin: database %q does not exist\n", dbPath)
+		fmt.Fprintln(os.Stderr, "admin: use -sqlite_path or SQLITE_PATH to point at the server database")
+		os.Exit(1)
+	}
+
+	ctx := context.Background()
+	conn, err := db.NewWritePool(dbPath, ctx)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "admin: could not open database %q: %v\n", dbPath, err)
 		os.Exit(1)
 	}
 	defer conn.Close()
@@ -79,13 +88,44 @@ func main() {
 		os.Exit(1)
 	}
 	if affected == 0 {
-		fmt.Fprintf(os.Stderr, "admin: user %q not found\n", name)
+		fmt.Fprintf(os.Stderr, "admin: user %q not found in %q\n", name, dbPath)
 		os.Exit(1)
 	}
 
 	if *revoke {
-		fmt.Printf("Removed admin rights from %q\n", name)
+		fmt.Printf("Removed admin rights from %q in %q\n", name, dbPath)
 		return
 	}
-	fmt.Printf("Granted admin rights to %q\n", name)
+	fmt.Printf("Granted admin rights to %q in %q\n", name, dbPath)
+}
+
+// defaultSqlitePath mirrors the server default: SQLITE_PATH when set,
+// otherwise db.sqlite in the Go module root. Resolving the module root instead
+// of the current directory means "go run main.go" also works from cmd/admin,
+// where a bare db.sqlite would create a new empty database.
+func defaultSqlitePath(getenv func(string) string) string {
+	if path := getenv("SQLITE_PATH"); path != "" {
+		return path
+	}
+	if root, ok := findModuleRoot(); ok {
+		return filepath.Join(root, "db.sqlite")
+	}
+	return "db.sqlite"
+}
+
+func findModuleRoot() (string, bool) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", false
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, true
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", false
+		}
+		dir = parent
+	}
 }

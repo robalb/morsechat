@@ -53,6 +53,18 @@ cd backend
 go run cmd/admin/main.go -username <username> -sqlite_path db.sqlite
 ```
 
+The database path defaults to `SQLITE_PATH`, then to `db.sqlite` next to
+`backend/go.mod`. This means the command also works when run from
+`backend/cmd/admin`:
+
+```bash
+cd backend/cmd/admin
+go run main.go -username <username>
+```
+
+If the server was started with a custom `-sqlite_path` or `SQLITE_PATH`, pass
+the same value to the admin command.
+
 Use `-revoke` to remove the role again. In a container, run the bundled binary:
 
 ```bash
