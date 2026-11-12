@@ -8,6 +8,9 @@ import { getFreqencyFromCallsign } from "../utils/ReceiverSound.js";
 
 import createDebouncedAsyncThunk from "../utils/createDebouncedAsyncThunk";
 import { defaultKeybinds, mergeKeybinds } from "../utils/keybinds.mjs";
+import { wpmToMorseTimes } from "../utils/morse.mjs";
+
+export { wpmToMorseTimes };
 
 import { apiCall, payloadCreatorCreator } from "./apiSlice";
 
@@ -191,19 +194,6 @@ const userSlice = createSlice({
 		//..
 	},
 });
-
-export const wpmToMorseTimes = (wpm) => {
-	if (wpm < 1) wpm = 1;
-	if (wpm > 200) wpm = 200;
-	const dotTime = Math.ceil(1200 / wpm);
-	return {
-		dot: dotTime,
-		dash: dotTime * 3,
-		elementGap: dotTime,
-		letterGap: dotTime * 3,
-		wordGap: dotTime * 7,
-	};
-};
 
 export const selectMorseTimes = createSelector(
 	(state) => state.user.settings.wpm,

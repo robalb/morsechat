@@ -9,7 +9,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "serve": "vite preview",
-    "test": "node scripts/test-iambic.mjs"
+    "test": "node scripts/run-tests.mjs"
   },
   "dependencies": {
     "@emotion/react": "latest",

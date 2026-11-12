@@ -69,6 +69,10 @@ function KeyInternal() {
 	// working across renders and always uses the latest sound/dispatch handlers.
 	const callbacksRef = React.useRef(null);
 	const keyerRef = React.useRef(null);
+	// Which paddles are currently held by the mouse. A mouseup can happen
+	// outside the button (for example when the pointer is dragged away), so the
+	// window-level handler below uses this to release the paddle.
+	const mouseHeld = React.useRef({ dot: false, dash: false, straight: false });
 	callbacksRef.current = { onDown: down, onUp: up };
 	if (keyerRef.current === null) {
 		keyerRef.current = createIambicKeyer({
@@ -153,6 +157,40 @@ function KeyInternal() {
 		};
 	}, []);
 
+	// Safety nets for lost input events: a mouse release outside the paddle
+	// button, or the window losing focus while a paddle/key is held, must not
+	// leave the keyer stuck sending an element.
+	React.useEffect(() => {
+		function releaseMousePaddles() {
+			const held = mouseHeld.current;
+			if (held.straight) callbacksRef.current.onUp();
+			if (held.dot) keyerRef.current.paddleUp(true);
+			if (held.dash) keyerRef.current.paddleUp(false);
+			held.straight = false;
+			held.dot = false;
+			held.dash = false;
+		}
+		function mouseUpHandler() {
+			releaseMousePaddles();
+		}
+		function blurHandler() {
+			releaseMousePaddles();
+			keyerRef.current.stop();
+		}
+		function visibilityHandler() {
+			if (document.hidden) blurHandler();
+		}
+		// Capture phase: run even if another handler stops propagation.
+		window.addEventListener("mouseup", mouseUpHandler, true);
+		window.addEventListener("blur", blurHandler);
+		document.addEventListener("visibilitychange", visibilityHandler);
+		return () => {
+			window.removeEventListener("mouseup", mouseUpHandler, true);
+			window.removeEventListener("blur", blurHandler);
+			document.removeEventListener("visibilitychange", visibilityHandler);
+		};
+	}, []);
+
 	// Stop the keyer when leaving iambic mode or unmounting.
 	const previousKeyMode = React.useRef(keyMode);
 	React.useEffect(() => {
@@ -174,9 +212,12 @@ function KeyInternal() {
 		// anti-ch3at measure
 		if (!e.isTrusted) return;
 		if (keyMode === "straight") {
+			mouseHeld.current.straight = true;
 			down();
 		} else if (keyMode === "yambic") {
-			keyerRef.current.paddleDown(isLeft == leftIsDot);
+			const isDot = isLeft == leftIsDot;
+			mouseHeld.current[isDot ? "dot" : "dash"] = true;
+			keyerRef.current.paddleDown(isDot);
 		}
 	}
 
@@ -186,9 +227,12 @@ function KeyInternal() {
 		// anti-ch3at measure
 		if (!e.isTrusted) return;
 		if (keyMode === "straight") {
+			mouseHeld.current.straight = false;
 			up();
 		} else if (keyMode === "yambic") {
-			keyerRef.current.paddleUp(isLeft == leftIsDot);
+			const isDot = isLeft == leftIsDot;
+			mouseHeld.current[isDot ? "dot" : "dash"] = false;
+			keyerRef.current.paddleUp(isDot);
 		}
 	}
 
@@ -202,6 +246,7 @@ function KeyInternal() {
 				className={styles.key_bt}
 				onTouchStart={(e) => mouseDown(e, true)}
 				onTouchEnd={(e) => mouseUp(e, true)}
+				onTouchCancel={(e) => mouseUp(e, true)}
 				onMouseDown={(e) => mouseDown(e, true)}
 				onMouseUp={(e) => mouseUp(e, true)}
 				onContextMenu={(e) => e.preventDefault()}
@@ -214,6 +259,7 @@ function KeyInternal() {
 					className={styles.key_bt}
 					onTouchStart={(e) => mouseDown(e, false)}
 					onTouchEnd={(e) => mouseUp(e, false)}
+					onTouchCancel={(e) => mouseUp(e, false)}
 					onMouseDown={(e) => mouseDown(e, false)}
 					onMouseUp={(e) => mouseUp(e, false)}
 					onContextMenu={(e) => e.preventDefault()}

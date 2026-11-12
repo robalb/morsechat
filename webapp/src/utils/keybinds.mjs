@@ -78,7 +78,7 @@ export function mergeKeybinds(keybinds) {
 			typeof value === "string" &&
 			value.length >= 1 &&
 			value.length <= 2 &&
-			value !== " "
+			value.trim() !== ""
 				? normalizeKey(value)
 				: defaultKeybinds[name];
 	}

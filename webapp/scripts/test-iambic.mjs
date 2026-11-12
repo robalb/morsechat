@@ -1,15 +1,9 @@
 /**
- * Unit tests for the iambic keyer state machine and keybinding helpers.
+ * Unit tests for the iambic keyer state machine.
  * Run with: npm test
  */
-import assert from "node:assert/strict";
 import { createIambicKeyer } from "../src/utils/iambicKeyer.mjs";
-import {
-	isBindableKey,
-	keybindLabelsFor,
-	mergeKeybinds,
-	normalizeKey,
-} from "../src/utils/keybinds.mjs";
+import { assert, test } from "./testHarness.mjs";
 
 function makeHarness() {
 	let now = 0;
@@ -66,11 +60,6 @@ function makeHarness() {
 	};
 }
 
-const tests = [];
-function test(name, fn) {
-	tests.push({ name, fn });
-}
-
 test("a quick dot tap sends exactly one dot", () => {
 	const h = makeHarness();
 	h.keyer.paddleDown(true);
@@ -121,6 +110,26 @@ test("holding the dot paddle repeats dots until released", () => {
 	]);
 });
 
+test("holding the dash paddle repeats dashes until released", () => {
+	const h = makeHarness();
+	h.keyer.paddleDown(false);
+	h.advance(300);
+	h.advance(100);
+	h.advance(300);
+	h.advance(100);
+	h.keyer.paddleUp(false);
+	h.advance(300);
+	h.advance(100);
+	assert.deepEqual(h.summary(), [
+		"down:dash@0",
+		"up:dash@300",
+		"down:dash@400",
+		"up:dash@700",
+		"down:dash@800",
+		"up:dash@1100",
+	]);
+});
+
 test("dot memory inserts a dot during a dash", () => {
 	const h = makeHarness();
 	h.keyer.paddleDown(false);
@@ -138,6 +147,25 @@ test("dot memory inserts a dot during a dash", () => {
 		"up:dash@300",
 		"down:dot@400",
 		"up:dot@500",
+	]);
+});
+
+test("dash memory inserts a dash during a dot", () => {
+	const h = makeHarness();
+	h.keyer.paddleDown(true);
+	h.advance(20);
+	h.keyer.paddleUp(true);
+	h.advance(10);
+	h.keyer.paddleDown(false);
+	h.keyer.paddleUp(false);
+	h.advance(70);
+	h.advance(100);
+	h.advance(300);
+	assert.deepEqual(h.summary(), [
+		"down:dot@0",
+		"up:dot@100",
+		"down:dash@200",
+		"up:dash@500",
 	]);
 });
 
@@ -174,6 +202,29 @@ test("holding a squeeze alternates dot and dash", () => {
 		"up:dash@500",
 		"down:dot@600",
 		"up:dot@700",
+	]);
+});
+
+test("a dash-first squeeze alternates dash and dot", () => {
+	const h = makeHarness();
+	h.keyer.paddleDown(false);
+	h.advance(50);
+	h.keyer.paddleDown(true);
+	h.advance(50);
+	h.advance(250);
+	h.advance(100);
+	h.advance(100);
+	h.advance(50);
+	h.keyer.paddleUp(false);
+	h.keyer.paddleUp(true);
+	h.advance(300);
+	assert.deepEqual(h.summary(), [
+		"down:dash@0",
+		"up:dash@300",
+		"down:dot@400",
+		"up:dot@500",
+		"down:dash@600",
+		"up:dash@900",
 	]);
 });
 
@@ -225,6 +276,16 @@ test("stop cancels pending timers and releases the key", () => {
 	assert.equal(h.events.length, 2);
 });
 
+test("stop during a dash releases the dash immediately", () => {
+	const h = makeHarness();
+	h.keyer.paddleDown(false);
+	h.advance(100);
+	h.keyer.stop();
+	assert.deepEqual(h.summary(), ["down:dash@0", "up:dash@100"]);
+	h.advance(500);
+	assert.equal(h.events.length, 2);
+});
+
 test("a second tap after a complete element sends another element", () => {
 	const h = makeHarness();
 	h.keyer.paddleDown(true);
@@ -241,44 +302,41 @@ test("a second tap after a complete element sends another element", () => {
 	]);
 });
 
-test("keybinding helpers normalize and sanitize values", () => {
-	assert.equal(normalizeKey("C"), "c");
-	assert.equal(normalizeKey(" "), " ");
-	assert.equal(normalizeKey("F1"), "F1");
-	assert.equal(isBindableKey("c"), true);
-	assert.equal(isBindableKey(" "), false);
-	assert.equal(isBindableKey("F1"), false);
-	assert.equal(isBindableKey("Enter"), false);
-
-	const merged = mergeKeybinds({ straight: "Q" });
-	assert.equal(merged.straight, "q");
-	assert.equal(merged.yambic_left, "z");
-	assert.equal(mergeKeybinds({ straight: "" }).straight, "c");
-	assert.equal(mergeKeybinds({ straight: "toolong" }).straight, "c");
-	assert.equal(mergeKeybinds({ straight: " " }).straight, "c");
-
-	const normalLabels = keybindLabelsFor(true);
-	assert.equal(normalLabels.yambic_left, "Left key (dit)");
-	assert.equal(normalLabels.yambic_right, "Right key (dash)");
-	const swappedLabels = keybindLabelsFor(false);
-	assert.equal(swappedLabels.yambic_left, "Left key (dash)");
-	assert.equal(swappedLabels.yambic_right, "Right key (dit)");
+test("pressing the same paddle twice does not restart the element", () => {
+	const h = makeHarness();
+	h.keyer.paddleDown(true);
+	h.advance(50);
+	h.keyer.paddleDown(true);
+	h.advance(50);
+	h.keyer.paddleUp(true);
+	h.advance(100);
+	assert.deepEqual(h.summary(), ["down:dot@0", "up:dot@100"]);
 });
 
-let failures = 0;
-for (const { name, fn } of tests) {
-	try {
-		fn();
-		console.log(`ok - ${name}`);
-	} catch (error) {
-		failures += 1;
-		console.error(`not ok - ${name}`);
-		console.error(error);
-	}
-}
+test("paddleUp without a matching paddleDown is a no-op", () => {
+	const h = makeHarness();
+	h.keyer.paddleUp(true);
+	h.keyer.paddleUp(false);
+	h.advance(500);
+	assert.deepEqual(h.summary(), []);
+});
 
-if (failures > 0) {
-	console.error(`\n${failures} test(s) failed`);
-	process.exit(1);
-}
-console.log(`\n${tests.length} tests passed`);
+test("getState reports the held paddles and the active element", () => {
+	const h = makeHarness();
+	h.keyer.paddleDown(true);
+	assert.deepEqual(h.keyer.getState(), {
+		dot: true,
+		dash: false,
+		dotMemory: false,
+		dashMemory: false,
+		squeezed: false,
+		element: "dot",
+		lastElement: "dot",
+	});
+	h.keyer.paddleDown(false);
+	assert.equal(h.keyer.getState().squeezed, true);
+	h.keyer.paddleUp(true);
+	h.keyer.paddleUp(false);
+	assert.equal(h.keyer.getState().dot, false);
+	assert.equal(h.keyer.getState().dash, false);
+});
