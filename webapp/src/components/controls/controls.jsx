@@ -72,7 +72,12 @@ export function SideControls({ className = "", settingsButton = "" }) {
 	return (
 		<div className={`${styles.controls} ${className}`}>
 			<h2>Controls</h2>
-			<p>wpm</p>
+			<p>
+				wpm
+				{settings.auto_detect_wpm && (
+					<span className={styles.forcedOff}> (auto-detected)</span>
+				)}
+			</p>
 			<MemoSlider
 				size="small"
 				value={settings.wpm}
@@ -80,6 +85,7 @@ export function SideControls({ className = "", settingsButton = "" }) {
 				valueLabelDisplay="auto"
 				min={5}
 				max={50}
+				disabled={settings.auto_detect_wpm}
 				onChangeCommitted={React.useCallback((e, v) => update({ wpm: v }), [])}
 			/>
 
