@@ -161,3 +161,26 @@ test("a short gap does not split a letter", () => {
 		"a",
 	);
 });
+
+test("unitAt adapts the tone threshold per element", () => {
+	// 150 ms is a dot at 150 ms per unit and a dash at 50 ms per unit.
+	assert.equal(morseBufferToString([150], times, { unitAt: () => 150 }), ".");
+	assert.equal(morseBufferToString([150], times, { unitAt: () => 50 }), "-");
+});
+
+test("unitAt adapts the gap thresholds per element", () => {
+	// With a 100 ms unit the letter threshold is 200 ms and the word threshold
+	// is 450 ms.
+	assert.equal(
+		morseBufferToString([100, 250, 100], times, { unitAt: () => 100 }),
+		". .",
+	);
+	assert.equal(
+		morseBufferToString([100, 500, 100], times, { unitAt: () => 100 }),
+		".   .",
+	);
+});
+
+test("unitAt falls back to the times object when it returns null", () => {
+	assert.equal(morseBufferToString([100], times, { unitAt: () => null }), ".");
+});

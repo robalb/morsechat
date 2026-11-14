@@ -8,11 +8,17 @@ import { resetMessage, setTyping, selectShowReadable } from "../../redux/chatSli
 import getDialect from '../../utils/dialects'
 import {send} from '../../redux/chatSlice'
 import { wpmToMorseTimes, morseBufferToString } from "../../utils/morse.mjs";
-import { detectWpm } from "../../utils/wpmDetector.mjs";
+import { analyzeLocalWpm } from "../../utils/wpmDetector.mjs";
 import {systemMessage} from '../../utils/chatDom'
 import {getInstance} from '../../socket/global.js'
 
 let dashChar = "–" // endash (U+2013)
+
+function formatAutoWpm(analysis){
+    if(analysis.maxWpm - analysis.minWpm >= 2)
+        return `${analysis.minWpm}–${analysis.maxWpm} WPM`;
+    return `~${analysis.currentWpm} WPM`;
+}
 
 function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
@@ -22,12 +28,14 @@ function TextPreview(){
     let dialectName = useSelector(state => state.user.settings.dialect)
     let dialect = getDialect(dialectName)
 
-    let detection = React.useMemo(
-        () => autoDetectWpm ? detectWpm(buffer, { fallbackWpm: wpm }) : null,
+    // Recompute the local speed on every buffer change, so the preview follows
+    // the user as they key and can decode a message that changes speed.
+    let analysis = React.useMemo(
+        () => autoDetectWpm ? analyzeLocalWpm(buffer, { fallbackWpm: wpm }) : null,
         [autoDetectWpm, buffer, wpm]
     )
-    let effectiveWpm = detection ? detection.wpm : wpm
-    let times = React.useMemo(() => wpmToMorseTimes(effectiveWpm), [effectiveWpm])
+    let units = analysis ? analysis.units : null
+    let times = React.useMemo(() => wpmToMorseTimes(wpm), [wpm])
 
     let [canTranslateLast, setCanTranslateLast] = React.useState(false)
 
@@ -40,11 +48,15 @@ function TextPreview(){
         let isDown = buffer.length % 2 == 0
         if(isDown)
             return
-        let t = setTimeout(_ => setCanTranslateLast(true), times.letterGap )
+        // Wait for the local letter gap of the last element, so the preview
+        // stays responsive when the user changes speed.
+        let lastUnit = units && units.length ? units[units.length - 1] : null
+        let letterGap = lastUnit ? lastUnit * 2 : times.letterGap
+        let t = setTimeout(_ => setCanTranslateLast(true), letterGap )
         return () =>{
             clearTimeout(t)
         }
-    }, [buffer, times.letterGap])
+    }, [buffer, units, times.letterGap])
 
 
     function translateToReadable(letter){
@@ -56,11 +68,12 @@ function TextPreview(){
         showReadable,
         canTranslateLast,
         translate: translateToReadable,
+        unitAt: units ? (i) => units[i] : null,
     }).replaceAll("-", dashChar)
 
-    return <p>{morseString}{autoDetectWpm && detection && (
-        <span className={styles.autoWpm} title="Detected from the timing of your keying">
-            auto ~{detection.wpm} WPM
+    return <p>{morseString}{autoDetectWpm && analysis && analysis.detections.some(Boolean) && (
+        <span className={styles.autoWpm} title="Detected from the timing of your keying; adapts while you type">
+            auto {formatAutoWpm(analysis)}
         </span>
     )}</p>
 }

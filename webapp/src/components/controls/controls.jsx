@@ -158,6 +158,7 @@ export function AdvancedControls({ className = "" }) {
 			</div>
 			<p className={styles.keybindHelp}>
 				Measure your keying speed from the timing of your dots and dashes.
+				It keeps up even if your speed changes during a message.
 			</p>
 			<p>submit delay</p>
 			<MemoSlider
