@@ -6,6 +6,7 @@ import {
 	updateOnline,
 } from "../redux/chatSlice";
 import { wpmToMorseTimes } from "../redux/userSlice";
+import { detectWpm } from "../utils/wpmDetector.mjs";
 import * as React from "react";
 import { SocketClient } from "../socket/client";
 import getDialect from "../utils/dialects";
@@ -40,6 +41,11 @@ export function AppLogic({ chatDomNode }) {
 	volumeRef.current = volume;
 	let onlineUsersRef = React.useRef();
 	onlineUsersRef.current = onlineUsers;
+	let autoDetectWpm = useSelector(
+		(state) => state.user.settings.auto_detect_wpm,
+	);
+	let autoDetectWpmRef = React.useRef(autoDetectWpm);
+	autoDetectWpmRef.current = autoDetectWpm;
 
 	/**
 	 * recursive typer loop. Its job is to type a received message into the chat,
@@ -152,8 +158,15 @@ export function AppLogic({ chatDomNode }) {
 				? ""
 				: ` [${dialects[e.dialect].short_name}]`;
 		label.innerText = e.callsign + dialect;
-		//initialize wpm times
-		let times = wpmToMorseTimes(e.wpm);
+		//initialize wpm times. When auto-detection is enabled, measure the
+		//actual speed of the received timings instead of trusting the sender's
+		//configured wpm; the sender's value remains the fallback.
+		let messageWpm = e.wpm;
+		if (autoDetectWpmRef.current) {
+			let detection = detectWpm(e.message, { fallbackWpm: e.wpm });
+			if (detection) messageWpm = detection.wpm;
+		}
+		let times = wpmToMorseTimes(messageWpm);
 		//initialize the sound class for this specific user
 		//todo: there should be a sound object associated to every online user,
 		//it's more efficient than creating an obj on every message

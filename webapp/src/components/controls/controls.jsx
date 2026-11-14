@@ -139,6 +139,20 @@ export function AdvancedControls({ className = "" }) {
 	return (
 		<div className={`${styles.controls} ${className}`}>
 			<h2>Advanced settings</h2>
+			<div>
+				<p>auto detect wpm</p>
+				<MemoSwitch
+					checked={settings.auto_detect_wpm}
+					color="secondary"
+					onChange={React.useCallback(
+						(e) => update({ auto_detect_wpm: e.target.checked }),
+						[],
+					)}
+				/>
+			</div>
+			<p className={styles.keybindHelp}>
+				Measure your keying speed from the timing of your dots and dashes.
+			</p>
 			<p>submit delay</p>
 			<MemoSlider
 				size="small"

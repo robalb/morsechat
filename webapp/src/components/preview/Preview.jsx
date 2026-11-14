@@ -7,8 +7,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { resetMessage, setTyping, selectShowReadable } from "../../redux/chatSlice";
 import getDialect from '../../utils/dialects'
 import {send} from '../../redux/chatSlice'
-import { selectMorseTimes } from "../../redux/userSlice";
-import { morseBufferToString } from "../../utils/morse.mjs";
+import { wpmToMorseTimes, morseBufferToString } from "../../utils/morse.mjs";
+import { detectWpm } from "../../utils/wpmDetector.mjs";
 import {systemMessage} from '../../utils/chatDom'
 import {getInstance} from '../../socket/global.js'
 
@@ -16,10 +16,18 @@ let dashChar = "–" // endash (U+2013)
 
 function TextPreview(){
     let buffer = useSelector(state => state.chat.messageBuffer)
-    let times = useSelector(selectMorseTimes)
+    let wpm = useSelector(state => state.user.settings.wpm)
+    let autoDetectWpm = useSelector(state => state.user.settings.auto_detect_wpm)
     let showReadable = useSelector(selectShowReadable)
     let dialectName = useSelector(state => state.user.settings.dialect)
     let dialect = getDialect(dialectName)
+
+    let detection = React.useMemo(
+        () => autoDetectWpm ? detectWpm(buffer, { fallbackWpm: wpm }) : null,
+        [autoDetectWpm, buffer, wpm]
+    )
+    let effectiveWpm = detection ? detection.wpm : wpm
+    let times = React.useMemo(() => wpmToMorseTimes(effectiveWpm), [effectiveWpm])
 
     let [canTranslateLast, setCanTranslateLast] = React.useState(false)
 
@@ -36,7 +44,7 @@ function TextPreview(){
         return () =>{
             clearTimeout(t)
         }
-    }, [buffer])
+    }, [buffer, times.letterGap])
 
 
     function translateToReadable(letter){
@@ -50,7 +58,11 @@ function TextPreview(){
         translate: translateToReadable,
     }).replaceAll("-", dashChar)
 
-    return <p>{morseString}</p>
+    return <p>{morseString}{autoDetectWpm && detection && (
+        <span className={styles.autoWpm} title="Detected from the timing of your keying">
+            auto ~{detection.wpm} WPM
+        </span>
+    )}</p>
 }
 
 function CountdownPreview({emptyBuffer, chatDomNode}){

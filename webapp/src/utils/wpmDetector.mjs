@@ -1,0 +1,181 @@
+/**
+ * Automatic Morse speed detection for live keying.
+ *
+ * Morse timing is proportional to the length of one dot (the "unit"):
+ *
+ *   dot                 1 unit
+ *   dash                3 units
+ *   intra-character gap 1 unit
+ *   inter-character gap 3 units
+ *   word gap            7 units
+ *
+ * and, using the PARIS standard, `wpm = 1200 / unit_ms`.
+ *
+ * The live message buffer is an array of alternating tone/silence durations in
+ * milliseconds, starting with a tone. The detector tries every plausible unit
+ * length that can be derived from the observed durations and keeps the one
+ * that explains the whole buffer with the smallest relative error. This works
+ * with a handful of elements and tolerates the timing jitter of a human key.
+ *
+ * Equal durations are genuinely ambiguous (for example three 100 ms segments
+ * can be a dot and two intra-character gaps, or a dash and two letter gaps).
+ * In that case the configured WPM acts only as a tie-breaker, so the live
+ * preview does not jump between interpretations while the user is keying.
+ */
+
+const TONE_RATIOS = [1, 3];
+const GAP_RATIOS = [1, 3, 7];
+
+const DEFAULT_MIN_WPM = 5;
+const DEFAULT_MAX_WPM = 50;
+const DEFAULT_MIN_SAMPLES = 3;
+const DEFAULT_MAX_RELATIVE_ERROR = 0.35;
+
+// Relative errors are capped so one long pause (for example a thinking pause
+// that is longer than a word gap) cannot dominate the estimate.
+const MAX_SCORED_ERROR = 0.5;
+const OUTLIER_THRESHOLD = 0.35;
+const OUTLIER_PENALTY = 0.25;
+
+// Only used to make the fallback tie-breaker deterministic.
+const FALLBACK_PENALTY = 1e-6;
+const EPSILON = 1e-9;
+
+/**
+ * Estimate the keying speed from a live Morse timing buffer.
+ *
+ * @param {number[]} buffer alternating tone/silence durations in milliseconds
+ * @param {object} [options]
+ * @param {number} [options.fallbackWpm=12] configured speed, used to break ties
+ * @param {number} [options.minWpm=5] lowest accepted speed
+ * @param {number} [options.maxWpm=50] highest accepted speed
+ * @param {number} [options.minSamples=3] minimum valid durations required
+ * @param {number} [options.maxRelativeError=0.35] fit error above which no estimate is returned
+ * @returns {{wpm: number, unit: number, confidence: number, samples: number, rms: number}|null}
+ */
+export function detectWpm(buffer, options = {}) {
+	const {
+		fallbackWpm = 12,
+		minWpm = DEFAULT_MIN_WPM,
+		maxWpm = DEFAULT_MAX_WPM,
+		minSamples = DEFAULT_MIN_SAMPLES,
+		maxRelativeError = DEFAULT_MAX_RELATIVE_ERROR,
+	} = options;
+
+	if (!Array.isArray(buffer)) return null;
+
+	const samples = [];
+	for (let index = 0; index < buffer.length; index += 1) {
+		const duration = buffer[index];
+		if (!Number.isFinite(duration) || duration <= 0) continue;
+		samples.push({
+			duration,
+			// The buffer always starts with a tone, so even indexes are tones
+			// and odd indexes are silences, even if an invalid value is skipped.
+			ratios: index % 2 === 0 ? TONE_RATIOS : GAP_RATIOS,
+		});
+	}
+	if (samples.length < minSamples) return null;
+
+	const fallback = clampWpm(fallbackWpm, minWpm, maxWpm);
+	const fallbackUnit = 1200 / fallback;
+	const minUnit = 1200 / maxWpm;
+	const maxUnit = 1200 / minWpm;
+
+	// Candidate units are all observed durations divided by every ratio that
+	// duration is allowed to have. The correct unit is always among them.
+	const candidates = new Map();
+	for (const sample of samples) {
+		for (const ratio of sample.ratios) {
+			const unit = sample.duration / ratio;
+			if (unit < minUnit * 0.9 || unit > maxUnit * 1.1) continue;
+			// Deduplicate near-identical candidates to keep scoring cheap.
+			const key = Math.round(unit * 1000) / 1000;
+			candidates.set(key, unit);
+		}
+	}
+	if (candidates.size === 0) return null;
+
+	let best = null;
+	const scoredCandidates = [];
+
+	for (const unit of candidates.values()) {
+		let sumSquares = 0;
+		let outliers = 0;
+
+		for (const sample of samples) {
+			let relativeError = Infinity;
+			for (const ratio of sample.ratios) {
+				const expected = ratio * unit;
+				const error = Math.abs(sample.duration - expected) / expected;
+				if (error < relativeError) relativeError = error;
+			}
+
+			if (relativeError > OUTLIER_THRESHOLD) outliers += 1;
+			const scored = Math.min(relativeError, MAX_SCORED_ERROR);
+			sumSquares += scored * scored;
+		}
+
+		const rms = Math.sqrt(sumSquares / samples.length);
+		const score =
+			rms +
+			(outliers / samples.length) * OUTLIER_PENALTY +
+			FALLBACK_PENALTY * Math.abs(Math.log(unit / fallbackUnit));
+
+		const candidate = { unit, score, rms };
+		scoredCandidates.push(candidate);
+		if (!best || score < best.score - EPSILON) {
+			best = candidate;
+		}
+	}
+
+	if (!best || best.rms > maxRelativeError) return null;
+
+	const bestWpm = clampWpm(1200 / best.unit, minWpm, maxWpm);
+	// Only a candidate that produces a different integer WPM is a genuine
+	// alternative interpretation. Near-identical units caused by timing jitter
+	// must not make a clean detection look ambiguous.
+	let secondBestScore = Infinity;
+	for (const candidate of scoredCandidates) {
+		if (clampWpm(1200 / candidate.unit, minWpm, maxWpm) === bestWpm) continue;
+		if (candidate.score < secondBestScore) secondBestScore = candidate.score;
+	}
+
+	const fitConfidence = Math.max(0, 1 - best.rms / maxRelativeError);
+	const ambiguity = Number.isFinite(secondBestScore)
+		? Math.max(0, 1 - Math.max(0, secondBestScore - best.score) / 0.1)
+		: 0;
+	const confidence = clamp01(fitConfidence * (1 - ambiguity * 0.5));
+
+	return {
+		wpm: bestWpm,
+		unit: best.unit,
+		confidence,
+		samples: samples.length,
+		rms: best.rms,
+	};
+}
+
+/**
+ * Convenience wrapper for UI code: return the detected WPM, or the configured
+ * fallback when there is not enough reliable timing data yet.
+ */
+export function resolveWpm(buffer, fallbackWpm = 12, options = {}) {
+	const result = detectWpm(buffer, { ...options, fallbackWpm });
+	if (result) return result.wpm;
+	return clampWpm(
+		fallbackWpm,
+		options.minWpm ?? DEFAULT_MIN_WPM,
+		options.maxWpm ?? DEFAULT_MAX_WPM,
+	);
+}
+
+function clamp01(value) {
+	if (!Number.isFinite(value)) return 0;
+	return Math.max(0, Math.min(1, value));
+}
+
+function clampWpm(wpm, minWpm, maxWpm) {
+	if (!Number.isFinite(wpm)) return minWpm;
+	return Math.min(maxWpm, Math.max(minWpm, Math.round(wpm)));
+}

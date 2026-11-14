@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import { getInstance } from "../socket/global.js";
+import { resolveWpm } from "../utils/wpmDetector.mjs";
 
 const morseCall = createAsyncThunk(
 	"api/morsecall",
@@ -113,13 +114,19 @@ export const send = createAsyncThunk(
 				training: true,
 			};
 		}
+		let settings = s.user.settings;
+		// Send the speed that was actually keyed. The server decodes the
+		// message with this value, and recipients use it for playback.
+		let wpm = settings.auto_detect_wpm
+			? resolveWpm(s.chat.messageBuffer, settings.wpm)
+			: settings.wpm;
 		return dispatch(
 			morseCall({
 				data: {
 					message: s.chat.messageBuffer,
-					dialect: s.user.settings.dialect,
-					frequency: s.user.settings.key_frequency,
-					wpm: s.user.settings.wpm,
+					dialect: settings.dialect,
+					frequency: settings.key_frequency,
+					wpm: wpm,
 				},
 			}),
 		);
