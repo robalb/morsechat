@@ -37,8 +37,8 @@ function target(tag: string, contentEditable = false): EventTarget {
   return { tagName: tag, isContentEditable: contentEditable } as unknown as EventTarget;
 }
 
-const straight = (e: KeyboardEvent) => matchAction(e, BINDS, { mode: 'straight' });
-const iambic = (e: KeyboardEvent) => matchAction(e, BINDS, { mode: 'yambic' });
+const straight = (e: KeyboardEvent) => matchAction(e, BINDS, 'straight');
+const iambic = (e: KeyboardEvent) => matchAction(e, BINDS, 'yambic');
 
 describe('the key names', () => {
   test('the space bar is "space", the name it is bound under', () => {
@@ -63,13 +63,13 @@ describe('matching', () => {
 
   test('the case a key arrives in does not matter', () => {
     assert.equal(straight(press('C')), 'straight');
-    assert.equal(matchAction(press('C'), { ...BINDS, straight: ['C'] }, { mode: 'straight' }), 'straight');
+    assert.equal(matchAction(press('C'), { ...BINDS, straight: ['C'] }, 'straight'), 'straight');
   });
 
   test('an action with no keys at all matches nothing', () => {
     const unbound = { ...BINDS, straight: [] };
-    assert.equal(matchAction(press('c'), unbound, { mode: 'straight' }), null);
-    assert.equal(matchAction(press(' '), unbound, { mode: 'straight' }), null);
+    assert.equal(matchAction(press('c'), unbound, 'straight'), null);
+    assert.equal(matchAction(press(' '), unbound, 'straight'), null);
   });
 
   test('transmit and cancel are read in every mode', () => {
@@ -86,11 +86,6 @@ describe('the mode decides which keys key', () => {
     assert.equal(straight(press('x')), null);
   });
 
-  // out with the mode it drives (lib/api/types.ts):
-  // test('and both straight modes read the straight key', () => {
-  //   assert.equal(matchAction(press('c'), BINDS, { mode: 'straight_dynamic' }), 'straight');
-  // });
-
   test('in iambic the paddles key and the straight key does not', () => {
     assert.equal(iambic(press('z')), 'left');
     assert.equal(iambic(press('x')), 'right');
@@ -104,12 +99,12 @@ describe('a key bound twice', () => {
   // edit them can hold it, and it has to land somewhere predictable
   test('the actions that act on the message win over the ones that write it', () => {
     const doubled: Keybinds = { ...BINDS, straight: ['space', 'c'], cancel_message: ['c'] };
-    assert.equal(matchAction(press('c'), doubled, { mode: 'straight' }), 'cancel');
+    assert.equal(matchAction(press('c'), doubled, 'straight'), 'cancel');
   });
 
   test('and cancel wins over transmit', () => {
     const doubled: Keybinds = { ...BINDS, transmit: ['p'], cancel_message: ['p'] };
-    assert.equal(matchAction(press('p'), doubled, { mode: 'straight' }), 'cancel');
+    assert.equal(matchAction(press('p'), doubled, 'straight'), 'cancel');
   });
 });
 

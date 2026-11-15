@@ -23,9 +23,6 @@
 
   /** what each mode does, in the note under the radios */
   const modeDescriptions: Record<KeyMode, string> = {
-    // straight_dynamic:
-    //   'You type with one key. press it for a dit, hold it longer for a dah.' +
-    //   'The letters you type are detected automatically.',
     straight:
       'You type with one key. Press it for a dit, hold it longer for a dah.' +
       'The letters you type are detected only if you type exactly at the speed you set with the WMP (words per minute) slider',
@@ -48,12 +45,6 @@
 
   <p>key mode</p>
   <div class="radio-row">
-    <!-- the adaptive straight key, out of the app for now:
-    <FormField>
-      <Radio bind:group={user.settings.key_mode} value="straight_dynamic" />
-      {#snippet label()}straight{/snippet}
-    </FormField>
-    -->
     <FormField>
       <Radio bind:group={user.settings.key_mode} value="straight" />
       {#snippet label()}straight (fixed wpm){/snippet}

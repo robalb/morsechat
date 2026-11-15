@@ -42,15 +42,8 @@ export interface Keybinds {
   cancel_message: string[];
 }
 
-/**
- * Free-form on the wire (`min=1,max=20`); these are the values used.
- *
- * `straight_dynamic` — a straight key read at the speed it is keyed at
- * (lib/morse/scale.ts) — is commented out rather than deleted: the receiver and
- * the backend decode at the sender's `wpm`, so the mode could only ever be
- * right on the sender's screen. The algorithm is still in the playground.
- */
-export type KeyMode = 'straight' | 'yambic'; // | 'straight_dynamic'
+/** Free-form on the wire (`min=1,max=20`); these are the values used. */
+export type KeyMode = 'straight' | 'yambic';
 
 export interface Settings {
   /** 5-50 */

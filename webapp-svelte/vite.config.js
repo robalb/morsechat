@@ -40,9 +40,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(root, 'index.html'),
-        // the decoder playground, /playground.html. Nothing links to it; see
-        // src/pages/playground.ts for why it is built anyway.
-        playground: resolve(root, 'playground.html'),
       },
     },
   },

@@ -3,13 +3,10 @@
  *
  * The app's modules are written for the bundler: they import `$lib/...` and
  * they leave the extension off. Node's ESM resolver does neither, so a test
- * that imports lib/playground/decoders.ts directly cannot find a single one of
- * its dependencies without this.
+ * cannot find the app's modules without this.
  *
  * It is a resolve hook and nothing else — no transform, no cache. The type
- * annotations are stripped by node itself (`--experimental-strip-types`), the
- * same way webapp-migration-tools/adaptive-sim.ts runs the decoder outside a
- * browser, so what the tests execute is the same source the app ships and not a
+ * annotations are stripped by node itself (`--experimental-strip-types`), so what the tests execute is the same source the app ships and not a
  * compiled copy of it that could drift.
  *
  * Registered with `--import ./test/loader.mjs`; see the `test` script in
