@@ -25,6 +25,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+
 func Run(
 	ctx context.Context,
 	stdout io.Writer,
@@ -42,7 +43,7 @@ func Run(
 	// Initialize logging
 	//--------------------
 	logger := log.New(stdout, "", log.Flags())
-	logger.Println("starting... ")
+	logger.Println("starting morsechat backend... ")
 
 	//--------------------
 	// Initialize the global configuration object
