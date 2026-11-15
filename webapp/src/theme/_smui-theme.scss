@@ -1,0 +1,20 @@
+@use '@smui/common/theme/color-palette';
+
+@use '@smui/common/theme/index' as theme with (
+  // palette.primary
+  $primary: #fafafa,
+  // palette.secondary
+  $secondary: #0ccaeb,
+  // palette.background.paper, the --gray-70 of base.css
+  $surface: #282b2d,
+  // palette.background.default
+  $background: #303030,
+  $error: color-palette.$red-500,
+
+  // palette.mode: "dark". The on-* colors have to be declared explicitly here;
+  // MUI derives them from the palette for us, mdc does not.
+  $on-primary: #121212,
+  $on-secondary: #121212,
+  $on-surface: #efefef,
+  $on-error: #ffffff
+);

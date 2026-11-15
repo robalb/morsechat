@@ -6,9 +6,8 @@
 }
 
 .header-bt-left{
-    margin-left: 1em!important;
+    height: 100%;
 }
-
 
 /* base for every size */
 main{
@@ -22,7 +21,7 @@ main{
 main {
     grid-template-columns: 1fr minmax(auto, 38rem) 1fr;
     grid-template-rows: 4em minmax(calc(100% - 8em - var(--header-height)), 1fr) 5.5em;
-    grid-template-areas: 
+    grid-template-areas:
         ". preview ."
         ". chat ."
         ". key .";
@@ -56,12 +55,11 @@ main .grid-key{
     margin-right: 1rem;
 }
 
-
 /* tablet or larger*/
 @media (min-width: 800px){
     main {
         grid-template-columns:1fr 20rem minmax(auto, 38rem)  1fr;
-        grid-template-areas: 
+        grid-template-areas:
             ". side preview ."
             ". side chat ."
             ". side key .";
@@ -95,7 +93,7 @@ main .grid-key{
 @media (min-width: 1400px){
     main{
         grid-template-columns:minmax(15rem, 2fr) 1fr 20rem 38rem 1fr 15rem;
-        grid-template-areas: 
+        grid-template-areas:
             ".    . side preview . sheet"
             "info . side chat . sheet"
             "info . side key . sheet";

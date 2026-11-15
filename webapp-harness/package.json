@@ -1,0 +1,23 @@
+{
+  "name": "morsechat-webapp-harness",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Drives the morsechat webapp from a real browser: keys morse and records how it renders",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "up": "./stack.sh up",
+    "down": "./stack.sh down",
+    "status": "./stack.sh status",
+    "type": "node type.js",
+    "receive": "node receive.js",
+    "analyze": "node analyze.js",
+    "test": "node --test test/*.test.js",
+    "check": "node type.js --input all --mode all && node type.js --input keyboard,touch --mode iambic --squeeze && node type.js --view morse && node receive.js"
+  },
+  "dependencies": {
+    "puppeteer": "24.43.1"
+  }
+}

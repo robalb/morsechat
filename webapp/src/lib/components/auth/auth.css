@@ -1,0 +1,237 @@
+.mdc-dialog.auth-dialog .mdc-dialog__surface {
+  width: 600px;
+  max-width: calc(100vw - 2 * var(--dialog-gutter));
+}
+
+.mdc-dialog.auth-dialog .mdc-dialog__content {
+  padding: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auth-form .field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* MUI's text fields stretch to their Grid item; mdc's shrink to their content,
+ * which is why the register pair sat at 101px inside a 226px column. */
+.auth-form .mdc-text-field,
+.auth-form .mdc-text-field__input {
+  width: 100%;
+}
+
+.auth-form .mdc-text-field {
+  height: 48px;
+}
+.auth-form .mdc-text-field-helper-line {
+  padding: 0;
+}
+
+/* MUI's Grid item holding the IconButton: the button sits at the start of a
+ * full width row of its own. */
+.auth-form .close {
+  display: flex;
+}
+
+/* MUI's IconButton is 40px with 8px of padding and a round ripple; mdc's is
+ * 48px and square. */
+.auth-form .close .mdc-icon-button {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 50%;
+  color: #fafafa;
+}
+/* mdc moves focus to the first focusable element when the dialog opens and
+ * paints its ripple on plain :focus, so the close button comes up wearing a
+ * grey disc. MUI's IconButton only rings on :focus-visible, which a
+ * programmatic focus does not match. Same correction Settings.svelte makes. */
+.auth-form
+  .close
+  .mdc-icon-button:not(:focus-visible)
+  .mdc-icon-button__ripple::before {
+  opacity: 0;
+}
+
+/* MUI Typography variant="h5" color="primary". Matches .title in
+ * MainIndexForm.svelte, which is the same element on the menu page. */
+.auth-form .title {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.334;
+  margin: 0;
+  color: var(--mdc-theme-primary, #fafafa);
+}
+
+.auth-form hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0;
+}
+
+/* <Stack direction="row" alignItems="center" spacing={1} sx={{padding: 10px}}>.
+ * Wraps, because "Don't have an account? register" plus the button does not fit
+ * a phone on one line. */
+.auth-form .actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  color: var(--mdc-theme-primary, #fafafa);
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+}
+
+.auth-form .actions .mdc-button {
+  letter-spacing: 0.02857em;
+}
+
+/* MUI's <Link component="button">: a button that reads as a link. Declared on a
+ * real <button> so it stays keyboard reachable and announces itself correctly,
+ * which an <a> without an href would not. */
+.auth-form .link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--mdc-theme-primary, #fafafa);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.auth-form .link:hover {
+  text-decoration: none;
+}
+
+/* The register form's two fields: stacked on a phone, side by side from MUI's
+ * md breakpoint, which is where it declares md={6}. */
+.auth-form .fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media only screen and (min-width: 900px) {
+  .auth-form .fields {
+    flex-direction: row;
+  }
+  .auth-form .fields > .field {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+.auth-form .callsign-preview {
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+  /* MUI Typography takes text.primary — plain white on this dark palette.
+   * Without this the line inherits mdc's dialog content colour, which is
+   * on-surface at 60% and reads as grey. */
+  color: var(--gray-105, #fff);
+}
+
+/* MUI's <Stack direction="row" spacing={1}>: the preview and its availability
+ * chip on one line. */
+.auth-form .callsign-preview {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-form .callsign-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.16);
+  font-size: 0.8125rem;
+  line-height: 18px;
+  white-space: nowrap;
+}
+.auth-form .callsign-status.taken {
+  /* MUI color="error" */
+  background-color: #d32f2f;
+  color: #fff;
+}
+.auth-form .callsign-status.free {
+  /* MUI color="success" on the tick itself */
+  background-color: rgba(102, 187, 106, 0.16);
+  color: #66bb6a;
+}
+.auth-form .callsign-status .material-icons {
+  font-size: 16px;
+}
+
+.auth-form .callsign {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* MUI size="small" is a 40px box; mdc's outlined field and select are both 56,
+ * and the .auth-form rule above pins the field at the 48 of the standard
+ * variant. Three selectors deep to outrank it. */
+.auth-form .callsign .mdc-text-field,
+.auth-form .callsign .mdc-select .mdc-select__anchor {
+  height: 40px;
+}
+
+.auth-form .callsign .callsign-country,
+.auth-form .callsign .callsign-country .mdc-select__anchor {
+  width: auto;
+  min-width: 100px;
+  max-width: 250px;
+}
+/* the label itself takes only what it needs, or the min-width above lands on
+ * the text as well and the anchor comes out 60px too wide */
+.auth-form .callsign .callsign-country .mdc-select__selected-text {
+  width: auto;
+  min-width: 0;
+}
+/* mdc sizes the menu to the anchor, which at 100px wraps "Solomon Islands"
+ * over three lines. MUI's menu takes the width of its longest item — 326px
+ * against this list.
+ *
+ * `min-width: 100%` would do it under mdc's own absolute positioning, where the
+ * percentage resolves against the select. The menu is fixed (see menu$fixed in
+ * RegisterForm) so that it is not clipped by the dialog, and a percentage then
+ * resolves against the viewport — which is how this menu ended up 1400px wide.
+ * Hence max-content, which needs no containing block at all. */
+.auth-form .callsign .callsign-country .mdc-select__menu {
+  width: max-content;
+  min-width: 100px;
+  max-width: min(360px, calc(100vw - 2 * var(--dialog-gutter)));
+}
+/* The code an option carries for the closed select: read for the anchor's
+ * text, never shown in the list itself. */
+.auth-form .callsign .callsign-country .country-code {
+  display: none;
+}
+
+/* the options carry mdc's deprecated list classes, not .mdc-list-item */
+.auth-form .callsign .callsign-country .mdc-select__menu .mdc-deprecated-list-item {
+  white-space: nowrap;
+}
+
+.auth-form .callsign .callsign-part,
+.auth-form .callsign .callsign-part .mdc-text-field {
+  width: 100px;
+}
+
+.auth-form .callsign .mdc-text-field-helper-text {
+  font-size: 0.75rem;
+  margin: 3px 14px 0;
+  opacity: 1;
+}

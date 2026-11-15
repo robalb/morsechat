@@ -2,7 +2,7 @@
 #------------------------------
 #  First step: frontend build
 #------------------------------
-FROM node:20.11.1 AS frontend-builder
+FROM node:22.21.1 AS frontend-builder
 
 WORKDIR /app/webapp
 COPY webapp/package*.json ./

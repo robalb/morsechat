@@ -1,0 +1,82 @@
+.keybindings-table {
+  margin: 0.6rem 0 0 0;
+}
+
+/* One row per entry, ruled off from the next. The rule is the same hairline
+ * the settings dialog draws under its title, so the table reads as part of the
+ * same card. */
+.keybindings-table .binding-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.keybindings-table .binding-row:first-child {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* In the settings panel the whole row is the button that opens the editor, so
+ * it has to give up everything a <button> brings with it except the pointer.
+ * `all: unset` is not usable here: it would drop the border the row above
+ * declares as well. */
+.keybindings-table button.binding-row {
+  width: 100%;
+  /* `.controls button` in controls.css puts 0.6rem above every button of a
+   * panel, which is right for the Advanced button it was written for and wrong
+   * for a table of them: it prises the rows apart and leaves the first one
+   * looking shorter than the rest, since its share of the gap sits outside the
+   * top rule. The room above the table belongs to the table (`margin` above),
+   * not to each row. */
+  margin: 0;
+  padding: 0;
+  border-left: 0;
+  border-right: 0;
+  border-top-width: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.keybindings-table button.binding-row:first-child {
+  border-top-width: 1px;
+}
+.keybindings-table button.binding-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.keybindings-table button.binding-row:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: -1px;
+}
+
+/* the keys of a row, right aligned */
+.keybindings-table .binding-keys {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* The keycap. A light grey hairline all round with a thicker bottom edge, so
+ * the box reads as a key seen slightly from above — the usual shortcut
+ * indicator. The bottom border is part of the box, so the cap is padded one
+ * pixel less at the bottom to keep the glyph centred. */
+.keybindings-table kbd {
+  display: inline-block;
+  min-width: 1.1em;
+  padding: 2px 6px 1px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-bottom-width: 3px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--gray-105, #fff);
+  font-family: 'Roboto', 'Arial', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

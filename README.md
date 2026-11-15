@@ -1,4 +1,4 @@
-# <img src="https://i.imgur.com/A8fVeyP.png" height="60"> Morsechat 
+# <img src="https://i.imgur.com/A8fVeyP.png" height="60"> Morsechat
 
 [![Website](https://img.shields.io/website?down_message=offline&up_message=up&url=https%3A%2F%2Fmorse.halb.it)](https://morse.halb.it)
 [![Online](https://img.shields.io/badge/dynamic/json?label=online%20users&query=%24.online_users&url=https%3A%2F%2Fmorse.halb.it%2Fapi%2Fv1%2Fpublic_stats)](https://morse.halb.it)
@@ -36,7 +36,9 @@ navigate into the repository `cd morsechat`
 
 start the backend server in development mode `cd backend && go run -race cmd/morsechat/main.go`
 
-start vite in development mode `cd web && npm run dev`
+start vite in development mode `cd webapp && npm install && npm run dev`
+
+`webapp-harness/` drives the running app from a real browser: it keys morse with the keyboard, mouse, pen or touch, and records how the preview and the chat render it. See its README. This is useful for LLMs or Agents.
 
 These steps are enough to get a local version of the app running.
 The backend also includes unit, e2e, and fuzz tests, which you can run with the command `go test ./...`

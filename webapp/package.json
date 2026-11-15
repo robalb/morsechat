@@ -1,29 +1,46 @@
 {
   "engines": {
-    "npm": "~10.2.4",
-    "node": "~20.11.1"
+    "npm": ">=10",
+    "node": ">=20"
   },
   "name": "morsechat-webapp",
   "version": "0.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
-    "serve": "vite preview"
+    "build": "npm run smui-theme && vite build",
+    "serve": "vite preview",
+    "test": "node --experimental-strip-types --import ./test/loader.mjs --test 'test/*.test.ts'",
+    "smui-theme": "smui-theme compile src/theme/smui.css -i src/theme",
+    "prepare": "npm run smui-theme"
   },
   "dependencies": {
-    "@emotion/react": "latest",
-    "@emotion/styled": "latest",
-    "@mui/icons-material": "^5.3.1",
-    "@mui/material": "latest",
-    "@reduxjs/toolkit": "^1.8.0",
-    "notistack": "^2.0.3",
-    "pusher-js": "^8.0.1",
-    "react": "latest",
-    "react-dom": "latest",
-    "react-redux": "^7.2.6"
+    "@smui/button": "^9.0.2",
+    "@smui/circular-progress": "^9.0.2",
+    "@smui/data-table": "^9.0.2",
+    "@smui/dialog": "^9.0.2",
+    "@smui/drawer": "^9.0.2",
+    "@smui/form-field": "^9.0.2",
+    "@smui/icon-button": "^9.0.2",
+    "@smui/list": "^9.0.2",
+    "@smui/menu": "^9.0.2",
+    "@smui/paper": "^9.0.2",
+    "@smui/radio": "^9.0.2",
+    "@smui/select": "^9.0.2",
+    "@smui/slider": "^9.0.2",
+    "@smui/switch": "^9.0.2",
+    "@smui/tab": "^9.0.2",
+    "@smui/tab-bar": "^9.0.2",
+    "@smui/textfield": "^9.0.2",
+    "@smui/tooltip": "^9.0.2",
+    "svelte-material-ui": "^9.0.3"
   },
   "devDependencies": {
-    "@vitejs/plugin-react-refresh": "latest",
-    "vite": "latest"
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "sass": "^1.83.0",
+    "smui-theme": "^9.0.3",
+    "svelte": "^5.56.8",
+    "vite": "^7.1.0"
   }
 }

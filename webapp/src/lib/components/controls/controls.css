@@ -1,0 +1,156 @@
+.controls {
+  padding: 1rem;
+}
+.controls .control-row,
+.controls .radio-row {
+  display: flex;
+  align-items: center;
+}
+.controls p {
+  margin-bottom: 0;
+  margin-top: 0.6rem;
+}
+.controls h2 {
+  margin-top: 0;
+}
+.controls button {
+  margin-top: 0.6rem;
+}
+
+/* --- SMUI corrections -----------------------------------------------------
+ * mdc styles these two the way the material spec wants them; MUI styles them
+ * the way this app has always looked. The rules below bring the mdc defaults
+ * back to the MUI ones, and they live here rather than in the theme because
+ * they are only right for the sliders of the controls panels. */
+
+/* mdc reserves 24px on each side of the track so the thumb can overflow the
+ * slider without being clipped. MUI's slider is flush with its container, which
+ * is what lines the track up with the <p> label above it. */
+.controls .mdc-slider {
+  margin: 0;
+
+  --mdc-slider-inactive-track-height: 2px;
+  --mdc-slider-active-track-height: 2px;
+  --mdc-slider-handle-width: 12px;
+  --mdc-slider-handle-height: 12px;
+  height: 28px;
+}
+
+.controls .mdc-slider:has(+ p) {
+  margin-bottom: 14px;
+}
+
+/* mdc gives the thumb a 48px box and centres the knob in it, so the knob keeps
+ * to the middle of the old 48px slider and floats above the shorter track
+ * unless the box is brought down to the same 28px. Its width is left alone: it
+ * is the touch target, and MUI's small slider has one just as wide. */
+.controls .mdc-slider .mdc-slider__thumb {
+  height: 28px;
+  top: 0;
+
+  /* The halo under the thumb: MUI draws it as a 14px box-shadow spread at 16%
+   * around a 12px thumb, so 40px across; mdc rings a 48px ripple at 24%. The
+   * ripple takes its size from this box, so narrowing the box to 40 is what
+   * sizes the halo — hence the matching `left`, which mdc sets to half the
+   * width so the knob stays centred on the value. */
+  width: 40px;
+  left: -20px;
+  --mdc-ripple-hover-opacity: 0.16;
+  --mdc-ripple-focus-opacity: 0.16;
+  --mdc-ripple-press-opacity: 0.16;
+}
+
+/* mdc parks the value bubble 44px up from the bottom of the thumb box, a figure
+ * that assumed the 48px box; against the 28px one it leaves 24px of air where
+ * MUI leaves 10. */
+.controls .mdc-slider__value-indicator-container {
+  bottom: 30px;
+}
+
+/* The value indicator is `surface` text on 60% `on-surface`; on this dark theme
+ * that resolves to near-black on near-black. MUI's is grey 600 with white text.
+ * ::before is the little caret under the bubble, so it takes the same colour. */
+.controls .mdc-slider__value-indicator {
+  background-color: #757575;
+  color: #fff;
+  opacity: 1;
+
+  /* mdc's bubble is a 32px pill with 14px text; MUI's is a 25px box with 12px
+   * text and a 2px corner. The text metrics are theme properties, the box is
+   * not: its height comes from the padding once the fixed 32px is released. */
+  height: auto;
+  padding: 4px 8px;
+  border-radius: 2px;
+  --mdc-slider-label-label-text-size: 0.75rem;
+  --mdc-slider-label-label-text-line-height: 1.4;
+}
+.controls .mdc-slider__value-indicator::before {
+  border-top-color: #757575;
+}
+
+/* mdc radios take the `secondary` colour; MUI's <Radio /> defaults to
+ * `primary`, which is the near-white #fafafa of the theme. */
+.controls .mdc-radio {
+  --mdc-theme-secondary: #fafafa;
+}
+
+/* MUI's <Switch /> is a 38px box: a 20px knob with 12px of padding all round,
+ * so it sits centred against the label beside it. An mdc switch is the bare
+ * 14px track with the knob overflowing it, and it is a <button>, so it also
+ * picks up the `.controls button` margin above. */
+.controls .mdc-switch {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Switch colours. mdc derives its interaction states from the theme colour by
+ * darkening it, which is built for a light surface: on this palette the knob
+ * dives into the background the moment you touch it. SMUI's secondary switch
+ * drops to #0c6675 on hover/focus/press, and mdc's unselected knob to #212121,
+ * both against a --gray-70/--gray-80 background. MUI goes the other way — it
+ * keeps the selected colour flat across states and pairs a light knob with a
+ * dimmed track — so these are its values, and mdc exposes every one of them as
+ * a custom property, no specificity fight needed. */
+.controls .mdc-switch {
+  /* selected: the same cyan in every state, as MUI does */
+  --mdc-switch-selected-hover-handle-color: var(--mdc-theme-secondary, #0ccaeb);
+  --mdc-switch-selected-focus-handle-color: var(--mdc-theme-secondary, #0ccaeb);
+  --mdc-switch-selected-pressed-handle-color: var(--mdc-theme-secondary, #0ccaeb);
+
+  /* unselected: light knob on a dimmed track, brightening on interaction.
+   * mdc ships the inverse — a near-white track under a near-black knob. */
+  --mdc-switch-unselected-handle-color: #e0e0e0;
+  --mdc-switch-unselected-hover-handle-color: #eeeeee;
+  --mdc-switch-unselected-focus-handle-color: #eeeeee;
+  --mdc-switch-unselected-pressed-handle-color: #ffffff;
+  --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.3);
+  --mdc-switch-unselected-hover-track-color: rgba(255, 255, 255, 0.3);
+  --mdc-switch-unselected-focus-track-color: rgba(255, 255, 255, 0.3);
+  --mdc-switch-unselected-pressed-track-color: rgba(255, 255, 255, 0.3);
+
+  /* and its state layer, which mdc defaults to #424242 — a dark smudge on a
+   * dark surface. MUI ripples white here. */
+  --mdc-switch-unselected-hover-state-layer-color: #ffffff;
+  --mdc-switch-unselected-focus-state-layer-color: #ffffff;
+  --mdc-switch-unselected-pressed-state-layer-color: #ffffff;
+
+  /* The state layer is a 48px disc around a 20px knob, so it haloes well past
+   * the switch itself; MUI's stops at its 38px box. mdc's ripple foundation
+   * writes this scale factor as an inline style and recomputes it on resize,
+   * so !important is the only way to hold a smaller one. 28px * 1.25 = 35px. */
+  --mdc-ripple-fg-scale: 1.25 !important;
+}
+
+/* Flexbox centres margin boxes, so the 0.6rem the label carries from
+ * `.controls p` would push it down against the control rather than space the
+ * row. The margin belongs to the row. Outer spacing is unchanged. */
+.controls .control-row {
+  margin-top: 0.6rem;
+}
+.controls .control-row p {
+  margin-top: 0;
+}
+
+.controls > button {
+  margin-top: 1.4rem;
+}
